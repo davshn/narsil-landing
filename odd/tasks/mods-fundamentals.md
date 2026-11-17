@@ -16,14 +16,14 @@ Objective: the `/mods/` section and the guide content collection (Zod schema, gu
 
 ## Tasks
 
-| ID  | Specs      | Route     | Status  | Commit |
-| --- | ---------- | --------- | ------- | ------ |
-| T1  | S1, S5     | inline    | pending |        |
-| T2  | S2, S6     | inline    | pending |        |
-| T3  | S3, S4, S6 | inline    | pending |        |
-| T4  | S5         | delegated | pending |        |
-| T5  | S7         | inline    | pending |        |
-| T6  | S8, S9     | inline    | pending |        |
+| ID  | Specs      | Route                          | Status | Commit                                                 |
+| --- | ---------- | ------------------------------ | ------ | ------------------------------------------------------ |
+| T1  | S1, S5     | inline                         | done   | `1c96d47`                                              |
+| T2  | S2, S6     | inline                         | done   | `1c96d47`                                              |
+| T3  | S3, S4, S6 | delegated (context backstop)   | done   | `8e4e73b`                                              |
+| T4  | S5         | delegated (4 parallel writers) | done   | translations commit                                    |
+| T5  | S7         | inline                         | done   | 59 e2e passed (chromium), 596 unit tests, 98.3 % lines |
+| T6  | S8, S9     | inline                         | done   | `1c96d47`                                              |
 
 T1: schema, collection, `src/utils/guides.ts` with specs, locale parity spec. T2: `GuideLayout`, `/mods/` index and guide pages, UI copy in five locales. T3: the five English guides, API verified against the types of Claude Code 2.1.325 and the mods. T4: translations to es, it, fr, pt, one parallel writer per locale (disjoint files, several minutes each). T5: e2e and full checks.
 
@@ -35,4 +35,6 @@ T1: schema, collection, `src/utils/guides.ts` with specs, locale parity spec. T2
 - L4: no example mods are written to the dev-mods folder (writing there enables mod loading); the guides are documentation only.
 - L5 (2026-11-17, owner): "tambien quiero agregar la informacion de narsil-claude ponla como experimental, aunque he hecho muchas pruebas y fujnciona bastante bien" — added as S8.
 - L6 (2026-11-17, owner): "el repo de esta landing tambien es privado por si acaso" — verified with `gh repo view`: narsil-landing, landingTemplate, and narsil-claude are private; narsil-pet and narsil-check are public. Links to private repositories are removed (S9).
+- L8: T3 discrepancies recorded in the guides: the types raise `AbovePrompt` on terminal, desktop and mobile only, while the narsil-pet README says the band also works in VS Code; reference.md documents `/plugin install <mod> --marketplace <source>` while both mod READMEs use `/plugin marketplace add` then `/plugin install <mod>@<marketplace>`; neither mod calls `$.ui.status` or `$.state` directly. `claude plugin validate`/`test` ran on the CLI on PATH (2.1.319), the types are 2.1.325.
+- L9: axe flagged `github-light` Shiki tokens for contrast; the light theme is `github-light-high-contrast`.
 - L7: until T4 lands, the "guide files exist / exist in every locale" spec is red by design; the branch is pushed only when it is green.

@@ -72,13 +72,15 @@ const jsonLd = [
 
   <Container as="section" maxWidth="md" padding="section">
     <Card variant="outlined">
-      <CardBody class="flex flex-col items-start gap-3" data-extension>
-        <Badge color="warning">{t.home.extension.badge}</Badge>
-        <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
-        <Text as="p">{t.home.extension.text}</Text>
-        <Text as="p" size="sm" tone="muted">
-          {t.home.extension.note}
-        </Text>
+      <CardBody class="flex flex-col items-start gap-3">
+        <div data-extension class="contents">
+          <Badge color="warning">{t.home.extension.badge}</Badge>
+          <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
+          <Text as="p">{t.home.extension.text}</Text>
+          <Text as="p" size="sm" tone="muted">
+            {t.home.extension.note}
+          </Text>
+        </div>
       </CardBody>
     </Card>
   </Container>
