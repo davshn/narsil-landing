@@ -1,0 +1,86 @@
+---
+import { Icon } from 'astro-icon/components'
+import { safeHref } from '@utils/safe-href'
+
+import './dropdown.css'
+
+type Align = 'start' | 'end'
+type ItemVariant = 'default' | 'destructive'
+
+interface DropdownItem {
+  label: string
+  href?: string
+  icon?: string
+  variant?: ItemVariant
+  disabled?: boolean
+}
+
+interface DropdownSection {
+  label?: string
+  items: DropdownItem[]
+}
+
+interface Props {
+  items?: DropdownItem[]
+  sections?: DropdownSection[]
+  align?: Align
+  id?: string
+  class?: string
+}
+
+const { items, sections, align = 'start', id = 'dropdown', class: className } = Astro.props
+
+const allSections: DropdownSection[] =
+  sections !== undefined && sections.length > 0
+    ? sections
+    : items !== undefined && items.length > 0
+      ? [{ items }]
+      : []
+
+const wrapperClasses = ['dropdown-wrapper', className].filter(Boolean).join(' ')
+const menuClasses = ['dropdown-menu', `dropdown-align-${align}`].join(' ')
+---
+
+<div class={wrapperClasses} data-dropdown={id}>
+  <div data-dropdown-trigger={id} id={`${id}-trigger`}>
+    <slot />
+  </div>
+
+  <div class={menuClasses} role="menu" aria-labelledby={`${id}-trigger`} id={`${id}-menu`}>
+    {allSections.map((section, sIdx) => (
+      <>
+        {section.label !== undefined && section.label !== '' && (
+          <div class="dropdown-label">{section.label}</div>
+        )}
+        {section.items.map((item) => {
+          const href = safeHref(item.href)
+          const Tag = href !== undefined && href !== '' ? 'a' : 'button'
+          const itemClasses = [
+            'dropdown-item',
+            item.variant === 'destructive' ? 'dropdown-item-destructive' : '',
+          ]
+            .filter(Boolean)
+            .join(' ')
+          return (
+            <Tag
+              class={itemClasses}
+              role="menuitem"
+              href={Tag === 'a' ? href : undefined}
+              type={Tag === 'button' ? 'button' : undefined}
+              data-disabled={item.disabled ? 'true' : undefined}
+              tabindex={item.disabled ? -1 : 0}
+            >
+              {item.icon !== undefined && item.icon !== '' && (
+                <Icon name={item.icon} class="dropdown-item-icon" />
+              )}
+              <span>{item.label}</span>
+            </Tag>
+          )
+        })}
+        {sIdx < allSections.length - 1 && <div class="dropdown-separator" role="separator" />}
+      </>
+    ))}
+  </div>
+</div>
+
+<script src="./dropdown-menu.ts"></script>

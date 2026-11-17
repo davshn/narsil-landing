@@ -1,0 +1,240 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './select.css'
+
+type Variant = 'default' | 'outlined'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Option {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+interface Props {
+  options: Option[]
+  variant?: Variant
+  size?: Size
+  name?: string
+  id?: string
+  value?: string | string[]
+  placeholder?: string
+  label?: string
+  hint?: string
+  error?: string
+  required?: boolean
+  disabled?: boolean
+  multiple?: boolean
+  searchable?: boolean
+  searchPlaceholder?: string
+  noResultsText?: string
+  class?: string
+}
+
+const {
+  options,
+  variant = 'outlined',
+  size = 'md',
+  name,
+  id,
+  value,
+  placeholder,
+  label,
+  hint,
+  error,
+  required = false,
+  disabled = false,
+  multiple = false,
+  searchable = false,
+  searchPlaceholder,
+  noResultsText,
+  class: className,
+} = Astro.props
+
+const selectId = id ?? name ?? 'select'
+const hasError = error !== undefined && error !== ''
+const isCustom = multiple || searchable
+
+const variantClass = `select-${variant}`
+const sizeClass = `select-${size}`
+const wrapperClasses = [
+  'select-wrapper',
+  variantClass,
+  sizeClass,
+  disabled ? 'select-disabled' : '',
+  hasError ? 'select-error' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+
+const selectedValues = Array.isArray(value)
+  ? value
+  : value !== undefined && value !== ''
+    ? [value]
+    : []
+---
+
+{label !== undefined && label !== '' && (
+  <label class="select-label" for={selectId}>
+    {label}
+    {required && <span aria-hidden="true"> *</span>}
+  </label>
+)}
+
+{!isCustom && (
+  <div class={wrapperClasses}>
+    <select
+      class="select-field"
+      name={name}
+      id={selectId}
+      required={required}
+      disabled={disabled}
+      aria-invalid={hasError ? 'true' : undefined}
+      aria-describedby={
+        hasError
+          ? `${selectId}-error`
+          : hint !== undefined && hint !== ''
+            ? `${selectId}-hint`
+            : undefined
+      }
+    >
+      {placeholder !== undefined && placeholder !== '' && (
+        <option value="" disabled selected={selectedValues.length === 0}>
+          {placeholder}
+        </option>
+      )}
+      {options.map((opt) => (
+        <option
+          value={opt.value}
+          disabled={opt.disabled}
+          selected={selectedValues.includes(opt.value)}
+        >
+          {opt.label}
+        </option>
+      ))}
+    </select>
+    <span class="select-chevron" aria-hidden="true">
+      <Icon name="lucide:chevron-down" class="size-4" />
+    </span>
+  </div>
+)}
+
+{isCustom && (
+  <div
+    class={wrapperClasses}
+    data-select-custom
+    data-select-id={selectId}
+    data-select-name={name}
+    data-select-multiple={multiple ? 'true' : 'false'}
+    data-select-searchable={searchable ? 'true' : 'false'}
+    data-select-required={required ? 'true' : 'false'}
+    data-select-options={JSON.stringify(options)}
+    data-select-value={JSON.stringify(selectedValues)}
+    data-select-placeholder={placeholder ?? ''}
+    data-select-no-results={noResultsText ?? 'No results'}
+  >
+    <button
+      type="button"
+      class="select-trigger"
+      id={selectId}
+      role="combobox"
+      aria-expanded="false"
+      aria-haspopup="listbox"
+      aria-controls={`${selectId}-listbox`}
+      aria-invalid={hasError ? 'true' : undefined}
+      aria-describedby={
+        hasError
+          ? `${selectId}-error`
+          : hint !== undefined && hint !== ''
+            ? `${selectId}-hint`
+            : undefined
+      }
+      disabled={disabled}
+    >
+      {selectedValues.length === 0 && (
+        <span class="select-trigger-placeholder">{placeholder ?? 'Select...'}</span>
+      )}
+      {!multiple && selectedValues.length > 0 && (
+        <span>
+          {options.find((o) => o.value === selectedValues[0])?.label ?? selectedValues[0]}
+        </span>
+      )}
+      {multiple && selectedValues.length > 0 && (
+        <span class="select-tags">
+          {selectedValues.map((v) => (
+            <span class="select-tag" data-tag-value={v}>
+              {options.find((o) => o.value === v)?.label ?? v}
+              <span
+                class="select-tag-remove"
+                data-remove-value={v}
+                aria-label={`Remove ${options.find((o) => o.value === v)?.label ?? v}`}
+              >
+                &times;
+              </span>
+            </span>
+          ))}
+        </span>
+      )}
+    </button>
+    <span class="select-chevron" aria-hidden="true">
+      <Icon name="lucide:chevron-down" class="size-4" />
+    </span>
+
+    <div
+      class="select-dropdown select-hidden"
+      id={`${selectId}-listbox`}
+      role="listbox"
+      aria-multiselectable={multiple ? 'true' : undefined}
+    >
+      {searchable && (
+        <input
+          type="text"
+          class="select-search"
+          placeholder={searchPlaceholder ?? 'Search...'}
+          aria-label={searchPlaceholder ?? 'Search options'}
+        />
+      )}
+      {options.map((opt) => (
+        <div
+          class="select-option"
+          role="option"
+          data-value={opt.value}
+          data-active={selectedValues.includes(opt.value) ? 'true' : 'false'}
+          data-disabled={opt.disabled ? 'true' : 'false'}
+          aria-selected={selectedValues.includes(opt.value) ? 'true' : 'false'}
+          aria-disabled={opt.disabled ? 'true' : undefined}
+        >
+          {multiple && (
+            <Icon
+              name="lucide:check"
+              class={`select-option-check ${selectedValues.includes(opt.value) ? '' : 'invisible'}`}
+            />
+          )}
+          <span>{opt.label}</span>
+        </div>
+      ))}
+    </div>
+
+    {name !== undefined &&
+      name !== '' &&
+      selectedValues.map((v) => (
+        <input type="hidden" name={multiple ? `${name}[]` : name} value={v} />
+      ))}
+  </div>
+)}
+
+{hasError && (
+  <p class="select-error-message" id={`${selectId}-error`} role="alert">
+    {error}
+  </p>
+)}
+
+{!hasError && hint !== undefined && hint !== '' && (
+  <p class="select-hint" id={`${selectId}-hint`}>
+    {hint}
+  </p>
+)}
+
+{isCustom && <script src="./custom-select.ts" />}

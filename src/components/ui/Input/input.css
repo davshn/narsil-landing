@@ -1,0 +1,108 @@
+@reference '../../../styles/global.css';
+
+.input-wrapper {
+  @apply relative flex items-center;
+}
+
+.input-field {
+  @apply w-full bg-background text-foreground placeholder:text-muted-foreground transition border-0;
+  @apply focus-visible:outline-none;
+  font-family: var(--font-sans);
+  transition-property: box-shadow;
+  transition-timing-function: var(--ease-default);
+  transition-duration: var(--duration-base);
+}
+
+.input-default .input-field {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.input-outlined .input-field {
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.input-default .input-field:focus-visible,
+.input-outlined .input-field:focus-visible {
+  box-shadow:
+    var(--shadow-neu-inset-md),
+    0 0 0 2px var(--color-ring);
+}
+
+.input-sm .input-field {
+  height: var(--size-button-height-sm);
+  @apply px-4 text-sm;
+}
+
+.input-md .input-field {
+  height: 2.75rem;
+  @apply px-5 text-base;
+}
+
+.input-lg .input-field {
+  height: 3.5rem;
+  @apply px-6 text-lg;
+}
+
+.input-icon-left {
+  @apply absolute left-4 text-muted-foreground pointer-events-none;
+}
+
+.input-icon-right {
+  @apply absolute right-4 text-muted-foreground;
+}
+
+.input-sm .input-icon-left {
+  @apply left-3;
+}
+
+.input-sm .input-icon-right {
+  @apply right-3;
+}
+
+.input-has-icon-left .input-field {
+  @apply pl-11;
+}
+
+.input-sm.input-has-icon-left .input-field {
+  @apply pl-9;
+}
+
+.input-has-icon-right .input-field {
+  @apply pr-11;
+}
+
+.input-sm.input-has-icon-right .input-field {
+  @apply pr-9;
+}
+
+.input-disabled {
+  pointer-events: none;
+  opacity: var(--opacity-disabled);
+}
+
+.input-error .input-field,
+.input-error .input-field:focus-visible {
+  box-shadow:
+    var(--shadow-neu-inset-md),
+    0 0 0 2px var(--color-destructive);
+}
+
+.input-label {
+  @apply block text-sm font-medium text-foreground mb-2 px-4;
+}
+
+.input-hint {
+  @apply mt-2 px-4 text-sm text-muted-foreground;
+}
+
+.input-error-message {
+  @apply mt-2 px-4 text-sm text-destructive;
+}
+
+.input-password-toggle {
+  @apply absolute right-4 bg-transparent border-none text-muted-foreground cursor-pointer p-0;
+  @apply hover:text-foreground transition;
+  transition-duration: var(--duration-fast);
+}

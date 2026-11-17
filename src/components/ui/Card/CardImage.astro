@@ -1,0 +1,14 @@
+---
+interface Props {
+  src: string
+  alt: string
+  class?: string
+}
+
+const { src, alt, class: className } = Astro.props
+const classes = ['card-image', className].filter(Boolean).join(' ')
+---
+
+<div class={classes}>
+  <img src={src} alt={alt} loading="lazy" />
+</div>

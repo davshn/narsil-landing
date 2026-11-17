@@ -1,0 +1,60 @@
+---
+import './text.css'
+
+type Tag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'label'
+type Size = 'xs' | 'sm' | 'base' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl'
+type Tone =
+  'default' | 'muted' | 'primary' | 'secondary' | 'accent' | 'destructive' | 'success' | 'warning'
+type Weight = 'regular' | 'medium' | 'semibold' | 'bold'
+
+interface Props {
+  as?: Tag
+  size?: Size
+  tone?: Tone
+  weight?: Weight
+  class?: string
+  id?: string
+}
+
+const TAG_SIZE_DEFAULTS: Record<string, Size> = {
+  h1: '4xl',
+  h2: '3xl',
+  h3: '2xl',
+  h4: 'xl',
+  h5: 'lg',
+  h6: 'base',
+  p: 'base',
+  span: 'base',
+  label: 'sm',
+}
+
+const TAG_WEIGHT_DEFAULTS: Record<string, Weight> = {
+  h1: 'bold',
+  h2: 'bold',
+  h3: 'semibold',
+  h4: 'semibold',
+  h5: 'medium',
+  h6: 'medium',
+  p: 'regular',
+  span: 'regular',
+  label: 'medium',
+}
+
+const { as: Tag = 'p', size, tone = 'default', weight, class: className, id } = Astro.props
+
+const resolvedSize = size ?? TAG_SIZE_DEFAULTS[Tag] ?? 'base'
+const resolvedWeight = weight ?? TAG_WEIGHT_DEFAULTS[Tag] ?? 'regular'
+
+const classes = [
+  `text-size-${resolvedSize}`,
+  `text-tone-${tone}`,
+  `text-weight-${resolvedWeight}`,
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<Tag class={classes} id={id}>
+  <slot />
+</Tag>

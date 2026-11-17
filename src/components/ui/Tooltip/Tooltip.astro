@@ -1,0 +1,33 @@
+---
+import './tooltip.css'
+
+type Position = 'top' | 'bottom' | 'left' | 'right'
+
+interface Props {
+  text: string
+  kbd?: string
+  position?: Position
+  class?: string
+}
+
+const { text, kbd, position = 'top', class: className } = Astro.props
+const classes = ['tooltip-wrapper', className].filter(Boolean).join(' ')
+const tooltipClasses = ['tooltip', `tooltip-${position}`].join(' ')
+---
+
+<span class={classes}>
+  <slot />
+  <span class={tooltipClasses} role="tooltip">
+    <span class="tooltip-text">{text}</span>
+    {kbd !== undefined && kbd !== '' && (
+      <span class="tooltip-kbd-group">
+        {kbd.split('+').map((key, i) => (
+          <>
+            {i > 0 && <span class="tooltip-kbd-sep">+</span>}
+            <kbd class="tooltip-kbd">{key.trim()}</kbd>
+          </>
+        ))}
+      </span>
+    )}
+  </span>
+</span>

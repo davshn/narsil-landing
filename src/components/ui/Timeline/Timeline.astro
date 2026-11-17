@@ -1,0 +1,55 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './timeline.css'
+
+type Orientation = 'vertical' | 'horizontal'
+type Color = 'primary' | 'accent' | 'success' | 'warning' | 'destructive' | 'muted'
+
+interface TimelineItem {
+  title: string
+  description?: string
+  icon?: string
+  color?: Color
+  active?: boolean
+}
+
+interface Props {
+  items: TimelineItem[]
+  orientation?: Orientation
+  class?: string
+}
+
+const { items, orientation = 'vertical', class: className } = Astro.props
+const classes = ['timeline', `timeline-${orientation}`, className].filter(Boolean).join(' ')
+---
+
+<div class={classes} role="list">
+  {items.map((item, i) => {
+    const color = item.color ?? 'primary'
+    const isLast = i === items.length - 1
+    return (
+      <div
+        class={`timeline-item timeline-item-${color} ${item.active === true ? 'timeline-item-active' : ''}`}
+        role="listitem"
+      >
+        <div class="timeline-indicator">
+          <span class="timeline-dot">
+            {item.icon !== undefined && item.icon !== '' ? (
+              <Icon name={item.icon} class="timeline-dot-icon" aria-hidden="true" />
+            ) : (
+              <span class="timeline-dot-circle" />
+            )}
+          </span>
+          {!isLast && <span class="timeline-connector" />}
+        </div>
+        <div class="timeline-content">
+          <p class="timeline-title">{item.title}</p>
+          {item.description !== undefined && item.description !== '' && (
+            <p class="timeline-description">{item.description}</p>
+          )}
+        </div>
+      </div>
+    )
+  })}
+</div>

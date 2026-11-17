@@ -1,0 +1,49 @@
+---
+import './avatar.css'
+
+type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type Shape = 'circle' | 'square' | 'rounded'
+
+interface Props {
+  src?: string
+  alt?: string
+  name?: string
+  email?: string
+  size?: Size
+  shape?: Shape
+  class?: string
+}
+
+const { src, alt, name, email, size = 'md', shape = 'circle', class: className } = Astro.props
+
+const initials =
+  name !== undefined && name !== ''
+    ? name
+        .split(' ')
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : ''
+
+const hasImage = src !== undefined && src !== ''
+const hasInfo = (name !== undefined && name !== '') || (email !== undefined && email !== '')
+const imageAlt = alt ?? name ?? ''
+
+const wrapperClasses = ['avatar-wrapper', `avatar-${size}`, className].filter(Boolean).join(' ')
+const imageWrapperClasses = ['avatar-image-wrapper', `avatar-${shape}`].join(' ')
+---
+
+<div class={wrapperClasses}>
+  <div class={imageWrapperClasses} aria-hidden={hasInfo ? 'true' : undefined}>
+    {hasImage && <img class="avatar-img" src={src} alt={imageAlt} loading="lazy" />}
+    {!hasImage && <span class="avatar-fallback">{initials}</span>}
+  </div>
+
+  {hasInfo && (
+    <div class="avatar-info">
+      {name !== undefined && name !== '' && <span class="avatar-name">{name}</span>}
+      {email !== undefined && email !== '' && <span class="avatar-email">{email}</span>}
+    </div>
+  )}
+</div>

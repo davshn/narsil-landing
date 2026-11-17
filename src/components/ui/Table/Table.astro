@@ -1,0 +1,72 @@
+---
+import './table.css'
+
+type Variant = 'default' | 'striped' | 'bordered'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Column {
+  key: string
+  label: string
+  align?: 'left' | 'center' | 'right'
+}
+
+interface Props {
+  columns: Column[]
+  rows: Array<Record<string, string | number>>
+  variant?: Variant
+  size?: Size
+  hoverable?: boolean
+  caption?: string
+  class?: string
+}
+
+const {
+  columns,
+  rows,
+  variant = 'default',
+  size = 'md',
+  hoverable = true,
+  caption,
+  class: className,
+} = Astro.props
+
+const classes = [
+  'table-wrapper',
+  `table-${variant}`,
+  `table-${size}`,
+  hoverable ? 'table-hoverable' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<div class={classes}>
+  <table class="table" role="table">
+    {caption !== undefined && caption !== '' && <caption class="table-caption">{caption}</caption>}
+    <thead class="table-head">
+      <tr>
+        {columns.map((col) => (
+          <th
+            class={`table-th ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}`}
+          >
+            {col.label}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody class="table-body">
+      {rows.map((row) => (
+        <tr class="table-row">
+          {columns.map((col) => (
+            <td
+              class={`table-td ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : 'text-left'}`}
+            >
+              {row[col.key] ?? ''}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,12 @@
+---
+interface Props {
+  class?: string
+}
+
+const { class: className } = Astro.props
+const classes = ['card-header', className].filter(Boolean).join(' ')
+---
+
+<div class={classes}>
+  <slot />
+</div>

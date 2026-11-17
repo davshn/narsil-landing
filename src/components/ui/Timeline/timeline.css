@@ -1,0 +1,135 @@
+@reference '../../../styles/global.css';
+
+.timeline {
+  @apply flex;
+}
+
+.timeline-vertical {
+  @apply flex-col;
+}
+
+.timeline-horizontal {
+  @apply flex-row overflow-x-auto;
+}
+
+.timeline-item {
+  @apply flex;
+}
+
+.timeline-vertical .timeline-item {
+  @apply flex-row gap-3;
+}
+
+.timeline-horizontal .timeline-item {
+  @apply flex-col items-center gap-2 min-w-32;
+}
+
+.timeline-indicator {
+  @apply flex shrink-0 items-center;
+}
+
+.timeline-vertical .timeline-indicator {
+  @apply flex-col items-center;
+}
+
+.timeline-horizontal .timeline-indicator {
+  @apply flex-row items-center;
+}
+
+.timeline-dot {
+  @apply flex items-center justify-center w-9 h-9 rounded-full bg-background shrink-0;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.timeline-dot-circle {
+  @apply w-3 h-3 rounded-full;
+}
+
+.timeline-dot-icon {
+  @apply size-4;
+}
+
+.timeline-connector {
+  @apply rounded-full;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.timeline-vertical .timeline-connector {
+  @apply w-1.5 flex-1 min-h-8 my-2;
+}
+
+.timeline-horizontal .timeline-connector {
+  @apply h-1.5 flex-1 min-w-8 mx-2;
+}
+
+.timeline-content {
+  @apply flex flex-col;
+}
+
+.timeline-vertical .timeline-content {
+  @apply pb-6 pt-1;
+}
+
+.timeline-horizontal .timeline-content {
+  @apply items-center text-center px-2;
+}
+
+.timeline-title {
+  @apply text-sm font-medium text-foreground;
+}
+
+.timeline-description {
+  @apply text-xs text-muted-foreground mt-0.5;
+}
+
+.timeline-item-active .timeline-dot {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.timeline-item-primary .timeline-dot-circle {
+  @apply bg-primary;
+}
+
+.timeline-item-primary .timeline-dot-icon {
+  @apply text-primary;
+}
+
+.timeline-item-accent .timeline-dot-circle {
+  @apply bg-accent;
+}
+
+.timeline-item-accent .timeline-dot-icon {
+  @apply text-accent;
+}
+
+.timeline-item-success .timeline-dot-circle {
+  @apply bg-success;
+}
+
+.timeline-item-success .timeline-dot-icon {
+  @apply text-success;
+}
+
+.timeline-item-warning .timeline-dot-circle {
+  @apply bg-warning;
+}
+
+.timeline-item-warning .timeline-dot-icon {
+  @apply text-warning;
+}
+
+.timeline-item-destructive .timeline-dot-circle {
+  @apply bg-destructive;
+}
+
+.timeline-item-destructive .timeline-dot-icon {
+  @apply text-destructive;
+}
+
+.timeline-item-muted .timeline-dot-circle {
+  @apply bg-muted-foreground;
+}
+
+.timeline-item-muted .timeline-dot-icon {
+  @apply text-muted-foreground;
+}

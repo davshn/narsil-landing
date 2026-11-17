@@ -1,0 +1,88 @@
+@reference '../../../styles/global.css';
+
+.checkbox {
+  @apply inline-flex items-center gap-3 cursor-pointer select-none;
+}
+
+.checkbox-input {
+  @apply absolute opacity-0 w-0 h-0;
+}
+
+.checkbox-control {
+  @apply relative flex items-center justify-center shrink-0 w-6 h-6 bg-background transition;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-neu-inset-sm);
+  transition-property: box-shadow, background-color, color;
+  transition-duration: var(--duration-base);
+}
+
+.checkbox-check,
+.checkbox-indeterminate {
+  @apply absolute w-3.5 h-3.5 opacity-0 transition;
+}
+
+.checkbox-input:checked ~ .checkbox-control .checkbox-check {
+  @apply opacity-100;
+}
+
+.checkbox-input[data-indeterminate='true'] ~ .checkbox-control .checkbox-check {
+  @apply opacity-0;
+}
+
+.checkbox-input[data-indeterminate='true'] ~ .checkbox-control .checkbox-indeterminate {
+  @apply opacity-100;
+}
+
+.checkbox-input:checked ~ .checkbox-control,
+.checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.checkbox-input:focus-visible ~ .checkbox-control {
+  @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+.checkbox-label {
+  @apply text-sm text-foreground;
+}
+
+.checkbox-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.checkbox-primary .checkbox-input:checked ~ .checkbox-control,
+.checkbox-primary .checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  @apply bg-primary text-primary-foreground;
+}
+
+.checkbox-accent .checkbox-input:checked ~ .checkbox-control,
+.checkbox-accent .checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  @apply bg-accent text-accent-foreground;
+}
+
+.checkbox-success .checkbox-input:checked ~ .checkbox-control,
+.checkbox-success .checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  @apply bg-success text-success-foreground;
+}
+
+.checkbox-warning .checkbox-input:checked ~ .checkbox-control,
+.checkbox-warning .checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  @apply bg-warning text-warning-foreground;
+}
+
+.checkbox-destructive .checkbox-input:checked ~ .checkbox-control,
+.checkbox-destructive .checkbox-input[data-indeterminate='true'] ~ .checkbox-control {
+  @apply bg-destructive text-destructive-foreground;
+}
+
+.checkbox-group {
+  @apply border-none p-0 m-0;
+}
+
+.checkbox-group-legend {
+  @apply text-sm font-medium text-foreground mb-3;
+}
+
+.checkbox-group-items {
+  @apply flex flex-col gap-3;
+}

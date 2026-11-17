@@ -1,0 +1,74 @@
+@reference '../../../styles/global.css';
+
+.table-wrapper {
+  @apply w-full overflow-x-auto bg-background p-2;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.table {
+  @apply w-full border-separate text-sm text-foreground;
+  border-spacing: 0;
+}
+
+.table-caption {
+  @apply text-sm text-muted-foreground mb-2 px-2 text-left;
+}
+
+.table-head .table-th {
+  @apply border-b-2;
+  border-color: var(--color-neu-dark);
+  box-shadow: 0 1px 0 var(--color-neu-light);
+}
+
+.table-th {
+  @apply font-semibold text-muted-foreground whitespace-nowrap;
+}
+
+.table-td {
+  @apply whitespace-nowrap;
+}
+
+.table-row {
+  @apply transition;
+}
+
+.table-row .table-td:first-child {
+  border-top-left-radius: var(--radius-sm);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+.table-row .table-td:last-child {
+  border-top-right-radius: var(--radius-sm);
+  border-bottom-right-radius: var(--radius-sm);
+}
+
+.table-hoverable .table-row:hover .table-td {
+  box-shadow:
+    inset 0 2px 4px var(--color-neu-dark),
+    inset 0 -2px 4px var(--color-neu-light);
+}
+
+.table-sm .table-th,
+.table-sm .table-td {
+  @apply px-3 py-2 text-xs;
+}
+
+.table-md .table-th,
+.table-md .table-td {
+  @apply px-4 py-3 text-sm;
+}
+
+.table-lg .table-th,
+.table-lg .table-td {
+  @apply px-5 py-4 text-base;
+}
+
+.table-striped .table-row:nth-child(even) .table-td {
+  @apply bg-muted;
+}
+
+.table-bordered .table-th,
+.table-bordered .table-td {
+  @apply border border-border;
+}

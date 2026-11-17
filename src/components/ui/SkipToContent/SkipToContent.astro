@@ -1,0 +1,14 @@
+---
+import './skip-to-content.css'
+
+interface Props {
+  target?: string
+  label?: string
+}
+
+const { target = 'main-content', label = 'Skip to content' } = Astro.props
+---
+
+<a href={`#${target}`} class="skip-to-content">
+  {label}
+</a>

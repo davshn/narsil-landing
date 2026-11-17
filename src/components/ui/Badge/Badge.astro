@@ -1,0 +1,28 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './badge.css'
+
+type Variant = 'soft' | 'outline' | 'solid'
+type Color = 'default' | 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'destructive'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props {
+  variant?: Variant
+  color?: Color
+  size?: Size
+  icon?: string
+  class?: string
+}
+
+const { variant = 'soft', color = 'default', size = 'md', icon, class: className } = Astro.props
+
+const classes = ['badge', `badge-${variant}`, `badge-${color}`, `badge-${size}`, className]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<span class={classes} role="status">
+  {icon !== undefined && icon !== '' && <Icon name={icon} class="badge-icon" aria-hidden="true" />}
+  <slot />
+</span>

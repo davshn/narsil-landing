@@ -1,0 +1,89 @@
+---
+import './checkbox.css'
+
+type Color = 'primary' | 'accent' | 'success' | 'warning' | 'destructive'
+
+interface Props {
+  name?: string
+  id?: string
+  value?: string
+  label?: string
+  ariaLabel?: string
+  checked?: boolean
+  indeterminate?: boolean
+  disabled?: boolean
+  color?: Color
+  class?: string
+}
+
+const {
+  name,
+  id,
+  value,
+  label,
+  ariaLabel,
+  checked = false,
+  indeterminate = false,
+  disabled = false,
+  color = 'primary',
+  class: className,
+} = Astro.props
+
+let checkId = id
+if (checkId === undefined && name !== undefined) {
+  checkId = `${name}-${value ?? 'check'}`
+}
+const classes = ['checkbox', `checkbox-${color}`, disabled ? 'checkbox-disabled' : '', className]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<label class={classes}>
+  <input
+    type="checkbox"
+    class="checkbox-input"
+    name={name}
+    id={checkId}
+    value={value}
+    checked={checked}
+    disabled={disabled}
+    data-indeterminate={indeterminate ? 'true' : undefined}
+    aria-label={ariaLabel}
+  />
+  <span class="checkbox-control">
+    <svg
+      class="checkbox-check"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="2.5 6 5 8.5 9.5 3.5"></polyline>
+    </svg>
+    <svg
+      class="checkbox-indeterminate"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    >
+      <line x1="3" y1="6" x2="9" y2="6"></line>
+    </svg>
+  </span>
+  {label !== undefined && label !== '' && <span class="checkbox-label">{label}</span>}
+</label>
+
+<script>
+  const mixedInputs = document.querySelectorAll<HTMLInputElement>(
+    '.checkbox-input[data-indeterminate="true"]',
+  )
+  for (const input of mixedInputs) {
+    input.indeterminate = true
+    input.addEventListener('change', () => {
+      input.removeAttribute('data-indeterminate')
+    })
+  }
+</script>

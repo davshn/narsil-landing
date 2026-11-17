@@ -1,0 +1,88 @@
+@reference '../../../styles/global.css';
+
+.card {
+  @apply flex flex-col overflow-hidden bg-card text-card-foreground;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+  transition: box-shadow var(--duration-base) var(--ease-default);
+}
+
+.card-elevated {
+  box-shadow: var(--shadow-neu-lg);
+}
+
+.card-outlined {
+  box-shadow: none;
+  border: 2px solid var(--color-border);
+}
+
+.card-ghost {
+  @apply bg-transparent;
+  box-shadow: none;
+}
+
+.card-interactive {
+  @apply cursor-pointer;
+}
+
+.card-interactive:hover {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.card-interactive:active {
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.card-interactive:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-4 ring-offset-background;
+}
+
+.card-sm {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.card-lg {
+  border-radius: var(--radius-xl);
+}
+
+.card-header {
+  @apply flex flex-col gap-1 px-6 pt-6;
+}
+
+.card-sm .card-header {
+  @apply px-4 pt-4;
+}
+
+.card-body {
+  @apply flex-1 px-6 py-4;
+}
+
+.card-sm .card-body {
+  @apply px-4 py-3;
+}
+
+.card-footer {
+  @apply flex items-center gap-3 px-6 pb-6 pt-2;
+}
+
+.card-sm .card-footer {
+  @apply px-4 pb-4;
+}
+
+.card-image {
+  @apply w-full overflow-hidden p-3;
+}
+
+.card-image img {
+  @apply w-full h-auto object-cover;
+  border-radius: var(--radius-md);
+}
+
+.card-title {
+  @apply text-lg font-semibold text-foreground;
+}
+
+.card-description {
+  @apply text-sm text-muted-foreground;
+}

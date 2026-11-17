@@ -1,0 +1,92 @@
+@reference '../../../styles/global.css';
+
+.text-size-xs {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+}
+
+.text-size-sm {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.text-size-base {
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+}
+
+.text-size-lg {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+}
+
+.text-size-xl {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+}
+
+.text-size-2xl {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-size-3xl {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-size-4xl {
+  font-size: var(--text-4xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.text-tone-default {
+  color: var(--color-foreground);
+}
+
+.text-tone-muted {
+  color: var(--color-muted-foreground);
+}
+
+.text-tone-primary {
+  color: var(--color-primary);
+}
+
+.text-tone-secondary {
+  color: var(--color-secondary-foreground);
+}
+
+.text-tone-accent {
+  color: var(--color-accent);
+}
+
+.text-tone-destructive {
+  color: var(--color-destructive);
+}
+
+.text-tone-success {
+  color: var(--color-success);
+}
+
+.text-tone-warning {
+  color: var(--color-warning);
+}
+
+.text-weight-regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.text-weight-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.text-weight-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.text-weight-bold {
+  font-weight: var(--font-weight-bold);
+}

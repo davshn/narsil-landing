@@ -1,0 +1,52 @@
+---
+import type { HTMLAttributes } from 'astro/types'
+
+import { safeHref } from '@utils/safe-href'
+import './button.css'
+
+type Variant = 'primary' | 'secondary' | 'ghost' | 'icon' | 'outline' | 'destructive'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props extends HTMLAttributes<'a'> {
+  variant?: Variant
+  size?: Size
+  href?: string
+  disabled?: boolean
+  loading?: boolean
+  class?: string
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href: rawHref,
+  disabled = false,
+  loading = false,
+  class: className,
+  ...attrs
+} = Astro.props
+
+const href = safeHref(rawHref)
+const isDisabled = disabled || loading
+const variantClass = `btn-${variant}`
+const sizeClass = `btn-${size}`
+const stateClasses = [isDisabled ? 'btn-disabled' : '', loading ? 'btn-loading' : '']
+const classes = [variantClass, sizeClass, ...stateClasses, className].filter(Boolean).join(' ')
+
+const Tag = href !== undefined && href !== '' ? 'a' : 'button'
+const linkAttrs = Tag === 'a' ? { href } : { type: 'button' as const }
+const disabledAttrs =
+  isDisabled && Tag === 'button'
+    ? { disabled: true }
+    : isDisabled && Tag === 'a'
+      ? { 'aria-disabled': 'true', tabindex: '-1' }
+      : {}
+const loadingAttrs = loading ? { 'aria-busy': 'true' } : {}
+---
+
+<Tag class={classes} {...linkAttrs} {...disabledAttrs} {...loadingAttrs} {...attrs}>
+  {loading && <span class="btn-spinner" aria-hidden="true" />}
+  <span class:list={[{ 'btn-content-hidden': loading }]}>
+    <slot />
+  </span>
+</Tag>

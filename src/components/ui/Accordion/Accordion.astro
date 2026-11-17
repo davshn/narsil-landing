@@ -1,0 +1,38 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import { accordionGroupName } from '@utils/accordion-name'
+
+import './accordion.css'
+
+interface AccordionItem {
+  label: string
+  content: string
+  open?: boolean
+}
+
+interface Props {
+  items: AccordionItem[]
+  multiple?: boolean
+  name?: string
+  class?: string
+}
+
+const { items, multiple = false, name, class: className } = Astro.props
+const classes = ['accordion', className].filter(Boolean).join(' ')
+const groupName = multiple ? undefined : accordionGroupName(items, name)
+---
+
+<div class={classes}>
+  {items.map((item) => (
+    <details class="accordion-item" open={item.open} name={groupName}>
+      <summary class="accordion-trigger">
+        <span class="accordion-label">{item.label}</span>
+        <Icon name="lucide:chevron-down" class="accordion-chevron" aria-hidden="true" />
+      </summary>
+      <div class="accordion-content">
+        <p>{item.content}</p>
+      </div>
+    </details>
+  ))}
+</div>

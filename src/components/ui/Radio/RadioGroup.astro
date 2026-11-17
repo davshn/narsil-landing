@@ -1,0 +1,27 @@
+---
+import './radio.css'
+
+type Direction = 'vertical' | 'horizontal'
+
+interface Props {
+  label?: string
+  direction?: Direction
+  class?: string
+}
+
+const { label, direction = 'vertical', class: className } = Astro.props
+const classes = [
+  'radio-group',
+  direction === 'horizontal' ? 'radio-group-horizontal' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<fieldset class={classes}>
+  {label !== undefined && label !== '' && <legend class="radio-group-legend">{label}</legend>}
+  <div class="radio-group-items">
+    <slot />
+  </div>
+</fieldset>
