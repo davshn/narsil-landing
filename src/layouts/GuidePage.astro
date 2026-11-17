@@ -1,0 +1,36 @@
+---
+import { render } from 'astro:content'
+
+import type { GuidePageProps, GuidePageRef } from '@content/guide-pages'
+import { useTranslations } from '@i18n/utils'
+import GuideLayout from '@layouts/GuideLayout.astro'
+import { guideHref, guideNeighbors, routeHref } from '@utils/guides'
+
+type Props = GuidePageProps
+
+const { route, guide, list } = Astro.props
+const { locale, slug } = guide
+const t = useTranslations(locale)
+const { data } = guide.entry
+const { Content } = await render(guide.entry)
+const { previous, next } = guideNeighbors(list, slug)
+const link = (item: GuidePageRef | undefined): { title: string; href: string } | undefined =>
+  item === undefined ? undefined : { title: item.title, href: guideHref(locale, route, item.slug) }
+---
+
+<GuideLayout
+  locale={locale}
+  title={data.title}
+  description={data.description}
+  pathTitle={t[route].title}
+  pathHref={routeHref(locale, route)}
+  step={list.findIndex((item) => item.slug === slug) + 1}
+  total={list.length}
+  updated={data.updated}
+  verifiedWith={data.verifiedWith}
+  sources={data.sources}
+  previous={link(previous)}
+  next={link(next)}
+>
+  <Content />
+</GuideLayout>

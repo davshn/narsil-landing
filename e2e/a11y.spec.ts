@@ -13,6 +13,9 @@ const PATHS = [
   '/en/mods/',
   '/en/mods/what-is-a-mod/',
   '/en/mods/the-dollar-object/',
+  '/en/mods/pet/',
+  '/en/mods/pet/states/',
+  '/en/mods/pet/every-conversation/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

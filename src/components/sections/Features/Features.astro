@@ -1,6 +1,8 @@
 ---
 import { Icon } from 'astro-icon/components'
 
+import { safeHref } from '@utils/safe-href'
+
 import './features.css'
 
 type Columns = 2 | 3 | 4
@@ -9,6 +11,7 @@ interface Feature {
   title: string
   description?: string
   icon?: string
+  href?: string
 }
 
 interface Props {
@@ -21,6 +24,7 @@ interface Props {
 
 const { title, subtitle, features, columns = 3, class: className } = Astro.props
 const classes = ['features', `features-cols-${columns}`, className].filter(Boolean).join(' ')
+const items = features.map((feature) => ({ ...feature, href: safeHref(feature.href) }))
 ---
 
 <section class={classes}>
@@ -32,14 +36,22 @@ const classes = ['features', `features-cols-${columns}`, className].filter(Boole
   )}
 
   <div class="features-grid">
-    {features.map((feature) => (
+    {items.map((feature) => (
       <div class="features-item">
         {feature.icon !== undefined && feature.icon !== '' && (
           <div class="features-icon">
             <Icon name={feature.icon} class="size-6" aria-hidden="true" />
           </div>
         )}
-        <h3 class="features-item-title">{feature.title}</h3>
+        <h3 class="features-item-title">
+          {feature.href === undefined || feature.href === '' ? (
+            feature.title
+          ) : (
+            <a class="features-item-link" href={feature.href}>
+              {feature.title}
+            </a>
+          )}
+        </h3>
         {feature.description !== undefined && feature.description !== '' && (
           <p class="features-item-description">{feature.description}</p>
         )}

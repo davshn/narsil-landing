@@ -56,13 +56,65 @@ test.describe('Mod fundamentals', () => {
     await expect(link).toHaveAttribute('data-active', 'true')
   })
 
-  for (const path of ['/en/', '/en/support/', '/en/mods/', `/en/mods/${FIRST_GUIDE}/`]) {
+  for (const path of [
+    '/en/',
+    '/en/support/',
+    '/en/mods/',
+    `/en/mods/${FIRST_GUIDE}/`,
+    '/en/mods/pet/',
+    '/en/mods/pet/every-conversation/',
+  ]) {
     test(`${path} links to no private repository`, async ({ page }) => {
       await page.goto(path)
       const hrefs = await page
         .locator('a[href]')
         .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
       expect(hrefs.filter((href) => PRIVATE_REPOSITORIES.test(href))).toEqual([])
+    })
+  }
+})
+
+const PET_GUIDES = ['states', 'art-and-animations', 'every-conversation', 'tasks-and-subagents']
+
+test.describe('Status pet path', () => {
+  for (const locale of locales) {
+    const t = useTranslations(locale)
+
+    test(`/${locale}/mods/pet/ lists the pet guides in order`, async ({ page }) => {
+      await page.goto(`/${locale}/mods/pet/`)
+      await expect(page.getByRole('heading', { level: 1, name: t.pet.title })).toBeVisible()
+      const hrefs = await page
+        .locator('[data-guide-list] a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+      expect(hrefs).toEqual(PET_GUIDES.map((slug) => `/${locale}/mods/pet/${slug}/`))
+    })
+
+    test(`/${locale}/ links the first learning path to the pet path`, async ({ page }) => {
+      await page.goto(`/${locale}/`)
+      await page.locator('#routes .features-item-link').first().click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/mods/pet/$`, 'v'))
+    })
+  }
+
+  for (const slug of PET_GUIDES) {
+    test(`/en/mods/pet/${slug}/ follows the path template`, async ({ page }) => {
+      await page.goto(`/en/mods/pet/${slug}/`)
+      await expect(page.locator('[data-guide-body] > h2')).toHaveText([
+        'What it does',
+        'How it works inside',
+        'How it was asked of the AI',
+        'The minimal code',
+        'Common mistakes and how to test it',
+        'Going further',
+      ])
+      await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute(
+        'href',
+        '/en/mods/pet/',
+      )
+      await expect(page.locator('[data-guide-sources] a').first()).toHaveAttribute(
+        'href',
+        /^https:\/\/github\.com\/davshn\/narsil-pet\/blob\/main\//v,
+      )
     })
   }
 })

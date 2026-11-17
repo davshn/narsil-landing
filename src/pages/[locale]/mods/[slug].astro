@@ -1,54 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content'
-import { useTranslations } from '@i18n/utils'
-import GuideLayout from '@layouts/GuideLayout.astro'
-import { toGuideRefs, type GuideEntryRef } from '@utils/guide-entries'
-import { guideHref, guideNeighbors, guidesFor, routeHref } from '@utils/guides'
+import { guideStaticPaths, type GuidePageProps, type GuideStaticPath } from '@content/guide-pages'
+import GuidePage from '@layouts/GuidePage.astro'
 
-type Entry = Awaited<ReturnType<typeof getCollection<'guides'>>>[number]
+type Props = GuidePageProps
 
-interface Props {
-  guide: GuideEntryRef<Entry>
-  list: Array<GuideEntryRef<Entry>>
+export async function getStaticPaths(): Promise<GuideStaticPath[]> {
+  return guideStaticPaths('mods')
 }
-
-export async function getStaticPaths(): Promise<
-  Array<{ params: { locale: string; slug: string }; props: Props }>
-> {
-  const refs = toGuideRefs(await getCollection('guides'))
-  return refs
-    .filter((guide) => guide.route === 'mods' && !guide.draft)
-    .map((guide) => ({
-      params: { locale: guide.locale, slug: guide.slug },
-      props: { guide, list: guidesFor(refs, guide.locale, 'mods') },
-    }))
-}
-
-const { guide, list } = Astro.props
-const { locale, slug } = guide
-const t = useTranslations(locale)
-const { data } = guide.entry
-const { Content } = await render(guide.entry)
-const { previous, next } = guideNeighbors(list, slug)
-const link = (
-  item: GuideEntryRef<Entry> | undefined,
-): { title: string; href: string } | undefined =>
-  item === undefined ? undefined : { title: item.title, href: guideHref(locale, 'mods', item.slug) }
 ---
 
-<GuideLayout
-  locale={locale}
-  title={data.title}
-  description={data.description}
-  pathTitle={t.mods.title}
-  pathHref={routeHref(locale, 'mods')}
-  step={list.findIndex((item) => item.slug === slug) + 1}
-  total={list.length}
-  updated={data.updated}
-  verifiedWith={data.verifiedWith}
-  sources={data.sources}
-  previous={link(previous)}
-  next={link(next)}
->
-  <Content />
-</GuideLayout>
+<GuidePage {...Astro.props} />

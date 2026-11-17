@@ -1,0 +1,73 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+import Card from '@components/ui/Card/Card.astro'
+import CardBody from '@components/ui/Card/CardBody.astro'
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import { guideRefs } from '@content/guide-pages'
+import type { Locale, PathKey } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage } from '@seo/json-ld'
+import { guideHref, guidesFor } from '@utils/guides'
+
+interface Props {
+  locale: Locale
+  route: PathKey
+}
+
+const { locale, route } = Astro.props
+const t = useTranslations(locale)
+const copy = t[route]
+const guides = guidesFor(await guideRefs(), locale, route)
+const [first] = guides
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const jsonLd = buildWebPage({
+  name: copy.title,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  description: copy.description,
+  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  inLanguage: locale,
+})
+---
+
+<SiteLayout
+  title={`${copy.title} — ${t.meta.siteName}`}
+  description={copy.description}
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Container as="section" maxWidth="md" padding="section" class="flex flex-col gap-8">
+    <header class="flex flex-col gap-4">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{copy.title}</h1>
+      {copy.intro.map((paragraph) => (
+        <Text as="p">{paragraph}</Text>
+      ))}
+      {first !== undefined && (
+        <div>
+          <Button href={guideHref(locale, route, first.slug)}>{copy.startCta}</Button>
+        </div>
+      )}
+    </header>
+
+    <section class="flex flex-col gap-4" aria-labelledby="guides-title">
+      <h2 id="guides-title" class="text-2xl font-bold tracking-tight">
+        {copy.listTitle}
+      </h2>
+      <ol class="flex flex-col gap-4" data-guide-list>
+        {guides.map((guide, index) => (
+          <li>
+            <Card href={guideHref(locale, route, guide.slug)}>
+              <CardBody class="flex flex-col gap-1">
+                <span class="text-sm text-muted-foreground">{index + 1}</span>
+                <span class="text-lg font-semibold">{guide.title}</span>
+                <span class="text-muted-foreground">{guide.entry.data.description}</span>
+              </CardBody>
+            </Card>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </Container>
+</SiteLayout>

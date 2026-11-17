@@ -36,6 +36,17 @@ export interface RouteCopy {
   icon: string
 }
 
+export interface PathCopy {
+  title: string
+  description: string
+  intro: [string, string]
+  listTitle: string
+  startCta: string
+}
+
+export const pathKeys = ['mods', 'pet'] as const
+export type PathKey = (typeof pathKeys)[number]
+
 export interface TranslationShape {
   meta: {
     siteName: string
@@ -79,13 +90,8 @@ export interface TranslationShape {
       note: string
     }
   }
-  mods: {
-    title: string
-    description: string
-    intro: [string, string]
-    listTitle: string
-    startCta: string
-  }
+  mods: PathCopy
+  pet: PathCopy
   guide: {
     breadcrumbLabel: string
     stepOf: string

@@ -65,7 +65,9 @@ const jsonLd = [
     <Features
       title={t.home.routesTitle}
       subtitle={t.home.routesSubtitle}
-      features={t.home.routes}
+      features={t.home.routes.map((route, index) =>
+        index === 0 ? { ...route, href: routeHref(locale, 'pet') } : route,
+      )}
       columns={3}
     />
   </div>
