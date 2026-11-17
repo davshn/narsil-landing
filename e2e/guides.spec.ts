@@ -74,7 +74,16 @@ test.describe('Mod fundamentals', () => {
   }
 })
 
-const PET_GUIDES = ['states', 'art-and-animations', 'every-conversation', 'tasks-and-subagents']
+const PET_GUIDES = [
+  'states',
+  'art-and-animations',
+  'every-conversation',
+  'tasks-and-subagents',
+  'floating-window',
+  'voice-and-alerts',
+  'context-and-limits',
+  'cache-clock',
+]
 
 test.describe('Status pet path', () => {
   for (const locale of locales) {
