@@ -11,7 +11,14 @@ function collectCspViolations(page: Page): string[] {
 }
 
 test.describe('Content Security Policy', () => {
-  for (const path of ['/en/', '/es/', '/en/support/', '/en/mods/', '/en/mods/what-is-a-mod/']) {
+  for (const path of [
+    '/en/',
+    '/es/',
+    '/en/support/',
+    '/en/mods/',
+    '/en/mods/what-is-a-mod/',
+    '/en/mods/pet/states/',
+  ]) {
     test(`${path} ships a hash-based script policy and runs without violations`, async ({
       page,
     }) => {
