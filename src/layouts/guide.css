@@ -1,0 +1,95 @@
+@reference '../styles/global.css';
+
+.guide-meta {
+  @apply flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground;
+}
+
+.guide-breadcrumb ol {
+  @apply flex flex-wrap items-center gap-2 text-sm text-muted-foreground;
+}
+
+.guide-breadcrumb li + li::before {
+  content: '/';
+  @apply mr-2;
+}
+
+.guide-breadcrumb a {
+  @apply text-primary underline underline-offset-4;
+}
+
+.guide-prose {
+  @apply flex flex-col gap-4 text-foreground leading-relaxed;
+}
+
+.guide-prose h2 {
+  @apply mt-8 text-2xl font-bold tracking-tight;
+}
+
+.guide-prose h3 {
+  @apply mt-4 text-xl font-semibold;
+}
+
+.guide-prose a {
+  @apply text-primary underline underline-offset-4;
+}
+
+.guide-prose ul {
+  @apply list-disc pl-6 flex flex-col gap-1;
+}
+
+.guide-prose ol {
+  @apply list-decimal pl-6 flex flex-col gap-1;
+}
+
+.guide-prose :not(pre) > code {
+  @apply rounded-sm bg-muted px-1 py-0.5 text-sm;
+  font-family: var(--font-mono);
+}
+
+.guide-prose pre {
+  @apply overflow-x-auto rounded-lg p-4 text-sm;
+  font-family: var(--font-mono);
+}
+
+.guide-prose pre:focus-visible {
+  @apply outline-none ring-2 ring-ring;
+}
+
+.guide-prose blockquote {
+  @apply border-l-4 border-primary pl-4 text-muted-foreground;
+}
+
+.guide-prose table {
+  @apply w-full border-collapse text-sm;
+}
+
+.guide-prose th,
+.guide-prose td {
+  @apply border border-border px-3 py-2 text-left align-top;
+}
+
+.dark .guide-prose .astro-code,
+.dark .guide-prose .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+.guide-pager {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+.guide-pager .card {
+  @apply no-underline;
+}
+
+.guide-pager .card:focus-visible {
+  @apply outline-none ring-2 ring-ring;
+}
+
+.guide-pager [data-direction='next'] {
+  @apply sm:col-start-2 sm:text-right;
+}
+
+.guide-pager-label {
+  @apply text-sm text-muted-foreground;
+}

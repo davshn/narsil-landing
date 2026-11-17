@@ -20,7 +20,6 @@ The site is available in English, Spanish, Italian, French, and Brazilian Portug
 
 - [Narsil](https://github.com/davshn/narsil-pet)
 - [Narsil Check](https://github.com/davshn/narsil-check)
-- [Narsil Workshop](https://github.com/davshn/narsil-landing)
 
 ## Pricing
 

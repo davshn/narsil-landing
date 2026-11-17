@@ -49,6 +49,7 @@ export interface TranslationShape {
     mainNavigation: string
   }
   nav: {
+    mods: string
     routes: string
     support: string
   }
@@ -62,12 +63,40 @@ export interface TranslationShape {
     headline: string
     subheadline: string
     cta: string
-    secondaryCta: string
+    fundamentalsCta: string
     aboutTitle: string
     about: [string, string]
     routesTitle: string
     routesSubtitle: string
     routes: [RouteCopy, RouteCopy, RouteCopy]
+    coffeeTitle: string
+    coffeeText: string
+    coffeeCta: string
+    extension: {
+      badge: string
+      title: string
+      text: string
+      note: string
+    }
+  }
+  mods: {
+    title: string
+    description: string
+    intro: [string, string]
+    listTitle: string
+    startCta: string
+  }
+  guide: {
+    breadcrumbLabel: string
+    stepOf: string
+    updated: string
+    verifiedWith: string
+    sourcesTitle: string
+    sourcesIntro: string
+    pathNavLabel: string
+    previous: string
+    next: string
+    backToPath: string
     coffeeTitle: string
     coffeeText: string
     coffeeCta: string
@@ -82,7 +111,6 @@ export interface TranslationShape {
     repos: {
       pet: string
       check: string
-      site: string
     }
     developer: {
       text: string

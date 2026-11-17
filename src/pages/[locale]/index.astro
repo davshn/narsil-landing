@@ -1,7 +1,10 @@
 ---
 import Features from '@components/sections/Features/Features.astro'
 import Hero from '@components/sections/Hero/Hero.astro'
+import Badge from '@components/ui/Badge/Badge.astro'
 import Button from '@components/ui/Button/Button.astro'
+import Card from '@components/ui/Card/Card.astro'
+import CardBody from '@components/ui/Card/CardBody.astro'
 import Container from '@components/ui/Container/Container.astro'
 import Text from '@components/ui/Text/Text.astro'
 import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
@@ -9,6 +12,7 @@ import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
+import { routeHref } from '@utils/guides'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -42,13 +46,14 @@ const jsonLd = [
   <Hero
     headline={t.home.headline}
     subheadline={t.home.subheadline}
-    actions={[{ label: t.home.cta, href: '#routes' }]}
+    actions={[
+      { label: t.home.fundamentalsCta, href: routeHref(locale, 'mods') },
+      { label: t.home.cta, href: '#routes', variant: 'outline' },
+    ]}
   />
 
-  <Container as="section" maxWidth="md" padding="section" aria-labelledby="about-title">
-    <h2 id="about-title" class="section-title mb-6">
-      {t.home.aboutTitle}
-    </h2>
+  <Container as="section" maxWidth="md" padding="section">
+    <h2 class="section-title mb-6">{t.home.aboutTitle}</h2>
     <div class="flex flex-col gap-4">
       {t.home.about.map((paragraph) => (
         <Text as="p">{paragraph}</Text>
@@ -65,17 +70,30 @@ const jsonLd = [
     />
   </div>
 
+  <Container as="section" maxWidth="md" padding="section">
+    <Card variant="outlined">
+      <CardBody class="flex flex-col items-start gap-3" data-extension>
+        <Badge color="warning">{t.home.extension.badge}</Badge>
+        <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
+        <Text as="p">{t.home.extension.text}</Text>
+        <Text as="p" size="sm" tone="muted">
+          {t.home.extension.note}
+        </Text>
+      </CardBody>
+    </Card>
+  </Container>
+
   {donation !== undefined && (
-    <Container as="section" maxWidth="md" padding="section" aria-labelledby="coffee-title">
-      <div class="card card-padded flex flex-col items-start gap-4">
-        <h2 id="coffee-title" class="section-title">
-          {t.home.coffeeTitle}
-        </h2>
-        <Text as="p">{t.home.coffeeText}</Text>
-        <Button href={donation.url} target="_blank" rel="noopener" data-donate>
-          {t.home.coffeeCta}
-        </Button>
-      </div>
+    <Container as="section" maxWidth="md" padding="section">
+      <Card>
+        <CardBody class="flex flex-col items-start gap-4">
+          <h2 class="section-title">{t.home.coffeeTitle}</h2>
+          <Text as="p">{t.home.coffeeText}</Text>
+          <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+            {t.home.coffeeCta}
+          </Button>
+        </CardBody>
+      </Card>
     </Container>
   )}
 </SiteLayout>
