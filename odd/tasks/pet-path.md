@@ -15,12 +15,12 @@ Objective: the `/mods/pet/` path with the 17 guides of brief 3.1, delivered in f
 
 ## Tasks
 
-| ID  | Specs  | Route                          | Status  | Commit |
-| --- | ------ | ------------------------------ | ------- | ------ |
-| T1  | S1     | inline                         | pending |        |
-| T2  | S2–S7  | delegated (context backstop)   | pending |        |
-| T3  | S8     | delegated (4 parallel writers) | pending |        |
-| T4  | S1, S8 | inline                         | pending |        |
+| ID  | Specs  | Route                          | Status | Commit                                                 |
+| --- | ------ | ------------------------------ | ------ | ------------------------------------------------------ |
+| T1  | S1     | inline                         | done   | `dfce4fb`                                              |
+| T2  | S2–S7  | delegated (context backstop)   | done   | `9640a66`                                              |
+| T3  | S8     | delegated (4 parallel writers) | done   | translations commit                                    |
+| T4  | S1, S8 | inline                         | done   | 82 e2e passed (chromium), 598 unit tests, 97.6 % lines |
 
 T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked home card. T2: the four English guides. T3: translations. T4: e2e and full checks.
 
@@ -30,3 +30,6 @@ T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked
 - L2 (2026-11-17, owner): "si, sabes que me interesa mas que el codigo, que expliques bien que hace, que prompts o como se le pidio a la ia que la hiciera, como funciona etc etc,"
 - L3 (2026-11-17, owner): "perfecto" (accepts the template with the "how it was asked" section, real quotes only from recorded sources, reconstructions labeled, example prompts labeled).
 - L4: recorded public requests found: narsil-pet `odd/tasks/fleet-view.md` (L1–L13) and `odd/tasks/animated-poses.md`; `docs/plan-advice.md`; 169 commits.
+- L5: the "Going further" sentence about next steps (copied from a code comment at narsil-pet hooks/register.tsx:1586) was ambiguous; rewritten in all five locales to say rows start closed while next steps are on offer.
+- L6: axe flagged `github-dark` tokens on a pet guide; the dark Shiki theme is now `github-dark-high-contrast`.
+- L7: `pnpm lint:check` also scans `.claude/worktrees/light-dark-mode-styles-f62ff4` (branch feat/cold-blues-theme), a worktree this session did not create; `eslint src e2e` passes. Not changed here.

@@ -240,7 +240,7 @@ To test the mod, `claude plugin test .` runs `tests/narsil.test.tsx`, which feed
 ## Going further
 
 - `hooks/fleet.ts` also has `countOfStates`, which `/narsil estado` uses to say how many conversations are in each state.
-- The `ui.render` hook on `AbovePrompt` in `hooks/register.tsx` draws the rows: a fixed-width state column, the title as a `Button` that calls `toggleOpen`, `textBar` for the context, the percent as a button for the open conversation, and the cache clock. Next steps on offer close every conversation until you open one.
+- The `ui.render` hook on `AbovePrompt` in `hooks/register.tsx` draws the rows: a fixed-width state column, the title as a `Button` that calls `toggleOpen`, `textBar` for the context, the percent as a button for the open conversation, and the cache clock. While next steps are on offer, every row starts closed so the steps show; opening a row hides the steps, and they come back once every row is closed again.
 - `shownState` is the full entry each conversation reports; `readSessions` shows how to validate what comes back from the hub field by field.
 - `overlay/server.cjs` also broadcasts the list to the floating window over server-sent events (`GET /events`), opens the window when an event waits for you, and serves its page. The floating-window guide covers it.
 - The phone alerts use the same list: `fleetNow` and `fleetText` end each alert with every open conversation and its state.
