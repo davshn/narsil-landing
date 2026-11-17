@@ -1,0 +1,60 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './alert.css'
+
+type Variant = 'info' | 'success' | 'warning' | 'error'
+
+interface Props {
+  variant?: Variant
+  title?: string
+  icon?: string
+  dismissible?: boolean
+  autoClose?: number
+  class?: string
+}
+
+const {
+  variant = 'info',
+  title,
+  icon,
+  dismissible = false,
+  autoClose,
+  class: className,
+} = Astro.props
+
+const defaultIcons: Record<Variant, string> = {
+  info: 'lucide:info',
+  success: 'lucide:check-circle',
+  warning: 'lucide:alert-triangle',
+  error: 'lucide:x-circle',
+}
+
+const resolvedIcon = icon ?? defaultIcons[variant]
+const role = variant === 'error' ? 'alert' : 'status'
+const hasAutoClose = autoClose !== undefined && autoClose > 0
+const classes = ['alert', `alert-${variant}`, className].filter(Boolean).join(' ')
+---
+
+<div
+  class={classes}
+  role={role}
+  aria-live={variant === 'error' ? 'assertive' : 'polite'}
+  data-alert
+  data-auto-close={hasAutoClose ? autoClose : undefined}
+>
+  <Icon name={resolvedIcon} class="alert-icon" aria-hidden="true" />
+  <div class="alert-content">
+    {title !== undefined && title !== '' && <p class="alert-title">{title}</p>}
+    <div class="alert-description">
+      <slot />
+    </div>
+  </div>
+  {dismissible && (
+    <button type="button" class="alert-dismiss" aria-label="Dismiss" data-alert-dismiss>
+      <Icon name="lucide:x" class="size-4" />
+    </button>
+  )}
+</div>
+
+<script src="./alert-dismiss.ts"></script>

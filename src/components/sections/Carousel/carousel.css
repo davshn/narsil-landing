@@ -1,0 +1,67 @@
+@reference '../../../styles/global.css';
+
+.carousel {
+  @apply relative w-full overflow-hidden;
+}
+
+.carousel-track {
+  @apply flex transition-transform;
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-spring);
+  cursor: grab;
+  user-select: none;
+}
+
+.carousel-track.dragging {
+  transition: none;
+  cursor: grabbing;
+}
+
+.carousel-slide {
+  @apply flex-shrink-0 w-full;
+}
+
+.carousel-arrows {
+  @apply absolute inset-y-0 flex items-center;
+  pointer-events: none;
+  left: 0;
+  right: 0;
+}
+
+.carousel-arrow {
+  @apply absolute flex items-center justify-center w-11 h-11 rounded-full bg-background text-foreground transition;
+  box-shadow: var(--shadow-neu-md);
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.carousel-arrow:disabled {
+  @apply opacity-30 cursor-not-allowed;
+}
+
+.carousel-arrow-prev {
+  left: var(--spacing-3);
+}
+
+.carousel-arrow-next {
+  right: var(--spacing-3);
+}
+
+.carousel-dots {
+  @apply flex items-center justify-center gap-3 mt-6;
+}
+
+.carousel-dot {
+  @apply w-2.5 h-2.5 rounded-full bg-background transition-all cursor-pointer;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.carousel-dot[data-active='true'] {
+  @apply bg-primary w-7;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.carousel-arrow:active:not(:disabled) {
+  box-shadow: var(--shadow-neu-inset-sm);
+}

@@ -1,0 +1,122 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import { safeHref } from '@utils/safe-href'
+import Avatar from '@components/ui/Avatar/Avatar.astro'
+
+import './sidebar.css'
+
+type Position = 'left' | 'right'
+
+interface SidebarAction {
+  label: string
+  href?: string
+  icon?: string
+  active?: boolean
+  disabled?: boolean
+}
+
+interface Props {
+  position?: Position
+  title?: string
+  subtitle?: string
+  avatar?: {
+    src?: string
+    name?: string
+    email?: string
+  }
+  image?: {
+    src: string
+    alt: string
+    width?: number
+    height?: number
+  }
+  actions?: SidebarAction[]
+  class?: string
+}
+
+const { position = 'left', title, subtitle, avatar, image, actions, class: className } = Astro.props
+
+const hasAvatar = avatar !== undefined
+const hasImage = image !== undefined
+const hasTitle =
+  (title !== undefined && title !== '') || (subtitle !== undefined && subtitle !== '')
+const hasHeader = hasAvatar || hasImage || hasTitle
+const hasActions = actions !== undefined && actions.length > 0
+
+const classes = ['sidebar', `sidebar-${position}`, className].filter(Boolean).join(' ')
+---
+
+<div data-sidebar-container>
+  <button
+    type="button"
+    class="sidebar-mobile-toggle"
+    data-sidebar-toggle
+    aria-label="Open menu"
+    aria-expanded="false"
+  >
+    <Icon name="lucide:menu" class="size-5" />
+  </button>
+
+  <div class="sidebar-overlay" data-sidebar-overlay></div>
+
+  <aside class={classes}>
+    {hasHeader && (
+      <div class="sidebar-header">
+        {hasImage && image !== undefined && (
+          <div class="sidebar-image">
+            <img
+              src={image.src}
+              alt={image.alt}
+              width={image.width ?? 280}
+              height={image.height ?? 140}
+              loading="lazy"
+            />
+          </div>
+        )}
+        {hasAvatar && avatar !== undefined && (
+          <Avatar src={avatar.src} name={avatar.name} email={avatar.email} size="lg" />
+        )}
+        {hasTitle && !hasAvatar && (
+          <div class="sidebar-titles">
+            {title !== undefined && title !== '' && <span class="sidebar-title">{title}</span>}
+            {subtitle !== undefined && subtitle !== '' && (
+              <span class="sidebar-subtitle">{subtitle}</span>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+
+    <div class="sidebar-content">
+      <slot />
+    </div>
+
+    {hasActions && (
+      <nav class="sidebar-actions" aria-label="Sidebar actions">
+        {actions !== undefined &&
+          actions.map((action) => {
+            const href = safeHref(action.href)
+            const Tag = href !== undefined && href !== '' ? 'a' : 'button'
+            return (
+              <Tag
+                class="sidebar-action"
+                href={Tag === 'a' ? href : undefined}
+                type={Tag === 'button' ? 'button' : undefined}
+                data-active={action.active ? 'true' : undefined}
+                data-disabled={action.disabled ? 'true' : undefined}
+                tabindex={action.disabled ? -1 : undefined}
+              >
+                {action.icon !== undefined && action.icon !== '' && (
+                  <Icon name={action.icon} class="sidebar-action-icon" />
+                )}
+                <span>{action.label}</span>
+              </Tag>
+            )
+          })}
+      </nav>
+    )}
+  </aside>
+</div>
+
+<script src="./sidebar-toggle.ts"></script>

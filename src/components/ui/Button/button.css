@@ -1,0 +1,123 @@
+@reference '../../../styles/global.css';
+
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.btn-outline,
+.btn-destructive {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-2 text-base min-h-11 font-semibold bg-background transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  transition-property: box-shadow, color, transform;
+  transition-duration: var(--duration-base);
+  transition-timing-function: var(--ease-default);
+}
+
+.btn-primary.btn-sm,
+.btn-secondary.btn-sm,
+.btn-ghost.btn-sm,
+.btn-outline.btn-sm,
+.btn-destructive.btn-sm {
+  @apply px-4 py-1.5 text-sm min-h-9;
+}
+
+.btn-primary.btn-lg,
+.btn-secondary.btn-lg,
+.btn-ghost.btn-lg,
+.btn-outline.btn-lg,
+.btn-destructive.btn-lg {
+  @apply px-8 py-3 text-lg min-h-14;
+}
+
+.btn-icon {
+  @apply inline-flex items-center justify-center rounded-full w-10 h-10 p-0 bg-background text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  aspect-ratio: 1;
+  box-shadow: var(--shadow-neu-sm);
+  transition-property: box-shadow, color;
+  transition-duration: var(--duration-base);
+}
+
+.btn-icon:active {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.btn-icon.btn-sm {
+  @apply w-8 h-8;
+}
+
+.btn-icon.btn-lg {
+  @apply w-12 h-12;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-destructive {
+  box-shadow: var(--shadow-neu-md);
+}
+
+.btn-primary.btn-sm,
+.btn-secondary.btn-sm,
+.btn-destructive.btn-sm {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-destructive:hover {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-destructive:active,
+.btn-ghost:active,
+.btn-outline:active {
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.btn-primary {
+  @apply text-primary;
+}
+
+.btn-secondary {
+  @apply text-foreground;
+}
+
+.btn-destructive {
+  @apply text-destructive;
+}
+
+.btn-outline {
+  @apply bg-transparent text-foreground border-2 border-border hover:border-muted-foreground;
+}
+
+.btn-ghost {
+  @apply bg-transparent text-foreground;
+}
+
+.btn-ghost:hover {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.btn-disabled {
+  @apply pointer-events-none opacity-50;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.btn-loading {
+  @apply relative pointer-events-none;
+}
+
+.btn-content-hidden {
+  @apply opacity-0;
+}
+
+.btn-spinner {
+  @apply absolute w-4 h-4 rounded-full border-2 border-current;
+  border-right-color: transparent;
+  animation: btn-spin 600ms linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,83 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage } from '@seo/json-ld'
+import { DEVELOPER_PROFILE_URL } from '@utils/developer'
+import { donationLink, resolveDonationUrl } from '@utils/donation'
+import { REPOSITORIES, type RepositoryKey } from '@utils/repositories'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const t = useTranslations(locale)
+const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
+const repoKeys: RepositoryKey[] = ['pet', 'check', 'site']
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const jsonLd = buildWebPage({
+  name: t.support.title,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  description: t.support.description,
+  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  inLanguage: locale,
+})
+---
+
+<SiteLayout
+  title={`${t.support.title} — ${t.meta.siteName}`}
+  description={t.support.description}
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Container as="section" maxWidth="md" padding="section">
+    <h1 class="text-3xl font-bold mb-6">{t.support.title}</h1>
+    <div class="flex flex-col gap-4 mb-8">
+      {t.support.lines.map((line) => (
+        <Text as="p">{line}</Text>
+      ))}
+    </div>
+    {donation === undefined ? (
+      <Text as="p">{t.support.unavailable}</Text>
+    ) : (
+      <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+        {`${t.support.donate} (${donation.platform})`}
+      </Button>
+    )}
+
+    <h2 class="text-xl font-semibold mt-10 mb-4">{t.support.reposTitle}</h2>
+    <ul class="flex flex-col gap-2" data-repositories>
+      {repoKeys.map((key) => (
+        <li>
+          <a
+            class="text-primary underline underline-offset-4"
+            href={REPOSITORIES[key]}
+            target="_blank"
+            rel="noopener"
+          >
+            {t.support.repos[key]}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <Text as="p" size="sm" tone="muted" class="mt-8">
+      {`${t.support.developer.text} `}
+      <a
+        class="text-primary underline underline-offset-4"
+        href={DEVELOPER_PROFILE_URL}
+        target="_blank"
+        rel="noopener"
+        data-developer-profile
+      >
+        {t.support.developer.link}
+      </a>
+    </Text>
+  </Container>
+</SiteLayout>

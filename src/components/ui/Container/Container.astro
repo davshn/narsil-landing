@@ -1,0 +1,39 @@
+---
+import './container.css'
+
+type MaxWidth = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'
+type Padding = 'none' | 'sm' | 'md' | 'lg' | 'section'
+type Tag = 'div' | 'section' | 'article' | 'aside' | 'main' | 'header' | 'footer' | 'nav'
+
+interface Props {
+  as?: Tag
+  maxWidth?: MaxWidth
+  padding?: Padding
+  center?: boolean
+  class?: string
+  id?: string
+}
+
+const {
+  as: Tag = 'div',
+  maxWidth = 'xl',
+  padding = 'md',
+  center = true,
+  class: className,
+  id,
+} = Astro.props
+
+const classes = [
+  'container-base',
+  `container-${maxWidth}`,
+  `container-pad-${padding}`,
+  center ? '' : 'ml-0',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<Tag class={classes} id={id}>
+  <slot />
+</Tag>

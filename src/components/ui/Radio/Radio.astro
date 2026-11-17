@@ -1,0 +1,51 @@
+---
+import './radio.css'
+
+type Color = 'primary' | 'accent' | 'success' | 'warning' | 'destructive'
+
+interface Props {
+  name: string
+  value: string
+  id?: string
+  label?: string
+  ariaLabel?: string
+  checked?: boolean
+  disabled?: boolean
+  color?: Color
+  class?: string
+}
+
+const {
+  name,
+  value,
+  id,
+  label,
+  ariaLabel,
+  checked = false,
+  disabled = false,
+  color = 'primary',
+  class: className,
+} = Astro.props
+
+const radioId = id ?? `${name}-${value}`
+const classes = ['radio', `radio-${color}`, disabled ? 'radio-disabled' : '', className]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<label class={classes}>
+  <input
+    type="radio"
+    class="radio-input"
+    name={name}
+    id={radioId}
+    value={value}
+    checked={checked}
+    disabled={disabled}
+    aria-label={ariaLabel}
+  />
+  <span class="radio-control">
+    <span class="radio-dot"></span>
+  </span>
+  {label !== undefined && label !== '' && <span class="radio-label">{label}</span>}
+</label>

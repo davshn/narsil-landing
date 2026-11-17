@@ -1,0 +1,107 @@
+@reference '../../../styles/global.css';
+
+.avatar-wrapper {
+  @apply inline-flex items-center gap-3;
+}
+
+.avatar-image-wrapper {
+  @apply relative shrink-0 overflow-hidden bg-background;
+  border: 3px solid var(--color-background);
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.avatar-circle {
+  border-radius: var(--radius-full);
+}
+
+.avatar-square {
+  border-radius: 0;
+}
+
+.avatar-rounded {
+  border-radius: var(--radius-lg);
+}
+
+.avatar-xs .avatar-image-wrapper {
+  width: 24px;
+  height: 24px;
+}
+
+.avatar-sm .avatar-image-wrapper {
+  width: 32px;
+  height: 32px;
+}
+
+.avatar-md .avatar-image-wrapper {
+  width: 40px;
+  height: 40px;
+}
+
+.avatar-lg .avatar-image-wrapper {
+  width: 48px;
+  height: 48px;
+}
+
+.avatar-xl .avatar-image-wrapper {
+  width: 64px;
+  height: 64px;
+}
+
+.avatar-img {
+  @apply w-full h-full object-cover;
+}
+
+.avatar-fallback {
+  @apply w-full h-full flex items-center justify-center bg-background text-primary font-semibold;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.avatar-xs .avatar-fallback {
+  @apply text-xs;
+}
+
+.avatar-sm .avatar-fallback {
+  @apply text-xs;
+}
+
+.avatar-md .avatar-fallback {
+  @apply text-sm;
+}
+
+.avatar-lg .avatar-fallback {
+  @apply text-base;
+}
+
+.avatar-xl .avatar-fallback {
+  @apply text-lg;
+}
+
+.avatar-info {
+  @apply flex flex-col min-w-0;
+}
+
+.avatar-name {
+  @apply text-sm font-medium text-foreground truncate;
+}
+
+.avatar-email {
+  @apply text-xs text-muted-foreground truncate;
+}
+
+.avatar-xs .avatar-name {
+  @apply text-xs;
+}
+
+.avatar-xs .avatar-email {
+  @apply text-[0.625rem];
+}
+
+.avatar-lg .avatar-name,
+.avatar-xl .avatar-name {
+  @apply text-base;
+}
+
+.avatar-lg .avatar-email,
+.avatar-xl .avatar-email {
+  @apply text-sm;
+}

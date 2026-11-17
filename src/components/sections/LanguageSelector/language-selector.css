@@ -1,0 +1,71 @@
+@reference '../../../styles/global.css';
+
+.language-selector {
+  @apply relative;
+}
+
+.language-selector-summary {
+  @apply flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground cursor-pointer select-none list-none transition;
+  border-radius: var(--radius-full);
+  transition-property: box-shadow, color;
+  transition-duration: var(--duration-fast);
+}
+
+.language-selector-summary::-webkit-details-marker {
+  display: none;
+}
+
+.language-selector-summary:hover {
+  @apply text-foreground;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.language-selector-summary:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
+}
+
+.language-selector[open] > .language-selector-summary {
+  @apply text-foreground;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.language-selector-chevron {
+  @apply size-4 shrink-0 transition-transform;
+  transition-duration: var(--duration-fast);
+}
+
+.language-selector[open] .language-selector-chevron {
+  transform: rotate(180deg);
+}
+
+.language-selector-list {
+  @apply absolute right-0 mt-3 flex min-w-48 flex-col gap-1 bg-card p-2;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+  z-index: var(--z-dropdown);
+}
+
+.language-selector-inline .language-selector-list {
+  @apply static mt-2 min-w-0 w-full bg-transparent p-0;
+  box-shadow: none;
+}
+
+.language-selector-link {
+  @apply block w-full px-3 py-2 text-sm text-foreground no-underline transition;
+  border-radius: var(--radius-sm);
+  transition-property: box-shadow, color;
+  transition-duration: var(--duration-fast);
+}
+
+.language-selector-link:hover {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.language-selector-link:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
+}
+
+.language-selector-link[aria-current='true'] {
+  @apply text-primary font-medium;
+  box-shadow: var(--shadow-neu-inset-sm);
+}

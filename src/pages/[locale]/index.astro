@@ -1,0 +1,81 @@
+---
+import Features from '@components/sections/Features/Features.astro'
+import Hero from '@components/sections/Hero/Hero.astro'
+import Button from '@components/ui/Button/Button.astro'
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage, buildWebSite } from '@seo/json-ld'
+import { donationLink, resolveDonationUrl } from '@utils/donation'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const t = useTranslations(locale)
+const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+const jsonLd = [
+  buildWebSite({
+    name: t.meta.siteName,
+    url: siteUrl,
+    description: t.meta.description,
+    inLanguage: locale,
+  }),
+  buildWebPage({
+    name: t.meta.title,
+    url: pageUrl,
+    description: t.meta.description,
+    isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+    inLanguage: locale,
+  }),
+]
+---
+
+<SiteLayout title={t.meta.title} description={t.meta.description} locale={locale} jsonLd={jsonLd}>
+  <Hero
+    headline={t.home.headline}
+    subheadline={t.home.subheadline}
+    actions={[{ label: t.home.cta, href: '#routes' }]}
+  />
+
+  <Container as="section" maxWidth="md" padding="section" aria-labelledby="about-title">
+    <h2 id="about-title" class="section-title mb-6">
+      {t.home.aboutTitle}
+    </h2>
+    <div class="flex flex-col gap-4">
+      {t.home.about.map((paragraph) => (
+        <Text as="p">{paragraph}</Text>
+      ))}
+    </div>
+  </Container>
+
+  <div id="routes">
+    <Features
+      title={t.home.routesTitle}
+      subtitle={t.home.routesSubtitle}
+      features={t.home.routes}
+      columns={3}
+    />
+  </div>
+
+  {donation !== undefined && (
+    <Container as="section" maxWidth="md" padding="section" aria-labelledby="coffee-title">
+      <div class="card card-padded flex flex-col items-start gap-4">
+        <h2 id="coffee-title" class="section-title">
+          {t.home.coffeeTitle}
+        </h2>
+        <Text as="p">{t.home.coffeeText}</Text>
+        <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+          {t.home.coffeeCta}
+        </Button>
+      </div>
+    </Container>
+  )}
+</SiteLayout>

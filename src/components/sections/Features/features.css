@@ -1,0 +1,54 @@
+@reference '../../../styles/global.css';
+
+.features {
+  @apply w-full mx-auto max-w-7xl;
+  padding: var(--spacing-16) var(--spacing-6);
+}
+
+.features-header {
+  @apply text-center max-w-2xl mx-auto mb-12;
+}
+
+.features-title {
+  @apply text-3xl font-bold text-foreground sm:text-4xl;
+  letter-spacing: var(--tracking-tight);
+}
+
+.features-subtitle {
+  @apply text-lg text-muted-foreground mt-3;
+}
+
+.features-grid {
+  @apply grid gap-8;
+}
+
+.features-cols-2 .features-grid {
+  @apply sm:grid-cols-2;
+}
+
+.features-cols-3 .features-grid {
+  @apply sm:grid-cols-2 lg:grid-cols-3;
+}
+
+.features-cols-4 .features-grid {
+  @apply sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.features-item {
+  @apply flex flex-col gap-2 bg-background p-6;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.features-icon {
+  @apply flex items-center justify-center w-12 h-12 rounded-full bg-background text-primary mb-3;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.features-item-title {
+  @apply text-base font-semibold text-foreground;
+}
+
+.features-item-description {
+  @apply text-sm text-muted-foreground;
+}

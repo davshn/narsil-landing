@@ -1,0 +1,133 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './input.css'
+
+type Variant = 'default' | 'outlined'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props {
+  variant?: Variant
+  size?: Size
+  type?: 'text' | 'email' | 'password' | 'search' | 'tel' | 'url' | 'number'
+  name?: string
+  id?: string
+  placeholder?: string
+  value?: string
+  label?: string
+  hint?: string
+  error?: string
+  required?: boolean
+  disabled?: boolean
+  iconLeft?: string
+  iconRight?: string
+  passwordToggleLabel?: string
+  class?: string
+}
+
+const {
+  variant = 'outlined',
+  size = 'md',
+  type = 'text',
+  name,
+  id,
+  placeholder,
+  value,
+  label,
+  hint,
+  error,
+  required = false,
+  disabled = false,
+  iconLeft,
+  iconRight,
+  passwordToggleLabel,
+  class: className,
+} = Astro.props
+
+const isPassword = type === 'password'
+const hasIconLeft = iconLeft !== undefined && iconLeft !== ''
+const hasIconRight = (iconRight !== undefined && iconRight !== '') || isPassword
+const hasError = error !== undefined && error !== ''
+
+const inputId = id ?? name
+const variantClass = `input-${variant}`
+const sizeClass = `input-${size}`
+const wrapperClasses = [
+  'input-wrapper',
+  variantClass,
+  sizeClass,
+  hasIconLeft ? 'input-has-icon-left' : '',
+  hasIconRight ? 'input-has-icon-right' : '',
+  disabled ? 'input-disabled' : '',
+  hasError ? 'input-error' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+{label !== undefined && label !== '' && (
+  <label class="input-label" for={inputId}>
+    {label}
+    {required && <span aria-hidden="true"> *</span>}
+  </label>
+)}
+
+<div class={wrapperClasses}>
+  {hasIconLeft && (
+    <span class="input-icon-left" aria-hidden="true">
+      <Icon name={iconLeft ?? ''} class="size-5" />
+    </span>
+  )}
+
+  <input
+    class="input-field"
+    type={isPassword ? 'password' : type}
+    name={name}
+    id={inputId}
+    placeholder={placeholder}
+    value={value}
+    required={required}
+    disabled={disabled}
+    aria-invalid={hasError ? 'true' : undefined}
+    aria-describedby={
+      hasError
+        ? `${inputId}-error`
+        : hint !== undefined && hint !== ''
+          ? `${inputId}-hint`
+          : undefined
+    }
+  />
+
+  {isPassword && (
+    <button
+      type="button"
+      class="input-password-toggle"
+      aria-label={passwordToggleLabel ?? 'Toggle password visibility'}
+      data-password-toggle={inputId}
+    >
+      <Icon name="lucide:eye" class="size-5 password-icon-show" />
+      <Icon name="lucide:eye-off" class="size-5 password-icon-hide hidden" />
+    </button>
+  )}
+
+  {!isPassword && hasIconRight && iconRight !== undefined && iconRight !== '' && (
+    <span class="input-icon-right" aria-hidden="true">
+      <Icon name={iconRight} class="size-5" />
+    </span>
+  )}
+</div>
+
+{hasError && (
+  <p class="input-error-message" id={`${inputId}-error`} role="alert">
+    {error}
+  </p>
+)}
+
+{!hasError && hint !== undefined && hint !== '' && (
+  <p class="input-hint" id={`${inputId}-hint`}>
+    {hint}
+  </p>
+)}
+
+{isPassword && <script src="./password-toggle.ts" />}

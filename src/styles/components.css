@@ -1,0 +1,25 @@
+.section-shell {
+  @apply mx-auto w-full max-w-7xl px-6 py-20 lg:px-8 lg:py-28;
+}
+
+.container-narrow {
+  @apply mx-auto w-full max-w-3xl px-6;
+}
+
+.section-title {
+  @apply text-3xl font-bold tracking-tight text-foreground sm:text-4xl;
+}
+
+.section-description {
+  @apply mt-4 text-lg text-muted-foreground;
+}
+
+.neu-frame {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.neu-code {
+  @apply rounded-md px-2 py-0.5 text-sm;
+  box-shadow: var(--shadow-neu-inset-sm);
+}

@@ -1,0 +1,108 @@
+@reference '../../../styles/global.css';
+
+.header {
+  @apply sticky top-0 w-full bg-background/90 backdrop-blur-md;
+  box-shadow: 0 6px 14px -6px var(--color-neu-dark);
+  z-index: var(--z-sticky);
+}
+
+.header-inner {
+  @apply flex items-center justify-between gap-3 mx-auto w-full max-w-7xl;
+  padding: var(--spacing-3) var(--spacing-4);
+}
+
+.header-brand {
+  @apply mr-auto flex items-center gap-2 text-foreground font-semibold text-lg no-underline shrink-0;
+}
+
+.header-nav {
+  @apply hidden items-center gap-1;
+}
+
+.header-link {
+  @apply px-4 py-2 text-sm text-muted-foreground transition no-underline;
+  border-radius: var(--radius-full);
+  transition-property: box-shadow, color;
+  transition-duration: var(--duration-fast);
+}
+
+.header-link:hover {
+  @apply text-foreground;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.header-link[data-active='true'] {
+  @apply text-primary font-semibold;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.header-link:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+.header-actions {
+  @apply hidden items-center gap-2;
+}
+
+.header-bar-actions {
+  @apply flex items-center gap-2;
+}
+
+.header-mobile-toggle {
+  @apply flex items-center justify-center w-11 h-11 rounded-full bg-background text-foreground transition;
+  box-shadow: var(--shadow-neu-sm);
+  transition-property: box-shadow;
+  transition-duration: var(--duration-fast);
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+}
+
+.header-mobile-toggle:active,
+.header-open .header-mobile-toggle {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.header-mobile-menu {
+  @apply flex-col gap-4 bg-background p-4;
+  display: none;
+  margin: 0 var(--spacing-4) var(--spacing-4);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-md);
+  max-height: calc(100dvh - 5.5rem);
+  overflow-y: auto;
+}
+
+.header-mobile-menu nav {
+  @apply flex flex-col gap-2;
+}
+
+.header-mobile-menu .header-link {
+  @apply flex w-full min-h-11 items-center px-4 text-base;
+  border-radius: var(--radius-lg);
+}
+
+.header-mobile-menu .header-actions {
+  @apply flex flex-col items-stretch border-t border-border pt-4;
+}
+
+.header-open .header-mobile-menu {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .header-inner {
+    padding: var(--spacing-4) var(--spacing-6);
+  }
+
+  .header-nav,
+  .header-actions {
+    display: flex;
+  }
+
+  .header-mobile-toggle {
+    display: none;
+  }
+
+  .header-mobile-menu {
+    display: none !important;
+  }
+}

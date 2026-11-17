@@ -1,0 +1,42 @@
+---
+import './card.css'
+
+import { safeHref } from '@utils/safe-href'
+type Variant = 'default' | 'elevated' | 'outlined' | 'ghost'
+type Size = 'sm' | 'md' | 'lg'
+
+interface Props {
+  variant?: Variant
+  size?: Size
+  interactive?: boolean
+  href?: string
+  class?: string
+}
+
+const {
+  variant = 'default',
+  size = 'md',
+  interactive = false,
+  href: rawHref,
+  class: className,
+} = Astro.props
+
+const href = safeHref(rawHref)
+const variantClass = variant === 'default' ? '' : `card-${variant}`
+const sizeClass = size === 'md' ? '' : `card-${size}`
+const interactiveClass =
+  interactive || (href !== undefined && href !== '') ? 'card-interactive' : ''
+const classes = ['card', variantClass, sizeClass, interactiveClass, className]
+  .filter(Boolean)
+  .join(' ')
+
+const Tag = href !== undefined && href !== '' ? 'a' : 'div'
+---
+
+<Tag
+  class={classes}
+  href={Tag === 'a' ? href : undefined}
+  tabindex={interactiveClass !== '' && Tag === 'div' ? 0 : undefined}
+>
+  <slot />
+</Tag>

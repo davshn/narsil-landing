@@ -1,0 +1,57 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './separator.css'
+
+type Orientation = 'horizontal' | 'vertical'
+type Style = 'solid' | 'dashed' | 'dotted'
+type Size = 'sm' | 'md' | 'lg'
+type Color = 'default' | 'muted' | 'primary' | 'accent'
+type ContentPosition = 'start' | 'center' | 'end'
+
+interface Props {
+  orientation?: Orientation
+  style?: Style
+  size?: Size
+  color?: Color
+  icon?: string
+  label?: string
+  contentPosition?: ContentPosition
+  class?: string
+}
+
+const {
+  orientation = 'horizontal',
+  style = 'solid',
+  size = 'md',
+  color = 'default',
+  icon,
+  label,
+  contentPosition = 'center',
+  class: className,
+} = Astro.props
+
+const hasContent = (icon !== undefined && icon !== '') || (label !== undefined && label !== '')
+const classes = [
+  'separator',
+  `separator-${orientation}`,
+  `separator-${style}`,
+  `separator-${size}`,
+  `separator-${color}`,
+  hasContent ? `separator-with-content separator-content-${contentPosition}` : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<div class={classes} role="separator" aria-orientation={orientation}>
+  {hasContent && (
+    <span class="separator-content">
+      {icon !== undefined && icon !== '' && (
+        <Icon name={icon} class="separator-icon" aria-hidden="true" />
+      )}
+      {label !== undefined && label !== '' && <span class="separator-label">{label}</span>}
+    </span>
+  )}
+</div>

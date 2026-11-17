@@ -1,0 +1,63 @@
+---
+import './progress.css'
+
+type Color = 'primary' | 'accent' | 'success' | 'warning' | 'destructive'
+type Size = 'sm' | 'md' | 'lg'
+type Orientation = 'horizontal' | 'vertical'
+type Direction = 'ltr' | 'rtl'
+
+interface Props {
+  value?: number
+  max?: number
+  color?: Color
+  size?: Size
+  orientation?: Orientation
+  direction?: Direction
+  label?: string
+  showValue?: boolean
+  class?: string
+}
+
+const {
+  value = 0,
+  max = 100,
+  color = 'primary',
+  size = 'md',
+  orientation = 'horizontal',
+  direction = 'ltr',
+  label,
+  showValue = false,
+  class: className,
+} = Astro.props
+
+const percent = Math.min(100, Math.max(0, (value / max) * 100))
+const isVertical = orientation === 'vertical'
+const isRtl = direction === 'rtl'
+
+const classes = [
+  'progress',
+  `progress-${color}`,
+  `progress-${size}`,
+  isVertical ? 'progress-vertical' : 'progress-horizontal',
+  isRtl ? 'progress-rtl' : '',
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+
+const fillStyle = isVertical ? `height: ${percent}%` : `width: ${percent}%`
+---
+
+<div
+  class={classes}
+  role="progressbar"
+  aria-valuenow={value}
+  aria-valuemin={0}
+  aria-valuemax={max}
+  aria-label={label ?? `Progress: ${Math.round(percent)}%`}
+>
+  <div class="progress-track">
+    <div class="progress-fill" style={fillStyle}></div>
+  </div>
+  {showValue && <span class="progress-label">{Math.round(percent)}%</span>}
+</div>

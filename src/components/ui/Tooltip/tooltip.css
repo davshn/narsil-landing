@@ -1,0 +1,83 @@
+@reference '../../../styles/global.css';
+
+.tooltip-wrapper {
+  @apply relative inline-flex;
+}
+
+.tooltip {
+  @apply absolute pointer-events-none whitespace-nowrap opacity-0 transition;
+  @apply flex items-center gap-2 px-3 py-2 rounded-full text-xs font-medium;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  box-shadow: var(--shadow-neu-sm);
+  z-index: var(--z-tooltip);
+  transition-property: opacity, transform;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out);
+}
+
+.tooltip-wrapper:hover .tooltip,
+.tooltip-wrapper:focus-within .tooltip {
+  @apply opacity-100;
+}
+
+.tooltip-top {
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+}
+
+.tooltip-wrapper:hover .tooltip-top,
+.tooltip-wrapper:focus-within .tooltip-top {
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-bottom {
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.tooltip-wrapper:hover .tooltip-bottom,
+.tooltip-wrapper:focus-within .tooltip-bottom {
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip-left {
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(4px);
+}
+
+.tooltip-wrapper:hover .tooltip-left,
+.tooltip-wrapper:focus-within .tooltip-left {
+  transform: translateY(-50%) translateX(0);
+}
+
+.tooltip-right {
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+}
+
+.tooltip-wrapper:hover .tooltip-right,
+.tooltip-wrapper:focus-within .tooltip-right {
+  transform: translateY(-50%) translateX(0);
+}
+
+.tooltip-text {
+  @apply leading-none;
+}
+
+.tooltip-kbd-group {
+  @apply inline-flex items-center gap-0.5;
+}
+
+.tooltip-kbd {
+  @apply inline-flex items-center justify-center min-w-5 h-5 px-1 rounded text-[10px] font-mono leading-none;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.tooltip-kbd-sep {
+  @apply text-[10px] opacity-60;
+}

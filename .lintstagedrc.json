@@ -1,0 +1,5 @@
+{
+  "*": ["secretlint"],
+  "*.{ts,tsx,astro}": ["eslint --fix", "prettier --write"],
+  "*.{css,md,mdx,json,yaml,yml}": ["prettier --write"]
+}

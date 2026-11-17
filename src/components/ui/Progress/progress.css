@@ -1,0 +1,98 @@
+@reference '../../../styles/global.css';
+
+.progress {
+  @apply flex items-center gap-3;
+}
+
+.progress-track {
+  @apply flex-1 overflow-hidden bg-background p-0.5;
+  box-shadow: var(--shadow-neu-inset-sm);
+  border-radius: var(--radius-full);
+}
+
+.progress-fill {
+  box-shadow: 1px 1px 3px var(--color-neu-dark);
+  border-radius: var(--radius-full);
+  transition:
+    width var(--duration-slow) var(--ease-out),
+    height var(--duration-slow) var(--ease-out);
+}
+
+.progress-horizontal .progress-track {
+  @apply w-full;
+}
+
+.progress-horizontal .progress-fill {
+  @apply h-full;
+}
+
+.progress-vertical .progress-track {
+  @apply w-auto;
+  height: 100%;
+  min-height: 100%;
+}
+
+.progress-vertical .progress-fill {
+  @apply w-full mt-auto;
+}
+
+.progress-vertical {
+  @apply flex-col items-center;
+  height: 100%;
+}
+
+.progress-rtl .progress-fill {
+  @apply ml-auto;
+}
+
+.progress-rtl.progress-vertical .progress-fill {
+  @apply ml-0 mt-0 mb-auto;
+}
+
+.progress-sm .progress-track {
+  height: 8px;
+}
+
+.progress-md .progress-track {
+  height: 12px;
+}
+
+.progress-lg .progress-track {
+  height: 16px;
+}
+
+.progress-vertical.progress-sm .progress-track {
+  width: 8px;
+}
+
+.progress-vertical.progress-md .progress-track {
+  width: 12px;
+}
+
+.progress-vertical.progress-lg .progress-track {
+  width: 16px;
+}
+
+.progress-label {
+  @apply text-sm font-medium text-muted-foreground tabular-nums;
+}
+
+.progress-primary .progress-fill {
+  @apply bg-primary;
+}
+
+.progress-accent .progress-fill {
+  @apply bg-accent;
+}
+
+.progress-success .progress-fill {
+  @apply bg-success;
+}
+
+.progress-warning .progress-fill {
+  @apply bg-warning;
+}
+
+.progress-destructive .progress-fill {
+  @apply bg-destructive;
+}

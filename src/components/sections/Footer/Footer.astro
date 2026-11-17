@@ -1,0 +1,88 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import { safeHref } from '@utils/safe-href'
+import './footer.css'
+
+interface FooterLink {
+  label: string
+  href: string
+}
+
+interface FooterGroup {
+  title: string
+  links: FooterLink[]
+}
+
+interface SocialLink {
+  icon: string
+  href: string
+  label: string
+}
+
+interface Props {
+  brand?: string
+  description?: string
+  groups?: FooterGroup[]
+  social?: SocialLink[]
+  copyright?: string
+  class?: string
+}
+
+const { brand, description, groups = [], social = [], copyright, class: className } = Astro.props
+const classes = ['footer', className].filter(Boolean).join(' ')
+const year = new Date().getFullYear()
+const copyrightText = copyright ?? `${year} ${brand ?? ''}. All rights reserved.`
+---
+
+<footer class={classes}>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand-section">
+        {brand !== undefined && brand !== '' && <p class="footer-brand">{brand}</p>}
+        {description !== undefined && description !== '' && (
+          <p class="footer-description">{description}</p>
+        )}
+        {social.length > 0 && (
+          <div class="footer-social">
+            {social.map((s) => (
+              <a
+                class="footer-social-link"
+                href={safeHref(s.href)}
+                aria-label={s.label}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name={s.icon} class="size-5" />
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {groups.length > 0 && (
+        <div class="footer-groups">
+          {groups.map((group) => (
+            <div class="footer-group">
+              <p class="footer-group-title">{group.title}</p>
+              <ul class="footer-group-links">
+                {group.links.map((link) => (
+                  <li>
+                    <a class="footer-link" href={safeHref(link.href)}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copyright">{copyrightText}</p>
+      <slot />
+    </div>
+  </div>
+</footer>

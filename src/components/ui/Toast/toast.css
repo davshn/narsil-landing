@@ -1,0 +1,117 @@
+@reference '../../../styles/global.css';
+
+.toast {
+  @apply relative flex flex-col overflow-hidden w-80 bg-card text-card-foreground;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-lg);
+  z-index: var(--z-toast);
+  animation: toast-slide-in var(--duration-slow) var(--ease-spring) forwards;
+}
+
+.toast-header {
+  @apply flex items-start gap-3 px-5 pt-4;
+}
+
+.toast-icon {
+  @apply size-5 shrink-0 mt-0.5;
+}
+
+.toast-body {
+  @apply flex-1 min-w-0;
+}
+
+.toast-title {
+  @apply text-sm font-semibold;
+}
+
+.toast-content {
+  @apply mt-1 text-sm text-muted-foreground;
+}
+
+.toast-dismiss {
+  @apply shrink-0 p-1.5 rounded-full text-muted-foreground transition cursor-pointer;
+  @apply hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.toast-dismiss:active {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.toast-footer {
+  @apply px-5 pb-4 pt-2;
+}
+
+.toast-progress {
+  @apply h-1.5 mx-4 mb-3 rounded-full overflow-hidden;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.toast-progress-bar {
+  @apply h-full rounded-full;
+  transform-origin: left;
+  animation: toast-timer linear forwards;
+}
+
+.toast-info .toast-icon {
+  @apply text-primary;
+}
+
+.toast-info .toast-progress-bar {
+  @apply bg-primary;
+}
+
+.toast-success .toast-icon {
+  @apply text-success;
+}
+
+.toast-success .toast-progress-bar {
+  @apply bg-success;
+}
+
+.toast-warning .toast-icon {
+  @apply text-warning;
+}
+
+.toast-warning .toast-progress-bar {
+  @apply bg-warning;
+}
+
+.toast-error .toast-icon {
+  @apply text-destructive;
+}
+
+.toast-error .toast-progress-bar {
+  @apply bg-destructive;
+}
+
+.toast-closing {
+  animation: toast-slide-out var(--duration-base) var(--ease-in) forwards;
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes toast-slide-out {
+  to {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+}
+
+@keyframes toast-timer {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

@@ -1,0 +1,49 @@
+---
+import Accordion from '@components/ui/Accordion/Accordion.astro'
+import { buildFAQPage } from '@seo/json-ld'
+import { serializeForInlineScript } from '@utils/inline-json'
+
+import './faq.css'
+
+interface FAQItem {
+  question: string
+  answer: string
+}
+
+interface Props {
+  title?: string
+  subtitle?: string
+  items: FAQItem[]
+  multiple?: boolean
+  structuredData?: boolean
+  class?: string
+}
+
+const {
+  title,
+  subtitle,
+  items,
+  multiple = false,
+  structuredData = false,
+  class: className,
+} = Astro.props
+const classes = ['faq', className].filter(Boolean).join(' ')
+const accordionItems = items.map((item) => ({ label: item.question, content: item.answer }))
+---
+
+<section class={classes}>
+  {(title !== undefined || subtitle !== undefined) && (
+    <div class="faq-header">
+      {title !== undefined && title !== '' && <h2 class="faq-title">{title}</h2>}
+      {subtitle !== undefined && subtitle !== '' && <p class="faq-subtitle">{subtitle}</p>}
+    </div>
+  )}
+
+  <div class="faq-content">
+    <Accordion items={accordionItems} multiple={multiple} />
+  </div>
+
+  {structuredData && (
+    <script type="application/ld+json" set:html={serializeForInlineScript(buildFAQPage(items))} />
+  )}
+</section>

@@ -1,0 +1,50 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './toast.css'
+
+type Variant = 'info' | 'success' | 'warning' | 'error'
+
+interface Props {
+  variant?: Variant
+  title: string
+  icon?: string
+  duration?: number
+  class?: string
+}
+
+const { variant = 'info', title, icon, duration = 5000, class: className } = Astro.props
+
+const defaultIcons: Record<Variant, string> = {
+  info: 'lucide:info',
+  success: 'lucide:check-circle',
+  warning: 'lucide:alert-triangle',
+  error: 'lucide:x-circle',
+}
+
+const resolvedIcon = icon ?? defaultIcons[variant]
+const classes = ['toast', `toast-${variant}`, className].filter(Boolean).join(' ')
+---
+
+<div class={classes} role="alert" aria-live="polite" data-toast data-toast-duration={duration}>
+  <div class="toast-header">
+    <Icon name={resolvedIcon} class="toast-icon" aria-hidden="true" />
+    <div class="toast-body">
+      <p class="toast-title">{title}</p>
+      <div class="toast-content">
+        <slot />
+      </div>
+    </div>
+    <button type="button" class="toast-dismiss" aria-label="Dismiss" data-toast-dismiss>
+      <Icon name="lucide:x" class="size-4" />
+    </button>
+  </div>
+  <div class="toast-footer">
+    <slot name="actions" />
+  </div>
+  <div class="toast-progress">
+    <div class="toast-progress-bar" style={`animation-duration: ${duration}ms`}></div>
+  </div>
+</div>
+
+<script src="./toast-timer.ts"></script>

@@ -1,0 +1,65 @@
+@reference '../../../styles/global.css';
+
+.alert {
+  @apply flex items-start gap-3 bg-background px-5 py-4 text-sm text-foreground;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.alert-icon {
+  @apply size-9 shrink-0 p-2 rounded-full;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.alert-content {
+  @apply flex-1 min-w-0 pt-1.5;
+}
+
+.alert-title {
+  @apply font-semibold;
+}
+
+.alert-description {
+  @apply mt-0.5 text-muted-foreground;
+}
+
+.alert-info .alert-icon,
+.alert-info .alert-title {
+  @apply text-primary;
+}
+
+.alert-success .alert-icon,
+.alert-success .alert-title {
+  @apply text-success;
+}
+
+.alert-warning .alert-icon,
+.alert-warning .alert-title {
+  @apply text-warning;
+}
+
+.alert-error .alert-icon,
+.alert-error .alert-title {
+  @apply text-destructive;
+}
+
+.alert-dismiss {
+  @apply shrink-0 p-1.5 rounded-full text-muted-foreground transition cursor-pointer;
+  @apply hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.alert-dismiss:active {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.alert-closing {
+  animation: alert-fade-out var(--duration-base, 200ms) ease-out forwards;
+}
+
+@keyframes alert-fade-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}

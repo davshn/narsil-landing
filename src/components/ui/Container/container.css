@@ -1,0 +1,72 @@
+@reference '../../../styles/global.css';
+
+.container-base {
+  @apply mx-auto w-full;
+}
+
+.container-xs {
+  max-width: 32rem;
+}
+
+.container-sm {
+  max-width: 40rem;
+}
+
+.container-md {
+  max-width: 48rem;
+}
+
+.container-lg {
+  max-width: 64rem;
+}
+
+.container-xl {
+  max-width: 80rem;
+}
+
+.container-full {
+  max-width: 100%;
+}
+
+.container-pad-none {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.container-pad-sm {
+  padding-left: var(--spacing-4);
+  padding-right: var(--spacing-4);
+}
+
+.container-pad-md {
+  padding-left: var(--spacing-6);
+  padding-right: var(--spacing-6);
+}
+
+.container-pad-lg {
+  padding-left: var(--spacing-8);
+  padding-right: var(--spacing-8);
+}
+
+@media (min-width: 1024px) {
+  .container-pad-lg {
+    padding-left: var(--spacing-12);
+    padding-right: var(--spacing-12);
+  }
+}
+
+.container-pad-section {
+  padding-left: var(--spacing-6);
+  padding-right: var(--spacing-6);
+  padding-top: var(--spacing-20);
+  padding-bottom: var(--spacing-20);
+}
+
+@media (min-width: 1024px) {
+  .container-pad-section {
+    padding-left: var(--spacing-8);
+    padding-right: var(--spacing-8);
+    padding-top: var(--spacing-32);
+    padding-bottom: var(--spacing-32);
+  }
+}

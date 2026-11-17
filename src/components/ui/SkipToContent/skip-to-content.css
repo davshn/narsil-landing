@@ -1,0 +1,7 @@
+@reference '../../../styles/global.css';
+
+.skip-to-content {
+  @apply fixed left-4 top-4 z-50 -translate-y-[200%] rounded-full bg-background px-5 py-2 text-sm font-semibold text-primary transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  box-shadow: var(--shadow-neu-md);
+  transition-duration: var(--duration-fast);
+}

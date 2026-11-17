@@ -1,0 +1,7 @@
+.astro/
+.atl/
+dist/
+node_modules/
+pnpm-lock.yaml
+.husky/_/
+.lighthouseci/

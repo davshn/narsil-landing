@@ -1,0 +1,71 @@
+@reference '../../../styles/global.css';
+
+.radio {
+  @apply inline-flex items-center gap-3 cursor-pointer select-none;
+}
+
+.radio-input {
+  @apply absolute opacity-0 w-0 h-0;
+}
+
+.radio-control {
+  @apply relative flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-background transition;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.radio-dot {
+  @apply w-3 h-3 rounded-full opacity-0 scale-0 transition;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.radio-input:checked ~ .radio-control .radio-dot {
+  @apply opacity-100 scale-100;
+}
+
+.radio-input:focus-visible ~ .radio-control {
+  @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+.radio-label {
+  @apply text-sm text-foreground;
+}
+
+.radio-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.radio-primary .radio-dot {
+  @apply bg-primary;
+}
+
+.radio-accent .radio-dot {
+  @apply bg-accent;
+}
+
+.radio-success .radio-dot {
+  @apply bg-success;
+}
+
+.radio-warning .radio-dot {
+  @apply bg-warning;
+}
+
+.radio-destructive .radio-dot {
+  @apply bg-destructive;
+}
+
+.radio-group {
+  @apply border-none p-0 m-0;
+}
+
+.radio-group-legend {
+  @apply text-sm font-medium text-foreground mb-3;
+}
+
+.radio-group-items {
+  @apply flex flex-col gap-3;
+}
+
+.radio-group-horizontal .radio-group-items {
+  @apply flex-row flex-wrap gap-5;
+}

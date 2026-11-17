@@ -1,0 +1,124 @@
+@reference '../../../styles/global.css';
+
+.badge {
+  @apply inline-flex items-center gap-1 font-medium whitespace-nowrap;
+  border-radius: var(--radius-full);
+}
+
+.badge-sm {
+  @apply px-2.5 py-0.5 text-xs;
+}
+
+.badge-md {
+  @apply px-3 py-1 text-xs;
+}
+
+.badge-lg {
+  @apply px-3.5 py-1 text-sm;
+}
+
+.badge-icon {
+  @apply size-3 shrink-0;
+}
+
+.badge-lg .badge-icon {
+  @apply size-3.5;
+}
+
+.badge-soft {
+  @apply bg-background;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.badge-soft.badge-default {
+  @apply text-foreground;
+}
+
+.badge-soft.badge-primary {
+  @apply text-primary;
+}
+
+.badge-soft.badge-secondary {
+  @apply text-secondary-foreground;
+}
+
+.badge-soft.badge-accent {
+  @apply text-accent;
+}
+
+.badge-soft.badge-success {
+  @apply text-success;
+}
+
+.badge-soft.badge-warning {
+  @apply text-warning;
+}
+
+.badge-soft.badge-destructive {
+  @apply text-destructive;
+}
+
+.badge-outline {
+  @apply bg-background;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.badge-outline.badge-default {
+  @apply text-foreground;
+}
+
+.badge-outline.badge-primary {
+  @apply text-primary;
+}
+
+.badge-outline.badge-secondary {
+  @apply text-secondary-foreground;
+}
+
+.badge-outline.badge-accent {
+  @apply text-accent;
+}
+
+.badge-outline.badge-success {
+  @apply text-success;
+}
+
+.badge-outline.badge-warning {
+  @apply text-warning;
+}
+
+.badge-outline.badge-destructive {
+  @apply text-destructive;
+}
+
+.badge-solid {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.badge-solid.badge-default {
+  @apply bg-foreground text-background;
+}
+
+.badge-solid.badge-primary {
+  @apply bg-primary text-primary-foreground;
+}
+
+.badge-solid.badge-secondary {
+  @apply bg-secondary text-secondary-foreground;
+}
+
+.badge-solid.badge-accent {
+  @apply bg-accent text-accent-foreground;
+}
+
+.badge-solid.badge-success {
+  @apply bg-success text-success-foreground;
+}
+
+.badge-solid.badge-warning {
+  @apply bg-warning text-warning-foreground;
+}
+
+.badge-solid.badge-destructive {
+  @apply bg-destructive text-destructive-foreground;
+}

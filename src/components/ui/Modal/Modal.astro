@@ -1,0 +1,47 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './modal.css'
+
+type Size = 'sm' | 'md' | 'lg' | 'xl'
+
+interface Props {
+  id: string
+  title: string
+  size?: Size
+  closeIcon?: string
+  class?: string
+}
+
+const { id, title, size = 'md', closeIcon = 'lucide:x', class: className } = Astro.props
+const classes = ['modal', `modal-${size}`, className].filter(Boolean).join(' ')
+---
+
+<div
+  class="modal-overlay"
+  id={id}
+  data-open="false"
+  data-modal
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${id}-title`}
+>
+  <div class={classes}>
+    <div class="modal-header">
+      <h2 class="modal-title" id={`${id}-title`}>
+        {title}
+      </h2>
+      <button type="button" class="modal-close" data-modal-close aria-label="Close">
+        <Icon name={closeIcon} class="size-5" />
+      </button>
+    </div>
+    <div class="modal-body">
+      <slot />
+    </div>
+    <div class="modal-footer">
+      <slot name="footer" />
+    </div>
+  </div>
+</div>
+
+<script src="./modal-dialog.ts"></script>

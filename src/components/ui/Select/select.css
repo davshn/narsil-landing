@@ -1,0 +1,175 @@
+@reference '../../../styles/global.css';
+
+.select-wrapper {
+  @apply relative w-full;
+}
+
+.select-field {
+  @apply w-full appearance-none bg-background text-foreground pr-10 border-0 transition cursor-pointer;
+  @apply focus-visible:outline-none;
+  font-family: var(--font-sans);
+  transition-property: box-shadow;
+  transition-timing-function: var(--ease-default);
+  transition-duration: var(--duration-base);
+}
+
+.select-field option {
+  @apply bg-card text-foreground;
+}
+
+.select-default .select-field,
+.select-default .select-trigger {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.select-outlined .select-field,
+.select-outlined .select-trigger {
+  @apply bg-background;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.select-field:focus-visible,
+.select-trigger:focus-visible {
+  box-shadow:
+    var(--shadow-neu-inset-sm),
+    0 0 0 2px var(--color-ring);
+}
+
+.select-sm .select-field,
+.select-sm .select-trigger {
+  height: var(--size-button-height-sm);
+  @apply pl-4 text-sm;
+}
+
+.select-md .select-field,
+.select-md .select-trigger {
+  height: 2.75rem;
+  @apply pl-5 text-base;
+}
+
+.select-lg .select-field,
+.select-lg .select-trigger {
+  height: 3.5rem;
+  @apply pl-6 text-lg;
+}
+
+.select-chevron {
+  @apply absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground;
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.select-field:focus-visible ~ .select-chevron,
+.select-trigger:focus-visible ~ .select-chevron {
+  @apply text-primary;
+}
+
+.select-open .select-chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.select-open .select-trigger {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.select-disabled {
+  pointer-events: none;
+  opacity: var(--opacity-disabled);
+}
+
+.select-error .select-field,
+.select-error .select-trigger,
+.select-error .select-field:focus-visible,
+.select-error .select-trigger:focus-visible {
+  box-shadow:
+    var(--shadow-neu-inset-sm),
+    0 0 0 2px var(--color-destructive);
+}
+
+.select-label {
+  @apply block text-sm font-medium text-foreground mb-2 px-4;
+}
+
+.select-hint {
+  @apply mt-2 px-4 text-sm text-muted-foreground;
+}
+
+.select-error-message {
+  @apply mt-2 px-4 text-sm text-destructive;
+}
+
+.select-trigger {
+  @apply w-full flex items-center gap-2 pr-10 bg-background text-foreground border-0 transition cursor-pointer;
+  @apply focus-visible:outline-none;
+  font-family: var(--font-sans);
+  transition-property: box-shadow;
+  transition-timing-function: var(--ease-default);
+  transition-duration: var(--duration-base);
+}
+
+.select-trigger-placeholder {
+  @apply text-muted-foreground;
+}
+
+.select-tags {
+  @apply flex flex-wrap gap-1.5 flex-1 min-w-0;
+}
+
+.select-tag {
+  @apply inline-flex items-center gap-1 rounded-full bg-background px-2.5 py-0.5 text-xs text-foreground;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.select-tag-remove {
+  @apply cursor-pointer text-muted-foreground hover:text-foreground;
+}
+
+.select-dropdown {
+  @apply absolute left-0 right-0 top-full mt-3 bg-card p-2 overflow-hidden;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+  z-index: var(--z-dropdown);
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.select-search {
+  @apply w-full mb-2 bg-background border-0 rounded-full px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground;
+  @apply focus:outline-none;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.select-option {
+  @apply flex items-center gap-2 w-full px-4 py-2 text-sm text-foreground cursor-pointer transition;
+  border-radius: var(--radius-sm);
+  transition-property: box-shadow, color;
+  transition-duration: var(--duration-fast);
+}
+
+.select-option:hover,
+.select-option-focused {
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.select-option[data-active='true'] {
+  @apply text-primary font-medium;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.select-option[data-disabled='true'] {
+  @apply text-muted-foreground cursor-not-allowed opacity-60;
+  box-shadow: none;
+}
+
+.select-option-check {
+  @apply size-4 text-primary;
+}
+
+.select-empty {
+  @apply px-4 py-3 text-sm text-muted-foreground text-center;
+}
+
+.select-hidden {
+  @apply hidden;
+}

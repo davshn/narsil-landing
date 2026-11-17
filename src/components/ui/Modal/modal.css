@@ -1,0 +1,72 @@
+@reference '../../../styles/global.css';
+
+.modal-overlay {
+  @apply fixed inset-0 flex items-center justify-center p-4;
+  background-color: color-mix(in oklab, var(--color-neu-dark) 60%, transparent);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-base) var(--ease-out);
+}
+
+.modal-overlay[data-open='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal {
+  @apply relative flex flex-col w-full bg-card overflow-hidden;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-lg);
+  max-height: calc(100vh - var(--spacing-8));
+  transform: scale(0.95) translateY(8px);
+  transition: transform var(--duration-slow) var(--ease-spring);
+}
+
+.modal-overlay[data-open='true'] .modal {
+  transform: scale(1) translateY(0);
+}
+
+.modal-sm {
+  max-width: 24rem;
+}
+
+.modal-md {
+  max-width: 32rem;
+}
+
+.modal-lg {
+  max-width: 42rem;
+}
+
+.modal-xl {
+  max-width: 56rem;
+}
+
+.modal-header {
+  @apply flex items-center justify-between gap-4 px-7 pt-7 pb-2;
+}
+
+.modal-title {
+  @apply text-lg font-semibold text-foreground;
+}
+
+.modal-close {
+  @apply flex items-center justify-center w-9 h-9 rounded-full bg-background text-muted-foreground transition cursor-pointer shrink-0;
+  @apply hover:text-foreground;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.modal-close:active {
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.modal-body {
+  @apply flex-1 overflow-y-auto px-7 py-4 text-sm text-muted-foreground;
+}
+
+.modal-footer {
+  @apply flex items-center justify-end gap-3 px-7 pb-7 pt-3;
+}

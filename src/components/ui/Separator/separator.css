@@ -1,0 +1,158 @@
+@reference '../../../styles/global.css';
+
+.separator {
+  @apply shrink-0;
+}
+
+.separator-horizontal {
+  @apply w-full;
+  border-top-style: solid;
+  border-top-width: 1px;
+}
+
+.separator-vertical {
+  @apply self-stretch;
+  border-left-style: solid;
+  border-left-width: 1px;
+}
+
+.separator-solid.separator-horizontal {
+  border-top-style: solid;
+}
+
+.separator-dashed.separator-horizontal {
+  border-top-style: dashed;
+}
+
+.separator-dotted.separator-horizontal {
+  border-top-style: dotted;
+}
+
+.separator-solid.separator-vertical {
+  border-left-style: solid;
+}
+
+.separator-dashed.separator-vertical {
+  border-left-style: dashed;
+}
+
+.separator-dotted.separator-vertical {
+  border-left-style: dotted;
+}
+
+.separator-sm.separator-horizontal {
+  border-top-width: 1px;
+}
+
+.separator-md.separator-horizontal {
+  border-top-width: 2px;
+}
+
+.separator-lg.separator-horizontal {
+  border-top-width: 3px;
+}
+
+.separator-sm.separator-vertical {
+  border-left-width: 1px;
+}
+
+.separator-md.separator-vertical {
+  border-left-width: 2px;
+}
+
+.separator-lg.separator-vertical {
+  border-left-width: 3px;
+}
+
+.separator-default {
+  border-color: var(--color-neu-dark);
+}
+
+.separator-muted {
+  @apply border-muted;
+}
+
+.separator-primary {
+  @apply border-primary/30;
+}
+
+.separator-accent {
+  @apply border-accent/30;
+}
+
+.separator-with-content {
+  @apply flex items-center gap-3 border-0;
+}
+
+.separator-with-content::before,
+.separator-with-content::after {
+  content: '';
+  @apply flex-1;
+  border-top-style: inherit;
+  border-top-width: inherit;
+  border-color: inherit;
+}
+
+.separator-with-content.separator-horizontal::before,
+.separator-with-content.separator-horizontal::after {
+  border-top-width: 1px;
+  border-top-style: solid;
+}
+
+.separator-with-content.separator-sm::before,
+.separator-with-content.separator-sm::after {
+  border-top-width: 1px;
+}
+
+.separator-with-content.separator-md::before,
+.separator-with-content.separator-md::after {
+  border-top-width: 2px;
+}
+
+.separator-with-content.separator-lg::before,
+.separator-with-content.separator-lg::after {
+  border-top-width: 3px;
+}
+
+.separator-with-content.separator-dashed::before,
+.separator-with-content.separator-dashed::after {
+  border-top-style: dashed;
+}
+
+.separator-with-content.separator-dotted::before,
+.separator-with-content.separator-dotted::after {
+  border-top-style: dotted;
+}
+
+.separator-content-start::before {
+  @apply flex-none w-8;
+}
+
+.separator-content-end::after {
+  @apply flex-none w-8;
+}
+
+.separator-content {
+  @apply flex items-center gap-1.5 text-xs font-medium text-muted-foreground whitespace-nowrap;
+}
+
+.separator-icon {
+  @apply size-3.5;
+}
+
+.separator-label {
+  @apply uppercase tracking-wide;
+}
+
+.separator-horizontal:not(.separator-with-content) {
+  box-shadow: 0 1px 0 var(--color-neu-light);
+}
+
+.separator-vertical {
+  box-shadow: 1px 0 0 var(--color-neu-light);
+}
+
+.separator-with-content::before,
+.separator-with-content::after {
+  box-shadow: 0 1px 0 var(--color-neu-light);
+}

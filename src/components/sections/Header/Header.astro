@@ -1,0 +1,93 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import { safeHref } from '@utils/safe-href'
+import './header.css'
+
+interface NavLink {
+  label: string
+  href: string
+  active?: boolean
+}
+
+interface Props {
+  brand?: string
+  brandHref?: string
+  links?: NavLink[]
+  navLabel?: string
+  class?: string
+}
+
+const {
+  brand,
+  brandHref = '/',
+  links = [],
+  navLabel = 'Main navigation',
+  class: className,
+} = Astro.props
+const classes = ['header', className].filter(Boolean).join(' ')
+---
+
+<header class={classes} data-header>
+  <div class="header-inner">
+    {brand !== undefined && brand !== '' && (
+      <a class="header-brand" href={safeHref(brandHref)}>
+        {brand}
+      </a>
+    )}
+
+    <nav class="header-nav" aria-label={navLabel}>
+      {links.map((link) => (
+        <a
+          class="header-link"
+          href={safeHref(link.href)}
+          data-active={link.active ? 'true' : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <slot />
+    </div>
+
+    {Astro.slots.has('bar-actions') && (
+      <div class="header-bar-actions">
+        <slot name="bar-actions" />
+      </div>
+    )}
+
+    <button
+      type="button"
+      class="header-mobile-toggle"
+      data-header-toggle
+      aria-label="Toggle menu"
+      aria-expanded="false"
+    >
+      <Icon name="lucide:menu" class="size-5 header-icon-open" />
+      <Icon name="lucide:x" class="size-5 header-icon-close hidden" />
+    </button>
+  </div>
+
+  <div class="header-mobile-menu">
+    <nav aria-label={`${navLabel} (mobile)`}>
+      {links.map((link) => (
+        <a
+          class="header-link"
+          href={safeHref(link.href)}
+          data-active={link.active ? 'true' : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+    {Astro.slots.has('mobile-actions') && (
+      <div class="header-actions">
+        <slot name="mobile-actions" />
+      </div>
+    )}
+  </div>
+</header>
+
+<script src="./header-menu.ts"></script>

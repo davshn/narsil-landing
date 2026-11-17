@@ -1,0 +1,64 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './carousel.css'
+
+interface Props {
+  label?: string
+  autoplay?: number
+  loop?: boolean
+  showArrows?: boolean
+  showDots?: boolean
+  class?: string
+}
+
+const {
+  label = 'Carousel',
+  autoplay = 0,
+  loop = false,
+  showArrows = true,
+  showDots = true,
+  class: className,
+} = Astro.props
+
+const classes = ['carousel', className].filter(Boolean).join(' ')
+---
+
+<div
+  class={classes}
+  data-carousel
+  data-autoplay={autoplay > 0 ? autoplay : undefined}
+  data-loop={loop ? 'true' : undefined}
+  role="region"
+  aria-roledescription="carousel"
+  aria-label={label}
+>
+  <div class="carousel-track" data-carousel-track>
+    <slot />
+  </div>
+
+  {showArrows && (
+    <div class="carousel-arrows">
+      <button
+        type="button"
+        class="carousel-arrow carousel-arrow-prev"
+        data-carousel-prev
+        aria-label="Previous slide"
+      >
+        <Icon name="lucide:chevron-left" class="size-5" />
+      </button>
+      <button
+        type="button"
+        class="carousel-arrow carousel-arrow-next"
+        data-carousel-next
+        aria-label="Next slide"
+      >
+        <Icon name="lucide:chevron-right" class="size-5" />
+      </button>
+    </div>
+  )}
+
+  {showDots && <div class="carousel-dots" data-carousel-dots role="tablist" />}
+</div>
+
+<script src="./carousel-slider.ts"></script>

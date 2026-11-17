@@ -1,0 +1,27 @@
+# Narsil Workshop
+
+> Narsil Workshop is a free, educational site that teaches, step by step, how to build Claude Code mods like Narsil (a status pet that shows above the prompt whether Claude is working, waiting, done, or stuck) and Narsil Check (a side panel that reviews the branch, CI, dependencies, and vulnerabilities), and an ESP32-S3 desk bot that shows GitHub pull requests and the Narsil status.
+
+The site is available in English, Spanish, Italian, French, and Brazilian Portuguese. It has no backend and no analytics, and it never asks for tokens or keys. Claude and Claude Code are trademarks of Anthropic, PBC; this project is not affiliated with or endorsed by Anthropic.
+
+## Learning paths
+
+- Your own status pet: a mod like Narsil (states, animations, every conversation, floating window, voice, context and cache clocks, phone alerts)
+- Your own review panel: a mod like Narsil Check (CI steps, branch behind its remote, dependency updates by risk, OSV.dev vulnerabilities, tools for Claude)
+- An ESP32-S3 desk bot: a device with a screen that shows the pull requests waiting for you and the Narsil status
+
+## Pages
+
+- [Home (English)](/en/)
+- [Home (Spanish)](/es/)
+- [Support the project](/en/support/)
+
+## Source code
+
+- [Narsil](https://github.com/davshn/narsil-pet)
+- [Narsil Check](https://github.com/davshn/narsil-check)
+- [Narsil Workshop](https://github.com/davshn/narsil-landing)
+
+## Pricing
+
+Free. Donations are optional.

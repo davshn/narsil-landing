@@ -1,0 +1,18 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import Button from '@components/ui/Button/Button.astro'
+
+interface Props {
+  label?: string
+}
+
+const { label = 'Toggle theme' } = Astro.props
+---
+
+<Button variant="icon" size="md" id="theme-toggle" aria-label={label}>
+  <Icon name="lucide:sun" class="hidden size-5 dark:block" />
+  <Icon name="lucide:moon" class="block size-5 dark:hidden" />
+</Button>
+
+<script src="./theme-toggle.ts"></script>
