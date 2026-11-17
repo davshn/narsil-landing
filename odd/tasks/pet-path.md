@@ -13,18 +13,22 @@ Objective: the `/mods/pet/` path with the 17 guides of brief 3.1, delivered in f
 - S7. Guides 1–4 (PR 3a): states at a glance (`hooks/register.tsx`, `hooks/words.ts`); drawing and animations (`hooks/sprite.ts`, `hooks/art.ts`, `tools/build-art.ps1`, `tools/encode-anim.ps1`); every conversation (`hooks/fleet.ts`, `overlay/server.cjs`; order ERROR > TE NECESITA > TRABAJANDO > TERMINADO, paging, one-hour expiry); tasks and subagents (`hooks/tasks.ts`, `hooks/agents.ts`).
 - S8. Every guide exists in `en`, `es`, `it`, `fr`, `pt`.
 - S9. Guides 5–8 (PR 3b, branch `feat/pet-path-2`): floating window (`overlay/`: `server.cjs`, `overlay.html`, `watch.ps1`, `mac-claude.js`; the always-on-top window that appears when Claude is minimized or something waits, and the local server's security: only `127.0.0.1`, page key and mod token, and why it must never be opened to the network); voice and alerts (random phrases per event, voice on Windows and macOS, system notifications: `overlay/speak.ps1`, `overlay/speak.sh`, `overlay/toast.*`); context and limits (`hooks/usage.ts`: per-conversation context bar, fill estimate at the 15-minute pace, `/compact` suggestion, 5-hour and weekly limits); cache clock (`hooks/register.tsx`: countdown of the prompt cache, 60 min subscription and 5 min API, from the last request).
+- S10. Guides 9–12 (PR 3c, branch `feat/pet-path-3`): reactions to commands (`hooks/words.ts`: detect passing and failing tests and warn, without blocking, about dangerous commands); permissions that wait (`hooks/register.tsx`: nudge once after 5 minutes); tips with Haiku (`hooks/advice.ts`, `overlay/tip.*`, `docs/plan-advice.md`: end-of-turn tip from the diff, debugging tip after repeated failures, deep mode, frequencies, the tip window); next steps (`hooks/register.tsx`: proposals after 15 minutes from commits, changes and `odd/tasks/*.md`, filling the prompt on click).
 
 ## Tasks
 
-| ID  | Specs  | Route                          | Status | Commit                                                           |
-| --- | ------ | ------------------------------ | ------ | ---------------------------------------------------------------- |
-| T1  | S1     | inline                         | done   | `dfce4fb`                                                        |
-| T2  | S2–S7  | delegated (context backstop)   | done   | `9640a66`                                                        |
-| T3  | S8     | delegated (4 parallel writers) | done   | translations commit                                              |
-| T4  | S1, S8 | inline                         | done   | 82 e2e passed (chromium), 598 unit tests, 97.6 % lines           |
-| T5  | S9     | delegated (context backstop)   | done   | `b5796e9`                                                        |
-| T6  | S8, S9 | delegated (4 parallel writers) | done   | translations commit                                              |
-| T7  | S9     | inline                         | done   | 90 e2e passed (chromium), 598 unit tests, 97.6 % lines, 86 pages |
+| ID  | Specs   | Route                          | Status  | Commit                                                           |
+| --- | ------- | ------------------------------ | ------- | ---------------------------------------------------------------- |
+| T1  | S1      | inline                         | done    | `dfce4fb`                                                        |
+| T2  | S2–S7   | delegated (context backstop)   | done    | `9640a66`                                                        |
+| T3  | S8      | delegated (4 parallel writers) | done    | translations commit                                              |
+| T4  | S1, S8  | inline                         | done    | 82 e2e passed (chromium), 598 unit tests, 97.6 % lines           |
+| T5  | S9      | delegated (context backstop)   | done    | `b5796e9`                                                        |
+| T6  | S8, S9  | delegated (4 parallel writers) | done    | translations commit                                              |
+| T7  | S9      | inline                         | done    | 90 e2e passed (chromium), 598 unit tests, 97.6 % lines, 86 pages |
+| T8  | S10     | delegated (context backstop)   | pending |                                                                  |
+| T9  | S8, S10 | delegated (4 parallel writers) | pending |                                                                  |
+| T10 | S10     | inline                         | pending |                                                                  |
 
 T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked home card. T2: the four English guides. T3: translations. T4: e2e and full checks.
 
@@ -39,3 +43,4 @@ T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked
 - L7: `pnpm lint:check` also scans `.claude/worktrees/light-dark-mode-styles-f62ff4` (branch feat/cold-blues-theme), a worktree this session did not create; `eslint src e2e` passes. Not changed here.
 - L8 (2026-11-17, owner): "ya quedó, arranca la 3b" (PR #4 merged as f7147ff).
 - L9: findings in narsil-pet while writing 3b, reported to the owner and described as they are in the guides: `GET /events`, `GET /window` and `GET /` of overlay/server.cjs need only a valid Host header, so any local program can read the stream (websites cannot: no CORS); the README's green-to-red cache clock is not drawn (`cacheColor` is imported but never called).
+- L10 (2026-11-17, owner): "Listo sigue" (PR #5 merged).
