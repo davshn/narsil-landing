@@ -18,7 +18,7 @@ const rawLocale = Astro.params.locale ?? ''
 const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
 const t = useTranslations(locale)
 const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
-const repoKeys: RepositoryKey[] = ['pet', 'check', 'site']
+const repoKeys: RepositoryKey[] = ['pet', 'check']
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const jsonLd = buildWebPage({

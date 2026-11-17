@@ -60,6 +60,12 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
+  markdown: {
+    shikiConfig: {
+      themes: { light: 'github-light-high-contrast', dark: 'github-dark' },
+    },
+  },
+
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'es', 'it', 'fr', 'pt'],

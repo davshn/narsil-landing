@@ -2,7 +2,13 @@
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
-      "url": ["http://localhost/en/", "http://localhost/es/", "http://localhost/en/support/"],
+      "url": [
+        "http://localhost/en/",
+        "http://localhost/es/",
+        "http://localhost/en/support/",
+        "http://localhost/en/mods/",
+        "http://localhost/en/mods/what-is-a-mod/"
+      ],
       "numberOfRuns": 5,
       "settings": {
         "chromeFlags": "--headless=new --no-sandbox"

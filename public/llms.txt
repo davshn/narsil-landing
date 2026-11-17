@@ -10,17 +10,19 @@ The site is available in English, Spanish, Italian, French, and Brazilian Portug
 - Your own review panel: a mod like Narsil Check (CI steps, branch behind its remote, dependency updates by risk, OSV.dev vulnerabilities, tools for Claude)
 - An ESP32-S3 desk bot: a device with a screen that shows the pull requests waiting for you and the Narsil status
 
+Experimental: Narsil in Claude, an extension for Firefox and Vivaldi on Android that shows the Narsil status inside claude.ai. It relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it.
+
 ## Pages
 
 - [Home (English)](/en/)
 - [Home (Spanish)](/es/)
+- [Mod fundamentals](/en/mods/): what a mod is made of, the $ object, installing and testing, surfaces, and the GPL v3
 - [Support the project](/en/support/)
 
 ## Source code
 
 - [Narsil](https://github.com/davshn/narsil-pet)
 - [Narsil Check](https://github.com/davshn/narsil-check)
-- [Narsil Workshop](https://github.com/davshn/narsil-landing)
 
 ## Pricing
 

@@ -3,7 +3,17 @@ import { expect, test } from '@playwright/test'
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
-const PATHS = ['/en/', '/es/', '/it/', '/fr/', '/pt/', '/en/support/'] as const
+const PATHS = [
+  '/en/',
+  '/es/',
+  '/it/',
+  '/fr/',
+  '/pt/',
+  '/en/support/',
+  '/en/mods/',
+  '/en/mods/what-is-a-mod/',
+  '/en/mods/the-dollar-object/',
+] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 
 for (const path of PATHS) {

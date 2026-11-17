@@ -18,9 +18,12 @@ test.describe('Landing page smoke tests', () => {
       await expect(page.locator('html')).toHaveAttribute('lang', languageTags[locale])
       await expect(page.getByRole('heading', { level: 1, name: t.home.headline })).toBeVisible()
       await expect(page.locator('#routes .features-title')).toHaveText(t.home.routesTitle)
+      const extension = page.locator('[data-extension]')
+      await expect(extension).toContainText(t.home.extension.badge)
+      await expect(extension.getByRole('heading', { name: t.home.extension.title })).toBeVisible()
     })
 
-    test(`/${locale}/support/ lists the coffee link and the three repositories`, async ({
+    test(`/${locale}/support/ lists the coffee link and the public mod repositories`, async ({
       page,
     }) => {
       await page.goto(`/${locale}/support/`)
@@ -32,7 +35,6 @@ test.describe('Landing page smoke tests', () => {
       await expect(page.locator('[data-repositories] a')).toHaveText([
         t.support.repos.pet,
         t.support.repos.check,
-        t.support.repos.site,
       ])
     })
   }

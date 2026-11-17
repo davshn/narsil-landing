@@ -14,6 +14,7 @@ export const it: TranslationShape = {
     mainNavigation: 'Navigazione principale',
   },
   nav: {
+    mods: 'Basi delle mod',
     routes: 'Percorsi di apprendimento',
     support: 'Sostieni il progetto',
   },
@@ -29,7 +30,7 @@ export const it: TranslationShape = {
     subheadline:
       'Scopri come funzionano dentro Narsil e Narsil Check, ricostruisci ogni funzionalità da zero e finisci con un bot ESP32-S3 che mostra le tue pull request.',
     cta: 'Vedi i percorsi',
-    secondaryCta: 'Offrimi un caffè',
+    fundamentalsCta: 'Inizia dalle basi',
     aboutTitle: "Che cos'è Narsil?",
     about: [
       'Narsil è una mod di Claude Code: una piccola mascotte che vive sopra il prompt e ti dice a colpo d’occhio se Claude sta lavorando, ha bisogno di te, ha finito o si è bloccato. Narsil Check è la sua sorella, un pannello laterale che controlla il tuo branch, la CI, le dipendenze e le vulnerabilità.',
@@ -61,6 +62,40 @@ export const it: TranslationShape = {
     coffeeText:
       'Niente pubblicità, niente registrazione e nessun prezzo. Se una guida ti aiuta, puoi offrirmi un caffè per scrivere la prossima.',
     coffeeCta: 'Offrimi un caffè',
+    extension: {
+      badge: 'Sperimentale',
+      title: 'Narsil in Claude, l’estensione del browser',
+      text: 'Narsil vive anche dentro claude.ai sul tuo telefono: un’estensione per Firefox e Vivaldi su Android mostra sopra la casella di testo lo stato, il contesto, la cache e l’ultimo evento della conversazione aperta, e nel menu laterale il livello di Narsil, i tuoi limiti di utilizzo e i messaggi ntfy.sh del giorno. Inoltre veste Claude con i colori di Narsil.',
+      note: 'È sperimentale: è molto collaudata, ma si basa sulla struttura della pagina di claude.ai e non su un’API pubblica, quindi un aggiornamento di Claude può romperla. Legge soltanto e non invia mai i tuoi dati da nessuna parte.',
+    },
+  },
+  mods: {
+    title: 'Basi delle mod',
+    description:
+      'Di cosa è fatta una mod di Claude Code, l’oggetto $, come installare e testare una mod, dove funziona e cosa comporta per il tuo codice la licenza GPL v3 di Narsil.',
+    intro: [
+      'Prima di ricostruire Narsil o Narsil Check ti servono i pezzi che tutte le mod condividono: tre piccoli file, una funzione che registra gli hook e l’oggetto $, che raggiunge tutto ciò che sta fuori dal modulo.',
+      'Leggi queste guide in ordine. Ognuna finisce con un modo per verificare che quello che hai costruito funziona.',
+    ],
+    listTitle: 'Le guide',
+    startCta: 'Inizia la prima guida',
+  },
+  guide: {
+    breadcrumbLabel: 'Percorso di navigazione',
+    stepOf: 'Guida {current} di {total}',
+    updated: 'Aggiornata',
+    verifiedWith: 'Verificata con Claude Code {version}',
+    sourcesTitle: 'Per andare oltre: come lo fa la mod vera',
+    sourcesIntro:
+      'Questi file fanno parte delle mod originali, pubblicate con licenza GPL v3. Il codice citato in questa pagina viene da lì e mantiene quella licenza.',
+    pathNavLabel: 'Guide di questo percorso',
+    previous: 'Precedente',
+    next: 'Successiva',
+    backToPath: 'Tutte le guide di questo percorso',
+    coffeeTitle: 'Questa guida ti è stata utile?',
+    coffeeText:
+      'Tutte le guide sono gratuite. Se questa ti ha fatto risparmiare tempo, puoi offrirmi un caffè.',
+    coffeeCta: 'Offrimi un caffè',
   },
   support: {
     title: 'Sostieni Narsil Workshop',
@@ -77,7 +112,6 @@ export const it: TranslationShape = {
     repos: {
       pet: 'Narsil, la mod con la mascotte di stato',
       check: 'Narsil Check, la mod con il pannello di revisione',
-      site: 'Narsil Workshop, questo sito',
     },
     developer: {
       text: 'Creo e mantengo Narsil e questo laboratorio in autonomia.',

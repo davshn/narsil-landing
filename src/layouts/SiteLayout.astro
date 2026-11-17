@@ -20,10 +20,20 @@ interface Props {
 const { title, description, locale, jsonLd } = Astro.props
 const t = useTranslations(locale)
 
+const modsHref = `/${locale}/mods/`
 const links = [
-  { label: t.nav.routes, href: `/${locale}/#routes` },
-  { label: t.nav.support, href: `/${locale}/support/` },
-].map((link) => ({ ...link, active: link.href === Astro.url.pathname }))
+  {
+    label: t.nav.mods,
+    href: modsHref,
+    active: Astro.url.pathname.startsWith(modsHref),
+  },
+  { label: t.nav.routes, href: `/${locale}/#routes`, active: false },
+  {
+    label: t.nav.support,
+    href: `/${locale}/support/`,
+    active: Astro.url.pathname === `/${locale}/support/`,
+  },
+]
 
 const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
 ---

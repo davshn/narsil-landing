@@ -1,0 +1,170 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+import Card from '@components/ui/Card/Card.astro'
+import CardBody from '@components/ui/Card/CardBody.astro'
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import type { GuideSource } from '@content/schema'
+import { languageTags, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage } from '@seo/json-ld'
+import { donationLink, resolveDonationUrl } from '@utils/donation'
+import { sourceLabel, sourceUrl } from '@utils/guides'
+import { fillTemplate } from '@utils/template'
+
+import './guide.css'
+
+interface PagerLink {
+  title: string
+  href: string
+}
+
+interface Props {
+  locale: Locale
+  title: string
+  description: string
+  pathTitle: string
+  pathHref: string
+  step: number
+  total: number
+  updated: Date
+  verifiedWith: string
+  sources: GuideSource[]
+  previous?: PagerLink
+  next?: PagerLink
+}
+
+const {
+  locale,
+  title,
+  description,
+  pathTitle,
+  pathHref,
+  step,
+  total,
+  updated,
+  verifiedWith,
+  sources,
+  previous,
+  next,
+} = Astro.props
+const t = useTranslations(locale)
+const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
+const updatedText = new Intl.DateTimeFormat(languageTags[locale], {
+  dateStyle: 'long',
+  timeZone: 'UTC',
+}).format(updated)
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const jsonLd = buildWebPage({
+  name: title,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  description,
+  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  inLanguage: locale,
+})
+---
+
+<SiteLayout
+  title={`${title} — ${t.meta.siteName}`}
+  description={description}
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Container as="article" maxWidth="md" padding="section" class="flex flex-col gap-8">
+    <header class="flex flex-col gap-4">
+      <nav class="guide-breadcrumb" aria-label={t.guide.breadcrumbLabel}>
+        <ol>
+          <li>
+            <a href={`/${locale}/`}>{t.meta.siteName}</a>
+          </li>
+          <li>
+            <a href={pathHref}>{pathTitle}</a>
+          </li>
+        </ol>
+      </nav>
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
+      <Text as="p" tone="muted">
+        {description}
+      </Text>
+      <p class="guide-meta" data-guide-meta>
+        <span>{fillTemplate(t.guide.stepOf, { current: step, total })}</span>
+        <span>
+          {`${t.guide.updated}: `}
+          <time datetime={updated.toISOString().slice(0, 10)}>{updatedText}</time>
+        </span>
+        <span>{fillTemplate(t.guide.verifiedWith, { version: verifiedWith })}</span>
+      </p>
+    </header>
+
+    <div class="guide-prose" data-guide-body>
+      <slot />
+    </div>
+
+    {sources.length > 0 && (
+      <section aria-labelledby="guide-sources" class="flex flex-col gap-3" data-guide-sources>
+        <h2 id="guide-sources" class="text-2xl font-bold tracking-tight">
+          {t.guide.sourcesTitle}
+        </h2>
+        <Text as="p" size="sm" tone="muted">
+          {t.guide.sourcesIntro}
+        </Text>
+        <ul class="flex flex-col gap-1">
+          {sources.map((source) => (
+            <li>
+              <a
+                class="text-primary underline underline-offset-4"
+                href={sourceUrl(source)}
+                target="_blank"
+                rel="noopener"
+              >
+                <code>{sourceLabel(source)}</code>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <nav aria-label={t.guide.pathNavLabel} class="flex flex-col gap-4">
+      <div class="guide-pager">
+        {previous !== undefined && (
+          <div data-direction="previous">
+            <Card href={previous.href}>
+              <CardBody>
+                <span class="guide-pager-label">{t.guide.previous}</span>
+                <span class="font-semibold">{previous.title}</span>
+              </CardBody>
+            </Card>
+          </div>
+        )}
+        {next !== undefined && (
+          <div data-direction="next">
+            <Card href={next.href}>
+              <CardBody>
+                <span class="guide-pager-label">{t.guide.next}</span>
+                <span class="font-semibold">{next.title}</span>
+              </CardBody>
+            </Card>
+          </div>
+        )}
+      </div>
+      <a class="text-primary underline underline-offset-4" href={pathHref}>
+        {t.guide.backToPath}
+      </a>
+    </nav>
+
+    {donation !== undefined && (
+      <Card variant="outlined">
+        <CardBody class="flex flex-col items-start gap-3">
+          <h2 class="text-xl font-semibold">{t.guide.coffeeTitle}</h2>
+          <Text as="p">{t.guide.coffeeText}</Text>
+          <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+            {t.guide.coffeeCta}
+          </Button>
+        </CardBody>
+      </Card>
+    )}
+  </Container>
+</SiteLayout>
