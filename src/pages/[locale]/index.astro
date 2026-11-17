@@ -1,0 +1,259 @@
+---
+import AccordionShowcase from '@components/sections/Showcase/AccordionShowcase.astro'
+import AlertShowcase from '@components/sections/Showcase/AlertShowcase.astro'
+import AvatarShowcase from '@components/sections/Showcase/AvatarShowcase.astro'
+import BadgeShowcase from '@components/sections/Showcase/BadgeShowcase.astro'
+import ButtonShowcase from '@components/sections/Showcase/ButtonShowcase.astro'
+import CardShowcase from '@components/sections/Showcase/CardShowcase.astro'
+import CarouselShowcase from '@components/sections/Showcase/CarouselShowcase.astro'
+import CheckboxShowcase from '@components/sections/Showcase/CheckboxShowcase.astro'
+import ContactShowcase from '@components/sections/Showcase/ContactShowcase.astro'
+import ContainerShowcase from '@components/sections/Showcase/ContainerShowcase.astro'
+import CTAShowcase from '@components/sections/Showcase/CTAShowcase.astro'
+import DropdownShowcase from '@components/sections/Showcase/DropdownShowcase.astro'
+import FAQShowcase from '@components/sections/Showcase/FAQShowcase.astro'
+import FeaturesShowcase from '@components/sections/Showcase/FeaturesShowcase.astro'
+import FooterShowcase from '@components/sections/Showcase/FooterShowcase.astro'
+import HeaderShowcase from '@components/sections/Showcase/HeaderShowcase.astro'
+import HeroShowcase from '@components/sections/Showcase/HeroShowcase.astro'
+import InputShowcase from '@components/sections/Showcase/InputShowcase.astro'
+import ModalShowcase from '@components/sections/Showcase/ModalShowcase.astro'
+import PricingShowcase from '@components/sections/Showcase/PricingShowcase.astro'
+import ProgressShowcase from '@components/sections/Showcase/ProgressShowcase.astro'
+import RadioShowcase from '@components/sections/Showcase/RadioShowcase.astro'
+import SelectShowcase from '@components/sections/Showcase/SelectShowcase.astro'
+import SeparatorShowcase from '@components/sections/Showcase/SeparatorShowcase.astro'
+import SidebarShowcase from '@components/sections/Showcase/SidebarShowcase.astro'
+import TableShowcase from '@components/sections/Showcase/TableShowcase.astro'
+import TextShowcase from '@components/sections/Showcase/TextShowcase.astro'
+import TimelineShowcase from '@components/sections/Showcase/TimelineShowcase.astro'
+import ToastShowcase from '@components/sections/Showcase/ToastShowcase.astro'
+import TooltipShowcase from '@components/sections/Showcase/TooltipShowcase.astro'
+import Sidebar from '@components/sections/Sidebar/Sidebar.astro'
+import Container from '@components/ui/Container/Container.astro'
+import Select from '@components/ui/Select/Select.astro'
+import SkipToContent from '@components/ui/SkipToContent/SkipToContent.astro'
+import ThemeToggle from '@components/ui/ThemeToggle/ThemeToggle.astro'
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { buildSoftwareApplication, buildWebPage, buildWebSite } from '@seo/json-ld'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const t = useTranslations(locale)
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+const jsonLd = [
+  buildWebSite({
+    name: t.meta.siteName,
+    url: siteUrl,
+    description: t.meta.description,
+    inLanguage: locale,
+  }),
+  buildWebPage({
+    name: t.meta.title,
+    url: pageUrl,
+    description: t.meta.description,
+    isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+    inLanguage: locale,
+  }),
+  buildSoftwareApplication({
+    name: t.meta.siteName,
+    description: t.meta.description,
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Web',
+    url: pageUrl,
+    offers: { price: '0', priceCurrency: 'USD' },
+  }),
+]
+
+const localeOptions = locales.map((l) => ({
+  value: l,
+  label: l === 'en' ? 'English' : 'Español',
+}))
+---
+
+<BaseLayout
+  title={t.meta.title}
+  description={t.meta.description}
+  locale={locale}
+  siteName={t.meta.siteName}
+  jsonLd={jsonLd}
+>
+  <SkipToContent slot="skip-nav" label={locale === 'es' ? 'Ir al contenido' : 'Skip to content'} />
+
+  <header slot="header" role="banner">
+    <h1 class="sr-only">{t.meta.title}</h1>
+  </header>
+
+  <div class="flex min-h-screen">
+    <Sidebar
+      position="left"
+      title={t.sidebar.title}
+      subtitle={t.sidebar.subtitle}
+      image={{
+        src: 'https://placehold.co/280x140/e2e8f0/64748b?text=Landing+Template',
+        alt: 'Landing template preview',
+      }}
+    >
+      <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-1">
+          <ThemeToggle label={locale === 'es' ? 'Cambiar tema' : 'Toggle theme'} />
+          <Select
+            name="locale"
+            label={locale === 'es' ? 'Idioma' : 'Language'}
+            options={localeOptions}
+            value={locale}
+            size="sm"
+            variant="outlined"
+          />
+        </div>
+
+        <nav class="flex flex-col gap-1" aria-label={t.sidebar.components}>
+          <span class="text-xs font-medium text-muted-foreground px-3 py-1">
+            {t.sidebar.components}
+          </span>
+          <a class="sidebar-action" href="#button" data-active="false">
+            <span>{t.nav.button}</span>
+          </a>
+          <a class="sidebar-action" href="#input" data-active="false">
+            <span>{t.nav.input}</span>
+          </a>
+          <a class="sidebar-action" href="#select" data-active="false">
+            <span>{t.nav.select}</span>
+          </a>
+          <a class="sidebar-action" href="#dropdown" data-active="false">
+            <span>{t.nav.dropdown}</span>
+          </a>
+          <a class="sidebar-action" href="#text" data-active="false">
+            <span>{t.nav.text}</span>
+          </a>
+          <a class="sidebar-action" href="#avatar" data-active="false">
+            <span>{t.nav.avatar}</span>
+          </a>
+          <a class="sidebar-action" href="#container" data-active="false">
+            <span>{t.nav.container}</span>
+          </a>
+          <a class="sidebar-action" href="#alert" data-active="false">
+            <span>{t.nav.alert}</span>
+          </a>
+          <a class="sidebar-action" href="#badge" data-active="false">
+            <span>{t.nav.badge}</span>
+          </a>
+          <a class="sidebar-action" href="#progress" data-active="false">
+            <span>{t.nav.progress}</span>
+          </a>
+          <a class="sidebar-action" href="#separator" data-active="false">
+            <span>{t.nav.separator}</span>
+          </a>
+          <a class="sidebar-action" href="#checkbox" data-active="false">
+            <span>{t.nav.checkbox}</span>
+          </a>
+          <a class="sidebar-action" href="#radio" data-active="false">
+            <span>{t.nav.radio}</span>
+          </a>
+          <a class="sidebar-action" href="#accordion" data-active="false">
+            <span>{t.nav.accordion}</span>
+          </a>
+          <a class="sidebar-action" href="#tooltip" data-active="false">
+            <span>{t.nav.tooltip}</span>
+          </a>
+          <a class="sidebar-action" href="#toast" data-active="false">
+            <span>{t.nav.toast}</span>
+          </a>
+          <a class="sidebar-action" href="#modal" data-active="false">
+            <span>{t.nav.modal}</span>
+          </a>
+          <a class="sidebar-action" href="#timeline" data-active="false">
+            <span>{t.nav.timeline}</span>
+          </a>
+          <a class="sidebar-action" href="#table" data-active="false">
+            <span>{t.nav.table}</span>
+          </a>
+          <a class="sidebar-action" href="#card" data-active="false">
+            <span>{t.nav.card}</span>
+          </a>
+        </nav>
+
+        <nav class="flex flex-col gap-1" aria-label={t.sidebar.sections}>
+          <span class="text-xs font-medium text-muted-foreground px-3 py-1">
+            {t.sidebar.sections}
+          </span>
+          <a class="sidebar-action" href="#sidebar" data-active="false">
+            <span>{t.nav.sidebar}</span>
+          </a>
+          <a class="sidebar-action" href="#carousel" data-active="false">
+            <span>{t.nav.carousel}</span>
+          </a>
+          <a class="sidebar-action" href="#header" data-active="false">
+            <span>{t.nav.header}</span>
+          </a>
+          <a class="sidebar-action" href="#footer" data-active="false">
+            <span>{t.nav.footer}</span>
+          </a>
+          <a class="sidebar-action" href="#pricing" data-active="false">
+            <span>{t.nav.pricing}</span>
+          </a>
+          <a class="sidebar-action" href="#cta" data-active="false">
+            <span>{t.nav.cta}</span>
+          </a>
+          <a class="sidebar-action" href="#hero" data-active="false">
+            <span>{t.nav.hero}</span>
+          </a>
+          <a class="sidebar-action" href="#contact" data-active="false">
+            <span>{t.nav.contact}</span>
+          </a>
+          <a class="sidebar-action" href="#features" data-active="false">
+            <span>{t.nav.features}</span>
+          </a>
+          <a class="sidebar-action" href="#faq" data-active="false">
+            <span>{t.nav.faq}</span>
+          </a>
+        </nav>
+      </div>
+    </Sidebar>
+
+    <Container as="section" maxWidth="xl" padding="section">
+      <ButtonShowcase t={t} />
+      <InputShowcase t={t} />
+      <SelectShowcase t={t} />
+      <DropdownShowcase t={t} />
+      <TextShowcase t={t} />
+      <AvatarShowcase t={t} />
+      <ContainerShowcase t={t} />
+      <AlertShowcase t={t} />
+      <BadgeShowcase t={t} />
+      <ProgressShowcase t={t} />
+      <SeparatorShowcase t={t} />
+      <CheckboxShowcase t={t} />
+      <RadioShowcase t={t} />
+      <AccordionShowcase t={t} />
+      <TooltipShowcase t={t} />
+      <ToastShowcase t={t} />
+      <ModalShowcase t={t} />
+      <TimelineShowcase t={t} />
+      <TableShowcase t={t} />
+      <CardShowcase t={t} />
+      <SidebarShowcase t={t} />
+      <CarouselShowcase t={t} />
+      <HeaderShowcase t={t} />
+      <FooterShowcase t={t} />
+      <PricingShowcase t={t} />
+      <CTAShowcase t={t} />
+      <HeroShowcase t={t} />
+      <ContactShowcase t={t} />
+      <FeaturesShowcase t={t} />
+      <FAQShowcase t={t} />
+    </Container>
+  </div>
+
+  <footer slot="footer" role="contentinfo"></footer>
+
+  <script src="../../scripts/showcase-navigation.ts"></script>
+</BaseLayout>

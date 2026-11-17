@@ -1,0 +1,33 @@
+# Landing Template
+
+> Landing Template is a free, open source landing page starter and UI kit built with Astro, Tailwind CSS v4 and TypeScript. It ships fast static pages with SEO, structured data, i18n, dark mode and accessible components out of the box.
+
+When you fork this template for your own product, replace this file with a description of your product, audience, pricing and contact links. AI answer engines (ChatGPT, Claude, Perplexity, Gemini) read it to understand and cite the site.
+
+## What it includes
+
+- 23 UI components (button, input, select, dropdown, modal, toast, tooltip, table, timeline and more) and 10 landing sections (hero, features, pricing, FAQ, CTA, contact, header, footer, sidebar, carousel)
+- Neumorphic (soft UI) design system with light and dark mode, driven by design tokens in `src/styles/global.css` and `src/styles/theme.ts`
+- English and Spanish locales with `hreflang` alternates, localized metadata and a localized sitemap
+- SEO defaults: canonical URLs, Open Graph and Twitter cards, JSON-LD (`WebSite`, `WebPage`, `SoftwareApplication`, optional `FAQPage`), `robots.txt` that allows AI crawlers
+- Accessibility: skip link, visible focus rings, keyboard support, reduced motion support, labelled form controls
+- Quality tooling: Vitest, Playwright, ESLint, Prettier, Secretlint and CI
+
+## Who it is for
+
+Developers and small teams who need a fast, accessible, search-ready marketing site without starting from scratch.
+
+## Pricing
+
+Free and open source for personal and commercial use.
+
+## Pages
+
+- [Component showcase (English)](/en/): live preview of every component and section
+- [Component showcase (Spanish)](/es/): the same preview in Spanish
+
+## Getting started
+
+- Install dependencies with `pnpm install`, run `pnpm dev`, and build with `pnpm build`
+- Set `PUBLIC_SITE_URL` (in `.env` or the hosting environment) so canonical URLs, `hreflang`, the sitemap and Open Graph images use the production domain
+- Deploy the `dist/` folder to any static host such as Vercel, Netlify or Cloudflare Pages

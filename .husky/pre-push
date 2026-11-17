@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+echo ""
+echo "${BLUE}╔══════════════════════════════════════╗${NC}"
+echo "${BLUE}║          PRE-PUSH CHECKS             ║${NC}"
+echo "${BLUE}╚══════════════════════════════════════╝${NC}"
+echo "${YELLOW}  Branch: ${BRANCH}${NC}"
+echo ""
+
+echo "${YELLOW}[1/3] Type-checking...${NC}"
+pnpm run typecheck
+echo "${GREEN}  ✓ Type-check OK${NC}"
+
+echo "${YELLOW}[2/3] Running tests...${NC}"
+pnpm run test
+echo "${GREEN}  ✓ Tests OK${NC}"
+
+echo "${YELLOW}[3/3] Checking the production build...${NC}"
+pnpm run build
+echo "${GREEN}  ✓ Build OK${NC}"
+
+echo ""
+echo "${GREEN}✅ Pre-push checks passed! Pushing...${NC}"
+echo ""

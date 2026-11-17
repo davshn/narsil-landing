@@ -1,0 +1,39 @@
+#!/bin/sh
+set -e
+
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+echo ""
+echo "${BLUE}╔══════════════════════════════════════╗${NC}"
+echo "${BLUE}║        COMMIT-MSG VALIDATION         ║${NC}"
+echo "${BLUE}╚══════════════════════════════════════╝${NC}"
+echo ""
+echo "${YELLOW}Validating commit message...${NC}"
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(sed -n '1p' "$COMMIT_MSG_FILE")
+
+if echo "$COMMIT_MSG" | grep -Eq '^(Merge|Revert|fixup!|squash!)'; then
+  echo "${GREEN}✅ Commit message is valid!${NC}"
+  exit 0
+fi
+
+if ! echo "$COMMIT_MSG" | grep -Eq '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9-]+\))?!?: .{1,}$'; then
+  echo ""
+  echo "${RED}❌ Invalid commit message. Valid examples:${NC}"
+  echo ""
+  echo "   feat(hero): add primary CTA section"
+  echo "   fix(seo): generate canonical URL correctly"
+  echo "   docs(readme): update setup instructions"
+  echo "   chore(husky): adapt hooks for landing template"
+  echo ""
+  echo "   Reference: https://www.conventionalcommits.org"
+  exit 1
+fi
+
+echo "${GREEN}✅ Commit message is valid!${NC}"
+echo ""
