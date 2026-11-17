@@ -1,0 +1,79 @@
+---
+import Footer from '@components/sections/Footer/Footer.astro'
+import Header from '@components/sections/Header/Header.astro'
+import LanguageSelector from '@components/sections/LanguageSelector/LanguageSelector.astro'
+import Button from '@components/ui/Button/Button.astro'
+import SkipToContent from '@components/ui/SkipToContent/SkipToContent.astro'
+import ThemeToggle from '@components/ui/ThemeToggle/ThemeToggle.astro'
+import type { Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import BaseLayout from '@layouts/BaseLayout.astro'
+import { donationLink, resolveDonationUrl } from '@utils/donation'
+
+interface Props {
+  title: string
+  description: string
+  locale: Locale
+  jsonLd?: object | object[]
+}
+
+const { title, description, locale, jsonLd } = Astro.props
+const t = useTranslations(locale)
+
+const links = [
+  { label: t.nav.routes, href: `/${locale}/#routes` },
+  { label: t.nav.support, href: `/${locale}/support/` },
+].map((link) => ({ ...link, active: link.href === Astro.url.pathname }))
+
+const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale={locale}
+  siteName={t.meta.siteName}
+  jsonLd={jsonLd}
+>
+  <SkipToContent slot="skip-nav" label={t.common.skipToContent} />
+
+  <Header
+    slot="header"
+    brand={t.meta.siteName}
+    brandHref={`/${locale}/`}
+    navLabel={t.common.mainNavigation}
+    links={links}
+  >
+    <LanguageSelector locale={locale} pathname={Astro.url.pathname} label={t.common.language} />
+    <ThemeToggle slot="bar-actions" label={t.common.toggleTheme} />
+    <LanguageSelector
+      slot="mobile-actions"
+      locale={locale}
+      pathname={Astro.url.pathname}
+      label={t.common.language}
+      placement="inline"
+    />
+  </Header>
+
+  <slot />
+
+  <Footer
+    slot="footer"
+    brand={t.meta.siteName}
+    description={`${t.footer.description} ${t.footer.privacy}`}
+    copyright={t.footer.trademark}
+  >
+    {donation !== undefined && (
+      <Button
+        href={donation.url}
+        variant="outline"
+        size="sm"
+        target="_blank"
+        rel="noopener"
+        data-donate
+      >
+        {t.footer.donate}
+      </Button>
+    )}
+  </Footer>
+</BaseLayout>

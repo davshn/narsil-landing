@@ -21,7 +21,12 @@ export default defineConfig({
 
   security: {
     csp: {
-      directives: ["object-src 'none'", "base-uri 'self'"],
+      directives: [
+        "object-src 'none'",
+        "base-uri 'self'",
+        "connect-src 'self'",
+        "form-action 'self'",
+      ],
       scriptDirective: {
         resources: ["'self'"],
       },
@@ -36,7 +41,7 @@ export default defineConfig({
       filter: (page) => new URL(page).pathname !== '/',
       i18n: {
         defaultLocale: 'en',
-        locales: { en: 'en', es: 'es' },
+        locales: { en: 'en', es: 'es', it: 'it', fr: 'fr', pt: 'pt-BR' },
       },
     }),
     icon(),
@@ -57,7 +62,7 @@ export default defineConfig({
 
   i18n: {
     defaultLocale: 'en',
-    locales: ['en', 'es'],
+    locales: ['en', 'es', 'it', 'fr', 'pt'],
     routing: {
       prefixDefaultLocale: true,
       redirectToDefaultLocale: false,

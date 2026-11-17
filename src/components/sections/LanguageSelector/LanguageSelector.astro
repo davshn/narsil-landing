@@ -1,0 +1,53 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import { languageTags, localeNames, locales, type Locale } from '@i18n/index'
+import { buildAlternateUrl } from '@utils/alternate-url'
+
+import './language-selector.css'
+
+interface Props {
+  locale: Locale
+  pathname: string
+  label: string
+  placement?: 'dropdown' | 'inline'
+}
+
+const { locale, pathname, label, placement = 'dropdown' } = Astro.props
+const base = new URL('https://localhost')
+const classes = ['language-selector', placement === 'inline' ? 'language-selector-inline' : '']
+  .filter(Boolean)
+  .join(' ')
+
+const items = locales.map((item) => ({
+  locale: item,
+  name: localeNames[item],
+  tag: languageTags[item],
+  href: new URL(buildAlternateUrl(pathname, item, base, locales)).pathname,
+  current: item === locale,
+}))
+---
+
+<details class={classes}>
+  <summary class="language-selector-summary">
+    <Icon name="lucide:languages" class="size-4 shrink-0" aria-hidden="true" />
+    <span class="sr-only">{label}: </span>
+    <span lang={languageTags[locale]}>{localeNames[locale]}</span>
+    <Icon name="lucide:chevron-down" class="language-selector-chevron" aria-hidden="true" />
+  </summary>
+  <ul class="language-selector-list">
+    {items.map((item) => (
+      <li>
+        <a
+          class="language-selector-link"
+          href={item.href}
+          hreflang={item.tag}
+          lang={item.tag}
+          aria-current={item.current ? 'true' : undefined}
+        >
+          {item.name}
+        </a>
+      </li>
+    ))}
+  </ul>
+</details>

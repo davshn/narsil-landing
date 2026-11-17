@@ -1,5 +1,6 @@
 interface ImportMetaEnv {
   readonly PUBLIC_SITE_URL: string
+  readonly PUBLIC_DONATION_URL?: string
   readonly PUBLIC_ANALYTICS_PLAUSIBLE_DOMAIN?: string
   readonly PUBLIC_ANALYTICS_GA_ID?: string
   readonly PUBLIC_ANALYTICS_UMAMI_ID?: string

@@ -1,7 +1,7 @@
 ---
 import InlineScript from '@components/layout/InlineScript.astro'
 import AnalyticsProvider from '@components/layout/AnalyticsProvider.astro'
-import { defaultLocale, locales, ogLocales, type Locale } from '@i18n/index'
+import { defaultLocale, languageTags, locales, ogLocales, type Locale } from '@i18n/index'
 import '@styles/global.css'
 import { buildAlternateUrl } from '@utils/alternate-url'
 import { serializeForInlineScript } from '@utils/inline-json'
@@ -41,7 +41,7 @@ const hasOgImage = finalOgImage !== undefined && finalOgImage !== ''
 const alternateOgLocales = locales.filter((loc) => loc !== locale).map((loc) => ogLocales[loc])
 ---
 
-<html lang={locale} class="">
+<html lang={languageTags[locale]} class="">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -70,7 +70,7 @@ const alternateOgLocales = locales.filter((loc) => loc !== locale).map((loc) => 
       locales.map((loc) => (
         <link
           rel="alternate"
-          hreflang={loc}
+          hreflang={languageTags[loc]}
           href={buildAlternateUrl(Astro.url.pathname, loc, site, locales)}
         />
       ))}

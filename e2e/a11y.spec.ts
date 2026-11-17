@@ -3,14 +3,14 @@ import { expect, test } from '@playwright/test'
 
 const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
-const LOCALES = ['en', 'es'] as const
+const PATHS = ['/en/', '/es/', '/it/', '/fr/', '/pt/', '/en/support/'] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 
-for (const locale of LOCALES) {
+for (const path of PATHS) {
   for (const colorScheme of COLOR_SCHEMES) {
-    test(`/${locale}/ has no WCAG A/AA violations in ${colorScheme} mode`, async ({ page }) => {
+    test(`${path} has no WCAG A/AA violations in ${colorScheme} mode`, async ({ page }) => {
       await page.emulateMedia({ colorScheme })
-      await page.goto(`/${locale}/`)
+      await page.goto(path)
 
       const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze()
 

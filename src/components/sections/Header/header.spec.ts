@@ -62,3 +62,37 @@ describe('Header', () => {
     expect(toggle?.getAttribute('aria-expanded')).toBe('false')
   })
 })
+
+describe('Header actions', () => {
+  it('renders the default slot once, in the desktop bar', async () => {
+    const host = await render(Header, { slots: { default: '<button id="probe">x</button>' } })
+
+    expect(host.querySelectorAll('#probe')).toHaveLength(1)
+    expect(host.querySelector('.header-mobile-menu #probe')).toBeNull()
+  })
+
+  it('renders mobile actions only in the mobile menu', async () => {
+    const host = await render(Header, {
+      slots: { 'mobile-actions': '<a class="probe" href="/x">x</a>' },
+    })
+
+    expect(host.querySelectorAll('.probe')).toHaveLength(1)
+    expect(host.querySelector('.header-mobile-menu .probe')).not.toBeNull()
+  })
+
+  it('renders bar actions once, in the bar next to the menu toggle', async () => {
+    const host = await render(Header, {
+      slots: { 'bar-actions': '<button id="bar-probe">x</button>' },
+    })
+
+    expect(host.querySelectorAll('#bar-probe')).toHaveLength(1)
+    expect(host.querySelector('.header-inner > .header-bar-actions #bar-probe')).not.toBeNull()
+    expect(host.querySelector('.header-actions #bar-probe')).toBeNull()
+  })
+
+  it('leaves out the bar actions container when the slot is empty', async () => {
+    const host = await render(Header, { props: { brand: 'Acme' } })
+
+    expect(host.querySelector('.header-bar-actions')).toBeNull()
+  })
+})

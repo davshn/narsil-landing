@@ -1,6 +1,6 @@
 ---
 import InlineScript from '@components/layout/InlineScript.astro'
-import { defaultLocale, locales } from '@i18n/index'
+import { defaultLocale, languageTags, localeNames, locales } from '@i18n/index'
 import { buildLocaleRedirectScript } from '@utils/locale-redirect'
 
 const site = Astro.site
@@ -16,7 +16,7 @@ const localeUrl = (locale: string): string =>
     <meta name="robots" content="noindex, follow" />
     <link rel="canonical" href={localeUrl(defaultLocale)} />
     {locales.map((loc) => (
-      <link rel="alternate" hreflang={loc} href={localeUrl(loc)} />
+      <link rel="alternate" hreflang={languageTags[loc]} href={localeUrl(loc)} />
     ))}
     <link rel="alternate" hreflang="x-default" href={localeUrl(defaultLocale)} />
     <InlineScript code={buildLocaleRedirectScript(locales, defaultLocale)} />
@@ -28,8 +28,8 @@ const localeUrl = (locale: string): string =>
     <ul>
       {locales.map((loc) => (
         <li>
-          <a href={`/${loc}/`} hreflang={loc} lang={loc}>
-            {loc === 'es' ? 'Español' : 'English'}
+          <a href={`/${loc}/`} hreflang={languageTags[loc]} lang={languageTags[loc]}>
+            {localeNames[loc]}
           </a>
         </li>
       ))}

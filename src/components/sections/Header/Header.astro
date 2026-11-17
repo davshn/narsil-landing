@@ -52,6 +52,12 @@ const classes = ['header', className].filter(Boolean).join(' ')
       <slot />
     </div>
 
+    {Astro.slots.has('bar-actions') && (
+      <div class="header-bar-actions">
+        <slot name="bar-actions" />
+      </div>
+    )}
+
     <button
       type="button"
       class="header-mobile-toggle"
@@ -76,9 +82,11 @@ const classes = ['header', className].filter(Boolean).join(' ')
         </a>
       ))}
     </nav>
-    <div class="header-actions">
-      <slot />
-    </div>
+    {Astro.slots.has('mobile-actions') && (
+      <div class="header-actions">
+        <slot name="mobile-actions" />
+      </div>
+    )}
   </div>
 </header>
 

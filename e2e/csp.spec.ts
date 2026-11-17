@@ -11,7 +11,7 @@ function collectCspViolations(page: Page): string[] {
 }
 
 test.describe('Content Security Policy', () => {
-  for (const path of ['/en/', '/es/']) {
+  for (const path of ['/en/', '/es/', '/en/support/']) {
     test(`${path} ships a hash-based script policy and runs without violations`, async ({
       page,
     }) => {
@@ -32,7 +32,7 @@ test.describe('Content Security Policy', () => {
     const violations = collectCspViolations(page)
     await page.goto('/')
 
-    await expect(page).toHaveURL(/\/(?:en|es)\/$/v)
+    await expect(page).toHaveURL(/\/(?:en|es|it|fr|pt)\/$/v)
     expect(violations).toEqual([])
   })
 
