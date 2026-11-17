@@ -91,6 +91,17 @@ export const en: TranslationShape = {
     listTitle: 'The guides',
     startCta: 'Start the first guide',
   },
+  check: {
+    title: 'Your own review panel',
+    description:
+      'Build a mod like Narsil Check, feature by feature: what each one does, how it works inside, how it was asked of the AI, and the minimal code to make it yours.',
+    intro: [
+      'Narsil Check is a side panel that reviews your session before you ship: environment, connectors, CI, a branch behind its remote, dependency updates grouped by risk, vulnerabilities, and a to-do list Claude can use. Each guide explains one of its features, the design decisions behind it, and the request that started it.',
+      'Where the original request was recorded, the guide quotes it word for word. Where it was not, the guide says so and reconstructs it from the commit history.',
+    ],
+    listTitle: 'The guides',
+    startCta: 'Start the first guide',
+  },
   guide: {
     breadcrumbLabel: 'Breadcrumb',
     stepOf: 'Guide {current} of {total}',

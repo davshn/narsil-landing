@@ -1,0 +1,27 @@
+# Narsil Workshop — phase 4 (path 2: your own review panel)
+
+Objective: the `/mods/check/` path with the 17 guides of brief 3.2, delivered in four PRs (4a: guides 1–4, 4b: 5–8, 4c: 9–12, 4d: 13–17), each in all five locales, with the same path template as phase 3. Branch for 4a: `feat/check-path-1`. Delivery: `ask-on-risk`. Test runner: Vitest (`pnpm test:cov`), Playwright (`pnpm e2e`).
+
+## Specs
+
+- S1. A route index at `/[locale]/mods/check/` and guide pages at `/[locale]/mods/check/<slug>/`; the second home route card links to the path.
+- S2. Same owner direction as phase 3 (`odd/tasks/pet-path.md` S2): explanation leads, code is minimal.
+- S3. Same path template as phase 3 (`odd/tasks/pet-path.md` S3), with the same six `##` sections.
+- S4. Same "how it was asked of the AI" rules as phase 3 (`odd/tasks/pet-path.md` S4); the public recorded sources here are narsil-check `odd/tasks/ecosystems-wave-2.md`, `ecosystems-wave-3.md`, `ecosystems-wave-4.md`, `release-age-all-ecosystems.md`, `vulnerabilities.md`, and its 73 commits.
+- S5. "No inventes la API": every `$` call exists in the plugin-authoring types (Claude Code 2.1.325) or in narsil-check's code.
+- S6. Code quoted from narsil-check carries attribution and a link (GPL v3). Examples use synthetic data only (no real repositories, tokens, or package names that would mislead; well-known public packages may be used as examples).
+- S7. Guides 1–4 (PR 4a): the side panel (`hooks/register.tsx`, `hooks/words.ts`: collapsible sections with a colored dot red/yellow/green/blue, remembering what was collapsed, copy to clipboard); session environment (`hooks/session.ts`: repository, folder, branch, remote control and Auto-fix read from the desktop app's MCP servers, and why it is asked only once); connectors (`hooks/session.ts`: listing MCP servers and their tools); PR CI (`hooks/ci.ts`: GitHub Actions steps through `gh`, refreshing every 10 s while running).
+- S8. Every guide exists in `en`, `es`, `it`, `fr`, `pt`.
+
+## Tasks
+
+| ID  | Specs  | Route                          | Status  | Commit |
+| --- | ------ | ------------------------------ | ------- | ------ |
+| T1  | S1     | inline                         | pending |        |
+| T2  | S2–S7  | delegated (context backstop)   | pending |        |
+| T3  | S8     | delegated (4 parallel writers) | pending |        |
+| T4  | S1, S8 | inline                         | pending |        |
+
+## Log
+
+- L1 (2026-11-17, owner): "Listo mergeado continúa" (after PR #7, path 1 complete; phase 4 follows the four-PR plan announced for it).
