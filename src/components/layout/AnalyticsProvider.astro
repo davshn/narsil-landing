@@ -1,0 +1,56 @@
+---
+import InlineScript from '@components/layout/InlineScript.astro'
+import { isHttpsUrl } from '@utils/https-url'
+import { serializeForInlineScript } from '@utils/inline-json'
+import { posthogScriptOrigins } from '@utils/posthog-origins'
+
+const plausibleDomain = import.meta.env.PUBLIC_ANALYTICS_PLAUSIBLE_DOMAIN ?? ''
+const gaId = import.meta.env.PUBLIC_ANALYTICS_GA_ID ?? ''
+const umamiId = import.meta.env.PUBLIC_ANALYTICS_UMAMI_ID ?? ''
+const umamiSrc = import.meta.env.PUBLIC_ANALYTICS_UMAMI_SRC ?? ''
+const posthogKey = import.meta.env.PUBLIC_ANALYTICS_POSTHOG_KEY ?? ''
+const posthogHost = import.meta.env.PUBLIC_ANALYTICS_POSTHOG_HOST ?? ''
+
+const hasPlausible = plausibleDomain !== ''
+const hasGA = gaId !== ''
+const hasUmami = umamiId !== '' && isHttpsUrl(umamiSrc)
+const hasPostHog = posthogKey !== '' && isHttpsUrl(posthogHost)
+
+const originOf = (url: string): string | undefined =>
+  URL.canParse(url) ? new URL(url).origin : undefined
+
+const scriptOrigins = [
+  ...(hasPlausible ? ['https://plausible.io'] : []),
+  ...(hasGA ? ['https://www.googletagmanager.com'] : []),
+  hasUmami ? originOf(umamiSrc) : undefined,
+  ...(hasPostHog ? posthogScriptOrigins(posthogHost) : []),
+].filter((origin) => origin !== undefined)
+
+const csp = Astro.csp as typeof Astro.csp | undefined
+for (const origin of scriptOrigins) csp?.insertScriptResource(origin)
+
+const safeStr = (val: string): string => serializeForInlineScript(val)
+
+const gaScript = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${safeStr(gaId)});`
+
+const posthogScript = `!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once unregister opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);posthog.init(${safeStr(posthogKey)},{api_host:${safeStr(posthogHost)}});`
+---
+
+{hasPlausible && (
+  <script is:inline defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
+)}
+
+{hasGA && (
+  <>
+    <script
+      is:inline
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
+    />
+    <InlineScript code={gaScript} />
+  </>
+)}
+
+{hasUmami && <script is:inline defer data-website-id={umamiId} src={umamiSrc} />}
+
+{hasPostHog && <InlineScript code={posthogScript} />}

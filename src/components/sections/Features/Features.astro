@@ -1,0 +1,49 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './features.css'
+
+type Columns = 2 | 3 | 4
+
+interface Feature {
+  title: string
+  description?: string
+  icon?: string
+}
+
+interface Props {
+  title?: string
+  subtitle?: string
+  features: Feature[]
+  columns?: Columns
+  class?: string
+}
+
+const { title, subtitle, features, columns = 3, class: className } = Astro.props
+const classes = ['features', `features-cols-${columns}`, className].filter(Boolean).join(' ')
+---
+
+<section class={classes}>
+  {(title !== undefined || subtitle !== undefined) && (
+    <div class="features-header">
+      {title !== undefined && title !== '' && <h2 class="features-title">{title}</h2>}
+      {subtitle !== undefined && subtitle !== '' && <p class="features-subtitle">{subtitle}</p>}
+    </div>
+  )}
+
+  <div class="features-grid">
+    {features.map((feature) => (
+      <div class="features-item">
+        {feature.icon !== undefined && feature.icon !== '' && (
+          <div class="features-icon">
+            <Icon name={feature.icon} class="size-6" aria-hidden="true" />
+          </div>
+        )}
+        <h3 class="features-item-title">{feature.title}</h3>
+        {feature.description !== undefined && feature.description !== '' && (
+          <p class="features-item-description">{feature.description}</p>
+        )}
+      </div>
+    ))}
+  </div>
+</section>

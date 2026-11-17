@@ -1,0 +1,85 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import Button from '@components/ui/Button/Button.astro'
+
+import './pricing.css'
+
+interface PricingFeature {
+  label: string
+  included?: boolean
+}
+
+interface PricingPlan {
+  name: string
+  description?: string
+  price: string
+  period?: string
+  features: PricingFeature[]
+  cta: string
+  ctaHref?: string
+  ctaVariant?: 'primary' | 'secondary' | 'outline'
+  highlighted?: boolean
+  badge?: string
+}
+
+interface Props {
+  plans: PricingPlan[]
+  class?: string
+}
+
+const { plans, class: className } = Astro.props
+const classes = ['pricing-grid', className].filter(Boolean).join(' ')
+---
+
+<div class={classes}>
+  {plans.map((plan) => {
+    const cardClasses = [
+      'pricing-card',
+      plan.highlighted === true ? 'pricing-card-highlighted' : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+    return (
+      <div class={cardClasses}>
+        {plan.badge !== undefined && plan.badge !== '' && (
+          <span class="pricing-badge">{plan.badge}</span>
+        )}
+        <p class="pricing-name">{plan.name}</p>
+        {plan.description !== undefined && plan.description !== '' && (
+          <p class="pricing-description">{plan.description}</p>
+        )}
+        <div class="pricing-price">
+          <span class="pricing-amount">{plan.price}</span>
+          {plan.period !== undefined && plan.period !== '' && (
+            <span class="pricing-period">/{plan.period}</span>
+          )}
+        </div>
+        <ul class="pricing-features">
+          {plan.features.map((f) => {
+            const included = f.included !== false
+            return (
+              <li class={`pricing-feature ${included ? '' : 'pricing-feature-disabled'}`}>
+                <Icon
+                  name={included ? 'lucide:check' : 'lucide:x'}
+                  class="pricing-feature-icon"
+                  aria-hidden="true"
+                />
+                <span>{f.label}</span>
+              </li>
+            )
+          })}
+        </ul>
+        <div class="pricing-cta">
+          <Button
+            variant={plan.ctaVariant ?? (plan.highlighted === true ? 'primary' : 'outline')}
+            href={plan.ctaHref}
+            class="w-full"
+          >
+            {plan.cta}
+          </Button>
+        </div>
+      </div>
+    )
+  })}
+</div>

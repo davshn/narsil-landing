@@ -1,0 +1,54 @@
+@reference '../../../styles/global.css';
+
+.contact {
+  @apply w-full;
+}
+
+.contact-inner {
+  @apply mx-auto max-w-lg;
+}
+
+.contact-header {
+  @apply text-center mb-8;
+}
+
+.contact-title {
+  @apply text-2xl font-bold text-foreground;
+}
+
+.contact-description {
+  @apply text-sm text-muted-foreground mt-2;
+}
+
+.contact-form {
+  @apply flex flex-col gap-5;
+}
+
+.contact-row {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+.contact-textarea {
+  @apply w-full bg-background text-foreground border-0 placeholder:text-muted-foreground transition resize-none;
+  @apply focus:outline-none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-inset-md);
+  padding: var(--spacing-4) var(--spacing-5);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  min-height: 120px;
+}
+
+.contact-submit {
+  @apply mt-2;
+}
+
+.contact-label {
+  @apply block text-sm font-medium text-foreground mb-2 px-4;
+}
+
+.contact-textarea:focus {
+  box-shadow:
+    var(--shadow-neu-inset-md),
+    0 0 0 2px var(--color-ring);
+}

@@ -1,0 +1,53 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+
+import './cta.css'
+
+type Variant = 'default' | 'card' | 'gradient'
+type Align = 'center' | 'left'
+
+interface CTAAction {
+  label: string
+  href?: string
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+}
+
+interface Props {
+  headline: string
+  description?: string
+  actions?: CTAAction[]
+  variant?: Variant
+  align?: Align
+  class?: string
+}
+
+const {
+  headline,
+  description,
+  actions = [],
+  variant = 'default',
+  align = 'center',
+  class: className,
+} = Astro.props
+
+const classes = ['cta', `cta-${variant}`, `cta-${align}`, className].filter(Boolean).join(' ')
+---
+
+<section class={classes}>
+  <div class="cta-content">
+    <h2 class="cta-headline">{headline}</h2>
+    {description !== undefined && description !== '' && (
+      <p class="cta-description">{description}</p>
+    )}
+    {actions.length > 0 && (
+      <div class="cta-actions">
+        {actions.map((action) => (
+          <Button variant={action.variant ?? 'primary'} size="lg" href={action.href}>
+            {action.label}
+          </Button>
+        ))}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

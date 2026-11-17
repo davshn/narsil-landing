@@ -1,0 +1,67 @@
+---
+import FAQ from '@components/sections/FAQ/FAQ.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+
+const demoItems = [
+  {
+    question: 'Is this template free?',
+    answer: 'Yes, completely open source and free for personal and commercial use.',
+  },
+  {
+    question: 'Can I customize the design?',
+    answer:
+      'Absolutely. All visual tokens live in global.css and theme.ts. Change once, update everywhere.',
+  },
+  {
+    question: 'Does it support dark mode?',
+    answer:
+      'Yes, class-based dark mode with localStorage persistence and system preference fallback.',
+  },
+  {
+    question: 'How do I deploy?',
+    answer:
+      'Run pnpm build and deploy the dist/ folder to any static hosting: Vercel, Netlify, Cloudflare Pages.',
+  },
+  {
+    question: 'Is it accessible?',
+    answer:
+      'All components include ARIA attributes, keyboard navigation, focus management, and reduced motion support.',
+  },
+]
+---
+
+<ShowcasePanel id="faq" title={t.nav.faq} description={t.descriptions.faq}>
+  <Text as="h3" class="mt-8">
+    Default (single open)
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <FAQ
+      title="Frequently Asked Questions"
+      subtitle="Find answers to the most common questions."
+      items={demoItems}
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Multiple open
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <FAQ items={demoItems.slice(0, 3)} multiple />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Without header
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <FAQ items={demoItems.slice(0, 3)} />
+  </div>
+</ShowcasePanel>

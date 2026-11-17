@@ -1,0 +1,14 @@
+---
+import { scriptHash } from '@utils/csp-hash'
+
+interface Props {
+  code: string
+}
+
+const { code } = Astro.props
+
+const csp = Astro.csp as typeof Astro.csp | undefined
+csp?.insertScriptHash(scriptHash(code))
+---
+
+<script is:inline set:html={code} />

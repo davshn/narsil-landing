@@ -1,0 +1,20 @@
+---
+import Text from '@components/ui/Text/Text.astro'
+
+interface Props {
+  id: string
+  title: string
+  description: string
+}
+
+const { id, title, description } = Astro.props
+---
+
+<section id={id} class="component-panel" data-panel={id}>
+  <Text as="h2">{title}</Text>
+  <Text as="p" tone="muted" class="mt-1">
+    {description}
+  </Text>
+
+  <slot />
+</section>

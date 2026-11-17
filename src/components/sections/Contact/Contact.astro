@@ -1,0 +1,103 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+import Input from '@components/ui/Input/Input.astro'
+
+import './contact.css'
+
+interface ContactLabels {
+  name?: string
+  namePlaceholder?: string
+  email?: string
+  emailPlaceholder?: string
+  subject?: string
+  subjectPlaceholder?: string
+  message?: string
+  messagePlaceholder?: string
+}
+
+interface Props {
+  title?: string
+  description?: string
+  action?: string
+  method?: 'post' | 'POST' | 'dialog'
+  submitLabel?: string
+  showSubject?: boolean
+  labels?: ContactLabels
+  class?: string
+}
+
+const {
+  title,
+  description,
+  action,
+  method = 'POST',
+  submitLabel = 'Send message',
+  showSubject = false,
+  labels = {},
+  class: className,
+} = Astro.props
+
+const allowedMethods: readonly string[] = ['post', 'dialog']
+if (!allowedMethods.includes(String(method).toLowerCase())) {
+  throw new Error(`Contact: method must be "post" or "dialog", received "${String(method)}"`)
+}
+
+const l = {
+  name: labels.name ?? 'Name',
+  namePlaceholder: labels.namePlaceholder ?? 'Your name',
+  email: labels.email ?? 'Email',
+  emailPlaceholder: labels.emailPlaceholder ?? 'you@example.com',
+  subject: labels.subject ?? 'Subject',
+  subjectPlaceholder: labels.subjectPlaceholder ?? 'What is this about?',
+  message: labels.message ?? 'Message',
+  messagePlaceholder: labels.messagePlaceholder ?? 'Your message...',
+}
+
+const classes = ['contact', className].filter(Boolean).join(' ')
+---
+
+<section class={classes}>
+  <div class="contact-inner">
+    {(title !== undefined || description !== undefined) && (
+      <div class="contact-header">
+        {title !== undefined && title !== '' && <h2 class="contact-title">{title}</h2>}
+        {description !== undefined && description !== '' && (
+          <p class="contact-description">{description}</p>
+        )}
+      </div>
+    )}
+
+    <form class="contact-form" action={action} method={method}>
+      <div class="contact-row">
+        <Input label={l.name} name="name" placeholder={l.namePlaceholder} required />
+        <Input
+          label={l.email}
+          name="email"
+          type="email"
+          placeholder={l.emailPlaceholder}
+          required
+        />
+      </div>
+      {showSubject && <Input label={l.subject} name="subject" placeholder={l.subjectPlaceholder} />}
+      <div>
+        <label class="contact-label" for="contact-message">
+          {l.message}
+        </label>
+        <textarea
+          class="contact-textarea"
+          id="contact-message"
+          name="message"
+          placeholder={l.messagePlaceholder}
+          required
+          rows="5"
+        ></textarea>
+      </div>
+      <div class="contact-submit">
+        <Button variant="primary" size="lg" type="submit" class="w-full">
+          {submitLabel}
+        </Button>
+      </div>
+      <slot />
+    </form>
+  </div>
+</section>

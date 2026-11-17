@@ -1,0 +1,46 @@
+---
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="sidebar" title={t.nav.sidebar} description={t.descriptions.sidebar}>
+  <Text as="h3" class="mt-8">
+    Current sidebar
+  </Text>
+  <Text as="p" class="mt-2">
+    The sidebar on the left is a live instance of the
+    <code class="neu-code">{'<Sidebar />'}</code> component.
+  </Text>
+
+  <Text as="h3" class="mt-8">
+    Features
+  </Text>
+  <ul class="mt-3 flex flex-col gap-1 list-disc pl-6">
+    <Text as="li" size="sm">
+      Position: left / right
+    </Text>
+    <Text as="li" size="sm">
+      Optional image header
+    </Text>
+    <Text as="li" size="sm">
+      Title + subtitle
+    </Text>
+    <Text as="li" size="sm">
+      Slot content
+    </Text>
+    <Text as="li" size="sm">
+      Actions with icons and active state
+    </Text>
+    <Text as="li" size="sm">
+      Responsive: full-width on mobile
+    </Text>
+  </ul>
+</ShowcasePanel>

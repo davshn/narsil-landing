@@ -1,0 +1,69 @@
+---
+import Badge from '@components/ui/Badge/Badge.astro'
+import Button from '@components/ui/Button/Button.astro'
+
+import './hero.css'
+
+type Layout = 'center' | 'left' | 'split'
+type HeadingLevel = 'h1' | 'h2' | 'h3'
+
+interface HeroAction {
+  label: string
+  href?: string
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
+}
+
+interface Props {
+  headline: string
+  subheadline?: string
+  badge?: string
+  actions?: HeroAction[]
+  image?: { src: string; alt: string }
+  layout?: Layout
+  headingLevel?: HeadingLevel
+  class?: string
+}
+
+const {
+  headline,
+  subheadline,
+  badge,
+  actions = [],
+  image,
+  layout = 'center',
+  headingLevel = 'h1',
+  class: className,
+} = Astro.props
+
+const classes = ['hero', `hero-${layout}`, className].filter(Boolean).join(' ')
+const Heading = headingLevel
+---
+
+<section class={classes}>
+  <div class="hero-content">
+    {badge !== undefined && badge !== '' && (
+      <Badge color="primary" variant="soft" size="md" class="hero-badge">
+        {badge}
+      </Badge>
+    )}
+    <Heading class="hero-headline">{headline}</Heading>
+    {subheadline !== undefined && subheadline !== '' && (
+      <p class="hero-subheadline">{subheadline}</p>
+    )}
+    {actions.length > 0 && (
+      <div class="hero-actions">
+        {actions.map((action) => (
+          <Button variant={action.variant ?? 'primary'} size="lg" href={action.href}>
+            {action.label}
+          </Button>
+        ))}
+      </div>
+    )}
+    <slot />
+  </div>
+  {image !== undefined && (
+    <div class="hero-image">
+      <img src={image.src} alt={image.alt} loading="eager" />
+    </div>
+  )}
+</section>

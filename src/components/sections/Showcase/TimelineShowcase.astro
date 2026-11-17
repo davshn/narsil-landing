@@ -1,0 +1,95 @@
+---
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+import Timeline from '@components/ui/Timeline/Timeline.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="timeline" title={t.nav.timeline} description={t.descriptions.timeline}>
+  <Text as="h3" class="mt-8">
+    Vertical (default)
+  </Text>
+  <div class="mt-3">
+    <Timeline
+      items={[
+        {
+          title: 'Order placed',
+          description: 'Your order has been confirmed',
+          icon: 'lucide:shopping-bag',
+          color: 'success',
+        },
+        {
+          title: 'Processing',
+          description: 'We are preparing your items',
+          icon: 'lucide:package',
+          color: 'primary',
+          active: true,
+        },
+        {
+          title: 'Shipped',
+          description: 'On its way to you',
+          icon: 'lucide:truck',
+          color: 'muted',
+        },
+        { title: 'Delivered', icon: 'lucide:check-circle', color: 'muted' },
+      ]}
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Without icons
+  </Text>
+  <div class="mt-3">
+    <Timeline
+      items={[
+        { title: 'Step 1', description: 'Create account', color: 'success' },
+        { title: 'Step 2', description: 'Verify email', color: 'success' },
+        { title: 'Step 3', description: 'Complete profile', color: 'warning', active: true },
+        { title: 'Step 4', description: 'Start using', color: 'muted' },
+      ]}
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Mixed colors
+  </Text>
+  <div class="mt-3">
+    <Timeline
+      items={[
+        { title: 'Design', icon: 'lucide:palette', color: 'accent' },
+        { title: 'Develop', icon: 'lucide:code', color: 'primary' },
+        { title: 'Test', icon: 'lucide:bug', color: 'warning' },
+        { title: 'Deploy', icon: 'lucide:rocket', color: 'success' },
+        { title: 'Monitor', icon: 'lucide:activity', color: 'destructive' },
+      ]}
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Horizontal
+  </Text>
+  <div class="mt-3">
+    <Timeline
+      orientation="horizontal"
+      items={[
+        { title: 'Jan', description: 'Planning', icon: 'lucide:calendar', color: 'success' },
+        { title: 'Feb', description: 'Design', icon: 'lucide:palette', color: 'success' },
+        {
+          title: 'Mar',
+          description: 'Development',
+          icon: 'lucide:code',
+          color: 'primary',
+          active: true,
+        },
+        { title: 'Apr', description: 'Launch', icon: 'lucide:rocket', color: 'muted' },
+      ]}
+    />
+  </div>
+</ShowcasePanel>

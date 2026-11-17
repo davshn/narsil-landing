@@ -1,0 +1,60 @@
+---
+import Button from '@components/ui/Button/Button.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+import Toast from '@components/ui/Toast/Toast.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="toast" title={t.nav.toast} description={t.descriptions.toast}>
+  <Text as="h3" class="mt-8">
+    Variants
+  </Text>
+  <div class="mt-3 flex flex-col gap-4">
+    <Toast variant="info" title="Information" duration={0}>
+      This is an informational toast message.
+    </Toast>
+    <Toast variant="success" title="Success" duration={0}>
+      Your changes have been saved successfully.
+    </Toast>
+    <Toast variant="warning" title="Warning" duration={0}>
+      Your session will expire in 5 minutes.
+    </Toast>
+    <Toast variant="error" title="Error" duration={0}>
+      Failed to save changes. Please try again.
+    </Toast>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    With timer (5s)
+  </Text>
+  <div class="mt-3 flex flex-col gap-4">
+    <Toast variant="success" title="File uploaded" duration={15000}>
+      document.pdf has been uploaded successfully.
+    </Toast>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    With actions
+  </Text>
+  <div class="mt-3 flex flex-col gap-4">
+    <Toast variant="info" title="New version available" duration={0}>
+      Update to v2.0 for new features.
+      <div slot="actions" class="flex gap-2 mt-1">
+        <Button variant="primary" size="sm">
+          Update
+        </Button>
+        <Button variant="ghost" size="sm">
+          Later
+        </Button>
+      </div>
+    </Toast>
+  </div>
+</ShowcasePanel>

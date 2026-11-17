@@ -1,0 +1,63 @@
+---
+import Header from '@components/sections/Header/Header.astro'
+import Button from '@components/ui/Button/Button.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+
+const demoLinks = [
+  { label: 'Home', href: '#header', active: true },
+  { label: 'Features', href: '#header' },
+  { label: 'Pricing', href: '#header' },
+  { label: 'About', href: '#header' },
+]
+---
+
+<ShowcasePanel id="header" title={t.nav.header} description={t.descriptions.header}>
+  <Text as="h3" class="mt-8">
+    Default
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <Header brand="Acme" links={demoLinks} navLabel="Acme demo navigation">
+      <Button variant="primary" size="sm">
+        Sign up
+      </Button>
+    </Header>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Without actions
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <Header
+      brand="Docs"
+      brandHref="#header"
+      links={[
+        { label: 'Guide', href: '#header' },
+        { label: 'API', href: '#header', active: true },
+        { label: 'Examples', href: '#header' },
+      ]}
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Minimal (brand only)
+  </Text>
+  <div class="mt-3 neu-frame overflow-hidden">
+    <Header brand="Logo" navLabel="Logo demo navigation">
+      <Button variant="ghost" size="sm">
+        Login
+      </Button>
+      <Button variant="primary" size="sm">
+        Get started
+      </Button>
+    </Header>
+  </div>
+</ShowcasePanel>

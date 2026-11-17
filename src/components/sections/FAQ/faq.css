@@ -1,0 +1,23 @@
+@reference '../../../styles/global.css';
+
+.faq {
+  @apply w-full mx-auto max-w-7xl;
+  padding: var(--spacing-16) var(--spacing-6);
+}
+
+.faq-header {
+  @apply text-center max-w-2xl mx-auto mb-10;
+}
+
+.faq-title {
+  @apply text-3xl font-bold text-foreground sm:text-4xl;
+  letter-spacing: var(--tracking-tight);
+}
+
+.faq-subtitle {
+  @apply text-lg text-muted-foreground mt-3;
+}
+
+.faq-content {
+  @apply mx-auto max-w-2xl;
+}

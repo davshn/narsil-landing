@@ -1,0 +1,83 @@
+---
+import Input from '@components/ui/Input/Input.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="input" title={t.nav.input} description={t.descriptions.input}>
+  <Text as="h3" class="mt-8">
+    Variants
+  </Text>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <Input label="Outlined" placeholder="Type here..." name="demo-outlined" />
+    <Input
+      label="Default (soft inset)"
+      variant="default"
+      placeholder="Type here..."
+      name="demo-default"
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    With icons
+  </Text>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <Input
+      label="Left icon"
+      placeholder="Search..."
+      name="demo-icon-left"
+      iconLeft="lucide:search"
+    />
+    <Input
+      label="Right icon"
+      placeholder="Amount"
+      name="demo-icon-right"
+      iconRight="lucide:dollar-sign"
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Password
+  </Text>
+  <div class="mt-3 max-w-sm">
+    <Input
+      label="Password"
+      type="password"
+      placeholder="Enter password..."
+      name="demo-pass"
+      required
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Validation
+  </Text>
+  <div class="mt-3 grid gap-4 sm:grid-cols-2">
+    <Input label="With error" name="demo-error" error="This field is required" required />
+    <Input label="With hint" name="demo-hint" hint="At least 8 characters" placeholder="Username" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Sizes
+  </Text>
+  <div class="mt-3 grid gap-4 sm:grid-cols-3">
+    <Input label="Small" size="sm" placeholder="sm" name="demo-sm" />
+    <Input label="Medium" size="md" placeholder="md" name="demo-md" />
+    <Input label="Large" size="lg" placeholder="lg" name="demo-lg" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Disabled
+  </Text>
+  <div class="mt-3 max-w-sm">
+    <Input label="Disabled" placeholder="Can't type here" name="demo-disabled" disabled />
+  </div>
+</ShowcasePanel>

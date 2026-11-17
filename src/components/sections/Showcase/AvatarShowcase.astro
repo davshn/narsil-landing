@@ -1,0 +1,56 @@
+---
+import Avatar from '@components/ui/Avatar/Avatar.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="avatar" title={t.nav.avatar} description={t.descriptions.avatar}>
+  <Text as="h3" class="mt-8">
+    Sizes
+  </Text>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <Avatar name="Ana G." size="xs" />
+    <Avatar name="Ana G." size="sm" />
+    <Avatar name="Ana G." size="md" />
+    <Avatar name="Ana G." size="lg" />
+    <Avatar name="Ana G." size="xl" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Shapes
+  </Text>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <Avatar name="David S." size="lg" shape="circle" />
+    <Avatar name="David S." size="lg" shape="rounded" />
+    <Avatar name="David S." size="lg" shape="square" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    With image
+  </Text>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <Avatar src="https://i.pravatar.cc/150?u=jane" name="Jane Doe" size="lg" />
+    <Avatar
+      src="https://i.pravatar.cc/150?u=john"
+      name="John Smith"
+      email="john@example.com"
+      size="lg"
+    />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Fallback (no image)
+  </Text>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <Avatar name="María López" email="maria@startup.io" size="lg" />
+    <Avatar name="X" size="md" shape="rounded" />
+  </div>
+</ShowcasePanel>

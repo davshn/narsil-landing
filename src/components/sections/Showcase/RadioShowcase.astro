@@ -1,0 +1,68 @@
+---
+import Radio from '@components/ui/Radio/Radio.astro'
+import RadioGroup from '@components/ui/Radio/RadioGroup.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+---
+
+<ShowcasePanel id="radio" title={t.nav.radio} description={t.descriptions.radio}>
+  <Text as="h3" class="mt-8">
+    Basic group
+  </Text>
+  <div class="mt-3">
+    <RadioGroup label="Plan">
+      <Radio name="plan" value="free" label="Free" checked />
+      <Radio name="plan" value="pro" label="Pro" />
+      <Radio name="plan" value="enterprise" label="Enterprise" />
+    </RadioGroup>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Colors
+  </Text>
+  <div class="mt-3 flex flex-wrap items-center gap-4">
+    <Radio name="color-demo" value="primary" label="Primary" color="primary" checked />
+    <Radio name="color-demo" value="accent" label="Accent" color="accent" />
+    <Radio name="color-demo" value="success" label="Success" color="success" />
+    <Radio name="color-demo" value="warning" label="Warning" color="warning" />
+    <Radio name="color-demo" value="destructive" label="Destructive" color="destructive" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Horizontal
+  </Text>
+  <div class="mt-3">
+    <RadioGroup label="Size" direction="horizontal">
+      <Radio name="size" value="sm" label="Small" />
+      <Radio name="size" value="md" label="Medium" checked />
+      <Radio name="size" value="lg" label="Large" />
+    </RadioGroup>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Disabled
+  </Text>
+  <div class="mt-3">
+    <RadioGroup label="Status">
+      <Radio name="status" value="active" label="Active" checked disabled />
+      <Radio name="status" value="inactive" label="Inactive" disabled />
+    </RadioGroup>
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Without labels
+  </Text>
+  <div class="mt-3 flex items-center gap-4">
+    <Radio name="no-label" value="a" color="primary" checked ariaLabel="Option A" />
+    <Radio name="no-label" value="b" color="accent" ariaLabel="Option B" />
+    <Radio name="no-label" value="c" color="success" ariaLabel="Option C" />
+  </div>
+</ShowcasePanel>

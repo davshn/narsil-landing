@@ -1,0 +1,67 @@
+---
+import Table from '@components/ui/Table/Table.astro'
+import ShowcasePanel from '@components/sections/Showcase/ShowcasePanel.astro'
+import Text from '@components/ui/Text/Text.astro'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  t: TranslationShape
+}
+
+const { t } = Astro.props
+
+const columns = [
+  { key: 'name', label: 'Name' },
+  { key: 'role', label: 'Role' },
+  { key: 'email', label: 'Email' },
+  { key: 'status', label: 'Status', align: 'center' as const },
+]
+
+const rows = [
+  { name: 'Alice Johnson', role: 'Designer', email: 'alice@example.com', status: 'Active' },
+  { name: 'Bob Smith', role: 'Developer', email: 'bob@example.com', status: 'Active' },
+  { name: 'Carol White', role: 'Manager', email: 'carol@example.com', status: 'Inactive' },
+  { name: 'David Brown', role: 'Developer', email: 'david@example.com', status: 'Active' },
+  { name: 'Eve Davis', role: 'Designer', email: 'eve@example.com', status: 'Active' },
+]
+---
+
+<ShowcasePanel id="table" title={t.nav.table} description={t.descriptions.table}>
+  <Text as="h3" class="mt-8">
+    Default
+  </Text>
+  <div class="mt-3">
+    <Table columns={columns} rows={rows} />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Striped
+  </Text>
+  <div class="mt-3">
+    <Table columns={columns} rows={rows} variant="striped" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Bordered
+  </Text>
+  <div class="mt-3">
+    <Table columns={columns} rows={rows} variant="bordered" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Sizes
+  </Text>
+  <div class="mt-3 flex flex-col gap-6">
+    <Table columns={columns} rows={rows.slice(0, 3)} size="sm" caption="Small" />
+    <Table columns={columns} rows={rows.slice(0, 3)} size="md" caption="Medium (default)" />
+    <Table columns={columns} rows={rows.slice(0, 3)} size="lg" caption="Large" />
+  </div>
+
+  <Text as="h3" class="mt-8">
+    Without hover
+  </Text>
+  <div class="mt-3">
+    <Table columns={columns} rows={rows.slice(0, 3)} hoverable={false} />
+  </div>
+</ShowcasePanel>
