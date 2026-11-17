@@ -87,6 +87,11 @@ const PET_GUIDES = [
   'waiting-permissions',
   'tips-with-haiku',
   'next-steps',
+  'experience-and-growth',
+  'quiet-mode',
+  'phone-and-watch',
+  'session-summary',
+  'your-commands',
 ]
 
 test.describe('Status pet path', () => {

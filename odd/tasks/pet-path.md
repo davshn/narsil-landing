@@ -14,6 +14,7 @@ Objective: the `/mods/pet/` path with the 17 guides of brief 3.1, delivered in f
 - S8. Every guide exists in `en`, `es`, `it`, `fr`, `pt`.
 - S9. Guides 5–8 (PR 3b, branch `feat/pet-path-2`): floating window (`overlay/`: `server.cjs`, `overlay.html`, `watch.ps1`, `mac-claude.js`; the always-on-top window that appears when Claude is minimized or something waits, and the local server's security: only `127.0.0.1`, page key and mod token, and why it must never be opened to the network); voice and alerts (random phrases per event, voice on Windows and macOS, system notifications: `overlay/speak.ps1`, `overlay/speak.sh`, `overlay/toast.*`); context and limits (`hooks/usage.ts`: per-conversation context bar, fill estimate at the 15-minute pace, `/compact` suggestion, 5-hour and weekly limits); cache clock (`hooks/register.tsx`: countdown of the prompt cache, 60 min subscription and 5 min API, from the last request).
 - S10. Guides 9–12 (PR 3c, branch `feat/pet-path-3`): reactions to commands (`hooks/words.ts`: detect passing and failing tests and warn, without blocking, about dangerous commands); permissions that wait (`hooks/register.tsx`: nudge once after 5 minutes); tips with Haiku (`hooks/advice.ts`, `overlay/tip.*`, `docs/plan-advice.md`: end-of-turn tip from the diff, debugging tip after repeated failures, deep mode, frequencies, the tip window); next steps (`hooks/register.tsx`: proposals after 15 minutes from commits, changes and `odd/tasks/*.md`, filling the prompt on click).
+- S11. Guides 13–17 (PR 3d, branch `feat/pet-path-4`), closing the path: experience and growth (`hooks/xp.ts`: XP per turn, tests and subagents; levels; five stages; celebrations); quiet mode (`hooks/register.tsx`: silence without losing the important alerts); alerts on the phone and the watch (`hooks/phone.ts`, `hooks/seal.ts`: private ntfy.sh topic, daily limit of 200, the `-estado` topic, encryption with a key, Web Push; visible warning that anyone who knows a topic can read it, recommend the key; synthetic topics only); session summary (`hooks/register.tsx`: turns, files, commands, failures, subagents; persistence across sessions); `/your-mod` commands (`hooks/register.tsx`: register a command with subcommands and its help).
 
 ## Tasks
 
@@ -29,6 +30,9 @@ Objective: the `/mods/pet/` path with the 17 guides of brief 3.1, delivered in f
 | T8  | S10     | delegated (context backstop)   | done   | `b7caf54`                                                        |
 | T9  | S8, S10 | delegated (4 parallel writers) | done   | translations commit                                              |
 | T10 | S10     | inline                         | done   | 96 e2e passed (chromium), 598 unit tests, 106 pages              |
+| T11 | S11     | delegated (context backstop)   | done   | `e023587`                                                        |
+| T12 | S8, S11 | delegated (4 parallel writers) | done   | translations commit                                              |
+| T13 | S11     | inline                         | done   | 105 e2e passed (chromium), 598 unit tests, 131 pages             |
 
 T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked home card. T2: the four English guides. T3: translations. T4: e2e and full checks.
 
@@ -45,3 +49,6 @@ T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked
 - L9: findings in narsil-pet while writing 3b, reported to the owner and described as they are in the guides: `GET /events`, `GET /window` and `GET /` of overlay/server.cjs need only a valid Host header, so any local program can read the stream (websites cannot: no CORS); the README's green-to-red cache clock is not drawn (`cacheColor` is imported but never called).
 - L10 (2026-11-17, owner): "Listo sigue" (PR #5 merged).
 - L11: findings in narsil-pet while writing 3c, described in the guides: docs/plan-advice.md is marked implemented but its numbers are stale (length 160 vs 300, effort low vs medium, every 10 vs 30 minutes, context 2,000 vs 6,000 characters); `pickStep` fills the prompt without a mode, replacing a draft; the daily tip cap resets at midnight UTC.
+- L12 (2026-11-17, owner): "Listo, continúa con la siguiente tarea" (PR #6 merged).
+- L13: 3d corrections before translation: the phone warning overstated the key (it hides title and text, not the kind of alert, its time or Narsil's stage; checked in hooks/phone.ts sealedMessage); "four places" for gainXp clarified as four calls under three events (hooks/register.tsx:997, 1442, 1489, 1502).
+- L14: findings in narsil-pet from 3d, described in the guides and not changed: the key printed by `/narsil movil clave` stays in the model's requests; quiet mode does not stop the `/compact` suggestion; the fallback usage text reads 'Uso:/narsil' without a space. Path 1 is complete: 17 guides in 5 locales.
