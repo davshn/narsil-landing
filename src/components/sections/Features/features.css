@@ -52,3 +52,11 @@
 .features-item-description {
   @apply text-sm text-muted-foreground;
 }
+
+.features-item-link {
+  @apply text-primary underline underline-offset-4;
+}
+
+.features-item-link:focus-visible {
+  @apply outline-none ring-2 ring-ring rounded-sm;
+}

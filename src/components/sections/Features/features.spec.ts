@@ -28,6 +28,26 @@ describe('Features', () => {
     expect(second.querySelector('.features-icon')).toBeNull()
   })
 
+  it('links the title of a feature that has an href and leaves the others as text', async () => {
+    const host = await render(Features, {
+      props: { features: [{ title: 'Pet', href: '/en/mods/pet/' }, { title: 'Bot' }] },
+    })
+    const [linked, plain] = [...host.querySelectorAll('.features-item-title')]
+
+    expect(linked.querySelector('a')?.getAttribute('href')).toBe('/en/mods/pet/')
+    expect(linked.textContent).toBe('Pet')
+    expect(plain.querySelector('a')).toBeNull()
+  })
+
+  it('drops an unsafe href and renders the title as text', async () => {
+    const host = await render(Features, {
+      props: { features: [{ title: 'Bad', href: ['javascript', 'alert(1)'].join(':') }] },
+    })
+
+    expect(host.querySelector('.features-item-title a')).toBeNull()
+    expect(host.querySelector('.features-item-title')?.textContent).toBe('Bad')
+  })
+
   it('renders an h2 title and subtitle header', async () => {
     const host = await render(Features, {
       props: { features, title: 'Why us', subtitle: 'Everything you need' },

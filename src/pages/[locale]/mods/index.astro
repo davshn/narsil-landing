@@ -1,16 +1,6 @@
 ---
-import Button from '@components/ui/Button/Button.astro'
-import Card from '@components/ui/Card/Card.astro'
-import CardBody from '@components/ui/Card/CardBody.astro'
-import Container from '@components/ui/Container/Container.astro'
-import Text from '@components/ui/Text/Text.astro'
-import { getCollection } from 'astro:content'
 import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
-import { useTranslations } from '@i18n/utils'
-import SiteLayout from '@layouts/SiteLayout.astro'
-import { buildWebPage } from '@seo/json-ld'
-import { toGuideRefs } from '@utils/guide-entries'
-import { guideHref, guidesFor } from '@utils/guides'
+import GuideIndexLayout from '@layouts/GuideIndexLayout.astro'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -18,56 +8,6 @@ export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
 
 const rawLocale = Astro.params.locale ?? ''
 const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
-const t = useTranslations(locale)
-const guides = guidesFor(toGuideRefs(await getCollection('guides')), locale, 'mods')
-const [first] = guides
-
-const siteUrl = Astro.site?.href ?? Astro.url.origin
-const jsonLd = buildWebPage({
-  name: t.mods.title,
-  url: new URL(Astro.url.pathname, siteUrl).href,
-  description: t.mods.description,
-  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-  inLanguage: locale,
-})
 ---
 
-<SiteLayout
-  title={`${t.mods.title} — ${t.meta.siteName}`}
-  description={t.mods.description}
-  locale={locale}
-  jsonLd={jsonLd}
->
-  <Container as="section" maxWidth="md" padding="section" class="flex flex-col gap-8">
-    <header class="flex flex-col gap-4">
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{t.mods.title}</h1>
-      {t.mods.intro.map((paragraph) => (
-        <Text as="p">{paragraph}</Text>
-      ))}
-      {first !== undefined && (
-        <div>
-          <Button href={guideHref(locale, 'mods', first.slug)}>{t.mods.startCta}</Button>
-        </div>
-      )}
-    </header>
-
-    <section class="flex flex-col gap-4" aria-labelledby="guides-title">
-      <h2 id="guides-title" class="text-2xl font-bold tracking-tight">
-        {t.mods.listTitle}
-      </h2>
-      <ol class="flex flex-col gap-4" data-guide-list>
-        {guides.map((guide, index) => (
-          <li>
-            <Card href={guideHref(locale, 'mods', guide.slug)}>
-              <CardBody class="flex flex-col gap-1">
-                <span class="text-sm text-muted-foreground">{index + 1}</span>
-                <span class="text-lg font-semibold">{guide.title}</span>
-                <span class="text-muted-foreground">{guide.entry.data.description}</span>
-              </CardBody>
-            </Card>
-          </li>
-        ))}
-      </ol>
-    </section>
-  </Container>
-</SiteLayout>
+<GuideIndexLayout locale={locale} route="mods" />

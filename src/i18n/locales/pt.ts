@@ -80,6 +80,17 @@ export const pt: TranslationShape = {
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
   },
+  pet: {
+    title: 'Seu próprio mascote de status',
+    description:
+      'Crie um mod como o Narsil, funcionalidade por funcionalidade: o que cada uma faz, como funciona por dentro, como foi pedida à IA e o código mínimo para torná-la sua.',
+    intro: [
+      'O Narsil foi construído conversando com o Claude Code. Cada guia desta trilha explica uma de suas funcionalidades: o que ela faz por quem a usa, os hooks e o estado por trás dela, as decisões de design e o pedido que deu início a ela.',
+      'Quando o pedido original ficou registrado, o guia o cita palavra por palavra. Quando não, o guia avisa e o reconstrói a partir do histórico de commits.',
+    ],
+    listTitle: 'Os guias',
+    startCta: 'Comece o primeiro guia',
+  },
   guide: {
     breadcrumbLabel: 'Trilha de navegação',
     stepOf: 'Guia {current} de {total}',

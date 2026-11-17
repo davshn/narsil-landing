@@ -81,6 +81,17 @@ export const fr: TranslationShape = {
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
   },
+  pet: {
+    title: 'Votre propre mascotte d’état',
+    description:
+      'Créez un mod comme Narsil, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, comment elle a été demandée à l’IA et le code minimal pour la faire vôtre.',
+    intro: [
+      'Narsil a été construit en parlant avec Claude Code. Chaque guide de ce parcours explique l’une de ses fonctionnalités : ce qu’elle apporte à qui l’utilise, les hooks et l’état qui la portent, les choix de conception et la demande qui l’a lancée.',
+      'Quand la demande d’origine a été conservée, le guide la cite mot pour mot. Sinon, le guide le dit et la reconstitue à partir de l’historique des commits.',
+    ],
+    listTitle: 'Les guides',
+    startCta: 'Commencer le premier guide',
+  },
   guide: {
     breadcrumbLabel: 'Fil d’Ariane',
     stepOf: 'Guide {current} sur {total}',
