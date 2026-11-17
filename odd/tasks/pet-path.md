@@ -18,21 +18,21 @@ Objective: the `/mods/pet/` path with the 17 guides of brief 3.1, delivered in f
 
 ## Tasks
 
-| ID  | Specs   | Route                          | Status  | Commit                                                           |
-| --- | ------- | ------------------------------ | ------- | ---------------------------------------------------------------- |
-| T1  | S1      | inline                         | done    | `dfce4fb`                                                        |
-| T2  | S2–S7   | delegated (context backstop)   | done    | `9640a66`                                                        |
-| T3  | S8      | delegated (4 parallel writers) | done    | translations commit                                              |
-| T4  | S1, S8  | inline                         | done    | 82 e2e passed (chromium), 598 unit tests, 97.6 % lines           |
-| T5  | S9      | delegated (context backstop)   | done    | `b5796e9`                                                        |
-| T6  | S8, S9  | delegated (4 parallel writers) | done    | translations commit                                              |
-| T7  | S9      | inline                         | done    | 90 e2e passed (chromium), 598 unit tests, 97.6 % lines, 86 pages |
-| T8  | S10     | delegated (context backstop)   | done    | `b7caf54`                                                        |
-| T9  | S8, S10 | delegated (4 parallel writers) | done    | translations commit                                              |
-| T10 | S10     | inline                         | done    | 96 e2e passed (chromium), 598 unit tests, 106 pages              |
-| T11 | S11     | delegated (context backstop)   | pending |                                                                  |
-| T12 | S8, S11 | delegated (4 parallel writers) | pending |                                                                  |
-| T13 | S11     | inline                         | pending |                                                                  |
+| ID  | Specs   | Route                          | Status | Commit                                                           |
+| --- | ------- | ------------------------------ | ------ | ---------------------------------------------------------------- |
+| T1  | S1      | inline                         | done   | `dfce4fb`                                                        |
+| T2  | S2–S7   | delegated (context backstop)   | done   | `9640a66`                                                        |
+| T3  | S8      | delegated (4 parallel writers) | done   | translations commit                                              |
+| T4  | S1, S8  | inline                         | done   | 82 e2e passed (chromium), 598 unit tests, 97.6 % lines           |
+| T5  | S9      | delegated (context backstop)   | done   | `b5796e9`                                                        |
+| T6  | S8, S9  | delegated (4 parallel writers) | done   | translations commit                                              |
+| T7  | S9      | inline                         | done   | 90 e2e passed (chromium), 598 unit tests, 97.6 % lines, 86 pages |
+| T8  | S10     | delegated (context backstop)   | done   | `b7caf54`                                                        |
+| T9  | S8, S10 | delegated (4 parallel writers) | done   | translations commit                                              |
+| T10 | S10     | inline                         | done   | 96 e2e passed (chromium), 598 unit tests, 106 pages              |
+| T11 | S11     | delegated (context backstop)   | done   | `e023587`                                                        |
+| T12 | S8, S11 | delegated (4 parallel writers) | done   | translations commit                                              |
+| T13 | S11     | inline                         | done   | 105 e2e passed (chromium), 598 unit tests, 131 pages             |
 
 T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked home card. T2: the four English guides. T3: translations. T4: e2e and full checks.
 
@@ -50,3 +50,5 @@ T1: generic route index and guide pages, `PathCopy` for `mods` and `pet`, linked
 - L10 (2026-11-17, owner): "Listo sigue" (PR #5 merged).
 - L11: findings in narsil-pet while writing 3c, described in the guides: docs/plan-advice.md is marked implemented but its numbers are stale (length 160 vs 300, effort low vs medium, every 10 vs 30 minutes, context 2,000 vs 6,000 characters); `pickStep` fills the prompt without a mode, replacing a draft; the daily tip cap resets at midnight UTC.
 - L12 (2026-11-17, owner): "Listo, continúa con la siguiente tarea" (PR #6 merged).
+- L13: 3d corrections before translation: the phone warning overstated the key (it hides title and text, not the kind of alert, its time or Narsil's stage; checked in hooks/phone.ts sealedMessage); "four places" for gainXp clarified as four calls under three events (hooks/register.tsx:997, 1442, 1489, 1502).
+- L14: findings in narsil-pet from 3d, described in the guides and not changed: the key printed by `/narsil movil clave` stays in the model's requests; quiet mode does not stop the `/compact` suggestion; the fallback usage text reads 'Uso:/narsil' without a space. Path 1 is complete: 17 guides in 5 locales.

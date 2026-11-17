@@ -72,7 +72,7 @@ The totals follow from the rule: reaching level L takes 100 × (1 + 2 + … + (L
 
 ### Where the XP comes from
 
-`gainXp($, reason)` in `hooks/register.tsx` is called from four places:
+`gainXp($, reason)` in `hooks/register.tsx` is called from four places, under three events:
 
 - **`turn.complete`**, main conversation, when the turn ends with `answer`. Two branches call it: the normal finish ("He terminado") and a finish that asks a question in the desktop app's next-step box. A turn that ends while background work still runs does not earn XP yet: the turn that wakes the session when that work reports is the one that finishes, and earns it. A turn you stop (`aborted`) or that fails earns nothing.
 - **`tool.call`**, when the command matches `TEST_COMMAND` (in `hooks/words.ts`: `npm test`, `pnpm test`, `vitest`, `pytest`, `cargo test`, `claude plugin test` and others) and the result has no `isError`. This check does not look at `e.agentId`, so a subagent's passing tests count too.
