@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-Reusable landing page template: **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. Static-first, minimal client JavaScript, accessible, SEO/GEO-ready, and multilingual (`/en/`, `/es/`). Used for product launches, SaaS waitlists, service pages, and lead-generation campaigns.
+Narsil Workshop: a free, static, multilingual site (English, Spanish, Italian, French, and Brazilian Portuguese) that teaches, step by step, how to build Claude Code mods like Narsil (`davshn/narsil-pet`) and Narsil Check (`davshn/narsil-check`), and an ESP32-S3 desk bot that shows GitHub pull requests and the Narsil status. Built on landingTemplate: **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. There is no backend, no analytics, and the site never asks for tokens, topics, or keys.
 
-Reference doc: `README.md` (setup, i18n, styling tokens, SEO, CI, and testing details).
+Reference docs: `README.md` (setup, i18n, styling tokens, SEO, CI, and testing details) and `odd/tasks/narsil-workshop.md` (specs, tasks, and log).
 
 ## Working Agreement (mandatory)
 
@@ -47,10 +47,11 @@ pnpm check          # format + lint + typecheck + test + build
 ## Architecture
 
 - `src/pages/` — file-based routing only. Thin route adapters; their logic lives in `src/utils/`. Never put spec files here (a spec would become a route).
-- `src/layouts/BaseLayout.astro` — document shell: meta, Open Graph, `hreflang`, JSON-LD, analytics, landmarks.
+- `src/pages/[locale]/` — home (`index.astro`) and `support.astro`. Guides (`mods/`, `bot/`) and tools arrive in later phases.
+- `src/layouts/BaseLayout.astro` — document shell: meta, Open Graph, `hreflang`, JSON-LD, analytics, landmarks. `src/layouts/SiteLayout.astro` adds the header navigation, language selector, theme toggle, and footer (coffee button and Anthropic trademark notice).
 - `src/components/ui/` — reusable primitives, one folder each (`Button/Button.astro`, `button.css`, `button.spec.ts`).
-- `src/components/sections/` — landing blocks (Hero, Pricing, FAQ). `src/components/layout/` — structural chrome.
-- `src/i18n/` — `TranslationShape` contract and one file per locale in `locales/`. All landing copy lives here, and every locale must satisfy the contract.
+- `src/components/sections/` — landing blocks (Hero, Features, Header, Footer) and `LanguageSelector` (a JavaScript-free `<details>` disclosure, rendered in the header bar and in the mobile menu). `src/components/layout/` — structural chrome.
+- `src/i18n/` — locales and their metadata in `index.ts`: `locales` (`en`, `es`, `it`, `fr`, `pt`; the code is the URL prefix), `languageTags` (BCP 47 tag for `<html lang>`, `hreflang`, and the sitemap; `pt` is `pt-BR`), `ogLocales`, and `localeNames`. The `TranslationShape` contract has one file per locale in `locales/`; a new key is added to all five locales, and `src/i18n/spec/` checks key parity and empty strings.
 - `src/content/` — reserved for Astro Content Collections; empty by default.
 - `src/seo/` — JSON-LD builders. `src/utils/` — pure TS helpers (no DOM, no Astro runtime).
 - `src/styles/` — `global.css` holds `@theme` tokens; `theme.ts` mirrors them as TS constants.
@@ -66,6 +67,10 @@ pnpm check          # format + lint + typecheck + test + build
 - Component behavior goes in a typed module next to the component (`<script src="./file.ts"></script>`), with its own spec; Astro bundles it and runs it once per page. Use `<InlineScript code={...} />` only for code that must run inline (pre-paint theme, root redirect, analytics), so its hash enters the Content Security Policy; a plain `<script is:inline>` or `<script set:html>` is blocked in production builds.
 - Accessibility is required: semantic landmarks, visible focus, keyboard navigation, reduced-motion support.
 - Data is rendered only as text. ESLint rejects `innerHTML`, `outerHTML`, `insertAdjacentHTML`, and `dangerouslySetInnerHTML` in source (spec files and the `src/test-*.ts` helpers are exempt); use `textContent`, `replaceChildren()`, and DOM nodes instead.
+- The CSP also sets `connect-src 'self'` and `form-action 'self'`. Ship without analytics: leave every `PUBLIC_ANALYTICS_*` variable empty; enabling one needs an owner decision and a CSP change.
+- The coffee button points to `https://paypal.me/davshn` (`DEFAULT_DONATION_URL` in `src/utils/donation.ts`); `PUBLIC_DONATION_URL` (https only) overrides it, and a non-https value hides the button. The support page links to the developer profile in `src/utils/developer.ts` and to the repositories in `src/utils/repositories.ts`.
+- Scope limits: the site is educational. Examples use synthetic data only (invented ntfy topics, clearly fake tokens, example repositories). The site never asks for or stores real tokens, topics, or keys; any tool that accepts one processes it in the browser only and never puts it in a link. Every guide that uses a token explains the minimum permission, where to store it, and how to revoke it. Code quoted from the GPL v3 mods carries attribution and a link to its repository.
+- Before documenting any mod API call (`$.ui.*`, `$.store.*`, and so on), check it against the `plugin-authoring` skill or the real code of the mods; never invent the API.
 - Generated code, comments, UI copy, test names, assertion messages, hook output, and commit messages are written in English. Only locale files (`src/i18n/locales/`) and test data that exercises localized labels use other languages.
 
 ## Testing

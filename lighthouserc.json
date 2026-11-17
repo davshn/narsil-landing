@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "staticDistDir": "./dist",
-      "url": ["http://localhost/en/", "http://localhost/es/"],
+      "url": ["http://localhost/en/", "http://localhost/es/", "http://localhost/en/support/"],
       "numberOfRuns": 5,
       "settings": {
         "chromeFlags": "--headless=new --no-sandbox"
