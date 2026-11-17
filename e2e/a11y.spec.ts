@@ -19,6 +19,8 @@ const PATHS = [
   '/en/mods/pet/floating-window/',
   '/en/mods/pet/context-and-limits/',
   '/en/mods/pet/tips-with-haiku/',
+  '/en/mods/pet/phone-and-watch/',
+  '/en/mods/pet/your-commands/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 
