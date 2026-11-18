@@ -67,6 +67,8 @@ export const it: TranslationShape = {
           title: 'Narsil in Claude, sul telefono',
           text: 'Un’estensione sperimentale che porta Narsil dentro claude.ai su Android: nel menu laterale, il suo livello, i tuoi limiti di utilizzo e i messaggi ntfy del giorno; sopra la casella di testo, lo stato della conversazione aperta. Il suo codice non è pubblico, ma le guide spiegano come si costruisce.',
           alt: 'Il menu laterale di claude.ai su un telefono Android con il blocco di Narsil: il livello, i limiti di 5 ore e settimanali e i messaggi ntfy del giorno. I dati personali sono sfocati.',
+          detailAlt:
+            'Una conversazione di claude.ai su un telefono Android: sopra la casella di testo, la fascia di Narsil mostra lo stato TRABAJANDO (al lavoro), il contesto all’80 %, la cache a 60 min e l’ultimo evento, Usando Bash (sta usando Bash). La conversazione è sfocata.',
         },
       ],
       note: 'La finestra mobile usa dati di esempio, e la cattura del telefono è reale, con i dati personali sfocati. Il pannello di Narsil Check è ricreato dal suo codice sorgente, perché viene disegnato solo dentro Claude Code. Le illustrazioni di Narsil vengono da davshn/narsil-pet (GPL v3).',
@@ -181,6 +183,21 @@ export const it: TranslationShape = {
     ],
     donate: 'Offrimi un caffè',
     unavailable: 'Le donazioni non sono ancora aperte.',
+    flow: {
+      title: 'Dove va il tuo caffè',
+      steps: ['Un caffè', 'Tempo per scrivere e mantenere le guide', 'Guide gratuite per tutti'],
+      promises: [
+        'Niente pubblicità',
+        'Niente registrazione',
+        'Niente analytics, non chiede mai i tuoi token',
+      ],
+    },
+    about: {
+      title: 'Lo sviluppatore',
+      name: 'Hernán David Figueroa',
+      photoAlt: 'Foto di Hernán David Figueroa',
+      bio: 'Sviluppatore full-stack con più di 8 anni di esperienza, specializzato in fintech e pagamenti sicuri. Lavoro su terminali POS e funzionalità di pagamento per Android e iOS in un gateway di pagamento colombiano. Ho creato Narsil e questo workshop perché chiunque possa capire ed estendere Claude Code. Vivo a Bogotá.',
+    },
     reposTitle: 'Il codice sorgente',
     repos: {
       pet: 'Narsil, la mod con la mascotte di stato',

@@ -37,6 +37,28 @@ test.describe('Landing page smoke tests', () => {
         t.support.repos.check,
       ])
     })
+
+    test(`/${locale}/support/ shows where the coffee goes and the developer portfolio`, async ({
+      page,
+    }) => {
+      await page.goto(`/${locale}/support/`)
+      const flow = page.locator('[data-support-flow]')
+      await expect(
+        flow.getByRole('heading', { level: 2, name: t.support.flow.title }),
+      ).toBeVisible()
+      await expect(flow.locator('ol li')).toHaveText(t.support.flow.steps)
+      await expect(flow.locator('ul li')).toHaveText(t.support.flow.promises)
+      const about = page.locator('[data-support-about]')
+      await expect(
+        about.getByRole('heading', { level: 2, name: t.support.about.title }),
+      ).toBeVisible()
+      await expect(about).toContainText(t.support.about.name)
+      await expect(about).toContainText(t.support.about.bio)
+      await expect(about.getByRole('img', { name: t.support.about.photoAlt })).toBeVisible()
+      const portfolio = about.locator('[data-developer-profile]')
+      await expect(portfolio).toHaveText(t.support.developer.link)
+      await expect(portfolio).toHaveAttribute('href', 'https://davshn.tech/en')
+    })
   }
 
   test('the footer shows the coffee button and the trademark notice', async ({ page }) => {

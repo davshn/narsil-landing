@@ -1,0 +1,52 @@
+---
+import './developer-about.css'
+
+import developerPhoto from '@/assets/developer-photo.jpg'
+import ResponsiveImage from '@components/ui/ResponsiveImage/ResponsiveImage.astro'
+import { DEVELOPER_PROFILE_URL } from '@utils/developer'
+
+import type { TranslationShape } from '@i18n/index'
+
+interface Props {
+  copy: TranslationShape['support']
+}
+
+const { copy } = Astro.props
+const titleId = 'support-about-title'
+---
+
+<section class="developer-about" aria-labelledby={titleId} data-support-about>
+  <div class="developer-about-photo">
+    <ResponsiveImage
+      src={developerPhoto}
+      alt={copy.about.photoAlt}
+      width={160}
+      height={160}
+      layout="fixed"
+      class="developer-about-img"
+    />
+  </div>
+  <div class="developer-about-body">
+    <h2 class="developer-about-title" id={titleId}>
+      {copy.about.title}
+    </h2>
+    <p class="developer-about-name" data-developer-name>
+      {copy.about.name}
+    </p>
+    <p class="developer-about-bio" data-developer-bio>
+      {copy.about.bio}
+    </p>
+    <p class="developer-about-profile">
+      {`${copy.developer.text} `}
+      <a
+        class="developer-about-link"
+        href={DEVELOPER_PROFILE_URL}
+        target="_blank"
+        rel="noopener"
+        data-developer-profile
+      >
+        {copy.developer.link}
+      </a>
+    </p>
+  </div>
+</section>

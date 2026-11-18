@@ -21,6 +21,7 @@ import checkDark from '../../assets/screens/check-oscuro.png'
 import checkLight from '../../assets/screens/check-claro.png'
 import overlayDark from '../../assets/screens/overlay-oscuro.png'
 import overlayLight from '../../assets/screens/overlay-claro.png'
+import narsilClaudeBand from '../../assets/screens/narsil-claude-band.png'
 import narsilClaude from '../../assets/screens/narsil-claude.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
@@ -34,6 +35,7 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
 
 const [working, waiting, done, failed] = t.home.states.items
 const [overlayCopy, checkCopy, claudeCopy] = t.home.showcase.items
+const { detailAlt: claudeBandAlt = '', ...claudeMenuCopy } = claudeCopy
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href
@@ -102,12 +104,19 @@ const jsonLd = [
       },
       { ...checkCopy, frame: 'pane', light: checkLight, dark: checkDark, width: 340, height: 842 },
       {
-        ...claudeCopy,
+        ...claudeMenuCopy,
         frame: 'phone',
         light: narsilClaude,
         dark: narsilClaude,
         width: 360,
         height: 754,
+        detail: {
+          light: narsilClaudeBand,
+          dark: narsilClaudeBand,
+          alt: claudeBandAlt,
+          width: 360,
+          height: 120,
+        },
       },
     ]}
   />
