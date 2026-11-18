@@ -5,6 +5,7 @@ import { defaultLocale, languageTags, locales, ogLocales, type Locale } from '@i
 import '@styles/global.css'
 import { buildAlternateUrl } from '@utils/alternate-url'
 import { serializeForInlineScript } from '@utils/inline-json'
+import { ogImagePath } from '@utils/og-image'
 
 interface Props {
   title: string
@@ -43,7 +44,8 @@ const ogTitle = customOgTitle ?? title
 const ogDescription = customOgDescription ?? description
 const canonicalUrl = canonical ?? Astro.url.href
 const site = Astro.site
-const defaultOgImage = site === undefined ? undefined : new URL('/og-image.png', site).href
+const defaultOgImage =
+  site === undefined ? undefined : new URL(ogImagePath(Astro.url.pathname), site).href
 const finalOgImage = ogImage ?? defaultOgImage
 const hasOgImage = finalOgImage !== undefined && finalOgImage !== ''
 const alternateOgLocales = locales.filter((loc) => loc !== locale).map((loc) => ogLocales[loc])

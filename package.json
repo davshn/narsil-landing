@@ -28,7 +28,8 @@
     "lighthouse": "lhci autorun",
     "audit:check": "pnpm audit --audit-level=high",
     "precommit": "lint-staged",
-    "check": "pnpm run format:check && pnpm run lint:check && pnpm run typecheck && pnpm run test && pnpm run build"
+    "check": "pnpm run format:check && pnpm run lint:check && pnpm run typecheck && pnpm run test && pnpm run build",
+    "og:images": "node scripts/og-images.ts"
   },
   "devDependencies": {
     "@astrojs/compiler": "^4.0.0",

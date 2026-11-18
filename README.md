@@ -41,6 +41,14 @@ src/
 odd/tasks/            feature documents (specs, tasks, and log)
 ```
 
+## Open Graph images
+
+Each path has its own 1200 × 630 image in `public/og/` (`home`, `mods`, `pet`, `check`, `bot`, `tools`), and `src/utils/og-image.ts` picks it from the page path. To regenerate them from the Narsil art of [narsil-pet](https://github.com/davshn/narsil-pet):
+
+```bash
+pnpm og:images <narsil-pet>/assets/raw
+```
+
 ## Locales
 
 `en` (default), `es`, `it`, `fr`, and `pt` (`pt-BR`). Every locale implements `TranslationShape`; the specs in `src/i18n/spec/` check key parity and empty strings.
