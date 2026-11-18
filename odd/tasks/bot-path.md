@@ -18,15 +18,15 @@ Objective: a Narsil desk bot with a body and a voice, built in a public firmware
 
 ## Tasks
 
-| ID  | Specs    | Route                          | Status  | Commit                                               |
-| --- | -------- | ------------------------------ | ------- | ---------------------------------------------------- |
-| T1  | S7       | inline                         | done    | this branch                                          |
-| T2  | S8       | inline                         | done    | this branch                                          |
-| T3  | S7, S8   | inline                         | done    | 621 unit tests, 221 pages, 144 e2e passed (chromium) |
-| T4  | S10      | inline                         | pending |                                                      |
-| T5  | S10, S11 | delegated (context backstop)   | pending |                                                      |
-| T6  | S11      | delegated (4 parallel writers) | pending |                                                      |
-| T7  | S10, S11 | inline                         | pending |                                                      |
+| ID  | Specs    | Route                          | Status      | Commit                                                   |
+| --- | -------- | ------------------------------ | ----------- | -------------------------------------------------------- |
+| T1  | S7       | inline                         | done        | this branch                                              |
+| T2  | S8       | inline                         | done        | this branch                                              |
+| T3  | S7, S8   | inline                         | done        | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
+| T4  | S10      | inline                         | pending     |                                                          |
+| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4)                               |
+| T6  | S11      | delegated (4 parallel writers) | in progress | 6a translations commit                                   |
+| T7  | S10, S11 | inline                         | in progress | 6a: 622 unit tests, 246 pages, 164 e2e passed (chromium) |
 
 T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the home meta, footer, hero and route card, `CLAUDE.md`, README. T3: unit tests, e2e, build.
 
@@ -50,3 +50,4 @@ The bot code in these guides was written from documentation and has not run on t
 - L3 (2026-11-18, owner): "sí, arranca con la 5.0".
 - L4: risks for 5.1: Xiaozhi requires ESP-IDF 6.0.1 or later while Waveshare documents the P4 board with 5.3.1 or later; the build would run in Espressif's Docker image (ESP-IDF is not installed locally, Docker 29.8 is); flashing and on-screen checks are the owner's; creating the public fork is an outward action confirmed right before it.
 - L5 (2026-11-18, owner): S9 superseded as quoted; phase 5 continues as path 3 guides only (6a on branch `feat/bot-path-1`).
+- L6: 6a translated to es, it, fr, pt; the Italian writer used "l'autore" and it was replaced by "chi ha creato Narsil" (no gender is known for the owner).
