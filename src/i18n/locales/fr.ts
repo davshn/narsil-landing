@@ -77,7 +77,8 @@ export const fr: TranslationShape = {
       'Ici, vous ne vous contenterez pas de les installer. Chaque guide explique quels hooks une fonctionnalité écoute, quel état elle conserve et ce qu’elle dessine, puis construit une version minimale qui fonctionne, avec ses tests.',
     ],
     routesTitle: 'Trois parcours',
-    routesSubtitle: 'Les guides arrivent bientôt. Chaque parcours commence par les bases d’un mod.',
+    routesSubtitle:
+      'Choisissez un parcours et suivez ses guides dans l’ordre. Si vous n’avez jamais créé de mod, commencez par les bases des mods.',
     routes: [
       {
         title: 'Votre propre mascotte d’état',

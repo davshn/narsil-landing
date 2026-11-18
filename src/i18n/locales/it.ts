@@ -79,7 +79,8 @@ export const it: TranslationShape = {
       'Qui non ti limiterai a installarle. Ogni guida spiega quali hook ascolta una funzionalità, quale stato conserva e cosa disegna, e poi costruisce una versione minima che funziona, con i suoi test.',
     ],
     routesTitle: 'Tre percorsi di apprendimento',
-    routesSubtitle: 'Le guide sono in arrivo. Ogni percorso parte dalle basi di una mod.',
+    routesSubtitle:
+      'Scegli un percorso e segui le sue guide in ordine. Se non hai mai creato una mod, inizia dalle basi delle mod.',
     routes: [
       {
         title: 'La tua mascotte di stato',
