@@ -71,3 +71,12 @@
   @apply px-3 py-1 text-sm text-muted-foreground border border-border;
   border-radius: var(--radius-full);
 }
+
+.home-extras {
+  @apply mx-auto grid w-full max-w-7xl items-start gap-8 px-6 pb-20 lg:grid-cols-2 lg:px-8 lg:pb-28;
+}
+
+.home-extras-item,
+.home-extras-item > * {
+  @apply h-full;
+}

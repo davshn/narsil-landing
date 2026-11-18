@@ -37,9 +37,29 @@ const sizes = '(min-width: 1024px) 22rem, 90vw'
       <h2 class="section-title">{title}</h2>
       {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
     </div>
-    <div class="showcase-grid">
-      {items.map((item) => (
-        <figure class="showcase-item">
+    <div class="showcase-tabs" role="tablist" aria-label={title} hidden data-showcase-tablist>
+      {items.map((item, index) => (
+        <button
+          type="button"
+          class="showcase-tab"
+          role="tab"
+          id={`showcase-tab-${index}`}
+          aria-controls={`showcase-panel-${index}`}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          tabindex={index === 0 ? '0' : '-1'}
+        >
+          {item.title}
+        </button>
+      ))}
+    </div>
+    <div class="showcase-grid" data-showcase>
+      {items.map((item, index) => (
+        <figure
+          class="showcase-item"
+          id={`showcase-panel-${index}`}
+          data-showcase-panel
+          aria-labelledby={`showcase-tab-${index}`}
+        >
           <div
             class={`showcase-shots${item.detail === undefined ? '' : ' showcase-shots-detailed'}`}
           >
@@ -80,3 +100,5 @@ const sizes = '(min-width: 1024px) 22rem, 90vw'
     <slot />
   </div>
 </section>
+
+<script src="./showcase-tabs.ts"></script>

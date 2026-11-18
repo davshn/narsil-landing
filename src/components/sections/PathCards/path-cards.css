@@ -1,0 +1,88 @@
+@reference '../../../styles/global.css';
+
+.path-cards {
+  @apply flex flex-col gap-10;
+  padding-top: var(--spacing-12);
+}
+
+.path-cards-header {
+  @apply max-w-2xl;
+}
+
+.path-cards-grid {
+  @apply m-0 grid list-none gap-6 p-0 md:grid-cols-3;
+}
+
+.path-card {
+  @apply relative flex flex-col gap-3 p-6;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-md);
+  transition:
+    box-shadow var(--duration-base) var(--ease-default),
+    transform var(--duration-base) var(--ease-default);
+}
+
+.path-card:hover,
+.path-card:focus-within {
+  box-shadow: var(--shadow-neu-lg);
+  transform: translateY(-3px);
+}
+
+.path-card-top {
+  @apply mb-2 flex items-center justify-between;
+}
+
+.path-card-icon {
+  @apply inline-flex h-12 w-12 items-center justify-center rounded-full text-primary;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.path-card-index {
+  @apply text-3xl font-bold text-muted-foreground;
+  opacity: var(--opacity-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.path-card-title {
+  @apply text-xl font-semibold;
+  line-height: var(--leading-snug);
+}
+
+.path-card-link {
+  @apply text-foreground no-underline;
+}
+
+.path-card-link::after {
+  content: '';
+  @apply absolute inset-0;
+  border-radius: var(--radius-xl);
+}
+
+.path-card-link:focus-visible {
+  @apply outline-none;
+}
+
+.path-card:has(.path-card-link:focus-visible) {
+  @apply outline-2 outline-offset-4 outline-ring;
+}
+
+.path-card:hover .path-card-link {
+  @apply text-primary;
+}
+
+.path-card-description {
+  @apply text-sm text-muted-foreground;
+  line-height: var(--leading-relaxed);
+}
+
+.path-card-meta {
+  @apply mt-auto pt-2 text-xs font-semibold uppercase text-primary;
+  letter-spacing: var(--tracking-wide);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-card:hover,
+  .path-card:focus-within {
+    transform: none;
+  }
+}

@@ -79,7 +79,8 @@ export const pt: TranslationShape = {
       'Aqui você não vai só instalá-los. Cada guia explica quais hooks uma funcionalidade escuta, que estado ela guarda e o que desenha, e depois constrói uma versão mínima que funciona, com seus testes.',
     ],
     routesTitle: 'Três trilhas de aprendizado',
-    routesSubtitle: 'Os guias estão a caminho. Cada trilha começa pelos fundamentos de um mod.',
+    routesSubtitle:
+      'Escolha uma trilha e siga os guias em ordem. Se você nunca fez um mod, comece pelos fundamentos de mods.',
     routes: [
       {
         title: 'Seu próprio mascote de status',

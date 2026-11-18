@@ -1,0 +1,56 @@
+import { expect, test } from '@playwright/test'
+
+import { useTranslations } from '../src/i18n/utils'
+
+const t = useTranslations('en')
+
+test.describe('Home layout', () => {
+  test('leads with the three paths right after the hero, each with its guide count', async ({
+    page,
+  }) => {
+    await page.goto('/en/')
+    const headings = await page.locator('main h2').allTextContents()
+    expect(headings[0]?.trim()).toBe(t.home.routesTitle)
+    const links = page.locator('#routes .path-card-link')
+    await expect(links).toHaveText(t.home.routes.map((route) => route.title))
+    await expect(links.nth(2)).toHaveAttribute('href', '/en/bot/')
+    await expect(page.locator('#routes .path-card-meta').first()).toHaveText(/^\d+ guides$/iv)
+  })
+
+  test('switches the showcase between its interfaces with tabs', async ({ page }) => {
+    await page.goto('/en/')
+    const [window, panel, phone] = t.home.showcase.items
+    const tablist = page.getByRole('tablist', { name: t.home.showcase.title })
+    await expect(tablist).toBeVisible()
+    await expect(page.getByRole('tabpanel')).toHaveCount(1)
+    await expect(page.getByRole('tabpanel')).toContainText(window.text)
+
+    await page.getByRole('tab', { name: phone.title }).click()
+    await expect(page.getByRole('tab', { name: phone.title })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    await expect(page.getByRole('tabpanel')).toContainText(phone.text)
+
+    await page.getByRole('tab', { name: phone.title }).press('ArrowLeft')
+    await expect(page.getByRole('tab', { name: panel.title })).toBeFocused()
+    await expect(page.getByRole('tabpanel')).toContainText(panel.text)
+  })
+
+  test('scrolls the state poses sideways on a phone without widening the page', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 })
+    await page.goto('/en/')
+    const row = page.getByRole('region', { name: t.home.states.title })
+    const sizes = await row.evaluate((element) => ({
+      scroll: element.scrollWidth,
+      client: element.clientWidth,
+    }))
+    expect(sizes.scroll).toBeGreaterThan(sizes.client)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(overflow).toBe(0)
+  })
+})
