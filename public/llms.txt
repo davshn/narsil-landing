@@ -17,7 +17,7 @@ Experimental: Narsil in Claude, an extension for Firefox and Vivaldi on Android 
 - [Home (English)](/en/)
 - [Home (Spanish)](/es/)
 - [Mod fundamentals](/en/mods/): what a mod is made of, the $ object, installing and testing, surfaces, and the GPL v3
-- [Tools](/en/tools/): small in-browser tools that run the mods' rules with your own values, such as the [semver classifier](/en/tools/semver/), the [XP calculator](/en/tools/xp/) and the [priority simulator](/en/tools/priority/)
+- [Tools](/en/tools/): small in-browser tools that run the mods' rules with your own values, such as the [semver classifier](/en/tools/semver/), the [XP calculator](/en/tools/xp/), the [priority simulator](/en/tools/priority/), the [context fill estimator](/en/tools/context/) and the [cache clock](/en/tools/cache/)
 - [Support the project](/en/support/)
 
 ## Source code

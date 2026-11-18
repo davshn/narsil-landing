@@ -22,6 +22,8 @@ test.describe('Content Security Policy', () => {
     '/en/tools/semver/',
     '/en/tools/xp/',
     '/en/tools/priority/',
+    '/en/tools/context/',
+    '/en/tools/cache/',
   ]) {
     test(`${path} ships a hash-based script policy and runs without violations`, async ({
       page,

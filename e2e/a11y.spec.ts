@@ -9,6 +9,8 @@ const PATHS = [
   '/en/tools/semver/',
   '/en/tools/xp/',
   '/en/tools/priority/',
+  '/en/tools/context/',
+  '/en/tools/cache/',
   '/es/',
   '/it/',
   '/fr/',

@@ -259,6 +259,44 @@ export const it: TranslationShape = {
       rowsLabel: 'Righe della banda',
       page: 'Pagina {page}',
     },
+    context: {
+      title: 'Stima del riempimento del contesto',
+      description:
+        'Inserisci due letture della barra del contesto e i minuti tra loro per vedere quando si riempie la finestra, come la stima Narsil.',
+      intro:
+        'Narsil proietta in linea retta fino al 100 % il ritmo degli ultimi 15 minuti. Le serve almeno un minuto di letture, non mostra nulla finché il riempimento non cresce e nasconde le stime oltre le due ore.',
+      guideText: 'Come Narsil mostra il contesto e i limiti',
+      earlierLabel: 'Riempimento prima (%)',
+      nowLabel: 'Riempimento ora (%)',
+      minutesLabel: 'Minuti tra le letture',
+      resultLabel: 'Stima',
+      estimate: 'Pieno tra circa {minutes} min.',
+      far: 'Mancano più di due ore: Narsil non mostra una stima così lontana.',
+      full: 'La finestra di contesto è piena.',
+      old: 'Narsil usa solo le letture degli ultimi 15 minuti, quindi non c’è una stima.',
+      short: 'Le letture distano meno di un minuto, quindi non c’è ancora una stima.',
+      flat: 'Il riempimento non cresce, quindi non c’è una stima.',
+    },
+    cache: {
+      title: 'Orologio della cache',
+      description:
+        'Scegli abbonamento o chiave API e i minuti dall’ultima richiesta per vedere quanta cache del prompt resta, come la conta Narsil.',
+      intro:
+        'La cache del prompt dura 60 minuti con un piano in abbonamento e 5 minuti con una chiave API, contati dall’inizio dell’ultima richiesta. Quando si raffredda, il messaggio successivo si paga per intero. Puoi anche fissarne la durata a mano, come fa /narsil cache.',
+      guideText: 'Come Narsil conta la cache del prompt',
+      accountLabel: 'Come usi Claude Code',
+      accounts: {
+        plan: 'Piano in abbonamento',
+        api: 'Chiave API',
+        custom: 'A mano',
+      },
+      customLabel: 'Durata della cache (minuti)',
+      elapsedLabel: 'Minuti dall’inizio dell’ultima richiesta',
+      resultLabel: 'Cache del prompt',
+      lasts: 'La cache dura {minutes} min.',
+      warm: 'Cache: restano {left} min',
+      cold: 'Cache fredda: il prossimo messaggio si paga per intero',
+    },
   },
   support: {
     title: 'Sostieni Narsil Workshop',

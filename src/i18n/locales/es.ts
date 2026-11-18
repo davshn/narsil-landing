@@ -256,6 +256,44 @@ export const es: TranslationShape = {
       rowsLabel: 'Filas de la banda',
       page: 'Página {page}',
     },
+    context: {
+      title: 'Estimador de llenado de contexto',
+      description:
+        'Escribe dos lecturas de la barra de contexto y los minutos entre ellas para ver cuándo se llena la ventana, como lo estima Narsil.',
+      intro:
+        'Narsil proyecta en línea recta hasta el 100 % el ritmo de los últimos 15 minutos. Necesita al menos un minuto de lecturas, no muestra nada mientras el llenado no crece y oculta las estimaciones de más de dos horas.',
+      guideText: 'Cómo muestra Narsil el contexto y los límites',
+      earlierLabel: 'Llenado antes (%)',
+      nowLabel: 'Llenado ahora (%)',
+      minutesLabel: 'Minutos entre las lecturas',
+      resultLabel: 'Estimación',
+      estimate: 'Lleno en unos {minutes} min.',
+      far: 'Faltan más de dos horas: Narsil no muestra una estimación tan lejana.',
+      full: 'La ventana de contexto está llena.',
+      old: 'Narsil solo usa lecturas de los últimos 15 minutos, así que no hay estimación.',
+      short: 'Las lecturas están a menos de un minuto, así que todavía no hay estimación.',
+      flat: 'El llenado no crece, así que no hay estimación.',
+    },
+    cache: {
+      title: 'Reloj de caché',
+      description:
+        'Elige suscripción o clave de API y los minutos desde la última petición para ver cuánta caché de prompt queda, como la cuenta Narsil.',
+      intro:
+        'La caché de prompt dura 60 minutos con un plan de suscripción y 5 minutos con una clave de API, contados desde el inicio de la última petición. Cuando se enfría, el siguiente mensaje se cobra completo. También puedes fijar la duración a mano, como hace /narsil cache.',
+      guideText: 'Cómo cuenta Narsil la caché de prompt',
+      accountLabel: 'Cómo usas Claude Code',
+      accounts: {
+        plan: 'Plan de suscripción',
+        api: 'Clave de API',
+        custom: 'A mano',
+      },
+      customLabel: 'Duración de la caché (minutos)',
+      elapsedLabel: 'Minutos desde el inicio de la última petición',
+      resultLabel: 'Caché de prompt',
+      lasts: 'La caché dura {minutes} min.',
+      warm: 'Caché: quedan {left} min',
+      cold: 'Caché fría: el próximo mensaje se cobra completo',
+    },
   },
   support: {
     title: 'Apoya Narsil Workshop',

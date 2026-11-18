@@ -19,11 +19,47 @@ test.describe('Interactive tools', () => {
         t.tools.semver.title,
         t.tools.xp.title,
         t.tools.priority.title,
+        t.tools.context.title,
+        t.tools.cache.title,
       ])
       const hrefs = await links.evaluateAll((nodes) =>
         nodes.map((node) => node.getAttribute('href')),
       )
-      expect(hrefs).toEqual(['semver', 'xp', 'priority'].map((slug) => `/${locale}/tools/${slug}/`))
+      expect(hrefs).toEqual(
+        ['semver', 'xp', 'priority', 'context', 'cache'].map((slug) => `/${locale}/tools/${slug}/`),
+      )
+    })
+
+    test(`/${locale}/tools/context/ estimates the fill in the browser`, async ({ page }) => {
+      const copy = t.tools.context
+      await page.goto(`/${locale}/tools/context/`)
+      const result = page.getByRole('status')
+      const now = page.getByLabel(copy.nowLabel)
+      await expect(async () => {
+        await now.fill('100')
+        await expect(result).toContainText(copy.full)
+      }).toPass()
+      await expect(page.locator('[data-tool-guide]')).toHaveAttribute(
+        'href',
+        `/${locale}/mods/pet/context-and-limits/`,
+      )
+    })
+
+    test(`/${locale}/tools/cache/ counts the cache down in the browser`, async ({ page }) => {
+      const copy = t.tools.cache
+      await page.goto(`/${locale}/tools/cache/`)
+      const result = page.getByRole('status')
+      const elapsed = page.getByLabel(copy.elapsedLabel)
+      await expect(async () => {
+        await elapsed.fill('10')
+        await expect(result).toContainText(copy.cold)
+      }).toPass()
+      await page.getByLabel(copy.accounts.plan).check()
+      await expect(result).not.toContainText(copy.cold)
+      await expect(page.locator('[data-tool-guide]')).toHaveAttribute(
+        'href',
+        `/${locale}/mods/pet/cache-clock/`,
+      )
     })
 
     test(`/${locale}/tools/xp/ computes Narsil's level in the browser`, async ({ page }) => {
