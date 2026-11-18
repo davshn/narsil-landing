@@ -83,6 +83,7 @@ describe('useTranslations', () => {
       'lucide:sparkles',
       'lucide:list-checks',
       'lucide:cpu',
+      'lucide:smartphone',
     ])
   })
 })

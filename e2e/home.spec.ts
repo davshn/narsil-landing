@@ -5,7 +5,7 @@ import { useTranslations } from '../src/i18n/utils'
 const t = useTranslations('en')
 
 test.describe('Home layout', () => {
-  test('leads with the three paths right after the hero, each with its guide count', async ({
+  test('leads with the four paths right after the hero, each with its guide count', async ({
     page,
   }) => {
     await page.goto('/en/')
@@ -14,7 +14,9 @@ test.describe('Home layout', () => {
     const links = page.locator('#routes .path-card-link')
     await expect(links).toHaveText(t.home.routes.map((route) => route.title))
     await expect(links.nth(2)).toHaveAttribute('href', '/en/bot/')
-    await expect(page.locator('#routes .path-card-meta').first()).toHaveText(/^\d+ guides$/iv)
+    await expect(links.nth(3)).toHaveAttribute('href', '/en/mods/claude/')
+    await expect(page.locator('#routes .path-card-meta')).toHaveCount(4)
+    await expect(page.locator('#routes .path-card-meta').nth(3)).toHaveText('5 guides')
   })
 
   test('switches the showcase between its interfaces with tabs', async ({ page }) => {

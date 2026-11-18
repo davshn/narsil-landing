@@ -79,7 +79,7 @@ export const pt: TranslationShape = {
       'O Narsil é um mod do Claude Code: um pequeno mascote que fica acima do prompt e mostra num relance se o Claude está trabalhando, precisa de você, terminou ou travou. O Narsil Check é o irmão dele, um painel lateral que revisa sua branch, a CI, as dependências e as vulnerabilidades.',
       'Aqui você não vai só instalá-los. Cada guia explica quais hooks uma funcionalidade escuta, que estado ela guarda e o que desenha, e depois constrói uma versão mínima que funciona, com seus testes.',
     ],
-    routesTitle: 'Três trilhas de aprendizado',
+    routesTitle: 'Quatro trilhas de aprendizado',
     routesSubtitle:
       'Escolha uma trilha e siga os guias em ordem. Se você nunca fez um mod, comece pelos fundamentos de mods.',
     routes: [
@@ -100,6 +100,12 @@ export const pt: TranslationShape = {
         description:
           'Dê um corpo ao Narsil: uma tela touch ESP32-P4 na barriga com suas tarefas e seus pull requests, uma cabeça holográfica ESP32-S3 com o rosto do Narsil, e voz com o Xiaozhi e o Claude no seu próprio servidor.',
         icon: 'lucide:cpu',
+      },
+      {
+        title: 'Narsil no Claude, no seu celular',
+        description:
+          'Experimental: veja como é feita a extensão de navegador que leva o Narsil ao claude.ai no Android, com a faixa da conversa, o menu lateral com seus limites e as mensagens do ntfy, as cores e os pacotes para Android.',
+        icon: 'lucide:smartphone',
       },
     ],
     coffeeTitle: 'Grátis, e vai continuar assim',
