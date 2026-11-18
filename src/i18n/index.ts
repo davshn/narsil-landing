@@ -36,6 +36,17 @@ export interface RouteCopy {
   icon: string
 }
 
+export interface StateCopy {
+  label: string
+  text: string
+}
+
+export interface ShowcaseCopy {
+  title: string
+  text: string
+  alt: string
+}
+
 export interface PathCopy {
   title: string
   description: string
@@ -75,6 +86,18 @@ export interface TranslationShape {
     subheadline: string
     cta: string
     fundamentalsCta: string
+    heroAlt: string
+    states: {
+      title: string
+      subtitle: string
+      items: [StateCopy, StateCopy, StateCopy, StateCopy]
+    }
+    showcase: {
+      title: string
+      subtitle: string
+      items: [ShowcaseCopy, ShowcaseCopy, ShowcaseCopy]
+      note: string
+    }
     aboutTitle: string
     about: [string, string]
     routesTitle: string

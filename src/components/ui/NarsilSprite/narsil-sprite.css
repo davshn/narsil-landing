@@ -1,0 +1,26 @@
+@reference '../../../styles/global.css';
+
+.narsil-sprite {
+  @apply inline-flex items-center justify-center;
+}
+
+.narsil-sprite img {
+  @apply block h-auto max-w-full object-contain;
+}
+
+.narsil-sprite-md img {
+  width: 90px;
+  height: 128px;
+}
+
+.narsil-sprite-lg img {
+  width: 140px;
+  height: 200px;
+}
+
+.narsil-sprite-framed {
+  @apply rounded-full;
+  width: 18rem;
+  height: 18rem;
+  box-shadow: var(--shadow-neu-lg);
+}

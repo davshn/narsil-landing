@@ -1,0 +1,51 @@
+---
+import { NARSIL_THEMES, narsilArt, type NarsilPose } from '@utils/narsil-art'
+
+import './narsil-sprite.css'
+
+type Size = 'md' | 'lg'
+
+interface Props {
+  pose: NarsilPose
+  alt: string
+  size?: Size
+  loading?: 'lazy' | 'eager'
+  framed?: boolean
+  class?: string
+}
+
+const { pose, alt, size = 'md', loading = 'lazy', framed = false, class: className } = Astro.props
+
+const dimensions: Record<Size, { width: number; height: number }> = {
+  md: { width: 90, height: 128 },
+  lg: { width: 140, height: 200 },
+}
+const { width, height } = dimensions[size]
+const classes = [
+  'narsil-sprite',
+  `narsil-sprite-${size}`,
+  framed ? 'narsil-sprite-framed' : undefined,
+  className,
+]
+  .filter(Boolean)
+  .join(' ')
+---
+
+<span class={classes}>
+  {NARSIL_THEMES.map((theme) => {
+    const art = narsilArt(pose, theme)
+    return (
+      <picture class={theme === 'claro' ? 'theme-light-only' : 'theme-dark-only'}>
+        <source media="(prefers-reduced-motion: reduce)" srcset={art.still} />
+        <img
+          src={art.animated}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={loading}
+          decoding="async"
+        />
+      </picture>
+    )
+  })}
+</span>

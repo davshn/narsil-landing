@@ -21,6 +21,18 @@ describe('Hero', () => {
     expect(host.querySelector('h2.hero-headline')?.textContent).toBe('H')
   })
 
+  it('renders the media slot beside the content only when it is filled', async () => {
+    const bare = await render(Hero, { props: { headline: 'H' } })
+    const withMedia = await render(Hero, {
+      props: { headline: 'H', layout: 'split' },
+      slots: { media: '<img src="/narsil.webp" alt="Narsil">' },
+    })
+
+    expect(bare.querySelector('.hero-media')).toBeNull()
+    expect(withMedia.querySelector('.hero-media img')?.getAttribute('alt')).toBe('Narsil')
+    expect(withMedia.querySelector('.hero-content .hero-media')).toBeNull()
+  })
+
   it('renders optional badge and subheadline', async () => {
     const host = await render(Hero, {
       props: { headline: 'H', badge: 'New', subheadline: 'Built with Astro' },

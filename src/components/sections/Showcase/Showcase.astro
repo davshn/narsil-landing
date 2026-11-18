@@ -1,0 +1,66 @@
+---
+import ResponsiveImage from '@components/ui/ResponsiveImage/ResponsiveImage.astro'
+
+import './showcase.css'
+
+type Frame = 'window' | 'pane' | 'phone'
+
+interface ShowcaseItem {
+  title: string
+  text: string
+  alt: string
+  frame: Frame
+  light: ImageMetadata | string
+  dark: ImageMetadata | string
+  width: number
+  height: number
+}
+
+interface Props {
+  title: string
+  subtitle?: string
+  items: ShowcaseItem[]
+  note?: string
+}
+
+const { title, subtitle, items, note } = Astro.props
+---
+
+<section class="showcase">
+  <div class="showcase-inner section-shell">
+    <div class="showcase-header">
+      <h2 class="section-title">{title}</h2>
+      {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+    </div>
+    <div class="showcase-grid">
+      {items.map((item) => (
+        <figure class="showcase-item">
+          <div class={`showcase-frame showcase-frame-${item.frame}`}>
+            <ResponsiveImage
+              src={item.light}
+              alt={item.alt}
+              width={item.width}
+              height={item.height}
+              sizes="(min-width: 1024px) 22rem, 90vw"
+              pictureClass="theme-light-only"
+            />
+            <ResponsiveImage
+              src={item.dark}
+              alt={item.alt}
+              width={item.width}
+              height={item.height}
+              sizes="(min-width: 1024px) 22rem, 90vw"
+              pictureClass="theme-dark-only"
+            />
+          </div>
+          <figcaption class="showcase-caption">
+            <span class="showcase-caption-title">{item.title}</span>
+            <span class="showcase-caption-text">{item.text}</span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+    {note !== undefined && note !== '' && <p class="showcase-note">{note}</p>}
+    <slot />
+  </div>
+</section>

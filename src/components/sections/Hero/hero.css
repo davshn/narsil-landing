@@ -3,6 +3,11 @@
 .hero {
   @apply w-full mx-auto max-w-7xl;
   padding: var(--spacing-16) var(--spacing-6);
+  background: radial-gradient(
+    ellipse 60% 55% at 72% 45%,
+    color-mix(in oklch, var(--color-primary) 16%, transparent),
+    transparent 70%
+  );
 }
 
 .hero-center {
@@ -50,6 +55,14 @@
 
 .hero-actions {
   @apply flex flex-wrap items-center gap-3 mt-8;
+}
+
+.hero-media {
+  @apply flex justify-center;
+}
+
+.hero-split .hero-media {
+  @apply flex-1;
 }
 
 .hero-image {

@@ -19,6 +19,18 @@
   box-shadow: var(--shadow-neu-inset-md);
 }
 
+.theme-dark-only {
+  display: none;
+}
+
+.dark .theme-dark-only {
+  display: contents;
+}
+
+.dark .theme-light-only {
+  display: none;
+}
+
 .neu-code {
   @apply rounded-md px-2 py-0.5 text-sm;
   box-shadow: var(--shadow-neu-inset-sm);

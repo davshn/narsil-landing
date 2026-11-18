@@ -1,0 +1,39 @@
+---
+import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
+import type { NarsilPose } from '@utils/narsil-art'
+
+import './narsil-states.css'
+
+type Tone = 'working' | 'waiting' | 'done' | 'error'
+
+interface NarsilState {
+  pose: NarsilPose
+  tone: Tone
+  label: string
+  text: string
+}
+
+interface Props {
+  title: string
+  subtitle?: string
+  states: NarsilState[]
+}
+
+const { title, subtitle, states } = Astro.props
+---
+
+<section class="narsil-states section-shell">
+  <div class="narsil-states-header">
+    <h2 class="section-title">{title}</h2>
+    {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+  </div>
+  <ul class="narsil-states-grid">
+    {states.map((state) => (
+      <li class={`narsil-state narsil-state-${state.tone}`}>
+        <NarsilSprite pose={state.pose} alt="" />
+        <p class="narsil-state-label">{state.label}</p>
+        <p class="narsil-state-text">{state.text}</p>
+      </li>
+    ))}
+  </ul>
+</section>
