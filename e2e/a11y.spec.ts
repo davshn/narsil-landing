@@ -25,6 +25,8 @@ const PATHS = [
   '/en/mods/check/side-panel/',
   '/en/mods/check/ecosystems/',
   '/en/mods/check/explain-major/',
+  '/en/mods/check/vulnerabilities/',
+  '/en/mods/check/kotlin-gradle-agp/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 
