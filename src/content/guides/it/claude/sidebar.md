@@ -20,7 +20,7 @@ Ogni limite mostra una percentuale, una barra in verde, ambra o rosso, e quando 
 
 ntfy.sh viene usato solo per ciò che la pagina non può sapere. Il livello e il conteggio cambiano quando la mod invia uno stato, cioè quando scrivi a Claude Code tramite Remote Control. Quando il conteggio ha più di un'ora, il blocco lo dice.
 
-> **Sperimentale.** Il blocco trova il suo posto tramite la struttura del menu laterale di `claude.ai`, e legge i limiti da un indirizzo interno della pagina, non da un'API pubblica. Un aggiornamento di Claude può romperlo; quando succede, il blocco smette di comparire. Legge soltanto, e non invia mai i tuoi dati da nessuna parte.
+> **Sperimentale.** Il blocco trova il suo posto tramite la struttura del menu laterale di `claude.ai`, e legge i limiti da un indirizzo interno della pagina, non da un'API pubblica. Un aggiornamento di Claude può romperlo; quando succede, il blocco smette di comparire. Legge soltanto: non scrive mai nel tuo account né invia le tue conversazioni da nessuna parte, anche se l’estensione carica i disegni di Narsil da GitHub e legge il suo topic di stato su ntfy.sh.
 
 ## Come funziona dentro
 

@@ -18,7 +18,7 @@ Quand vous ouvrez une conversation sur `claude.ai/code`, une bande apparaît jus
 
 Le texte tient sur deux lignes. Un toucher l’ouvre en entier et un autre le referme. La bande pousse la conversation vers le haut au lieu de la recouvrir, et elle se rafraîchit toutes les 10 secondes tant que l’écran est visible.
 
-> **Expérimentale.** La bande lit les mêmes données que la page `claude.ai` charge pour elle-même, depuis des adresses internes qui ne sont pas une API publique, et trouve la zone de saisie par la structure de la page. Une mise à jour de Claude peut la casser ; quand cela arrive, la bande cesse simplement de s’afficher. Elle ne fait que lire, et n’envoie jamais vos données nulle part.
+> **Expérimentale.** La bande lit les mêmes données que la page `claude.ai` charge pour elle-même, depuis des adresses internes qui ne sont pas une API publique, et trouve la zone de saisie par la structure de la page. Une mise à jour de Claude peut la casser ; quand cela arrive, la bande cesse simplement de s’afficher. Elle ne fait que lire : elle n’écrit jamais dans votre compte et n’envoie vos conversations nulle part, mais l’extension charge les dessins de Narsil depuis GitHub et lit son sujet d’état sur ntfy.sh.
 
 Tout ce que montre la bande vient de `claude.ai` lui-même, donc elle n’a besoin d’aucun message de votre ordinateur. Seuls deux détails dépendent du [mod narsil-pet](https://github.com/davshn/narsil-pet) : l’étape de Narsil sur l’image, et la durée du cache.
 

@@ -18,7 +18,7 @@ Quando apri una conversazione su `claude.ai/code`, compare una banda appena sopr
 
 Il testo occupa due righe. Un tocco lo apre per intero e un altro tocco lo chiude. La banda spinge la conversazione in su invece di coprirla, e si aggiorna ogni 10 secondi mentre lo schermo è visibile.
 
-> **Sperimentale.** La banda legge gli stessi dati che la pagina di `claude.ai` carica per sé, da indirizzi interni che non sono un'API pubblica, e trova la casella dei messaggi tramite la struttura della pagina. Un aggiornamento di Claude può romperla; quando succede, la banda semplicemente smette di comparire. Legge soltanto, e non invia mai i tuoi dati da nessuna parte.
+> **Sperimentale.** La banda legge gli stessi dati che la pagina di `claude.ai` carica per sé, da indirizzi interni che non sono un'API pubblica, e trova la casella dei messaggi tramite la struttura della pagina. Un aggiornamento di Claude può romperla; quando succede, la banda semplicemente smette di comparire. Legge soltanto: non scrive mai nel tuo account né invia le tue conversazioni da nessuna parte, anche se l’estensione carica i disegni di Narsil da GitHub e legge il suo topic di stato su ntfy.sh.
 
 Tutto ciò che c'è nella banda arriva da `claude.ai` stesso, quindi non ha bisogno di nessun messaggio dal tuo computer. Solo due dettagli dipendono dalla [mod narsil-pet](https://github.com/davshn/narsil-pet): lo stadio di Narsil nell'immagine, e quanto dura la cache.
 

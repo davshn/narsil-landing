@@ -20,7 +20,7 @@ Chaque limite affiche un pourcentage, une barre en vert, ambre ou rouge, et le m
 
 ntfy.sh ne sert qu’à ce que la page ne peut pas savoir. Le niveau et le décompte changent quand le mod envoie un état, c’est-à-dire quand vous écrivez à Claude Code par Remote Control. Quand le décompte a plus d’une heure, le bloc le signale.
 
-> **Expérimental.** Le bloc trouve sa place par la structure du menu latéral de `claude.ai`, et lit les limites depuis une adresse interne de la page, pas depuis une API publique. Une mise à jour de Claude peut le casser ; quand cela arrive, le bloc cesse de s’afficher. Il ne fait que lire, et n’envoie jamais vos données nulle part.
+> **Expérimental.** Le bloc trouve sa place par la structure du menu latéral de `claude.ai`, et lit les limites depuis une adresse interne de la page, pas depuis une API publique. Une mise à jour de Claude peut le casser ; quand cela arrive, le bloc cesse de s’afficher. Il ne fait que lire : il n’écrit jamais dans votre compte et n’envoie vos conversations nulle part, mais l’extension charge les dessins de Narsil depuis GitHub et lit son sujet d’état sur ntfy.sh.
 
 ## Comment ça marche à l’intérieur
 

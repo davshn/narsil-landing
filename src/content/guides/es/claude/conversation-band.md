@@ -18,7 +18,7 @@ Cuando abres una conversación en `claude.ai/code`, aparece una franja justo enc
 
 El texto ocupa dos líneas. Un toque lo abre entero y otro toque lo cierra. La franja empuja la conversación hacia arriba en lugar de taparla, y se actualiza cada 10 segundos mientras la pantalla está visible.
 
-> **Experimental.** La franja lee los mismos datos que la página de `claude.ai` carga para sí misma, desde direcciones internas que no son una API pública, y encuentra la caja de texto por la estructura de la página. Una actualización de Claude puede romperla; cuando pasa, la franja simplemente deja de mostrarse. Solo lee, y nunca envía tus datos a ningún sitio.
+> **Experimental.** La franja lee los mismos datos que la página de `claude.ai` carga para sí misma, desde direcciones internas que no son una API pública, y encuentra la caja de texto por la estructura de la página. Una actualización de Claude puede romperla; cuando pasa, la franja simplemente deja de mostrarse. Solo lee: nunca escribe en tu cuenta ni envía tus conversaciones a ningún sitio, aunque la extensión carga los dibujos de Narsil desde GitHub y lee su tema de estado en ntfy.sh.
 
 Todo lo que hay en la franja viene del propio `claude.ai`, así que no necesita ningún mensaje de tu ordenador. Solo dos detalles dependen de [el mod narsil-pet](https://github.com/davshn/narsil-pet): la etapa de Narsil en el dibujo y cuánto dura la caché.
 

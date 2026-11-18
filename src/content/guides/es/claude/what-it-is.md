@@ -17,7 +17,7 @@ Narsil en Claude es una extensión de navegador para Firefox y Vivaldi en Androi
 
 La extensión funciona sobre la app web real de Claude. No se sustituye nada: sigues leyendo la conversación completa, aprobando permisos y respondiendo a las preguntas de Claude como siempre. La extensión solo añade lo que dibuja a su alrededor.
 
-> **Experimental.** La extensión se apoya en la estructura de la página de `claude.ai` y en direcciones internas que usa la propia página, no en una API pública. Una actualización de Claude puede romperla en cualquier momento. Cuando eso pasa, la franja o el bloque simplemente dejan de mostrarse; no tapan nada. Solo lee, y nunca envía tus datos a ningún sitio. Su código no es público, así que esta ruta explica cómo está hecha y da pequeños ejemplos propios.
+> **Experimental.** La extensión se apoya en la estructura de la página de `claude.ai` y en direcciones internas que usa la propia página, no en una API pública. Una actualización de Claude puede romperla en cualquier momento. Cuando eso pasa, la franja o el bloque simplemente dejan de mostrarse; no tapan nada. Solo lee: nunca escribe en tu cuenta ni envía tus conversaciones a ningún sitio, aunque la extensión carga los dibujos de Narsil desde GitHub y lee su tema de estado en ntfy.sh. Su código no es público, así que esta ruta explica cómo está hecha y da pequeños ejemplos propios.
 
 La extensión forma parte de la familia de Narsil. El nivel y la cuenta de ntfy vienen de [Narsil para Claude Code](https://github.com/davshn/narsil-pet), el mod de tu ordenador; todo lo demás funciona sin él.
 

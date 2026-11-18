@@ -18,7 +18,7 @@ When you open a conversation on `claude.ai/code`, a band appears just above the 
 
 The text takes two lines. A tap opens it whole and another tap closes it. The band pushes the conversation up instead of covering it, and it refreshes every 10 seconds while the screen is visible.
 
-> **Experimental.** The band reads the same data the `claude.ai` page loads for itself, from internal addresses that are not a public API, and finds the message box by the page's structure. A Claude update can break it; when it does, the band just stops showing. It only reads, and it never sends your data anywhere.
+> **Experimental.** The band reads the same data the `claude.ai` page loads for itself, from internal addresses that are not a public API, and finds the message box by the page's structure. A Claude update can break it; when it does, the band just stops showing. It only reads: it never writes to your account or sends your conversations anywhere, though the extension loads Narsil’s pictures from GitHub and reads its status topic from ntfy.sh.
 
 Everything in the band comes from `claude.ai` itself, so it needs no message from your computer. Only two details depend on [the narsil-pet mod](https://github.com/davshn/narsil-pet): Narsil's stage in the picture, and how long the cache lasts.
 
