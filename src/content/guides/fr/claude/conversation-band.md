@@ -89,7 +89,27 @@ Le texte est limité à deux lignes avec CSS ([`line-clamp`](https://developer.m
 
 La bande n’écrit une valeur que quand elle a changé, puisque chacune de ses écritures est un changement de plus pour l’observateur. Et l’observateur s’arrête, avec tout ce qui l’utilisait, dès que l’extension est supprimée ou rechargée, pour qu’une copie orpheline ne continue pas à dessiner.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un content script qui dessine une bande juste au-dessus de la zone de saisie de `claude.ai` et lit les données de la conversation avec la session propre de la page. L’idée que Claude doit bien saisir : la bande ne fait que lire, et seulement pendant que vous regardez ; des requêtes `GET` toutes les 10 secondes, et aucune tant que la page est cachée.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon extension Firefox pour `https://claude.ai/*`, ajoute un content script qui dessine une bande d’état juste avant la zone de saisie de la page, comme son frère précédent, pour qu’elle pousse la conversation vers le haut au lieu de la recouvrir. Trouve l’identifiant de la conversation dans `location.pathname`. Toutes les 10 secondes, et seulement tant que `document.hidden` est faux, lis les données de la conversation avec la session propre de la page (`content.fetch` quand il existe, sinon `fetch`, avec `credentials: 'include'`), en `GET` uniquement. Affiche l’état, le pourcentage de contexte, le dernier texte écrit par Claude et depuis combien de temps, et un compte à rebours du cache estimé à partir de l’heure du dernier message de Claude plus 60 minutes. Utilise un seul `MutationObserver` sur le document, limité avec `requestAnimationFrame`, pour remettre la bande en place quand la page se reconstruit et la réinitialiser quand la conversation change. N’écris le texte qu’avec `textContent`. Limite le texte à deux lignes et laisse un toucher le déplier. Garde les règles dans un module sans code DOM, et teste-les avec `node --test`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La bande est insérée juste avant la zone de saisie, comme son frère précédent, et non comme une couche en `position: fixed`, si bien qu’elle ne recouvre rien.
+2. Les requêtes utilisent `content.fetch` quand il existe, sinon `fetch`, avec `credentials: 'include'`, et ce sont uniquement des `GET`.
+3. Elle interroge toutes les 10 secondes, pas du tout tant que `document.hidden` est vrai, et immédiatement quand `visibilitychange` montre de nouveau la page.
+4. Le compte à rebours du cache part du dernier message de Claude, et non du dernier événement de la conversation, et les anciennes données sont abandonnées quand l’identifiant de l’adresse change.
+5. Il y a un seul `MutationObserver`, exécuté au plus une fois par image avec `requestAnimationFrame`, et la bande écrit son texte avec `textContent` et ne bouge que quand quelque chose a changé.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le compte à rebours du cache recommence à chaque fois que j’ouvre la page ».
+
+### Comment l’auteur l’a demandé
 
 Aucune demande pour la bande n’a été consignée. Les mots de l’auteur ou de l’autrice consignés pour ce parcours portent sur le site (le [guide 1](/fr/mods/claude/what-it-is/) les cite). Ce qui suit est reconstitué à partir de l’historique des commits de l’extension :
 
@@ -101,13 +121,9 @@ Aucune demande pour la bande n’a été consignée. Les mots de l’auteur ou d
 
 L’historique montre un passage des données envoyées par l’ordinateur aux données que la page avait déjà : la bande fonctionne dès que vous ouvrez une conversation, même avec l’ordinateur éteint.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon extension Firefox pour `https://claude.ai/*`, ajoute un content script qui dessine une bande d’état juste avant la zone de saisie de la page, comme son frère précédent, pour qu’elle pousse la conversation vers le haut au lieu de la recouvrir. Trouve l’identifiant de la conversation dans `location.pathname`. Toutes les 10 secondes, et seulement tant que `document.hidden` est faux, lis les données de la conversation avec la session propre de la page (`content.fetch` quand il existe, sinon `fetch`, avec `credentials: 'include'`), en `GET` uniquement. Affiche l’état, le pourcentage de contexte, le dernier texte écrit par Claude et depuis combien de temps, et un compte à rebours du cache estimé à partir de l’heure du dernier message de Claude plus 60 minutes. Utilise un seul `MutationObserver` sur le document, limité avec `requestAnimationFrame`, pour remettre la bande en place quand la page se reconstruit et la réinitialiser quand la conversation change. N’écris le texte qu’avec `textContent`. Limite le texte à deux lignes et laisse un toucher le déplier. Garde les règles dans un module sans code DOM, et teste-les avec `node --test`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Un petit content script de la même forme, écrit pour ce guide (MIT). `readConversation` représente ce qui lit vos données ; ici, il renvoie l’heure du dernier message de Claude, en secondes. Le reste est la mécanique de la bande : la placer, suivre la page, rafraîchir tant qu’elle est visible et estimer le cache.
 

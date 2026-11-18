@@ -100,7 +100,27 @@ El mod envía un estado solo mientras escribes desde fuera. Cuando vuelves al es
 
 La cuenta en sí tiene que venir del ordenador, porque ntfy.sh cuenta los mensajes por dirección IP. El mod le pregunta a ntfy.sh, desde la red del ordenador, cuántos mensajes ha enviado hoy esa red, y pone la respuesta en su estado. Si preguntara el móvil, ntfy.sh respondería sobre la red del móvil, que no envía nada. Como explica la guía del móvil, ese día además empieza a una hora propia de ntfy.sh, no a medianoche, y por eso la fila muestra su propia hora de reinicio.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un bloque después del botón Buscar del menú lateral, alimentado por un script de fondo que sigue el tema de estado del mod en ntfy.sh. La idea que debe acertar es que el tema se queda en el script de fondo, y que nada de lo que llega de ntfy.sh es de fiar: llega a la página solo como texto.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> En mi extensión para `https://claude.ai/*`, añade un bloque justo después del botón Buscar del menú lateral, encontrado por su posición, no por su texto. El script de contenido abre un puerto `runtime.connect` hacia el script de fondo mientras la página está visible y lo cierra cuando se oculta. El script de fondo lee el tema de `storage.local`, consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h` y después sigue el mismo flujo JSON con `fetch` y un lector de flujo desde el id del último mensaje, reintentando con una espera que se duplica hasta 60 s. Envía el estado más reciente ya interpretado a cada puerto, nunca el tema. En el bloque, muestra el campo `xp` como texto con `textContent`, acepta la URL de una imagen solo desde un prefijo fijo, y añade "data from N h ago" cuando el `at` del estado tenga más de una hora. Prueba la interpretación y el flujo con `node --test`, pasando un `fetch` falso.
+
+### Qué revisar en la respuesta de Claude
+
+1. Buscar se encuentra por su posición, no por su texto, así que el bloque sigue apareciendo cuando la página está en otro idioma.
+2. Solo el script de fondo lee el tema de `storage.local` y habla con ntfy.sh. Envía el estado a los puertos, nunca el tema.
+3. Primero consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, después sigue el flujo desde el id del último mensaje, y espera el doble tras cada fallo, hasta 60 segundos.
+4. El puerto está abierto mientras la página está visible y cerrado mientras está oculta, así que no se lee nada mientras no miras.
+5. Cada valor entra con `textContent`, una imagen se muestra solo desde una dirección fija, y un estado cuyo `at` tiene más de una hora lleva la nota "data from N h ago".
+
+Si una comprobación falla, dile a Claude lo que ves: "después de apagar y encender la red, el nivel ya no vuelve a cambiar".
+
+### Cómo lo pidió el autor
 
 No quedó registrada ninguna petición sobre el bloque. Las palabras de quien creó Narsil registradas para esta ruta tratan del sitio (la [guía 1](/es/mods/claude/what-it-is/) las cita). Lo siguiente se reconstruye a partir del historial de commits de la extensión:
 
@@ -110,13 +130,9 @@ No quedó registrada ninguna petición sobre el bloque. Las palabras de quien cr
 
 Del lado del mod, `544ef89` de narsil-pet (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (enviar solo lo que la extensión de Firefox lee a través de ntfy) recortó su estado a los cinco campos de arriba, el mismo día.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> En mi extensión para `https://claude.ai/*`, añade un bloque justo después del botón Buscar del menú lateral, encontrado por su posición, no por su texto. El script de contenido abre un puerto `runtime.connect` hacia el script de fondo mientras la página está visible y lo cierra cuando se oculta. El script de fondo lee el tema de `storage.local`, consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h` y después sigue el mismo flujo JSON con `fetch` y un lector de flujo desde el id del último mensaje, reintentando con una espera que se duplica hasta 60 s. Envía el estado más reciente ya interpretado a cada puerto, nunca el tema. En el bloque, muestra el campo `xp` como texto con `textContent`, acepta la URL de una imagen solo desde un prefijo fijo, y añade "data from N h ago" cuando el `at` del estado tenga más de una hora. Prueba la interpretación y el flujo con `node --test`, pasando un `fetch` falso.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Las dos mitades, escritas para esta guía (MIT). El script de fondo sigue el tema de estado y envía al bloque lo que lee; el script de contenido lo muestra. Pruébalo con un tema inventado como `narsil-0123456789abcdef0123`, en un tema tuyo.
 

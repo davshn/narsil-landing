@@ -100,7 +100,27 @@ La mod invia uno stato solo mentre scrivi da fuori. Quando torni alla scrivania,
 
 Il conteggio stesso deve arrivare dal computer, perché ntfy.sh conta i messaggi per indirizzo IP. La mod chiede a ntfy.sh, dalla rete del computer, quanti messaggi ha inviato oggi quella rete, e mette la risposta nel suo stato. Se chiedesse il telefono, ntfy.sh risponderebbe sulla rete del telefono, che non invia niente. Come spiega la guida del telefono, quel giorno inoltre inizia a un'ora tutta di ntfy.sh, non a mezzanotte, ed è per questo che la riga mostra la sua ora di azzeramento.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un blocco dopo il pulsante Cerca del menu laterale, alimentato da uno script di background che segue il topic di stato della mod su ntfy.sh. L'unica idea che deve fare bene è che il topic resta nel background, e che niente di ciò che arriva da ntfy.sh è affidabile: raggiunge la pagina solo come testo.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
+
+> Nella mia estensione per `https://claude.ai/*`, aggiungi un blocco subito dopo il pulsante Cerca del menu laterale, trovato tramite la sua posizione, non il suo testo. Il content script apre una porta `runtime.connect` verso il background mentre la pagina è visibile e la chiude quando è nascosta. Il background legge il topic da `storage.local`, fa il polling di `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, poi segue lo stesso stream JSON con `fetch` e un lettore di stream dall'id dell'ultimo messaggio, riprovando con un'attesa che raddoppia fino a 60 s. Invia lo stato analizzato più recente a ogni porta, mai il topic. Nel blocco, mostra il campo `xp` come testo con `textContent`, accetta l'URL di un'immagine solo da un prefisso fisso, e aggiungi "dato di N h fa" quando l'`at` dello stato ha più di un'ora. Testa l'analisi e lo stream con `node --test`, passando un `fetch` finto.
+
+### Cosa controllare nella risposta di Claude
+
+1. Cerca viene trovato tramite la sua posizione, non il suo testo, così il blocco compare anche quando la pagina è in un'altra lingua.
+2. Solo il background legge il topic da `storage.local` e parla con ntfy.sh. Invia lo stato alle porte, mai il topic.
+3. Fa prima il polling di `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, poi segue lo stream dall'id dell'ultimo messaggio, e dopo ogni fallimento attende il doppio, fino a 60 secondi.
+4. La porta è aperta mentre la pagina è visibile e chiusa mentre è nascosta, così niente viene letto mentre non guardi.
+5. Ogni valore entra con `textContent`, un'immagine viene mostrata solo da un indirizzo fisso, e uno stato il cui `at` ha più di un'ora riceve la nota "dato di N h fa".
+
+Se un controllo fallisce, di' a Claude cosa vedi: "dopo che spengo e riaccendo la rete, il livello non cambia più".
+
+### Come l'ha chiesta l'autore
 
 Nessuna richiesta per il blocco è stata registrata. Le parole di chi ha creato Narsil registrate per questo percorso riguardano il sito (la [guida 1](/it/mods/claude/what-it-is/) le cita). Quanto segue è ricostruito dalla cronologia dei commit dell'estensione:
 
@@ -110,13 +130,9 @@ Nessuna richiesta per il blocco è stata registrata. Le parole di chi ha creato 
 
 Dal lato della mod, `544ef89` (2026-11-09) di narsil-pet "feat: send only what the Firefox extension reads through ntfy" (invia tramite ntfy solo ciò che legge l'estensione di Firefox) ha ridotto il suo stato ai cinque campi visti sopra, lo stesso giorno.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
-
-> Nella mia estensione per `https://claude.ai/*`, aggiungi un blocco subito dopo il pulsante Cerca del menu laterale, trovato tramite la sua posizione, non il suo testo. Il content script apre una porta `runtime.connect` verso il background mentre la pagina è visibile e la chiude quando è nascosta. Il background legge il topic da `storage.local`, fa il polling di `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, poi segue lo stesso stream JSON con `fetch` e un lettore di stream dall'id dell'ultimo messaggio, riprovando con un'attesa che raddoppia fino a 60 s. Invia lo stato analizzato più recente a ogni porta, mai il topic. Nel blocco, mostra il campo `xp` come testo con `textContent`, accetta l'URL di un'immagine solo da un prefisso fisso, e aggiungi "dato di N h fa" quando l'`at` dello stato ha più di un'ora. Testa l'analisi e lo stream con `node --test`, passando un `fetch` finto.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Le due metà, scritte per questa guida (MIT). Il background segue il topic di stato e invia al blocco ciò che legge; il content script lo mostra. Provalo con un topic inventato come `narsil-0123456789abcdef0123`, su un topic tutto tuo.
 

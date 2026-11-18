@@ -106,7 +106,27 @@ Cela a deux conséquences que précise le README :
 
 L’icône a été testée dans Firefox pour Android, où l’extension l’ajoute depuis le menu avec **Install** ou **Add to Home screen**. Dans Vivaldi, elle n’a pas été testée.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un groupe de content scripts qui s’exécute à `document_start`, avec une feuille de style et deux petits scripts. L’idée que Claude doit bien saisir : ne changer que ce que la page lit déjà, ses variables de design et son attribut `data-mode`, au lieu de restyler la page morceau par morceau.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon extension Firefox pour `https://claude.ai/*`, ajoute un groupe de content scripts à `document_start` avec une feuille de style et deux scripts. La feuille de style ne remplace que les propriétés personnalisées CSS propres de la page, un bloc pour `[data-mode="dark"]` et un pour `[data-mode="light"]`, avec `!important` ; ni fonds, ni images, ni animations. Le premier script règle chaque élément dont le `data-mode` vaut `light`, `dark` ou `system` sur `light` de 6:00 à 17:59 en heure locale et sur `dark` sinon, en n’écrivant que quand la valeur diffère ; il s’exécute depuis un seul `MutationObserver` limité avec `requestAnimationFrame`, toutes les 60 secondes et sur `visibilitychange`. Le second script remplace le `href` du `<link rel="manifest">` de la page par une URL `data:application/manifest+json` contenant un manifeste avec des URL d’icônes absolues sur `https://example.com`. Garde la règle de l’heure dans son propre module et teste-la avec `node --test`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La feuille de style se charge à `document_start` et ne remplace que les propriétés personnalisées CSS de la page, un bloc pour le sombre et un pour le clair, avec `!important`, sans fonds, ni images, ni animations.
+2. Le script du mode ne touche que les éléments dont le `data-mode` vaut `light`, `dark` ou `system`, jamais `data-mode="code"`, et n’écrit que quand la valeur diffère.
+3. La règle de l’heure vit dans son propre module : 5, 6, 17 et 18 donnent `dark`, `light`, `light` et `dark`.
+4. Le mode est réappliqué depuis un seul observateur limité avec `requestAnimationFrame`, toutes les 60 secondes, et sur `visibilitychange`.
+5. Le manifeste est une URL `data:application/manifest+json` avec des adresses d’icônes complètes, et non des chemins relatifs, si bien que le navigateur ne télécharge les icônes que quand vous installez l’application, et le `href` du lien ne change que quand il diffère.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après 18:00, la page reste claire jusqu’à ce que je la recharge ».
+
+### Comment l’auteur l’a demandé
 
 Aucune demande pour les couleurs ou l’icône n’a été consignée. Les mots de l’auteur ou de l’autrice consignés pour ce parcours portent sur le site (le [guide 1](/fr/mods/claude/what-it-is/) les cite). Ce qui suit est reconstitué à partir de l’historique des commits de l’extension :
 
@@ -119,13 +139,9 @@ Aucune demande pour les couleurs ou l’icône n’a été consignée. Les mots 
 
 L’historique se lit comme un premier jour qui a réglé l’apparence, suivi d’un travail sur ce que cette apparence coûtait : la vitesse sur une longue page, la lisibilité dans un recoin, et l’habitude de Vivaldi de ne charger qu’une partie de l’extension.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon extension Firefox pour `https://claude.ai/*`, ajoute un groupe de content scripts à `document_start` avec une feuille de style et deux scripts. La feuille de style ne remplace que les propriétés personnalisées CSS propres de la page, un bloc pour `[data-mode="dark"]` et un pour `[data-mode="light"]`, avec `!important` ; ni fonds, ni images, ni animations. Le premier script règle chaque élément dont le `data-mode` vaut `light`, `dark` ou `system` sur `light` de 6:00 à 17:59 en heure locale et sur `dark` sinon, en n’écrivant que quand la valeur diffère ; il s’exécute depuis un seul `MutationObserver` limité avec `requestAnimationFrame`, toutes les 60 secondes et sur `visibilitychange`. Le second script remplace le `href` du `<link rel="manifest">` de la page par une URL `data:application/manifest+json` contenant un manifeste avec des URL d’icônes absolues sur `https://example.com`. Garde la règle de l’heure dans son propre module et teste-la avec `node --test`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Les trois mêmes morceaux, écrits pour ce guide (MIT). Les noms de variables sont ceux que la page `claude.ai` déclare aujourd’hui ; les couleurs sont deux de la palette de mer nocturne ; l’adresse de l’icône est un exemple à remplacer par la vôtre.
 

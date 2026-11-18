@@ -100,7 +100,27 @@ O mod só envia um estado enquanto você escreve de longe. Quando você volta pa
 
 A própria contagem tem de vir do computador, porque o ntfy.sh conta as mensagens por endereço IP. O mod pergunta ao ntfy.sh, a partir da rede do computador, quantas mensagens essa rede enviou hoje, e põe a resposta no seu estado. Se o celular perguntasse, o ntfy.sh responderia sobre a rede do celular, que não envia nada. Como o guia do celular explica, esse dia também começa numa hora própria do ntfy.sh, não à meia-noite, e é por isso que a linha mostra a sua própria hora de reinício.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um bloco depois do botão Pesquisar do menu lateral, alimentado por um script de fundo que acompanha o tópico de estado do mod no ntfy.sh. A única ideia que ele precisa acertar é que o tópico fica no script de fundo e que nada vindo do ntfy.sh é confiável: chega à página só como texto.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> Na minha extensão para `https://claude.ai/*`, acrescente um bloco logo depois do botão Pesquisar do menu lateral, encontrado pela sua posição, não pelo seu texto. O content script abre uma porta `runtime.connect` para o script de fundo enquanto a página está visível e a fecha quando ela fica oculta. O script de fundo lê o tópico de `storage.local`, consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h` e depois acompanha o mesmo fluxo JSON com `fetch` e um leitor de stream a partir do id da última mensagem, tentando de novo com uma espera que dobra até 60 s. Ele envia o estado mais novo já interpretado a todas as portas, nunca o tópico. No bloco, mostre o campo `xp` como texto com `textContent`, aceite uma URL de imagem só de um prefixo fixo e acrescente "dado de N h atrás" quando o `at` do estado tiver mais de uma hora. Teste a interpretação e o fluxo com `node --test`, passando um `fetch` falso.
+
+### O que conferir na resposta do Claude
+
+1. Pesquisar é encontrado pela sua posição, não pelo seu texto, então o bloco continua aparecendo quando a página está em outro idioma.
+2. Só o script de fundo lê o tópico de `storage.local` e fala com o ntfy.sh. Ele envia o estado às portas, nunca o tópico.
+3. Primeiro consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, depois acompanha o fluxo a partir do id da última mensagem, e espera o dobro do tempo depois de cada falha, até 60 segundos.
+4. A porta fica aberta enquanto a página está visível e fechada enquanto está oculta, então nada é lido enquanto você não está olhando.
+5. Cada valor entra com `textContent`, uma imagem só é mostrada a partir de um endereço fixo, e um estado cujo `at` tem mais de uma hora ganha o aviso "dado de N h atrás".
+
+Se uma verificação falhar, diga ao Claude o que você vê: "depois que eu desligo e ligo a rede, o nível nunca mais muda".
+
+### Como a pessoa autora pediu
 
 Nenhum pedido para o bloco foi registrado. As palavras da pessoa autora registradas para este caminho são sobre o site (o [guia 1](/pt/mods/claude/what-it-is/) as cita). O que segue é reconstruído a partir do histórico de commits da extensão:
 
@@ -110,13 +130,9 @@ Nenhum pedido para o bloco foi registrado. As palavras da pessoa autora registra
 
 Do lado do mod, o `544ef89` (2026-11-09) do narsil-pet, "feat: send only what the Firefox extension reads through ntfy" (enviar pelo ntfy só o que a extensão do Firefox lê), reduziu o seu estado aos cinco campos acima, no mesmo dia.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> Na minha extensão para `https://claude.ai/*`, acrescente um bloco logo depois do botão Pesquisar do menu lateral, encontrado pela sua posição, não pelo seu texto. O content script abre uma porta `runtime.connect` para o script de fundo enquanto a página está visível e a fecha quando ela fica oculta. O script de fundo lê o tópico de `storage.local`, consulta `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h` e depois acompanha o mesmo fluxo JSON com `fetch` e um leitor de stream a partir do id da última mensagem, tentando de novo com uma espera que dobra até 60 s. Ele envia o estado mais novo já interpretado a todas as portas, nunca o tópico. No bloco, mostre o campo `xp` como texto com `textContent`, aceite uma URL de imagem só de um prefixo fixo e acrescente "dado de N h atrás" quando o `at` do estado tiver mais de uma hora. Teste a interpretação e o fluxo com `node --test`, passando um `fetch` falso.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 As duas metades, escritas para este guia (MIT). O script de fundo acompanha o tópico de estado e envia o que lê para o bloco; o content script o mostra. Teste-o com um tópico inventado como `narsil-0123456789abcdef0123`, num tópico seu.
 

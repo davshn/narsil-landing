@@ -106,7 +106,27 @@ Questo ha due conseguenze che il README spiega:
 
 L'icona è stata testata in Firefox per Android, dove l'estensione la aggiunge dal menu con **Install** o **Add to Home screen**. In Vivaldi non è stata testata.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un gruppo di content script che venga eseguito a `document_start`, con un foglio di stile e due piccoli script. L'unica idea che deve fare bene è cambiare solo ciò che la pagina legge già, le sue variabili di design e il suo attributo `data-mode`, invece di ridisegnare la pagina pezzo per pezzo.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
+
+> Nella mia estensione di Firefox per `https://claude.ai/*`, aggiungi un gruppo di content script a `document_start` con un foglio di stile e due script. Il foglio di stile sovrascrive solo le proprietà personalizzate CSS della pagina stessa, un blocco per `[data-mode="dark"]` e uno per `[data-mode="light"]`, con `!important`; niente sfondi, immagini o animazioni. Il primo script imposta ogni elemento il cui `data-mode` sia `light`, `dark` o `system` su `light` dalle 6:00 alle 17:59 ora locale e su `dark` altrimenti, scrivendo solo quando il valore è diverso; viene eseguito da un unico `MutationObserver` limitato con `requestAnimationFrame`, ogni 60 secondi e su `visibilitychange`. Il secondo script sostituisce l'`href` del `<link rel="manifest">` della pagina con un URL `data:application/manifest+json` che contiene un manifest con URL assoluti delle icone su `https://example.com`. Tieni la regola dell'ora in un modulo a sé e testala con `node --test`.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il foglio di stile si carica a `document_start` e sovrascrive solo le proprietà personalizzate CSS della pagina, un blocco per lo scuro e uno per il chiaro, con `!important`, e niente sfondi, immagini o animazioni.
+2. Lo script della modalità tocca solo gli elementi il cui `data-mode` sia `light`, `dark` o `system`, mai `data-mode="code"`, e scrive solo quando il valore è diverso.
+3. La regola dell'ora vive in un modulo a sé: 5, 6, 17 e 18 danno `dark`, `light`, `light` e `dark`.
+4. La modalità viene eseguita di nuovo da un unico osservatore limitato con `requestAnimationFrame`, ogni 60 secondi e su `visibilitychange`.
+5. Il manifest è un URL `data:application/manifest+json` con indirizzi completi delle icone, non percorsi relativi, così il browser scarica le icone solo quando installi l'app, e l'`href` del link cambia solo quando è diverso.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "dopo le 18:00 la pagina resta chiara finché non la ricarico".
+
+### Come l'ha chiesta l'autore
 
 Nessuna richiesta per i colori o per l'icona è stata registrata. Le parole di chi ha creato Narsil registrate per questo percorso riguardano il sito (la [guida 1](/it/mods/claude/what-it-is/) le cita). Quanto segue è ricostruito dalla cronologia dei commit dell'estensione:
 
@@ -119,13 +139,9 @@ Nessuna richiesta per i colori o per l'icona è stata registrata. Le parole di c
 
 La cronologia si legge come un primo giorno che ha azzeccato l'aspetto, seguito dal lavoro su quanto costava quell'aspetto: velocità su una pagina lunga, leggibilità in un angolo, e l'abitudine di Vivaldi di caricare solo una parte dell'estensione.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
-
-> Nella mia estensione di Firefox per `https://claude.ai/*`, aggiungi un gruppo di content script a `document_start` con un foglio di stile e due script. Il foglio di stile sovrascrive solo le proprietà personalizzate CSS della pagina stessa, un blocco per `[data-mode="dark"]` e uno per `[data-mode="light"]`, con `!important`; niente sfondi, immagini o animazioni. Il primo script imposta ogni elemento il cui `data-mode` sia `light`, `dark` o `system` su `light` dalle 6:00 alle 17:59 ora locale e su `dark` altrimenti, scrivendo solo quando il valore è diverso; viene eseguito da un unico `MutationObserver` limitato con `requestAnimationFrame`, ogni 60 secondi e su `visibilitychange`. Il secondo script sostituisce l'`href` del `<link rel="manifest">` della pagina con un URL `data:application/manifest+json` che contiene un manifest con URL assoluti delle icone su `https://example.com`. Tieni la regola dell'ora in un modulo a sé e testala con `node --test`.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Gli stessi tre pezzi, scritti per questa guida (MIT). I nomi delle variabili sono quelli che la pagina di `claude.ai` dichiara oggi; i colori sono due della tavolozza del mare notturno; l'indirizzo dell'icona è un segnaposto per il tuo.
 

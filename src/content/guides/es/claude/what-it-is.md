@@ -112,9 +112,29 @@ En Firefox, abre el menú, ve a **Extensiones**, elige **Narsil en Claude** y qu
 
 Para detener el nivel y la cuenta sin quitar nada, borra el tema en las opciones. Para que el mod deje de enviar el estado por completo, ejecuta `/narsil movil off` en tu ordenador.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
 
-### Registrado: sobre esta ruta, no sobre la extensión
+Pídele a Claude el esqueleto de una extensión de Firefox para `claude.ai`: un manifiesto, un script de contenido, un script de fondo y una página de opciones. La idea que debe acertar es que la página no ve nada secreto: solo el script de fondo guarda el tema y habla con ntfy.sh.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> Construye una extensión de Firefox (Manifest V2, JavaScript sin más, sin paso de compilación) para Firefox para Android que añada una pequeña franja de estado a `https://claude.ai/*`. Usa dos grupos de scripts de contenido: uno en `document_start` para los estilos y otro en `document_idle` que dibuje la franja. Añade una página de opciones (`options_ui`) con un campo "topic", validado como `[-_A-Za-z0-9]{1,64}`, guardado con `browser.storage.local`. Solo el script de fondo puede leer el tema y hablar con `https://ntfy.sh`; el script de contenido recibe el estado por `runtime.connect` y nunca ve el tema. No pidas ningún permiso aparte de `storage` y `https://ntfy.sh/*`. Inserta cada texto con `textContent`, nunca como HTML. Usa solo APIs documentadas en MDN, y lista cada una que hayas usado con su página de MDN.
+
+### Qué revisar en la respuesta de Claude
+
+1. El manifiesto pide solo dos permisos, `storage` y `https://ntfy.sh/*`, y declara `data_collection_permissions` como `none`.
+2. Los scripts de contenido coinciden con `https://claude.ai/*`, con los estilos en `document_start` y la franja en `document_idle`.
+3. Solo el script de fondo lee el tema y habla con ntfy.sh. El script de contenido recibe el estado por `runtime.connect` y nunca ve el tema.
+4. La página de opciones acepta solo letras, números, `-` y `_`, hasta 64 caracteres, y guarda el tema con `storage.local`, nunca en el código de la extensión.
+5. Cada texto entra con `textContent`, nunca como HTML, y cada API que usó Claude viene con su página de MDN.
+
+Si una comprobación falla, dile a Claude lo que ves: "el script de contenido lee el tema de `storage.local` y le pregunta a ntfy.sh por su cuenta".
+
+### Cómo lo pidió el autor
+
+#### Registrado: sobre esta ruta, no sobre la extensión
 
 Las peticiones a la IA de la propia extensión no quedaron registradas. Lo que sí quedó registrado es cómo pidió quien creó Narsil que apareciera en este sitio. En la fase 2 del registro de tareas del sitio:
 
@@ -126,7 +146,7 @@ Y para esta ruta, el 2026-11-18:
 
 Quien creó Narsil pidió una "Ruta corta", que es esta.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 El resto se reconstruye a partir del historial de commits de la extensión; las peticiones en sí no se guardaron. El primer día construyó la mayor parte:
 
@@ -140,13 +160,9 @@ El resto se reconstruye a partir del historial de commits de la extensión; las 
 
 El orden muestra un diseño que se fue acotando: empezó como un panel en el menú lateral alimentado por ntfy.sh y terminó dividido en dos, con ntfy.sh usado solo para lo que la página no puede saber.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> Construye una extensión de Firefox (Manifest V2, JavaScript sin más, sin paso de compilación) para Firefox para Android que añada una pequeña franja de estado a `https://claude.ai/*`. Usa dos grupos de scripts de contenido: uno en `document_start` para los estilos y otro en `document_idle` que dibuje la franja. Añade una página de opciones (`options_ui`) con un campo "topic", validado como `[-_A-Za-z0-9]{1,64}`, guardado con `browser.storage.local`. Solo el script de fondo puede leer el tema y hablar con `https://ntfy.sh`; el script de contenido recibe el estado por `runtime.connect` y nunca ve el tema. No pidas ningún permiso aparte de `storage` y `https://ntfy.sh/*`. Inserta cada texto con `textContent`, nunca como HTML. Usa solo APIs documentadas en MDN, y lista cada una que hayas usado con su página de MDN.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Un esqueleto con la misma forma, escrito para esta guía (MIT). Es una extensión Manifest V2 para Firefox con un script de contenido, un script de fondo y una página de opciones; las [guías 2](/es/mods/claude/conversation-band/) y [3](/es/mods/claude/sidebar/) los completan.
 

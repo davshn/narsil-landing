@@ -89,7 +89,27 @@ O `claude.ai` é um app de página única: abrir outra conversa muda o endereço
 
 A faixa só escreve um valor quando ele mudou, já que cada escrita própria é mais uma mudança para o observador. E o observador para, com tudo o que o usava, assim que a extensão é removida ou recarregada, para que uma cópia órfã não continue desenhando.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um content script que desenhe uma faixa logo acima da caixa de mensagem do `claude.ai` e leia os dados da conversa com a própria sessão da página. A única ideia que ele precisa acertar é que a faixa só lê, e só enquanto você olha: requisições `GET` a cada 10 segundos, e nenhuma enquanto a página está oculta.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> Na minha extensão do Firefox para `https://claude.ai/*`, acrescente um content script que desenhe uma faixa de estado logo antes da caixa de mensagem da página, como o seu irmão anterior, para que ela empurre a conversa para cima em vez de cobri-la. Encontre o id da conversa em `location.pathname`. A cada 10 segundos, e só enquanto `document.hidden` for false, leia os dados da conversa com a própria sessão da página (`content.fetch` quando existir, senão `fetch`, com `credentials: 'include'`), só `GET`. Mostre o estado, o percentual de contexto, o último texto que o Claude escreveu e há quanto tempo, e uma contagem regressiva do cache estimada a partir da hora da última mensagem do Claude mais 60 minutos. Use um único `MutationObserver` no documento, limitado com `requestAnimationFrame`, para recolocar a faixa quando a página se reconstruir e para reiniciá-la quando a conversa mudar. Escreva texto só com `textContent`. Limite o texto a duas linhas e deixe um toque expandi-lo. Mantenha as regras num módulo sem código de DOM e teste-as com `node --test`.
+
+### O que conferir na resposta do Claude
+
+1. A faixa é inserida logo antes da caixa de mensagem, como o seu irmão anterior, e não como uma camada `position: fixed`, então não cobre nada.
+2. As requisições usam `content.fetch` quando ele existe, senão `fetch`, com `credentials: 'include'`, e são só `GET`.
+3. Ela consulta a cada 10 segundos, nunca enquanto `document.hidden` é verdadeiro, e na hora quando `visibilitychange` mostra a página de novo.
+4. A contagem regressiva do cache começa na última mensagem do Claude, não no último evento da conversa, e os dados antigos são descartados quando o id no endereço muda.
+5. Há um único `MutationObserver`, executado no máximo uma vez por quadro com `requestAnimationFrame`, e a faixa escreve o seu texto com `textContent` e só se move quando algo mudou.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a contagem regressiva do cache recomeça toda vez que eu abro a página".
+
+### Como a pessoa autora pediu
 
 Nenhum pedido para a faixa foi registrado. As palavras da pessoa autora registradas para este caminho são sobre o site (o [guia 1](/pt/mods/claude/what-it-is/) as cita). O que segue é reconstruído a partir do histórico de commits da extensão:
 
@@ -101,13 +121,9 @@ Nenhum pedido para a faixa foi registrado. As palavras da pessoa autora registra
 
 O histórico mostra uma passagem de dados enviados pelo computador para dados que a página já tinha: a faixa funciona no momento em que você abre uma conversa, mesmo com o computador desligado.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> Na minha extensão do Firefox para `https://claude.ai/*`, acrescente um content script que desenhe uma faixa de estado logo antes da caixa de mensagem da página, como o seu irmão anterior, para que ela empurre a conversa para cima em vez de cobri-la. Encontre o id da conversa em `location.pathname`. A cada 10 segundos, e só enquanto `document.hidden` for false, leia os dados da conversa com a própria sessão da página (`content.fetch` quando existir, senão `fetch`, com `credentials: 'include'`), só `GET`. Mostre o estado, o percentual de contexto, o último texto que o Claude escreveu e há quanto tempo, e uma contagem regressiva do cache estimada a partir da hora da última mensagem do Claude mais 60 minutos. Use um único `MutationObserver` no documento, limitado com `requestAnimationFrame`, para recolocar a faixa quando a página se reconstruir e para reiniciá-la quando a conversa mudar. Escreva texto só com `textContent`. Limite o texto a duas linhas e deixe um toque expandi-lo. Mantenha as regras num módulo sem código de DOM e teste-as com `node --test`.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Um pequeno content script com a mesma forma, escrito para este guia (MIT). `readConversation` representa o que quer que leia os seus dados; aqui ele devolve a hora da última mensagem do Claude, em segundos. O resto é a mecânica da faixa: posicioná-la, acompanhar a página, atualizar enquanto está visível e estimar o cache.
 

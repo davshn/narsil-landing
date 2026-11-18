@@ -89,7 +89,27 @@ El texto se limita a dos líneas con CSS ([`line-clamp`](https://developer.mozil
 
 La franja escribe un valor solo cuando cambió, porque cada escritura suya es un cambio más para el observador. Y el observador se detiene, con todo lo que lo usaba, en cuanto la extensión se quita o se recarga, para que una copia huérfana no siga dibujando.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un script de contenido que dibuje una franja justo encima de la caja de texto de `claude.ai` y lea los datos de la conversación con la propia sesión de la página. La idea que debe acertar es que la franja solo lee, y solo mientras miras: peticiones `GET` cada 10 segundos, y ninguna mientras la página está oculta.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> En mi extensión de Firefox para `https://claude.ai/*`, añade un script de contenido que dibuje una franja de estado justo antes de la caja de texto de la página, como su hermano anterior, para que empuje la conversación hacia arriba en lugar de taparla. Encuentra el id de la conversación en `location.pathname`. Cada 10 segundos, y solo mientras `document.hidden` sea falso, lee los datos de la conversación con la propia sesión de la página (`content.fetch` cuando exista, si no `fetch`, con `credentials: 'include'`), solo con `GET`. Muestra el estado, el porcentaje de contexto, el último texto que escribió Claude y hace cuánto, y una cuenta atrás de la caché estimada a partir de la hora del último mensaje de Claude más 60 minutos. Usa un solo `MutationObserver` sobre el documento, limitado con `requestAnimationFrame`, para volver a colocar la franja cuando la página se reconstruya y para reiniciarla cuando cambie la conversación. Escribe el texto solo con `textContent`. Limita el texto a dos líneas y deja que un toque lo expanda. Mantén las reglas en un módulo sin código de DOM, y pruébalas con `node --test`.
+
+### Qué revisar en la respuesta de Claude
+
+1. La franja se inserta justo antes de la caja de texto, como su hermano anterior, no como una capa `position: fixed`, así que no tapa nada.
+2. Las peticiones usan `content.fetch` cuando existe, si no `fetch`, con `credentials: 'include'`, y son solo `GET`.
+3. Pregunta cada 10 segundos, nunca mientras `document.hidden` es verdadero, y de inmediato cuando `visibilitychange` vuelve a mostrar la página.
+4. La cuenta atrás de la caché empieza en el último mensaje de Claude, no en el último evento de la conversación, y los datos anteriores se descartan cuando cambia el id de la dirección.
+5. Hay un solo `MutationObserver`, ejecutado como mucho una vez por fotograma con `requestAnimationFrame`, y la franja escribe su texto con `textContent` y solo se mueve cuando algo cambió.
+
+Si una comprobación falla, dile a Claude lo que ves: "la cuenta atrás de la caché vuelve a empezar cada vez que abro la página".
+
+### Cómo lo pidió el autor
 
 No quedó registrada ninguna petición sobre la franja. Las palabras de quien creó Narsil registradas para esta ruta tratan del sitio (la [guía 1](/es/mods/claude/what-it-is/) las cita). Lo siguiente se reconstruye a partir del historial de commits de la extensión:
 
@@ -101,13 +121,9 @@ No quedó registrada ninguna petición sobre la franja. Las palabras de quien cr
 
 El historial muestra un paso de datos enviados por el ordenador a datos que la página ya tenía: la franja funciona en cuanto abres una conversación, incluso con el ordenador apagado.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> En mi extensión de Firefox para `https://claude.ai/*`, añade un script de contenido que dibuje una franja de estado justo antes de la caja de texto de la página, como su hermano anterior, para que empuje la conversación hacia arriba en lugar de taparla. Encuentra el id de la conversación en `location.pathname`. Cada 10 segundos, y solo mientras `document.hidden` sea falso, lee los datos de la conversación con la propia sesión de la página (`content.fetch` cuando exista, si no `fetch`, con `credentials: 'include'`), solo con `GET`. Muestra el estado, el porcentaje de contexto, el último texto que escribió Claude y hace cuánto, y una cuenta atrás de la caché estimada a partir de la hora del último mensaje de Claude más 60 minutos. Usa un solo `MutationObserver` sobre el documento, limitado con `requestAnimationFrame`, para volver a colocar la franja cuando la página se reconstruya y para reiniciarla cuando cambie la conversación. Escribe el texto solo con `textContent`. Limita el texto a dos líneas y deja que un toque lo expanda. Mantén las reglas en un módulo sin código de DOM, y pruébalas con `node --test`.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Un pequeño script de contenido con la misma forma, escrito para esta guía (MIT). `readConversation` representa lo que lea tus datos; aquí devuelve la hora del último mensaje de Claude, en segundos. El resto es la mecánica de la franja: colocarla, seguir a la página, actualizarla mientras está visible y estimar la caché.
 

@@ -116,7 +116,27 @@ Per disinstallarla da Firefox, apri il menu, vai su **Extensions**, scegli **Nar
 
 Se non firmi più niente, revoca le credenziali API sulla stessa pagina di addons.mozilla.org dove le hai create.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude uno script Node che derivi un pacchetto Manifest V3 per Vivaldi dalla tua estensione di Firefox, e un passaggio di ripristino nel background. L'unica idea che deve fare bene è che c'è un solo sorgente: il pacchetto Chromium è una copia con un manifest derivato, non una seconda versione del codice.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
+
+> La mia estensione di Firefox vive in `extension/` con un `manifest.json` Manifest V2. Scrivi uno script Node, senza dipendenze, che copi la cartella in `dist/chromium` e ci scriva un `manifest.json` Manifest V3: elimina `browser_specific_settings`, sposta i pattern URL da `permissions` a `host_permissions` e aggiungici i `matches` dei content script, aggiungi il permesso `scripting`, trasforma gli script di background in un service worker di una riga che chiami `importScripts()` con essi, metti un file che imposti `self.browser = self.chrome` per primo in ogni gruppo di content script, e converti `web_accessible_resources` nella forma a oggetti di V3. Esporta la conversione del manifest come funzione e testala con `node --test`. Poi, nel background, all'avvio, invia a ogni scheda corrispondente un ping con `tabs.sendMessage`; dove nessuno risponde, inserisci di nuovo il CSS e il JS dei content script del manifest con `scripting.insertCSS` e `scripting.executeScript`. Usa solo API documentate su MDN e developer.chrome.com.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il manifest derivato elimina `browser_specific_settings`, sposta i pattern URL da `permissions` a `host_permissions`, ci aggiunge i `matches` dei content script e aggiunge `scripting`.
+2. Il background diventa un service worker di una riga che carica gli stessi script di background con `importScripts()`, e un file che imposta `self.browser = self.chrome` viene per primo in ogni gruppo di content script.
+3. Il ripristino invia a ogni scheda corrispondente un ping con `tabs.sendMessage` e inserisce di nuovo il CSS e il JS solo dove nessuno risponde, e solo file del manifest dell'estensione stessa.
+4. La conversione del manifest è esportata come funzione e testata con `node --test` su un piccolo oggetto Manifest V2.
+5. Se chiedi a Claude anche la firma, il canale è `unlisted`, e le credenziali di AMO si digitano al momento della firma, mai scritte nel repository o in una riga di comando.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "dopo che tocco Aggiorna in Vivaldi, la banda torna senza i suoi colori".
+
+### Come l'ha chiesta l'autore
 
 Nessuna richiesta per i pacchetti è stata registrata. Le parole di chi ha creato Narsil registrate per questo percorso riguardano il sito (la [guida 1](/it/mods/claude/what-it-is/) le cita). Quanto segue è ricostruito dalla cronologia dei commit dell'estensione:
 
@@ -129,13 +149,9 @@ Nessuna richiesta per i pacchetti è stata registrata. Le parole di chi ha creat
 
 Il secondo browser ha richiesto un giorno per essere aggiunto e una settimana per assestarsi: ogni correzione dopo `11dadb3` risponde a un modo in cui Vivaldi su Android caricava l'estensione solo in parte, scoperto usandola.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
-
-> La mia estensione di Firefox vive in `extension/` con un `manifest.json` Manifest V2. Scrivi uno script Node, senza dipendenze, che copi la cartella in `dist/chromium` e ci scriva un `manifest.json` Manifest V3: elimina `browser_specific_settings`, sposta i pattern URL da `permissions` a `host_permissions` e aggiungici i `matches` dei content script, aggiungi il permesso `scripting`, trasforma gli script di background in un service worker di una riga che chiami `importScripts()` con essi, metti un file che imposti `self.browser = self.chrome` per primo in ogni gruppo di content script, e converti `web_accessible_resources` nella forma a oggetti di V3. Esporta la conversione del manifest come funzione e testala con `node --test`. Poi, nel background, all'avvio, invia a ogni scheda corrispondente un ping con `tabs.sendMessage`; dove nessuno risponde, inserisci di nuovo il CSS e il JS dei content script del manifest con `scripting.insertCSS` e `scripting.executeScript`. Usa solo API documentate su MDN e developer.chrome.com.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Tre pezzi, scritti per questa guida (MIT): la conversione, il ripristino all'avvio e la firma.
 
