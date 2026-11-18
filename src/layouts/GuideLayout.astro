@@ -1,8 +1,9 @@
 ---
+import GuidePathList from '@components/guide/GuidePathList/GuidePathList.astro'
+import GuideToc from '@components/guide/GuideToc/GuideToc.astro'
 import Button from '@components/ui/Button/Button.astro'
 import Card from '@components/ui/Card/Card.astro'
 import CardBody from '@components/ui/Card/CardBody.astro'
-import Container from '@components/ui/Container/Container.astro'
 import Text from '@components/ui/Text/Text.astro'
 import type { GuideSource } from '@content/schema'
 import { languageTags, type Locale } from '@i18n/index'
@@ -12,12 +13,17 @@ import { buildWebPage } from '@seo/json-ld'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
 import { sourceLabel, sourceUrl } from '@utils/guides'
 import { fillTemplate } from '@utils/template'
+import type { TocEntry } from '@utils/toc'
 
 import './guide.css'
 
 interface PagerLink {
   title: string
   href: string
+}
+
+interface PathGuide extends PagerLink {
+  isCurrent: boolean
 }
 
 interface Props {
@@ -31,6 +37,8 @@ interface Props {
   updated: Date
   verifiedWith?: string
   sources: GuideSource[]
+  guides?: PathGuide[]
+  toc?: TocEntry[]
   previous?: PagerLink
   next?: PagerLink
 }
@@ -46,6 +54,8 @@ const {
   updated,
   verifiedWith,
   sources,
+  guides = [],
+  toc = [],
   previous,
   next,
 } = Astro.props
@@ -55,6 +65,9 @@ const updatedText = new Intl.DateTimeFormat(languageTags[locale], {
   dateStyle: 'long',
   timeZone: 'UTC',
 }).format(updated)
+const stepText = fillTemplate(t.guide.stepOf, { current: step, total })
+const hasPath = guides.length > 0
+const hasToc = toc.length > 0
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const jsonLd = buildWebPage({
@@ -72,101 +85,149 @@ const jsonLd = buildWebPage({
   locale={locale}
   jsonLd={jsonLd}
 >
-  <Container as="article" maxWidth="md" padding="section" class="flex flex-col gap-8">
-    <header class="flex flex-col gap-4">
-      <nav class="guide-breadcrumb" aria-label={t.guide.breadcrumbLabel}>
-        <ol>
-          <li>
-            <a href={`/${locale}/`}>{t.meta.siteName}</a>
-          </li>
-          <li>
-            <a href={pathHref}>{pathTitle}</a>
-          </li>
-        </ol>
-      </nav>
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-      <Text as="p" tone="muted">
-        {description}
-      </Text>
-      <p class="guide-meta" data-guide-meta>
-        <span>{fillTemplate(t.guide.stepOf, { current: step, total })}</span>
-        <span>
-          {`${t.guide.updated}: `}
-          <time datetime={updated.toISOString().slice(0, 10)}>{updatedText}</time>
-        </span>
-        {verifiedWith !== undefined && (
-          <span>{fillTemplate(t.guide.verifiedWith, { version: verifiedWith })}</span>
-        )}
-      </p>
-    </header>
+  <div
+    class="guide-shell"
+    data-has-path={hasPath ? '' : undefined}
+    data-has-toc={hasToc ? '' : undefined}
+  >
+    {hasPath && (
+      <aside class="guide-rail guide-rail-path">
+        <nav aria-label={t.guide.pathNavLabel} data-guide-path>
+          <GuidePathList
+            pathTitle={pathTitle}
+            pathHref={pathHref}
+            progressLabel={stepText}
+            guides={guides}
+          />
+        </nav>
+      </aside>
+    )}
 
-    <div class="guide-prose" data-guide-body>
-      <slot />
-    </div>
-
-    {sources.length > 0 && (
-      <section aria-labelledby="guide-sources" class="flex flex-col gap-3" data-guide-sources>
-        <h2 id="guide-sources" class="text-2xl font-bold tracking-tight">
-          {t.guide.sourcesTitle}
-        </h2>
-        <Text as="p" size="sm" tone="muted">
-          {t.guide.sourcesIntro}
-        </Text>
-        <ul class="flex flex-col gap-1">
-          {sources.map((source) => (
+    <article class="guide-main">
+      <header class="guide-header">
+        <nav class="guide-breadcrumb" aria-label={t.guide.breadcrumbLabel}>
+          <ol>
             <li>
-              <a
-                class="text-primary underline underline-offset-4"
-                href={sourceUrl(source)}
-                target="_blank"
-                rel="noopener"
-              >
-                <code>{sourceLabel(source)}</code>
-              </a>
+              <a href={`/${locale}/`}>{t.meta.siteName}</a>
             </li>
-          ))}
-        </ul>
-      </section>
-    )}
+            <li>
+              <a href={pathHref}>{pathTitle}</a>
+            </li>
+          </ol>
+        </nav>
+        <h1 class="guide-title">{title}</h1>
+        <Text as="p" tone="muted" class="guide-lead">
+          {description}
+        </Text>
+        <p class="guide-meta" data-guide-meta>
+          <span>{stepText}</span>
+          <span>
+            {`${t.guide.updated}: `}
+            <time datetime={updated.toISOString().slice(0, 10)}>{updatedText}</time>
+          </span>
+          {verifiedWith !== undefined && (
+            <span>{fillTemplate(t.guide.verifiedWith, { version: verifiedWith })}</span>
+          )}
+        </p>
+      </header>
 
-    <nav aria-label={t.guide.pathNavLabel} class="flex flex-col gap-4">
-      <div class="guide-pager">
-        {previous !== undefined && (
-          <div data-direction="previous">
-            <Card href={previous.href}>
-              <CardBody>
-                <span class="guide-pager-label">{t.guide.previous}</span>
-                <span class="font-semibold">{previous.title}</span>
-              </CardBody>
-            </Card>
-          </div>
-        )}
-        {next !== undefined && (
-          <div data-direction="next">
-            <Card href={next.href}>
-              <CardBody>
-                <span class="guide-pager-label">{t.guide.next}</span>
-                <span class="font-semibold">{next.title}</span>
-              </CardBody>
-            </Card>
-          </div>
-        )}
+      {(hasPath || hasToc) && (
+        <div class="guide-disclosures">
+          {hasPath && (
+            <details class="guide-disclosure guide-disclosure-path">
+              <summary>
+                <span>{t.guide.pathNavLabel}</span>
+                <span class="guide-disclosure-hint">{stepText}</span>
+              </summary>
+              <GuidePathList
+                pathTitle={pathTitle}
+                pathHref={pathHref}
+                progressLabel={stepText}
+                guides={guides}
+              />
+            </details>
+          )}
+          {hasToc && (
+            <details class="guide-disclosure guide-disclosure-toc">
+              <summary>{t.guide.tocTitle}</summary>
+              <GuideToc entries={toc} />
+            </details>
+          )}
+        </div>
+      )}
+
+      <div class="guide-prose" data-guide-body>
+        <slot />
       </div>
-      <a class="text-primary underline underline-offset-4" href={pathHref}>
-        {t.guide.backToPath}
-      </a>
-    </nav>
 
-    {donation !== undefined && (
-      <Card variant="outlined">
-        <CardBody class="flex flex-col items-start gap-3">
-          <h2 class="text-xl font-semibold">{t.guide.coffeeTitle}</h2>
-          <Text as="p">{t.guide.coffeeText}</Text>
-          <Button href={donation.url} target="_blank" rel="noopener" data-donate>
-            {t.guide.coffeeCta}
-          </Button>
-        </CardBody>
-      </Card>
+      {sources.length > 0 && (
+        <section aria-labelledby="guide-sources" class="guide-sources" data-guide-sources>
+          <h2 id="guide-sources" class="guide-section-title">
+            {t.guide.sourcesTitle}
+          </h2>
+          <Text as="p" size="sm" tone="muted">
+            {t.guide.sourcesIntro}
+          </Text>
+          <ul class="guide-sources-list">
+            {sources.map((source) => (
+              <li>
+                <a href={sourceUrl(source)} target="_blank" rel="noopener">
+                  <code>{sourceLabel(source)}</code>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <nav aria-label={t.guide.pagerLabel} class="guide-pager-nav">
+        <div class="guide-pager">
+          {previous !== undefined && (
+            <div data-direction="previous">
+              <Card href={previous.href}>
+                <CardBody>
+                  <span class="guide-pager-label">{`← ${t.guide.previous}`}</span>
+                  <span class="guide-pager-title">{previous.title}</span>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+          {next !== undefined && (
+            <div data-direction="next">
+              <Card href={next.href}>
+                <CardBody>
+                  <span class="guide-pager-label">{`${t.guide.next} →`}</span>
+                  <span class="guide-pager-title">{next.title}</span>
+                </CardBody>
+              </Card>
+            </div>
+          )}
+        </div>
+        <a class="guide-back-link" href={pathHref}>
+          {t.guide.backToPath}
+        </a>
+      </nav>
+
+      {donation !== undefined && (
+        <Card variant="outlined">
+          <CardBody class="flex flex-col items-start gap-3">
+            <h2 class="text-xl font-semibold">{t.guide.coffeeTitle}</h2>
+            <Text as="p">{t.guide.coffeeText}</Text>
+            <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+              {t.guide.coffeeCta}
+            </Button>
+          </CardBody>
+        </Card>
+      )}
+    </article>
+
+    {hasToc && (
+      <aside class="guide-rail guide-rail-toc">
+        <nav aria-label={t.guide.tocTitle}>
+          <p class="guide-rail-title">{t.guide.tocTitle}</p>
+          <GuideToc entries={toc} />
+        </nav>
+      </aside>
     )}
-  </Container>
+  </div>
 </SiteLayout>

@@ -32,8 +32,9 @@ All optional. Configure them in `.env` (copy from `.env.example`).
 ```text
 src/
   pages/[locale]/     index.astro (home) and support.astro
-  layouts/            BaseLayout (document shell) and SiteLayout (header, language selector, footer)
-  components/         ui/ primitives, sections/ (Hero, Features, Header, Footer, LanguageSelector)
+  layouts/            BaseLayout (document shell), SiteLayout (header, language selector, footer), and GuideLayout
+                      (path sidebar from 1024 px, "on this page" table of contents from 1280 px, both folded above the text on phones)
+  components/         ui/ primitives, sections/ (Hero, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc)
   i18n/               en, es, it, fr, pt (pt-BR) and the TranslationShape contract
   utils/              donation, developer, repositories, CSP and URL helpers
 odd/tasks/            feature documents (specs, tasks, and log)

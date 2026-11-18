@@ -161,6 +161,8 @@ export const en: TranslationShape = {
     sourcesIntro:
       'These files are part of the original mods, published under the GPL v3. Code quoted on this page comes from them and keeps that license.',
     pathNavLabel: 'Guides in this path',
+    tocTitle: 'On this page',
+    pagerLabel: 'Previous and next guide',
     previous: 'Previous',
     next: 'Next',
     backToPath: 'All guides in this path',

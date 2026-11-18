@@ -1,0 +1,51 @@
+---
+import { progressPercent } from '@utils/toc'
+
+import './guide-path-list.css'
+
+interface PathGuide {
+  title: string
+  href: string
+  isCurrent: boolean
+}
+
+interface Props {
+  pathTitle: string
+  pathHref: string
+  progressLabel: string
+  guides: PathGuide[]
+}
+
+const { pathTitle, pathHref, progressLabel, guides } = Astro.props
+const step = guides.findIndex((guide) => guide.isCurrent) + 1
+const percent = progressPercent(step, guides.length)
+---
+
+<div class="guide-path">
+  <a class="guide-path-title" href={pathHref}>
+    {pathTitle}
+  </a>
+  <div class="guide-path-progress">
+    <span>{progressLabel}</span>
+    <span class="guide-path-track" aria-hidden="true">
+      <span class="guide-path-fill" style={`width: ${percent}%`}></span>
+    </span>
+  </div>
+  <ol class="guide-path-list">
+    {guides.map((guide, index) => (
+      <li>
+        <a
+          class="guide-path-link"
+          href={guide.href}
+          aria-current={guide.isCurrent ? 'page' : undefined}
+          data-done={index + 1 < step ? '' : undefined}
+        >
+          <span class="guide-path-number" aria-hidden="true">
+            {index + 1}
+          </span>
+          <span>{guide.title}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>

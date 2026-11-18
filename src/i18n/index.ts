@@ -127,6 +127,8 @@ export interface TranslationShape {
     sourcesTitle: string
     sourcesIntro: string
     pathNavLabel: string
+    tocTitle: string
+    pagerLabel: string
     previous: string
     next: string
     backToPath: string

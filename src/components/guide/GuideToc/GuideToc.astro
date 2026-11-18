@@ -1,0 +1,23 @@
+---
+import type { TocEntry } from '@utils/toc'
+
+import './guide-toc.css'
+
+interface Props {
+  entries: TocEntry[]
+}
+
+const { entries } = Astro.props
+---
+
+<ol class="guide-toc" data-guide-toc>
+  {entries.map((entry) => (
+    <li class={`guide-toc-item guide-toc-depth-${entry.depth}`}>
+      <a class="guide-toc-link" href={`#${entry.slug}`}>
+        {entry.text}
+      </a>
+    </li>
+  ))}
+</ol>
+
+<script src="./guide-toc.ts"></script>
