@@ -183,8 +183,8 @@ test.describe('Review panel path', () => {
       await expect(page.locator('[data-guide-body] > h2')).toHaveText([
         'What it does',
         'How it works inside',
-        'How it was asked of the AI',
-        'The minimal code',
+        'Build it with Claude',
+        'Reference code',
         'Common mistakes and how to test it',
         'Going further',
       ])

@@ -3,7 +3,7 @@ title: The side panel
 description: 'How Narsil Check draws a pane beside the chat with collapsible sections, a colored dot per section, folds it remembers and rows you copy with a click.'
 route: check
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -141,11 +141,31 @@ What gets copied is more than the row's label. Two pure functions build the text
 
 As in Narsil, the hooks module decides what happened and `hooks/words.ts` decides how it is said: the palette, the group labels and hints (`GROUPS`), the head labels (`sectionLabel`, `vulnsLabel`, `groupLabel`) and the colors. These are pure functions, which is why `tests/pane.test.tsx` can check them without mounting anything, as in "the section is colored by what most needs you, and its toggle names it".
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a side pane with sections that fold and rows that copy. The one idea it must get right is that the pane is opened once and then drawn by a hook filtered on its own id, with every fold kept in an atom the drawing reads.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> Build a Claude Code mod called `my-panel` with a side pane. In `session.start`, call `$.ui.open({ id: 'my-panel', title: 'My panel' })` and catch a rejection. Draw it in `ui.render` for `{ component: 'Pane', requestId: 'my-panel' }` with `$.ui.resolve(e)`. Show two sections, each in a box with a rounded border in its color, and a head with a colored dot (red for failed, yellow for waiting on me, green for done, blue for information, gray before loading) and a `plain` `Button` labeled `▾ Name` or `▸ Name` that folds it. Keep the folded section keys in one atom declared in `types/index.d.ts`. Make each row a `plain` `Button` that copies its text with `$.ui.copy({ text, surface: press.surface })` and shows a toast saying whether `isCopied` was true. Check every API against the plugin-authoring types and add a test with `claude-code/testing` that a press on a head hides its rows.
+
+### What to check in Claude's answer
+
+1. `session.start` calls `$.ui.open` with the pane's id and title, and catches a rejection, so a pane another plugin holds does not break the session start.
+2. The `ui.render` hook is filtered on `{ component: 'Pane', requestId }` with the pane's own id, and gets its elements from `$.ui.resolve(e)`.
+3. Each section's dot comes from a small function that checks the most urgent case first. It is computed from the contents on every draw, not stored next to the data.
+4. A press on a head changes an atom with `update`, and the pane draws again with no extra call, because the drawing reads that atom.
+5. A press on a row calls `$.ui.copy` with `press.surface`, and the toast reports both cases: `isCopied` true or false.
+
+If a check fails, tell Claude what you see: "I press a section's head and its rows stay on screen".
+
+### How the author asked for it
 
 The original request for the pane was not recorded. Two public task logs in narsil-check quote the author's words about parts of it.
 
-### Recorded: copying, and a collapsible section
+#### Recorded: copying, and a collapsible section
 
 `odd/tasks/vulnerabilities.md` records, in its log entry L1 (2026-11-05), the two messages that started the vulnerabilities section. S1 quotes the first one:
 
@@ -161,7 +181,7 @@ S2 quotes the second message:
 
 In English: just add that I would like the option to copy the vulnerabilities by severity to the clipboard, as it is in the upgrade section.
 
-### Recorded: when the pane should open
+#### Recorded: when the pane should open
 
 `odd/tasks/ecosystems-wave-2.md` (its log starts 2026-11-04) lists in S3 the behavior that had to stay, including an earlier rule quoted in the author's words:
 
@@ -171,7 +191,7 @@ In English: the pane should only open automatically when there are versions to u
 
 That rule did not last. `/upgrades` became `/narsil-check upgrade` in `684837f`, and since `be8eac0` the pane opens on every session, because it took over the job of the app's session bar (see below).
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/words.ts` in narsil-check:
 
@@ -186,13 +206,9 @@ From `git log -- hooks/register.tsx hooks/words.ts` in narsil-check:
 
 The pattern: an upgrade list first, then Narsil's look, then a section per check, each time with the same head (dot, arrow, name, count), and the copy moving from one button per group to a click on the row itself.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> Build a Claude Code mod called `my-panel` with a side pane. In `session.start`, call `$.ui.open({ id: 'my-panel', title: 'My panel' })` and catch a rejection. Draw it in `ui.render` for `{ component: 'Pane', requestId: 'my-panel' }` with `$.ui.resolve(e)`. Show two sections, each in a box with a rounded border in its color, and a head with a colored dot (red for failed, yellow for waiting on me, green for done, blue for information, gray before loading) and a `plain` `Button` labeled `▾ Name` or `▸ Name` that folds it. Keep the folded section keys in one atom declared in `types/index.d.ts`. Make each row a `plain` `Button` that copies its text with `$.ui.copy({ text, surface: press.surface })` and shows a toast saying whether `isCopied` was true. Check every API against the plugin-authoring types and add a test with `claude-code/testing` that a press on a head hides its rows.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/register.tsx` and `hooks/words.ts` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later); the colors are its `PALETTE`, and the rows are synthetic.
 

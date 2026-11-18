@@ -3,7 +3,7 @@ title: A branch behind its remote
 description: 'How Narsil Check fetches, counts the commits your branch lacks, warns at the top of the pane and brings them in with a git pull -r button.'
 route: check
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ That is deliberate in the sense that git already knows those rules. A rebase pul
 
 A conflict is the case to know about. When the rebase stops on a conflict, git exits with an error and leaves the repository in the middle of the rebase. The pane shows the tail of git's output, and that is all it does: it does not run `git rebase --abort` or anything else. You resolve the conflict and continue, or abort, yourself. Since a failed pull does not rescan, the warning stays with its earlier count until the next review.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a warning that counts the commits your branch lacks, and a button that brings them in. The one idea it must get right is that "no answer" is not zero: a detached `HEAD`, no upstream or a failed command keep the state `unknown`, and nothing shows.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a "behind its remote" warning to my pane. In a function that is never awaited by a hook, run with `$.process.run` (two-minute timeout) `git branch --show-current`, then `git fetch --quiet`, then `git rev-list --count HEAD..@{upstream}`. Keep the result in an atom typed in `types/index.d.ts`: `unknown` for a detached HEAD, no upstream, a non-zero exit or a rejection, else the branch and the count. Run it at session start. When the count is above zero, draw a red bordered box at the top of the pane saying "Branch X is N commits behind its remote" with a button that runs `git pull -r` (two-minute timeout). Keep the pull's state in a second atom: running, done with a short summary of git's output, or failed with the last lines of stderr. Ignore a second press while one runs. After a successful pull, run the check again. Check every API against the plugin-authoring types and test it with `claude-code/testing`, answering git through an `on('process.run', ...)` hook.
+
+### What to check in Claude's answer
+
+1. The check runs `git fetch --quiet` before `git rev-list --count HEAD..@{upstream}`, so the count is about the remote as it is now.
+2. A detached `HEAD`, a branch with no upstream, a non-zero exit or a rejection leave the state `unknown`. The warning shows only for a count above zero.
+3. The check starts with `void` from `session.start` and is never awaited, so a slow fetch does not hold the session.
+4. The button runs `git pull -r`, not `--ff-only`, with a two-minute timeout, and a second press while a pull runs does nothing.
+5. A failed pull shows the last lines of git's stderr in red. Only a successful pull runs the check again, which hides the warning.
+
+If a check fails, tell Claude what you see: "the pull failed and the pane does not say why".
+
+### How the author asked for it
 
 The original request for the warning and the button was not recorded. None of narsil-check's public task logs (`odd/tasks/*.md`) covers this feature.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -S checkBehind`, `git log -S pullBranch` and `git log -S "pull -r"` in narsil-check:
 
@@ -153,13 +173,9 @@ From `git log -S checkBehind`, `git log -S pullBranch` and `git log -S "pull -r"
 
 The pattern: a manual button first, its behavior corrected the same day, and a week later the pane learning to say when the button is needed, by putting a second copy of it where the eye lands first.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a "behind its remote" warning to my pane. In a function that is never awaited by a hook, run with `$.process.run` (two-minute timeout) `git branch --show-current`, then `git fetch --quiet`, then `git rev-list --count HEAD..@{upstream}`. Keep the result in an atom typed in `types/index.d.ts`: `unknown` for a detached HEAD, no upstream, a non-zero exit or a rejection, else the branch and the count. Run it at session start. When the count is above zero, draw a red bordered box at the top of the pane saying "Branch X is N commits behind its remote" with a button that runs `git pull -r` (two-minute timeout). Keep the pull's state in a second atom: running, done with a short summary of git's output, or failed with the last lines of stderr. Ignore a second press while one runs. After a successful pull, run the check again. Check every API against the plugin-authoring types and test it with `claude-code/testing`, answering git through an `on('process.run', ...)` hook.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It leaves out the session read and the library scan.
 

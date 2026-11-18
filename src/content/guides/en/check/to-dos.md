@@ -3,7 +3,7 @@ title: To-dos
 description: 'How Narsil Check keeps a per-project to-do list in an untracked JSON file, keeps it out of git, and never overwrites a damaged list without a copy.'
 route: check
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -104,11 +104,31 @@ The copy is inside the same excluded folder, so it does not reach git either.
 
 `loadTodos` runs at the start of the session, and again each time you unfold the section, so a change made by another session or by hand shows up when you look. Every change updates the pane's atom directly with the list it just wrote, but only when the change was to this project's list: a task written to another project's list does not replace what this pane shows.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a short list per project, kept in a file inside the project and out of git. The one idea it must get right is that the file is the truth: every change reads it again right before writing, and a damaged file is never read as empty.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a to-do section kept per project in `.atl/my-panel/todos.json` under the git top level (`git rev-parse --show-toplevel`, else the session folder), as `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Draw each task with a `○` button that removes it, a name that toggles its content, and an `Input` that adds `name: content`, split at the first colon; skip the `Input` on the mobile surface. Keep the folder out of git by adding `/.atl/my-panel/` to the file `git rev-parse --git-path info/exclude` names, once, and never let that step stop a save. Run every change through one promise chain, and re-read the file before each write. If the file is not valid JSON or has no `tasks` array, never treat it as empty: show an error, and on the next change copy it to `todos.damaged-<ISO time>.json` before starting a new list. Test a damaged file, an exclude file that cannot be written, and a change made by another writer between two of yours.
+
+### What to check in Claude's answer
+
+1. The file lives under git's top level (`git rev-parse --show-toplevel`), else the session's folder, so the same list is found from any subfolder.
+2. The folder is kept out of git through the file `git rev-parse --git-path info/exclude` names. The line is added once, and a failure there does not stop the save.
+3. Every change runs through one promise chain, and the chain goes on after a change that failed.
+4. Each change reads the file again and applies its edit to what is there now, so a task another writer added is kept.
+5. A file that is not valid JSON, or has no `tasks` array, shows an error and is not written. The next change first copies it aside, then starts a new list.
+
+If a check fails, tell Claude what you see: "I left a trailing comma in the file, added a task, and my old tasks were gone with no copy beside the file".
+
+### How the author asked for it
 
 The original request for this feature was not recorded. No public task log in narsil-check covers the to-do list. What follows is a reconstruction.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/todos.ts` in narsil-check:
 
@@ -117,13 +137,9 @@ From `git log -- hooks/todos.ts` in narsil-check:
 
 The second commit is the more instructive one. The first version worked on the happy path. The fix is a list of what can go wrong around a file: it can be broken, a side step can fail, a surface can lack an element, and a promise in the README can be too strong.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a to-do section kept per project in `.atl/my-panel/todos.json` under the git top level (`git rev-parse --show-toplevel`, else the session folder), as `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Draw each task with a `○` button that removes it, a name that toggles its content, and an `Input` that adds `name: content`, split at the first colon; skip the `Input` on the mobile surface. Keep the folder out of git by adding `/.atl/my-panel/` to the file `git rev-parse --git-path info/exclude` names, once, and never let that step stop a save. Run every change through one promise chain, and re-read the file before each write. If the file is not valid JSON or has no `tasks` array, never treat it as empty: show an error, and on the next change copy it to `todos.damaged-<ISO time>.json` before starting a new list. Test a damaged file, an exclude file that cannot be written, and a change made by another writer between two of yours.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.fs.exists`, `$.fs.read`, `$.fs.write`, `$.process.run`). It is adapted from `hooks/todos.ts` and `changeTodos` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It takes the project root as given and leaves out drawing.
 

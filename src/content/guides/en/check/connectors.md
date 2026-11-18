@@ -3,7 +3,7 @@ title: Connectors
 description: "How Narsil Check lists the session's MCP servers with their state and how many tools each has, asked once from the desktop app's own connectors server."
 route: check
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -85,11 +85,31 @@ The cost is the surface. Outside the desktop app there is no `ccd_connectors`, t
 
 The commits show the section's purpose changing once. In `2bd1919` a click on any connector row opened `/mcp`, the engine's own server list. One commit later, `c07f5e9` made the rows plain again, and its message says why: "/mcp from a mod only prints a summary in the desktop app". So the section is for reading at a glance, and the place to sign in or fix a server stays the app's own.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a section that lists the session's MCP servers and their state. The one idea it must get right is that "no servers are connected" and "I could not read the servers" are different answers, and the section shows them differently.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a "Connectors" section to the pane. In the desktop app, read the session's MCP servers once with `$.mcp.call('ccd_connectors', 'session_connectors_status')`, preferring `structuredContent` and falling back to the JSON in the text content. Parse a `servers` array into `{ name, status, tools }` from `name`, `status` and `tool_count`, dropping entries without a name, and treat a missing array as an error, not as an empty list. Show the connected servers first with a green dot and their tool count, then the others with a yellow dot and their status. Color the section's dot red when the read failed, gray before it, yellow when a server is `needs_auth` or `failed`, and green otherwise. Re-read only when the fold opens. Test the parser and the colors as pure functions.
+
+### What to check in Claude's answer
+
+1. The list comes from one `$.mcp.call('ccd_connectors', 'session_connectors_status')`, read from `structuredContent` first and from the JSON in the text content otherwise.
+2. The parser drops entries without a string `name`, keeps an unknown `status` as text, and returns `undefined`, not an empty list, when there is no `servers` array.
+3. The section's dot is red when the read failed, gray before the first read, yellow when a server is `needs_auth` or `failed`, and green otherwise.
+4. Connected servers come first with a green dot and their tool count, then the others with a yellow dot and their state.
+5. The list is not read on a timer. Opening the fold reads it again.
+
+If a check fails, tell Claude what you see: "outside the desktop app the section says no connectors are connected, instead of saying why it could not read them".
+
+### How the author asked for it
 
 The original request for the connectors section was not recorded. None of narsil-check's public task logs (`odd/tasks/*.md`) covers it.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/session.ts`, with the related commits to `hooks/register.tsx`:
 
@@ -100,13 +120,9 @@ From `git log -- hooks/session.ts`, with the related commits to `hooks/register.
 
 The pattern: one feature added with the rest of the session bar, a click that turned out not to help in the desktop app and was removed, and the rule about asking rarely, inherited from the environment.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a "Connectors" section to the pane. In the desktop app, read the session's MCP servers once with `$.mcp.call('ccd_connectors', 'session_connectors_status')`, preferring `structuredContent` and falling back to the JSON in the text content. Parse a `servers` array into `{ name, status, tools }` from `name`, `status` and `tool_count`, dropping entries without a name, and treat a missing array as an error, not as an empty list. Show the connected servers first with a green dot and their tool count, then the others with a yellow dot and their status. Color the section's dot red when the read failed, gray before it, yellow when a server is `needs_auth` or `failed`, and green otherwise. Re-read only when the fold opens. Test the parser and the colors as pure functions.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/session.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

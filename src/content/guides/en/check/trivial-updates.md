@@ -3,7 +3,7 @@ title: Updating the trivial ones
 description: 'How the Actualizar las N button raises every patch and minor at once, keeping each range operator and section, then runs the install tool of each ecosystem.'
 route: check
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -137,17 +137,37 @@ Three cases, each handled differently in `upgradeBumps`:
 - **The tool runs and fails.** The pane shows the command, its exit code and the end of its output, or the wait's own message when pnpm or npm refused a young version, and scans again. The ecosystems after it are not attempted, and the files already rewritten stay; `git diff` shows them.
 - **Anything else throws.** "No pude ejecutar …" ("I could not run …") with the error.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for one button that raises every safe upgrade at once. The one idea it must get right is what "safe" means here: only patch and minor jumps that nothing blocks go up, each range keeps its prefix, and each library stays in its section.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add an "Update all" button under the npm upgrades that are a patch or minor and not blocked. Pick the package manager from the lockfile (pnpm, yarn, bun, else npm). Keep each range's prefix: `^1.2.0` with latest 1.4.0 becomes `^1.4.0`, `~` stays `~`, no prefix stays none. Run one command for `dependencies` and one with `--save-dev` (or `-D`) for `devDependencies`, with `$.process.run` and a timeout. While it runs, hide the button and show "Updating N libraries with <manager>…"; a second press must do nothing. On a non-zero exit, show the command, its exit code and the last lines of stderr. On success, toast "Updated N libraries" and say "Run the tests before committing". Scan again from the registries either way. Test that the commands for three upgrades, one of them dev, are exactly two, and that a blocked or major upgrade is never in them.
+
+### What to check in Claude's answer
+
+1. Only the `bump` group is installed. Majors and blocked upgrades are never in the commands.
+2. Each range keeps its `^` or `~` prefix: `^3.22.0` becomes `^3.25.1`.
+3. There is one command for `dependencies` and one with `--save-dev` (or `-D`) for `devDependencies`, and the package manager is chosen from the lockfile.
+4. While it runs, the button is hidden and a second press does nothing.
+5. A failure shows the command, its exit code and the end of its output. Success or failure, the list is scanned again.
+
+If a check fails, tell Claude what you see: "after I pressed the button, a dev tool moved into `dependencies`".
+
+### How the author asked for it
 
 The original request for the button was not recorded: it is in the first commit, and no public task log covers its creation.
 
-### Recorded in a task log
+#### Recorded in a task log
 
 The task log `odd/tasks/release-age-all-ecosystems.md` records, in the agent's words, how the install step was checked when the 24-hour wait reached it. Its task T3 is "npm installs with `before` set to 24 hours ago", and entry L3 notes that with `npm_config_before` a day back, npm refused an hour-old release of tailwindcss and resolved its range to the previous version. That is evidence the agent gathered, not a request.
 
 `odd/tasks/ecosystems-wave-2.md` lists "the bump button" in S3, among what had to keep working as new ecosystems were added; that is the agent's spec too.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -S rangeFor`, `git log -S upgradeBumps` and the per-ecosystem commits in narsil-check:
 
@@ -159,13 +179,9 @@ From `git log -S rangeFor`, `git log -S upgradeBumps` and the per-ecosystem comm
 
 The pattern: the button was there from the first commit, and later work narrowed what "trivial" may include and what happens when a tool is missing.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add an "Update all" button under the npm upgrades that are a patch or minor and not blocked. Pick the package manager from the lockfile (pnpm, yarn, bun, else npm). Keep each range's prefix: `^1.2.0` with latest 1.4.0 becomes `^1.4.0`, `~` stays `~`, no prefix stays none. Run one command for `dependencies` and one with `--save-dev` (or `-D`) for `devDependencies`, with `$.process.run` and a timeout. While it runs, hide the button and show "Updating N libraries with <manager>…"; a second press must do nothing. On a non-zero exit, show the command, its exit code and the last lines of stderr. On success, toast "Updated N libraries" and say "Run the tests before committing". Scan again from the registries either way. Test that the commands for three upgrades, one of them dev, are exactly two, and that a blocked or major upgrade is never in them.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.process.run`, `$.ui.toast`). It is adapted from `hooks/npm.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). npm only; `rescan` is your own scan.
 

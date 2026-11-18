@@ -3,7 +3,7 @@ title: Versions pinned on purpose
 description: 'How Narsil Check reads a comment such as "# pinned: 3.7 breaks auth" in a manifest and keeps that library out of the upgrade button, with the comment as the reason.'
 route: check
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -105,11 +105,31 @@ Two ecosystems have their own way to say "this exact version", and the mod treat
 
 The code and the commits do not record why the hold lives in the manifest's comments rather than in a list of the mod's own. Reading the design: the comment is already where people write such decisions, it travels with the repository to everyone on the team, and it carries its reason, which is exactly what the blocked row needs to show. A list stored by the mod would live on one machine and say nothing about why. That reasoning is an interpretation, not a recorded decision.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a pure function that finds a hold comment next to a dependency's version and blocks that upgrade with the comment as its reason. The one idea it must get right is which comment belongs to which dependency.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, which lists outdated dependencies from `Cargo.toml` and `pyproject.toml`, block any dependency whose version is kept on purpose by a comment. Write a pure function `holdNote(files, keys, spec)`: for every line that contains the version `spec` and mentions one of `keys` as a whole name, read the comment after `#`, `//` or `<!--` on that line, or on the line above only when that line is a comment by itself, and return it when it contains a hold word (pin, pinned, hold, keep, freeze, "do not upgrade", and the Spanish fijar, fijado, congelado, "no actualizar"), matching whole words and ignoring case. Put a held dependency in the `blocked` group with the reason "Pinned on purpose: «comment»", and keep it out of the "Update all" button. Skip `package.json`, which has no comments. Test that a trailing comment on the line above does not count, that another dependency's line with the same version does not count, and that a comment without a hold word does not block.
+
+### What to check in Claude's answer
+
+1. The line must contain the version as written and name the dependency as a whole name, so another library with the same version, or `kotlin` inside `kotlinx`, does not count.
+2. A comment on the line above counts only when that line is a comment by itself. A trailing comment on the line above belongs to another declaration.
+3. The hold words match whole words and ignore case, and a comment without a hold word, such as `# the DI library`, does not block.
+4. A held dependency lands in the blocked group with the comment as its reason, and the "Update all" button never takes it.
+5. `package.json` is skipped, since JSON has no comments.
+
+If a check fails, tell Claude what you see: "Kotlin is blocked by a "pin" comment written on the kotlinx-coroutines line".
+
+### How the author asked for it
 
 The original request for this feature was not recorded: no public task log in narsil-check covers it. What follows is a reconstruction.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -S holdNote` and `git log -S lockConflicts` in narsil-check:
 
@@ -118,13 +138,9 @@ From `git log -S holdNote` and `git log -S lockConflicts` in narsil-check:
 
 The commit pairs the comment check with the Kotlin compiler-plugin rule, and the test file that covers both is `tests/holds.test.tsx`. The two share one idea: some upgrades look trivial by number and are not, and the reason must be shown in words.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, which lists outdated dependencies from `Cargo.toml` and `pyproject.toml`, block any dependency whose version is kept on purpose by a comment. Write a pure function `holdNote(files, keys, spec)`: for every line that contains the version `spec` and mentions one of `keys` as a whole name, read the comment after `#`, `//` or `<!--` on that line, or on the line above only when that line is a comment by itself, and return it when it contains a hold word (pin, pinned, hold, keep, freeze, "do not upgrade", and the Spanish fijar, fijado, congelado, "no actualizar"), matching whole words and ignoring case. Put a held dependency in the `blocked` group with the reason "Pinned on purpose: «comment»", and keep it out of the "Update all" button. Skip `package.json`, which has no comments. Test that a trailing comment on the line above does not count, that another dependency's line with the same version does not count, and that a comment without a hold word does not block.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide. It is plain TypeScript with no mod API, adapted from `hooks/adapter.ts` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

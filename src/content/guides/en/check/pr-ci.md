@@ -3,7 +3,7 @@ title: "Your PR's CI"
 description: "How Narsil Check follows the GitHub Actions steps of the session's pull request with the gh CLI, every 10 seconds while a run goes, and stops when it ends."
 route: check
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -160,11 +160,31 @@ Both cases end the same way. The view gets an `error`, the head says `CI · sin 
 
 On permissions, the README says only that `gh` must be installed and signed in ("con `gh` instalado y con sesión iniciada"). Neither the README nor the code lists scopes for reading the CI. The README's note about the `workflow` permission is about pushing changes to `.github/workflows` over HTTPS, a different feature.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to follow the GitHub Actions run of the session's pull request with `gh`, step by step. The one idea it must get right is when to ask: only the newest commit's runs, only while the fold is open and a run is going, and one watch at a time.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a "CI" fold for the session's open pull request, whose repository (`acme/shop`) and head branch I already have. Run `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` with `$.process.run` (30 s timeout), keep only the runs of the first row's `headSha`, one per workflow, then `gh run view <id> --repo <repo> --json jobs` for each. Hide the steps `Set up job`, `Complete job` and `Post …`. Show each step with ✓ green, ✗ red, ◐ yellow for in progress, ○ gray for queued and – gray for skipped. Treat a non-zero exit as an error with gh's stderr, and a rejection (gh missing) as an error too; show it in the fold. Poll in a loop with `$.clock.sleep(10_000)` only while the fold is open and a run is not completed, and stop otherwise; give each watch an id so a newer one replaces it. Test the parsers as pure functions with synthetic gh JSON, and the loop with `mock.clock`.
+
+### What to check in Claude's answer
+
+1. Only the runs of the first row's `headSha` are kept, one per workflow, so an older commit's runs never mix with the current one.
+2. A non-zero exit from `gh` is read as an error with its stderr, and a rejection, when `gh` is missing, also shows as an error in the fold.
+3. The loop waits 10 seconds with `$.clock.sleep` between reads, and stops when the fold is closed, when no run is still going, or on an error.
+4. Each watch has an id, so a newer watch makes the old one stop, and the watch is started with `void`, never awaited in a hook.
+5. The steps `Set up job`, `Complete job` and `Post …` are hidden, and each step shows its mark in its color.
+
+If a check fails, tell Claude what you see: "the fold keeps asking gh every 10 seconds after the run has passed".
+
+### How the author asked for it
 
 The original request for the CI fold was not recorded. None of narsil-check's public task logs (`odd/tasks/*.md`) covers it.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/ci.ts`, with the related commits to `hooks/register.tsx` and `hooks/session.ts`:
 
@@ -175,13 +195,9 @@ From `git log -- hooks/ci.ts`, with the related commits to `hooks/register.tsx` 
 
 The pattern differs from the earlier guides: the CI fold landed complete in one commit, on top of the pull request plumbing of the day before, and the fixes that followed were about finding the pull request, not about the CI itself.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a "CI" fold for the session's open pull request, whose repository (`acme/shop`) and head branch I already have. Run `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` with `$.process.run` (30 s timeout), keep only the runs of the first row's `headSha`, one per workflow, then `gh run view <id> --repo <repo> --json jobs` for each. Hide the steps `Set up job`, `Complete job` and `Post …`. Show each step with ✓ green, ✗ red, ◐ yellow for in progress, ○ gray for queued and – gray for skipped. Treat a non-zero exit as an error with gh's stderr, and a rejection (gh missing) as an error too; show it in the fold. Poll in a loop with `$.clock.sleep(10_000)` only while the fold is open and a run is not completed, and stop otherwise; give each watch an id so a newer one replaces it. Test the parsers as pure functions with synthetic gh JSON, and the loop with `mock.clock`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/ci.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It follows one workflow and leaves out the wait for a push.
 
