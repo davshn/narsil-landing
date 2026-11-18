@@ -105,7 +105,7 @@ export interface TranslationShape {
     about: [string, string]
     routesTitle: string
     routesSubtitle: string
-    routes: [RouteCopy, RouteCopy, RouteCopy]
+    routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy]
     coffeeTitle: string
     coffeeText: string
     coffeeCta: string
