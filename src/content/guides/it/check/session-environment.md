@@ -2,7 +2,7 @@
 title: "L'ambiente della sessione"
 description: "Come Narsil Check mostra repository, cartella, branch, Remote Control e Auto-fix, letti da git e dai server dell'app desktop, e perché li interroga così di rado."
 route: check
-order: 2
+order: 3
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

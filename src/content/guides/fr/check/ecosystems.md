@@ -2,7 +2,7 @@
 title: Un adaptateur par écosystème
 description: 'Comment Narsil Check lit onze écosystèmes de paquets via un petit contrat : chaque adaptateur lit son manifeste, interroge son registre et dit comment monter une version.'
 route: check
-order: 6
+order: 7
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

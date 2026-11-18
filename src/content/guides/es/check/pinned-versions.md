@@ -2,7 +2,7 @@
 title: Versiones fijadas a propósito
 description: 'Cómo Narsil Check lee un comentario como "# pinned: 3.7 breaks auth" en un manifest y deja esa biblioteca fuera del botón de actualizar, con el comentario como motivo.'
 route: check
-order: 10
+order: 11
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

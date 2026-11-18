@@ -2,7 +2,7 @@
 title: Creating the PR
 description: 'How Narsil Check turns upgraded manifests into a commit, a chore/upgrade-deps branch and a pull request opened with gh, and then returns you to the main branch.'
 route: check
-order: 13
+order: 14
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

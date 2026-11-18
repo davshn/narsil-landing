@@ -2,7 +2,7 @@
 title: "The session's environment"
 description: "How Narsil Check shows the repository, folder, branch, Remote Control and Auto-fix, read from git and the desktop app's servers, and why it asks them so rarely."
 route: check
-order: 2
+order: 3
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

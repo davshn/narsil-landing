@@ -2,7 +2,7 @@
 title: Explaining a major version with Haiku
 description: 'How Narsil Check asks Haiku how hard a major upgrade is for this project, from the release notes and the lines that import the library, and how it keeps the model from inventing.'
 route: check
-order: 11
+order: 12
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

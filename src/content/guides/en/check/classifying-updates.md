@@ -2,7 +2,7 @@
 title: Classifying updates
 description: 'How Narsil Check sorts every outdated library into Blocked, Major version, Version bump only or Outside the Expo SDK, and why registry answers are kept six hours.'
 route: check
-order: 7
+order: 8
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

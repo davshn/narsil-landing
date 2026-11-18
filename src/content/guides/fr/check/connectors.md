@@ -2,7 +2,7 @@
 title: Les connecteurs
 description: 'Comment Narsil Check liste les serveurs MCP de la session avec leur état et le nombre d’outils de chacun, demandés une fois au serveur de connecteurs de l’application de bureau.'
 route: check
-order: 3
+order: 4
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

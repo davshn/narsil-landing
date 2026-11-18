@@ -30,7 +30,7 @@ sources:
 
 Narsil Check is a pane that sits beside the chat, titled **● Narsil Check**. It is the companion of Narsil, the status pet of the first path, and it speaks with her colors. Where Narsil answers "do I need to do anything right now?", the pane answers "how is this project doing?".
 
-The pane is a column of sections, one per check: **Entorno** (the session's environment), **Conectores** (connectors), **Actualizaciones** (upgrades), **Vulnerabilidades** (vulnerabilities) and **Pendientes** (a per-project task list). The labels are Spanish, as in Narsil.
+The pane is a column of sections, one per check: **Mapa mental** (a live map of Claude's work, the next guide), **Entorno** (the session's environment), **Conectores** (connectors), **Actualizaciones** (upgrades), **Vulnerabilidades** (vulnerabilities) and **Pendientes** (a per-project task list). The labels are Spanish, as in Narsil.
 
 Each section has a head with three parts:
 
@@ -66,7 +66,7 @@ on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
 })
 ```
 
-`$.ui.resolve(e)` gives the elements this surface can draw. The hook checks what it got: `Svg` only exists outside the terminal (so baby Narsil is drawn only there), and the mobile app gets no `Input` (so tasks are added there by asking Claude). It also reads `e.surface` to decide whether to tint the group heads: the terminal keeps the borders and draws no tints.
+`$.ui.resolve(e)` gives the elements this surface can draw. The hook checks what it got: `Svg` only exists outside the terminal (so the work map, with baby Narsil at its core, is drawn only there), and the mobile app gets no `Input` (so tasks are added there by asking Claude). It also reads `e.surface` to decide whether to tint the group heads: the terminal keeps the borders and draws no tints.
 
 ### What `isPlaced` means
 
@@ -112,7 +112,7 @@ The render hook reads these atoms with `read`, and a read during a draw subscrib
 
 This is where the code, its comments and the types need a careful reading.
 
-At every `session.start` the hook sets the sections to fixed values: Entorno open, Conectores, Actualizaciones and Vulnerabilidades folded, and Pendientes open only when it holds tasks. Actualizaciones and Vulnerabilidades unfold by themselves when they find something. The commit that introduced this, `c07f5e9`, says "Fold state is no longer kept across sessions."
+At every `session.start` the hook sets the sections to fixed values: Mapa mental and Entorno open, Conectores, Actualizaciones and Vulnerabilidades folded, and Pendientes open only when it holds tasks. Actualizaciones and Vulnerabilidades unfold by themselves when they find something. The commit that introduced this, `c07f5e9`, says "Fold state is no longer kept across sessions."
 
 The groups (`closedGroups`) and the CI fold (`isCiOpen`) are not reset at session start. The code's comments say they keep how you left them "across sessions", and the README says the pane "recuerda cuáles cerraste" ("remembers which ones you closed").
 
@@ -201,7 +201,7 @@ From `git log -- hooks/register.tsx hooks/words.ts` in narsil-check:
 - `be8eac0` (2026-11-05) "feat: show the session bar's environment, connectors and Remote Control in the pane". Its message: "The pane opens on every session".
 - `c07f5e9` (2026-11-05) "feat: Entorno starts open, other sections fold until they have something". The fixed starting folds.
 - `b3ad055` (2026-11-06) "feat: fold upgrade and vulnerability groups, copy a row on click, show baby Narsil and pull the branch". Its message: each group "folds on its own header and stays as left", and "A press on a library or an advisory copies it, replacing the per-group copy buttons".
-- `d5b08c3` (2026-11-06) "feat: center the pane's title and baby Narsil".
+- `d5b08c3` (2026-11-06) "feat: center the pane's title and baby Narsil". Baby Narsil later left the top of the pane for the center of the work map (the next guide).
 - `6291eaf` (2026-11-06) "feat: give the pane a health bar, state-colored panels and tinted group heads".
 
 The pattern: an upgrade list first, then Narsil's look, then a section per check, each time with the same head (dot, arrow, name, count), and the copy moving from one button per group to a click on the row itself.
@@ -315,14 +315,14 @@ These come from Narsil Check's code and commits:
 - **Expecting an atom to survive a restart.** The types keep `$.state` for the session and point to `$.store` for persistence.
 - **Drawing tints on the terminal.** Narsil Check tints group heads only when `e.surface !== 'terminal'`; the terminal keeps the borders.
 
-To test, `claude plugin test .` runs the mod's `*.test.tsx` files. `tests/pane.test.tsx` in narsil-check is a good model: it answers `ui.open` with `{ value: { isPlaced: true } }`, mounts the pane with `$.ui.mount({ plugin, component: 'Pane', requestId, props, surface })`, presses heads by key (`ui.press({ key: 'section-upgrade' })`) and looks for texts with `find`. Tests worth copying by name include "the section is colored by what most needs you, and its toggle names it", "baby Narsil stands under the title, light or dark as the app is; the terminal draws no picture" and "each section is a panel bordered in the color of its state; the desktop tints group heads and counts, the terminal keeps borders alone".
+To test, `claude plugin test .` runs the mod's `*.test.tsx` files. `tests/pane.test.tsx` in narsil-check is a good model: it answers `ui.open` with `{ value: { isPlaced: true } }`, mounts the pane with `$.ui.mount({ plugin, component: 'Pane', requestId, props, surface })`, presses heads by key (`ui.press({ key: 'section-upgrade' })`) and looks for texts with `find`. Tests worth copying by name include "the section is colored by what most needs you, and its toggle names it", "the work map is the first section, open, with baby Narsil at its core; the terminal draws neither" and "each section is a panel bordered in the color of its state; the desktop tints group heads and counts, the terminal keeps borders alone".
 
 ## Going further
 
 The full pane in narsil-check adds a lot around the same frame:
 
 - A health bar under the title (`healthOf` and `healthSvg` in `hooks/words.ts`) that splits the project's state into shares, one per color.
-- Baby Narsil drawn as one SVG holding a light and a dark picture, switched by a `prefers-color-scheme` media query inside the SVG (`narsilSvg`), so the picture follows the app's theme with no word from the engine.
-- The session sections (the next two guides) and the CI fold of your pull request (the fourth).
+- The work map (the next guide): one animated SVG with baby Narsil at its core, repainted by a `prefers-color-scheme` media query inside the SVG, so it follows the app's theme with no word from the engine.
+- The session sections (the third and fourth guides) and the CI fold of your pull request (the fifth).
 - **Actualizar rama** at the bottom, a `git pull -r` the mod runs itself, and a large warning at the top when the branch is behind its remote.
 - The `/narsil-check` command with `upgrade`, `vulns` and `template "…"`, registered in `session.start` with `$.command.register`.

@@ -2,7 +2,7 @@
 title: One adapter per ecosystem
 description: 'How Narsil Check reads eleven package ecosystems through one small contract: each adapter reads its manifest, asks its registry and says how to raise a version.'
 route: check
-order: 6
+order: 7
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

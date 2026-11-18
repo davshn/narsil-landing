@@ -2,7 +2,7 @@
 title: Mettre à jour les triviales
 description: 'Comment le bouton Actualizar las N monte tous les patchs et mineures d’un coup, en gardant l’opérateur de plage et la section de chacun, puis lance l’outil d’installation de chaque écosystème.'
 route: check
-order: 12
+order: 13
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

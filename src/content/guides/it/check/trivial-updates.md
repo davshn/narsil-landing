@@ -2,7 +2,7 @@
 title: Aggiornare quelle banali
 description: 'Come il pulsante Actualizar las N alza tutte le patch e le minor in una volta, mantenendo l’operatore di ogni intervallo e la sua sezione, poi esegue lo strumento di installazione di ogni ecosistema.'
 route: check
-order: 12
+order: 13
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

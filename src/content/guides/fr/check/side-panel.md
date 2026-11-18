@@ -30,7 +30,7 @@ sources:
 
 Narsil Check est un panneau qui se place à côté du chat, intitulé **● Narsil Check**. C’est le compagnon de Narsil, la mascotte d’état du premier parcours, et il parle avec ses couleurs. Là où Narsil répond à « dois-je faire quelque chose maintenant ? », le panneau répond à « comment va ce projet ? ».
 
-Le panneau est une colonne de sections, une par vérification : **Entorno** (l’environnement de la session), **Conectores** (les connecteurs), **Actualizaciones** (les mises à jour), **Vulnerabilidades** (les vulnérabilités) et **Pendientes** (une liste de tâches par projet). Les libellés sont en espagnol, comme dans Narsil.
+Le panneau est une colonne de sections, une par vérification : **Mapa mental** (une carte en direct du travail de Claude, le guide suivant), **Entorno** (l’environnement de la session), **Conectores** (les connecteurs), **Actualizaciones** (les mises à jour), **Vulnerabilidades** (les vulnérabilités) et **Pendientes** (une liste de tâches par projet). Les libellés sont en espagnol, comme dans Narsil.
 
 Chaque section a un en-tête en trois parties :
 
@@ -66,7 +66,7 @@ on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
 })
 ```
 
-`$.ui.resolve(e)` donne les éléments que cette surface peut dessiner. Le hook vérifie ce qu’il a reçu : `Svg` n’existe qu’en dehors du terminal (bébé Narsil n’est donc dessinée que là), et l’application mobile ne reçoit pas d’`Input` (les tâches s’y ajoutent donc en le demandant à Claude). Il lit aussi `e.surface` pour décider s’il teinte les en-têtes de groupe : le terminal garde les bordures et ne dessine aucune teinte.
+`$.ui.resolve(e)` donne les éléments que cette surface peut dessiner. Le hook vérifie ce qu’il a reçu : `Svg` n’existe qu’en dehors du terminal (la carte du travail, avec bébé Narsil au centre, n’est donc dessinée que là), et l’application mobile ne reçoit pas d’`Input` (les tâches s’y ajoutent donc en le demandant à Claude). Il lit aussi `e.surface` pour décider s’il teinte les en-têtes de groupe : le terminal garde les bordures et ne dessine aucune teinte.
 
 ### Ce que signifie `isPlaced`
 
@@ -112,7 +112,7 @@ Le hook de rendu lit ces atomes avec `read`, et une lecture pendant un dessin l�
 
 C’est ici que le code, ses commentaires et les types demandent une lecture attentive.
 
-À chaque `session.start`, le hook met les sections à des valeurs fixes : Entorno ouverte ; Conectores, Actualizaciones et Vulnerabilidades repliées ; et Pendientes ouverte seulement quand elle contient des tâches. Actualizaciones et Vulnerabilidades se déplient d’elles-mêmes quand elles trouvent quelque chose. Le commit qui a introduit ce comportement, `c07f5e9`, dit « Fold state is no longer kept across sessions. » (l’état des replis n’est plus conservé d’une session à l’autre).
+À chaque `session.start`, le hook met les sections à des valeurs fixes : Mapa mental et Entorno ouvertes ; Conectores, Actualizaciones et Vulnerabilidades repliées ; et Pendientes ouverte seulement quand elle contient des tâches. Actualizaciones et Vulnerabilidades se déplient d’elles-mêmes quand elles trouvent quelque chose. Le commit qui a introduit ce comportement, `c07f5e9`, dit « Fold state is no longer kept across sessions. » (l’état des replis n’est plus conservé d’une session à l’autre).
 
 Les groupes (`closedGroups`) et le repli du CI (`isCiOpen`) ne sont pas réinitialisés au début de la session. Les commentaires du code disent qu’ils gardent la façon dont vous les avez laissés « across sessions » (d’une session à l’autre), et le README dit que le panneau « recuerda cuáles cerraste » (« se souvient de ceux que vous avez fermés »).
 
@@ -201,7 +201,7 @@ Cette règle n’a pas duré. `/upgrades` est devenu `/narsil-check upgrade` dan
 - `be8eac0` (2026-11-05) « feat: show the session bar's environment, connectors and Remote Control in the pane » (afficher dans le panneau l’environnement, les connecteurs et le Remote Control de la barre de session). Son message : « The pane opens on every session » (le panneau s’ouvre à chaque session).
 - `c07f5e9` (2026-11-05) « feat: Entorno starts open, other sections fold until they have something » (Entorno commence ouverte, les autres sections restent repliées jusqu’à avoir quelque chose). Les replis de départ fixes.
 - `b3ad055` (2026-11-06) « feat: fold upgrade and vulnerability groups, copy a row on click, show baby Narsil and pull the branch » (replier les groupes de mises à jour et de vulnérabilités, copier une ligne au clic, afficher bébé Narsil et tirer la branche). Son message : chaque groupe « folds on its own header and stays as left » (se replie sur son propre en-tête et reste tel qu’on l’a laissé), et « A press on a library or an advisory copies it, replacing the per-group copy buttons » (un appui sur une bibliothèque ou un avis le copie, en remplaçant les boutons de copie par groupe).
-- `d5b08c3` (2026-11-06) « feat: center the pane's title and baby Narsil » (centrer le titre du panneau et bébé Narsil).
+- `d5b08c3` (2026-11-06) « feat: center the pane's title and baby Narsil » (centrer le titre du panneau et bébé Narsil). Plus tard, bébé Narsil a quitté le haut du panneau pour le centre de la carte du travail (le guide suivant).
 - `6291eaf` (2026-11-06) « feat: give the pane a health bar, state-colored panels and tinted group heads » (donner au panneau une barre de santé, des panneaux colorés selon l’état et des en-têtes de groupe teintés).
 
 Le schéma : d’abord une liste de mises à jour, puis l’apparence de Narsil, puis une section par vérification, chaque fois avec le même en-tête (point, flèche, nom, compte), et la copie qui passe d’un bouton par groupe à un clic sur la ligne elle-même.
@@ -315,14 +315,14 @@ Elles viennent du code et des commits de Narsil Check :
 - **S’attendre à ce qu’un atome survive à un redémarrage.** Les types gardent `$.state` pour la session et renvoient à `$.store` pour la persistance.
 - **Dessiner des teintes sur le terminal.** Narsil Check ne teinte les en-têtes de groupe que lorsque `e.surface !== 'terminal'` ; le terminal garde les bordures.
 
-Pour tester, `claude plugin test .` exécute les fichiers `*.test.tsx` du mod. `tests/pane.test.tsx` dans narsil-check est un bon modèle : il répond à `ui.open` avec `{ value: { isPlaced: true } }`, monte le panneau avec `$.ui.mount({ plugin, component: 'Pane', requestId, props, surface })`, appuie sur les en-têtes par clé (`ui.press({ key: 'section-upgrade' })`) et cherche des textes avec `find`. Parmi les tests à copier par leur nom : « the section is colored by what most needs you, and its toggle names it » (la section est colorée selon ce qui a le plus besoin de vous, et son bouton de repli la nomme), « baby Narsil stands under the title, light or dark as the app is; the terminal draws no picture » (bébé Narsil se tient sous le titre, claire ou sombre comme l’application ; le terminal ne dessine aucune image) et « each section is a panel bordered in the color of its state; the desktop tints group heads and counts, the terminal keeps borders alone » (chaque section est un panneau bordé de la couleur de son état ; le bureau teinte les en-têtes de groupe et les comptes, le terminal ne garde que les bordures).
+Pour tester, `claude plugin test .` exécute les fichiers `*.test.tsx` du mod. `tests/pane.test.tsx` dans narsil-check est un bon modèle : il répond à `ui.open` avec `{ value: { isPlaced: true } }`, monte le panneau avec `$.ui.mount({ plugin, component: 'Pane', requestId, props, surface })`, appuie sur les en-têtes par clé (`ui.press({ key: 'section-upgrade' })`) et cherche des textes avec `find`. Parmi les tests à copier par leur nom : « the section is colored by what most needs you, and its toggle names it » (la section est colorée selon ce qui a le plus besoin de vous, et son bouton de repli la nomme), « the work map is the first section, open, with baby Narsil at its core; the terminal draws neither » (la carte du travail est la première section, ouverte, avec bébé Narsil au centre ; le terminal ne dessine ni l’une ni l’autre) et « each section is a panel bordered in the color of its state; the desktop tints group heads and counts, the terminal keeps borders alone » (chaque section est un panneau bordé de la couleur de son état ; le bureau teinte les en-têtes de groupe et les comptes, le terminal ne garde que les bordures).
 
 ## Pour aller plus loin
 
 Le panneau complet de narsil-check ajoute beaucoup de choses autour du même cadre :
 
 - Une barre de santé sous le titre (`healthOf` et `healthSvg` dans `hooks/words.ts`) qui répartit l’état du projet en parts, une par couleur.
-- Bébé Narsil dessinée comme un seul SVG contenant une image claire et une image sombre, alternées par une media query `prefers-color-scheme` à l’intérieur du SVG (`narsilSvg`), si bien que l’image suit le thème de l’application sans aucune intervention du moteur.
-- Les sections de session (les deux guides suivants) et le repli du CI de votre pull request (le quatrième).
+- La carte du travail (le guide suivant) : un SVG animé avec bébé Narsil au centre, repeint par une media query `prefers-color-scheme` à l’intérieur du SVG, si bien qu’elle suit le thème de l’application sans aucune intervention du moteur.
+- Les sections de session (les troisième et quatrième guides) et le repli du CI de votre pull request (le cinquième).
 - **Actualizar rama** (« mettre à jour la branche ») en bas, un `git pull -r` que le mod exécute lui-même, et un grand avertissement en haut quand la branche est en retard sur son dépôt distant.
 - La commande `/narsil-check` avec `upgrade`, `vulns` et `template "…"`, enregistrée dans `session.start` avec `$.command.register`.

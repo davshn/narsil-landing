@@ -2,7 +2,7 @@
 title: Kotlin, Gradle and AGP (advanced)
 description: 'Why a Kotlin or Android build cannot raise one tool alone, and how Narsil Check blocks Kotlin past its compiler plugins and checks the minimums between Gradle, AGP, Kotlin and Compose.'
 route: check
-order: 17
+order: 18
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

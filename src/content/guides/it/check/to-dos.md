@@ -2,7 +2,7 @@
 title: Cose da fare
 description: 'Come Narsil Check tiene una lista di cose da fare per progetto in un file JSON non tracciato, la tiene fuori da git, e non sovrascrive mai una lista danneggiata senza una copia.'
 route: check
-order: 15
+order: 16
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

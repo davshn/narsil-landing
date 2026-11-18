@@ -2,7 +2,7 @@
 title: The 24-hour wait
 description: 'Why Narsil Check never raises a version published less than a day ago, where each registry says when a version came out, and what happens when nobody can say.'
 route: check
-order: 9
+order: 10
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

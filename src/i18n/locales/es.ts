@@ -59,8 +59,8 @@ export const es: TranslationShape = {
         },
         {
           title: 'El panel de Narsil Check',
-          text: 'Un panel lateral con el entorno de la sesión, los pasos del CI, las actualizaciones de librerías agrupadas por riesgo, las vulnerabilidades y las tareas pendientes.',
-          alt: 'El panel de Narsil Check: entorno y CI, tres actualizaciones de librerías, una vulnerabilidad y dos tareas pendientes',
+          text: 'Un panel lateral con un mapa en vivo del trabajo de Claude, el entorno de la sesión, los pasos del CI, las actualizaciones de librerías agrupadas por riesgo, las vulnerabilidades y las tareas pendientes.',
+          alt: 'El panel de Narsil Check: un mapa en vivo del trabajo de Claude con Narsil bebé en el centro, entorno y CI, tres actualizaciones de librerías, una vulnerabilidad y dos tareas pendientes',
         },
         {
           title: 'Narsil en Claude, en tu celular',
@@ -74,7 +74,7 @@ export const es: TranslationShape = {
     },
     aboutTitle: '¿Qué es Narsil?',
     about: [
-      'Narsil es un mod de Claude Code: una pequeña mascota que vive encima del prompt y te dice de un vistazo si Claude está trabajando, te necesita, ha terminado o se ha atascado. Narsil Check es su hermano, un panel lateral que revisa tu rama, la CI, las dependencias y las vulnerabilidades.',
+      'Narsil es un mod de Claude Code: una pequeña mascota que vive encima del prompt y te dice de un vistazo si Claude está trabajando, te necesita, ha terminado o se ha atascado. Narsil Check es su hermano, un panel lateral que muestra en vivo el trabajo de Claude y revisa tu rama, la CI, las dependencias y las vulnerabilidades.',
       'Aquí no solo los vas a instalar: vas a construir tus propias versiones junto con Claude. Cada guía explica una funcionalidad con palabras sencillas, te da un prompt para pedírsela a Claude y te muestra cómo comprobar que lo que construyó Claude es correcto. El código está para leerlo y compararlo, no para copiarlo.',
     ],
     routesTitle: 'Cuatro rutas de aprendizaje',
@@ -90,7 +90,7 @@ export const es: TranslationShape = {
       {
         title: 'Tu propio panel de revisión',
         description:
-          'Crea con Claude un mod como Narsil Check: un panel lateral con los pasos de la CI, la rama detrás de la remota, actualizaciones agrupadas por riesgo, vulnerabilidades de OSV.dev y herramientas para Claude.',
+          'Crea con Claude un mod como Narsil Check: un panel lateral con un mapa en vivo del trabajo de Claude, los pasos de la CI, la rama detrás de la remota, actualizaciones agrupadas por riesgo, vulnerabilidades de OSV.dev y herramientas para Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -145,7 +145,7 @@ export const es: TranslationShape = {
     description:
       'Crea con Claude un mod como Narsil Check, funcionalidad a funcionalidad: qué hace cada una, cómo funciona, el prompt para pedírsela a Claude y el código para leer y comparar con lo que escribió Claude.',
     intro: [
-      'Narsil Check es un panel lateral que revisa tu sesión antes de entregar: el entorno, los conectores, la CI, la rama detrás de la remota, las actualizaciones agrupadas por riesgo, las vulnerabilidades y una lista de pendientes que Claude puede usar. Cada guía explica una funcionalidad, las decisiones que hay detrás y el prompt con el que Claude la construye.',
+      'Narsil Check es un panel lateral que revisa tu sesión antes de entregar: un mapa en vivo del trabajo de Claude, el entorno, los conectores, la CI, la rama detrás de la remota, las actualizaciones agrupadas por riesgo, las vulnerabilidades y una lista de pendientes que Claude puede usar. Cada guía explica una funcionalidad, las decisiones que hay detrás y el prompt con el que Claude la construye.',
       'Cuando la petición original quedó registrada, la guía la cita palabra por palabra, para que veas cómo habló el autor con Claude. El código que sigue es una referencia: léelo para entender el resultado y para comprobar lo que Claude escribió para ti.',
     ],
     listTitle: 'Las guías',

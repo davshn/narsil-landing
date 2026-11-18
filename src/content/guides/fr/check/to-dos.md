@@ -2,7 +2,7 @@
 title: Les tâches en attente
 description: 'Comment Narsil Check tient une liste de tâches par projet dans un fichier JSON non suivi, la garde hors de git, et n’écrase jamais une liste endommagée sans en faire une copie.'
 route: check
-order: 15
+order: 16
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

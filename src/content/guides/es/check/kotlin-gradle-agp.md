@@ -2,7 +2,7 @@
 title: Kotlin, Gradle y AGP (avanzado)
 description: 'Por qué una build de Kotlin o Android no puede subir una herramienta sola, y cómo Narsil Check frena Kotlin ante sus plugins del compilador y comprueba los mínimos entre Gradle, AGP, Kotlin y Compose.'
 route: check
-order: 17
+order: 18
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

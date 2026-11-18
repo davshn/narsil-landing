@@ -2,7 +2,7 @@
 title: Crear el PR
 description: 'Cómo Narsil Check convierte los manifests actualizados en un commit, una rama chore/upgrade-deps y un pull request abierto con gh, y después te devuelve a la rama principal.'
 route: check
-order: 13
+order: 14
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

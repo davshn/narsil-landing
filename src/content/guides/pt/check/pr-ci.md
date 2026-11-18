@@ -2,7 +2,7 @@
 title: O CI do seu PR
 description: 'Como o Narsil Check acompanha os passos do GitHub Actions do pull request da sessão com a CLI gh, a cada 10 segundos enquanto uma execução roda, e para quando ela termina.'
 route: check
-order: 4
+order: 5
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

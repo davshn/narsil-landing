@@ -2,7 +2,7 @@
 title: Des dépendances qui se bloquent entre elles
 description: 'Comment Narsil Check trouve les mises à jour npm qui ne peuvent pas monter seules : les peers que demande la nouvelle version, ceux que demandent les paquets installés, et les pins exacts de l’arbre.'
 route: check
-order: 8
+order: 9
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

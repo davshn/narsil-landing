@@ -2,7 +2,7 @@
 title: Dependencies that block each other
 description: 'How Narsil Check finds npm upgrades that cannot go up alone: peers the new version asks for, peers installed packages ask for, and exact pins in the tree.'
 route: check
-order: 8
+order: 9
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

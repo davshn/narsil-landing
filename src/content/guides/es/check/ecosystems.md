@@ -2,7 +2,7 @@
 title: Un adaptador por ecosistema
 description: 'Cómo Narsil Check lee once ecosistemas de paquetes con un contrato pequeño: cada adaptador lee su manifiesto, consulta su registro y dice cómo subir una versión.'
 route: check
-order: 6
+order: 7
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

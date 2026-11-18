@@ -2,7 +2,7 @@
 title: Classer les mises à jour
 description: 'Comment Narsil Check range chaque bibliothèque obsolète en Bloquée, Version majeure, Montée de version seule ou Hors du SDK Expo, et pourquoi les réponses des registres sont gardées six heures.'
 route: check
-order: 7
+order: 8
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

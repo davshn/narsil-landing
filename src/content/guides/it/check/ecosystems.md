@@ -2,7 +2,7 @@
 title: Un adattatore per ecosistema
 description: 'Come Narsil Check legge undici ecosistemi di pacchetti con un unico piccolo contratto: ogni adattatore legge il suo manifest, interroga il suo registry e dice come alzare una versione.'
 route: check
-order: 6
+order: 7
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

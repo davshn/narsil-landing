@@ -2,7 +2,7 @@
 title: Dependências que se bloqueiam
 description: 'Como o Narsil Check encontra atualizações npm que não podem subir sozinhas: peers que a nova versão pede, peers que os pacotes instalados pedem e pins exatos na árvore.'
 route: check
-order: 8
+order: 9
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

@@ -2,7 +2,7 @@
 title: Atualizar as triviais
 description: 'Como o botão Actualizar las N sobe todos os patches e minors de uma vez, mantendo o operador de intervalo e a seção de cada um, e depois roda a ferramenta de instalação de cada ecossistema.'
 route: check
-order: 12
+order: 13
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

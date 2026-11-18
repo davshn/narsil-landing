@@ -2,7 +2,7 @@
 title: Connectors
 description: "How Narsil Check lists the session's MCP servers with their state and how many tools each has, asked once from the desktop app's own connectors server."
 route: check
-order: 3
+order: 4
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

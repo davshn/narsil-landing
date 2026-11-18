@@ -2,7 +2,7 @@
 title: Versions pinned on purpose
 description: 'How Narsil Check reads a comment such as "# pinned: 3.7 breaks auth" in a manifest and keeps that library out of the upgrade button, with the comment as the reason.'
 route: check
-order: 10
+order: 11
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

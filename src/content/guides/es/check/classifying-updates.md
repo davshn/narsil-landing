@@ -2,7 +2,7 @@
 title: Clasificar las actualizaciones
 description: 'Cómo Narsil Check reparte cada biblioteca desactualizada entre Bloqueada, Versión mayor, Solo subir la versión o Fuera del SDK de Expo, y por qué guarda seis horas las respuestas.'
 route: check
-order: 7
+order: 8
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

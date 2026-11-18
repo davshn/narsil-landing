@@ -2,7 +2,7 @@
 title: Criar o PR
 description: 'Como o Narsil Check transforma manifests atualizados num commit, num branch chore/upgrade-deps e num pull request aberto com o gh, e depois leva você de volta ao branch principal.'
 route: check
-order: 13
+order: 14
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

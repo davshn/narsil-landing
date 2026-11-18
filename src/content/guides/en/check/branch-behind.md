@@ -2,7 +2,7 @@
 title: A branch behind its remote
 description: 'How Narsil Check fetches, counts the commits your branch lacks, warns at the top of the pane and brings them in with a git pull -r button.'
 route: check
-order: 5
+order: 6
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

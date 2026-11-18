@@ -2,7 +2,7 @@
 title: Ferramentas para o Claude
 description: 'Como o Narsil Check dá ao Claude quatro ferramentas sobre a lista de pendências com $.tool.register, as atende a partir de hooks tool.call, e como o modelo decide quando usá-las.'
 route: check
-order: 16
+order: 17
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

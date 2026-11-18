@@ -2,7 +2,7 @@
 title: Um branch atrás do seu remoto
 description: 'Como o Narsil Check faz fetch, conta os commits que faltam no seu branch, avisa no topo do painel e os traz com um botão de git pull -r.'
 route: check
-order: 5
+order: 6
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

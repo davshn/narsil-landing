@@ -59,8 +59,8 @@ export const en: TranslationShape = {
         },
         {
           title: 'The Narsil Check panel',
-          text: 'A side panel with the session environment, CI steps, dependency updates grouped by risk, vulnerabilities, and pending tasks.',
-          alt: 'The Narsil Check panel: environment and CI, three dependency updates, one vulnerability, and two pending tasks',
+          text: 'A side panel with a live map of Claude’s work, the session environment, CI steps, dependency updates grouped by risk, vulnerabilities, and pending tasks.',
+          alt: 'The Narsil Check panel: a live map of Claude’s work with baby Narsil at its center, environment and CI, three dependency updates, one vulnerability, and two pending tasks',
         },
         {
           title: 'Narsil in Claude, on your phone',
@@ -74,7 +74,7 @@ export const en: TranslationShape = {
     },
     aboutTitle: 'What is Narsil?',
     about: [
-      'Narsil is a Claude Code mod: a small pet that lives above the prompt and tells you, at a glance, whether Claude is working, waiting for you, done, or stuck. Narsil Check is its sibling, a side panel that reviews your branch, CI, dependencies, and vulnerabilities.',
+      'Narsil is a Claude Code mod: a small pet that lives above the prompt and tells you, at a glance, whether Claude is working, waiting for you, done, or stuck. Narsil Check is its sibling, a side panel that maps Claude’s work live and reviews your branch, CI, dependencies, and vulnerabilities.',
       'Here you will not just install them: you will build your own versions together with Claude. Each guide explains one feature in plain words, gives you a prompt to ask Claude for it, and shows you how to check that what Claude built is right. The code is there to read and compare, not to copy.',
     ],
     routesTitle: 'Four learning paths',
@@ -90,7 +90,7 @@ export const en: TranslationShape = {
       {
         title: 'Your own review panel',
         description:
-          'Build a mod like Narsil Check with Claude: a side panel with CI steps, a branch behind its remote, dependency updates grouped by risk, OSV.dev vulnerabilities, and tools for Claude.',
+          'Build a mod like Narsil Check with Claude: a side panel with a live map of Claude’s work, CI steps, a branch behind its remote, dependency updates grouped by risk, OSV.dev vulnerabilities, and tools for Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -145,7 +145,7 @@ export const en: TranslationShape = {
     description:
       'Build a mod like Narsil Check with Claude, feature by feature: what each one does, how it works, the prompt to ask Claude for it, and the code to read and compare with what Claude wrote.',
     intro: [
-      'Narsil Check is a side panel that reviews your session before you ship: environment, connectors, CI, a branch behind its remote, dependency updates grouped by risk, vulnerabilities, and a to-do list Claude can use. Each guide explains one feature, the decisions behind it, and the prompt that gets Claude to build it.',
+      'Narsil Check is a side panel that reviews your session before you ship: a live map of Claude’s work, environment, connectors, CI, a branch behind its remote, dependency updates grouped by risk, vulnerabilities, and a to-do list Claude can use. Each guide explains one feature, the decisions behind it, and the prompt that gets Claude to build it.',
       'Where the original request was recorded, the guide quotes it word for word, so you can see how the author talked to Claude. The code that follows is a reference: read it to understand the result and to check what Claude wrote for you.',
     ],
     listTitle: 'The guides',
