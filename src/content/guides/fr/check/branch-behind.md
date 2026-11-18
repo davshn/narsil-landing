@@ -3,7 +3,7 @@ title: Une branche en retard sur son dépôt distant
 description: 'Comment Narsil Check fait un fetch, compte les commits qui manquent à votre branche, avertit en haut du panneau et les récupère avec un bouton git pull -r.'
 route: check
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ C’est délibéré, en ce sens que git connaît déjà ces règles. Un pull ave
 
 Un conflit est le cas à connaître. Quand le rebase s’arrête sur un conflit, git se termine avec une erreur et laisse le dépôt au milieu du rebase. Le panneau affiche la fin de la sortie de git, et c’est tout ce qu’il fait : il n’exécute pas `git rebase --abort` ni rien d’autre. C’est à vous de résoudre le conflit et de continuer, ou d’abandonner. Comme un pull échoué ne relance pas l’analyse, l’avertissement reste avec son comptage précédent jusqu’à la revue suivante.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un avertissement qui compte les commits qui manquent à votre branche, et un bouton qui les fait venir. L’idée que Claude doit bien saisir : « pas de réponse » ne veut pas dire zéro ; un `HEAD` détaché, l’absence d’upstream ou une commande qui échoue laissent l’état à `unknown`, et rien ne s’affiche.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute à mon panneau un avertissement « en retard sur son dépôt distant ». Dans une fonction qu’aucun hook n’attend, exécute avec `$.process.run` (délai de deux minutes) `git branch --show-current`, puis `git fetch --quiet`, puis `git rev-list --count HEAD..@{upstream}`. Garde le résultat dans un atome typé dans `types/index.d.ts` : `unknown` pour un HEAD détaché, l’absence d’upstream, une sortie non nulle ou un rejet, sinon la branche et le comptage. Exécute-la au début de la session. Quand le comptage est supérieur à zéro, dessine en haut du panneau une boîte à bordure rouge qui dit « La branche X a N commits de retard sur son dépôt distant » avec un bouton qui exécute `git pull -r` (délai de deux minutes). Garde l’état du pull dans un second atome : en cours, terminé avec un court résumé de la sortie de git, ou échoué avec les dernières lignes de stderr. Ignore un second appui pendant qu’un pull tourne. Après un pull réussi, relance la vérification. Vérifie chaque API par rapport aux types de plugin-authoring et teste-la avec `claude-code/testing`, en répondant à git via un hook `on('process.run', ...)`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La vérification exécute `git fetch --quiet` avant `git rev-list --count HEAD..@{upstream}`, si bien que le compte porte sur le dépôt distant tel qu’il est maintenant.
+2. Un `HEAD` détaché, une branche sans upstream, un code de sortie non nul ou un rejet laissent l’état à `unknown`. L’avertissement ne s’affiche que pour un compte supérieur à zéro.
+3. La vérification démarre avec `void` depuis `session.start` et n’est jamais attendue, si bien qu’un fetch lent ne retient pas la session.
+4. Le bouton exécute `git pull -r`, pas `--ff-only`, avec un délai de deux minutes, et un second appui pendant qu’un pull tourne ne fait rien.
+5. Un pull qui échoue affiche en rouge les dernières lignes du stderr de git. Seul un pull réussi relance la vérification, ce qui masque l’avertissement.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le pull a échoué et le panneau ne dit pas pourquoi ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour l’avertissement et le bouton n’a pas été consignée. Aucun des journaux de tâches publics de narsil-check (`odd/tasks/*.md`) ne couvre cette fonctionnalité.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -S checkBehind`, `git log -S pullBranch` et `git log -S "pull -r"` dans narsil-check :
 
@@ -153,13 +173,9 @@ La demande d’origine pour l’avertissement et le bouton n’a pas été consi
 
 Le schéma : d’abord un bouton manuel, son comportement corrigé le même jour, et une semaine plus tard le panneau qui apprend à dire quand le bouton est nécessaire, en en plaçant une seconde copie là où l’œil se pose en premier.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute à mon panneau un avertissement « en retard sur son dépôt distant ». Dans une fonction qu’aucun hook n’attend, exécute avec `$.process.run` (délai de deux minutes) `git branch --show-current`, puis `git fetch --quiet`, puis `git rev-list --count HEAD..@{upstream}`. Garde le résultat dans un atome typé dans `types/index.d.ts` : `unknown` pour un HEAD détaché, l’absence d’upstream, une sortie non nulle ou un rejet, sinon la branche et le comptage. Exécute-la au début de la session. Quand le comptage est supérieur à zéro, dessine en haut du panneau une boîte à bordure rouge qui dit « La branche X a N commits de retard sur son dépôt distant » avec un bouton qui exécute `git pull -r` (délai de deux minutes). Garde l’état du pull dans un second atome : en cours, terminé avec un court résumé de la sortie de git, ou échoué avec les dernières lignes de stderr. Ignore un second appui pendant qu’un pull tourne. Après un pull réussi, relance la vérification. Vérifie chaque API par rapport aux types de plugin-authoring et teste-la avec `claude-code/testing`, en répondant à git via un hook `on('process.run', ...)`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle laisse de côté la lecture de la session et l’analyse des bibliothèques.
 

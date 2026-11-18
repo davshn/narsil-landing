@@ -3,7 +3,7 @@ title: Le CI de votre PR
 description: 'Comment Narsil Check suit les étapes GitHub Actions de la pull request de la session avec la CLI gh, toutes les 10 secondes pendant une exécution, et s’arrête quand elle se termine.'
 route: check
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -160,11 +160,31 @@ Les deux cas se terminent de la même façon. La vue reçoit une `error`, l’en
 
 Sur les autorisations, le README dit seulement que `gh` doit être installé et connecté (« con `gh` instalado y con sesión iniciada », « avec `gh` installé et une session ouverte »). Ni le README ni le code ne listent de scopes pour lire le CI. La note du README sur l’autorisation `workflow` concerne l’envoi de modifications vers `.github/workflows` en HTTPS, une autre fonctionnalité.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de suivre pas à pas, avec `gh`, l’exécution GitHub Actions de la pull request de la session. L’idée que Claude doit bien saisir : quand interroger ; seulement les exécutions du commit le plus récent, seulement tant que le repli est ouvert et qu’une exécution est en cours, et une seule surveillance à la fois.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute un repli « CI » pour la pull request ouverte de la session, dont j’ai déjà le dépôt (`acme/shop`) et la branche de tête. Exécute `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` avec `$.process.run` (délai de 30 s), ne garde que les exécutions du `headSha` de la première ligne, une par workflow, puis `gh run view <id> --repo <repo> --json jobs` pour chacune. Masque les étapes `Set up job`, `Complete job` et `Post …`. Affiche chaque étape avec ✓ vert, ✗ rouge, ◐ jaune pour en cours, ○ gris pour en file d’attente et – gris pour ignorée. Traite une sortie non nulle comme une erreur avec le stderr de gh, et un rejet (gh absent) aussi comme une erreur ; affiche-la dans le repli. Interroge en boucle avec `$.clock.sleep(10_000)` seulement tant que le repli est ouvert et qu’une exécution n’est pas terminée, et arrête-toi sinon ; donne un id à chaque surveillance pour qu’une plus récente la remplace. Teste les analyseurs comme des fonctions pures avec du JSON gh synthétique, et la boucle avec `mock.clock`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Seules les exécutions du `headSha` de la première ligne sont gardées, une par workflow, si bien que les exécutions d’un commit plus ancien ne se mélangent jamais avec celles du commit actuel.
+2. Un code de sortie non nul de `gh` est lu comme une erreur avec son stderr, et un rejet, quand `gh` est absent, s’affiche aussi comme une erreur dans le repli.
+3. La boucle attend 10 secondes avec `$.clock.sleep` entre deux lectures, et s’arrête quand le repli est fermé, quand aucune exécution n’est encore en cours, ou sur une erreur.
+4. Chaque surveillance a un identifiant, si bien qu’une surveillance plus récente fait s’arrêter l’ancienne, et la surveillance est lancée avec `void`, jamais attendue dans un hook.
+5. Les étapes `Set up job`, `Complete job` et `Post …` sont masquées, et chaque étape affiche sa marque dans sa couleur.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le repli continue d’interroger gh toutes les 10 secondes après la réussite de l’exécution ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour le repli CI n’a pas été consignée. Aucun des journaux de tâches publics de narsil-check (`odd/tasks/*.md`) ne la couvre.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/ci.ts`, avec les commits liés de `hooks/register.tsx` et de `hooks/session.ts` :
 
@@ -175,13 +195,9 @@ La demande d’origine pour le repli CI n’a pas été consignée. Aucun des jo
 
 Le schéma diffère de celui des guides précédents : le repli CI est arrivé complet en un seul commit, par-dessus la mécanique de pull request de la veille, et les correctifs qui ont suivi portaient sur la découverte de la pull request, pas sur le CI lui-même.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute un repli « CI » pour la pull request ouverte de la session, dont j’ai déjà le dépôt (`acme/shop`) et la branche de tête. Exécute `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` avec `$.process.run` (délai de 30 s), ne garde que les exécutions du `headSha` de la première ligne, une par workflow, puis `gh run view <id> --repo <repo> --json jobs` pour chacune. Masque les étapes `Set up job`, `Complete job` et `Post …`. Affiche chaque étape avec ✓ vert, ✗ rouge, ◐ jaune pour en cours, ○ gris pour en file d’attente et – gris pour ignorée. Traite une sortie non nulle comme une erreur avec le stderr de gh, et un rejet (gh absent) aussi comme une erreur ; affiche-la dans le repli. Interroge en boucle avec `$.clock.sleep(10_000)` seulement tant que le repli est ouvert et qu’une exécution n’est pas terminée, et arrête-toi sinon ; donne un id à chaque surveillance pour qu’une plus récente la remplace. Teste les analyseurs comme des fonctions pures avec du JSON gh synthétique, et la boucle avec `mock.clock`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/ci.ts` et de `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle suit un seul workflow et laisse de côté l’attente d’un push.
 

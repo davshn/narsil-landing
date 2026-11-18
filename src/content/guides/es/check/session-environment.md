@@ -3,7 +3,7 @@ title: 'El entorno de la sesión'
 description: 'Cómo Narsil Check muestra el repositorio, la carpeta, la rama, Remote Control y Auto-fix, leídos de git y de los servidores de la app de escritorio, y por qué los consulta tan poco.'
 route: check
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -111,11 +111,31 @@ Lo que ves se deduce del calendario anterior. La lectura a los diez segundos fal
 
 La tabla de superficies del README dice que Entorno no funciona fuera de la app de escritorio y que "la sección dice por qué no pudo leerlos". El código es un poco más amable que eso: las filas de git se siguen mostrando. Los clics en la carpeta y en la rama necesitan los servidores de la app, así que fuera del escritorio responden con un toast que dice que no pudieron.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude una sección de entorno leída de git y de los servidores de la app de escritorio. La única idea que debe entender bien es con qué poca frecuencia preguntar a esos servidores: cada llamada la ven otros mods, y una llamada temprana puede provocar una petición de permiso.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade al panel una sección "Environment". Lee la carpeta con `$.session.cwd()`, la rama con `$.process.run(['git', 'branch', '--show-current'])` y el remoto con `git remote get-url origin`, convertido en un enlace https para remotos SSH y HTTPS. Lee Remote Control de la app de escritorio con `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, prefiriendo `structuredContent` y recurriendo al JSON del contenido de texto. Otros mods ven cada llamada a los servidores de la app, y una temprana puede provocar una petición de permiso, así que lee una vez, diez segundos después de `session.start` con `$.clock.sleep`, sin esperarlo con await en el hook; si falla, muestra "Reading…" e inténtalo una vez más en el primer `turn.start` principal. Después de cada turno principal vuelve a leer solo git. Guarda el error de cada parte por separado y muéstralo en rojo. Prueba con `mock.clock` que no se llama a ningún servidor antes de diez segundos y solo una vez después.
+
+### Qué revisar en la respuesta de Claude
+
+1. No se hace ninguna llamada a los servidores de la app en los primeros diez segundos después de `session.start`, y la lectura diferida se ejecuta con `void`, así que el hook vuelve de inmediato.
+2. Si esa primera lectura falla, no escribe nada, la sección dice que está leyendo, y lo intenta una vez más en el primer `turn.start` principal, sin bucle de reintentos.
+3. Después de cada turno principal solo se vuelve a leer git (carpeta, rama y remoto), no los servidores de la app.
+4. Cada respuesta se lee primero de `structuredContent` y, como respaldo, del JSON de los bloques de texto, y cada parte conserva su propio error, mostrado en rojo.
+5. El remoto se convierte en un enlace https tanto para remotos SSH como HTTPS, y cualquier otra cosa no da enlace.
+
+Si una comprobación falla, dile a Claude lo que ves: "fuera de la app de escritorio la sección dice «Leyendo…» para siempre y la rama nunca aparece".
+
+### Cómo lo pidió el autor
 
 La petición original de esta sección no quedó registrada. Ninguno de los registros de tareas públicos de narsil-check (`odd/tasks/*.md`) trata de ella; tratan de ecosistemas, antigüedad de las versiones y vulnerabilidades.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/session.ts`, con los commits relacionados de `hooks/register.tsx`:
 
@@ -131,13 +151,9 @@ A partir de `git log -- hooks/session.ts`, con los commits relacionados de `hook
 
 Vale la pena fijarse en el patrón: tres correcciones seguidas (`d8c664e`, `55fe118`, `4770a49`) preguntaron cada una menos a los servidores. La primera versión insistía más cuando los servidores no estaban listos; la última espera, pregunta una vez y vuelve a preguntar solo por un motivo.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade al panel una sección "Environment". Lee la carpeta con `$.session.cwd()`, la rama con `$.process.run(['git', 'branch', '--show-current'])` y el remoto con `git remote get-url origin`, convertido en un enlace https para remotos SSH y HTTPS. Lee Remote Control de la app de escritorio con `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, prefiriendo `structuredContent` y recurriendo al JSON del contenido de texto. Otros mods ven cada llamada a los servidores de la app, y una temprana puede provocar una petición de permiso, así que lee una vez, diez segundos después de `session.start` con `$.clock.sleep`, sin esperarlo con await en el hook; si falla, muestra "Reading…" e inténtalo una vez más en el primer `turn.start` principal. Después de cada turno principal vuelve a leer solo git. Guarda el error de cada parte por separado y muéstralo en rojo. Prueba con `mock.clock` que no se llama a ningún servidor antes de diez segundos y solo una vez después.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325. Está adaptada de `hooks/register.tsx` y `hooks/session.ts` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

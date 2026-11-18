@@ -3,7 +3,7 @@ title: Clasificar las actualizaciones
 description: 'Cómo Narsil Check reparte cada biblioteca desactualizada entre Bloqueada, Versión mayor, Solo subir la versión o Fuera del SDK de Expo, y por qué guarda seis horas las respuestas.'
 route: check
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -135,11 +135,31 @@ Ambos están citados de [narsil-check](https://github.com/davshn/narsil-check) (
 
 **Qué se guarda para siempre.** Algunas respuestas nunca cambian una vez publicada una versión, así que el mod las guarda sin temporizador: las dependencias peer de una versión (`peers:<name>@<version>`), su fecha de publicación (`published:…`, solo cuando es una fecha válida) y la lectura de Haiku sobre una versión mayor (`why:…`).
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude que reparta cada biblioteca desactualizada en un grupo que diga qué deberías hacer con ella. La única idea que debe entender bien es que el salto y la decisión van por separado: `bump` dice cuánto se separan las versiones, `group` dice qué hacer, y `blocked` se decide al final.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, tengo una lista de bibliotecas de npm desactualizadas, cada una con su versión instalada y la más reciente. Repártelas en grupos: `blocked` (una lista de motivos en palabras no está vacía), `review` (un salto de versión mayor), `bump` (un patch o un minor). Escribe `bumpOf(from, to)` como función pura: none, patch, minor o major, donde por debajo de 1.0.0 un minor cuenta como major y por debajo de 0.1.0 también un patch, como los leen los rangos con circunflejo de npm. Decide `blocked` al final para que anule a los demás. Dibuja los grupos en el orden blocked, review, bump, cada uno con una cabecera plegable `▾ Label (N)` y una línea de pista, y los motivos bajo una fila bloqueada en rojo. Solo el grupo bump tiene un botón "Actualizar todas". Guarda en caché cada respuesta del registro en `$.store` bajo `npm:<name>` con la hora, reutilízala durante seis horas y sáltate la caché cuando la persona pulse "Revisar de nuevo". Prueba `bumpOf` con casos 0.x y la caché con `mock.clock`.
+
+### Qué revisar en la respuesta de Claude
+
+1. `bumpOf` es una función pura que devuelve none, patch, minor o major, y una biblioteca con none se queda fuera de la lista.
+2. Por debajo de 1.0.0 un minor cuenta como major (`0.3.1 → 0.4.0`), y por debajo de 0.1.0 también un patch (`0.0.3 → 0.0.4`).
+3. `blocked` se decide al final, así que una actualización con cualquier motivo queda bloqueada sea cual sea su salto, y sus motivos se imprimen debajo en rojo.
+4. Solo el grupo `bump` tiene el botón "Actualizar todas", y nunca toma una biblioteca de otro grupo.
+5. Cada respuesta del registro se guarda en `$.store` bajo `npm:<name>` con la hora, se reutiliza durante seis horas y se salta cuando pulsas "Revisar de nuevo".
+
+Si una comprobación falla, dile a Claude lo que ves: "un patch que un plugin rechaza sigue apareciendo en el grupo bump, y el botón lo instalaría".
+
+### Cómo lo pidió el autor
 
 La petición original de los cuatro grupos no quedó registrada: ya están en el primer commit, y ningún registro de tareas público los cubre. Los motivos de **Bloqueada** crecieron después, y uno de ellos está registrado con las palabras de quien creó Narsil Check.
 
-### Registrado: la espera de 24 horas en todos los ecosistemas
+#### Registrado: la espera de 24 horas en todos los ecosistemas
 
 `odd/tasks/release-age-all-ecosystems.md`, entrada de registro L1 (2026-11-06), cita a quien creó Narsil Check. El primer mensaje preguntaba por frameworks distintos de Expo:
 
@@ -163,7 +183,7 @@ Una corrección llegó el mismo día. L7 cita la pregunta de quien creó Narsil 
 
 El registro de tareas recoge la propuesta aceptada ("si hazlo asi"): una versión así espera 24 horas desde que el mod la vio por primera vez. Esa alternativa y el resto del diseño son la propuesta del agente, escrita en el registro; las palabras de quien creó Narsil Check son la pregunta y el "si".
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/semver.ts hooks/words.ts` y de `git log -S` sobre las etiquetas de los grupos, en narsil-check:
 
@@ -175,13 +195,9 @@ A partir de `git log -- hooks/semver.ts hooks/words.ts` y de `git log -S` sobre 
 
 El patrón: los grupos fueron correctos desde el principio, y lo que cambió fue el significado de **Bloqueada**, de "otra dependencia la rechaza" a "cualquier cosa que sepamos que hace inseguro subirla sola".
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, tengo una lista de bibliotecas de npm desactualizadas, cada una con su versión instalada y la más reciente. Repártelas en grupos: `blocked` (una lista de motivos en palabras no está vacía), `review` (un salto de versión mayor), `bump` (un patch o un minor). Escribe `bumpOf(from, to)` como función pura: none, patch, minor o major, donde por debajo de 1.0.0 un minor cuenta como major y por debajo de 0.1.0 también un patch, como los leen los rangos con circunflejo de npm. Decide `blocked` al final para que anule a los demás. Dibuja los grupos en el orden blocked, review, bump, cada uno con una cabecera plegable `▾ Label (N)` y una línea de pista, y los motivos bajo una fila bloqueada en rojo. Solo el grupo bump tiene un botón "Actualizar todas". Guarda en caché cada respuesta del registro en `$.store` bajo `npm:<name>` con la hora, reutilízala durante seis horas y sáltate la caché cuando la persona pulse "Revisar de nuevo". Prueba `bumpOf` con casos 0.x y la caché con `mock.clock`.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325. Está adaptada de `hooks/semver.ts`, `hooks/npm.ts` y `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Deja fuera Expo y los propios motivos; `reasons` es lo que hayan encontrado tus comprobaciones.
 

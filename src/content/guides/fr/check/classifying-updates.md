@@ -3,7 +3,7 @@ title: Classer les mises à jour
 description: 'Comment Narsil Check range chaque bibliothèque obsolète en Bloquée, Version majeure, Montée de version seule ou Hors du SDK Expo, et pourquoi les réponses des registres sont gardées six heures.'
 route: check
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -135,11 +135,31 @@ Les deux sont cités de [narsil-check](https://github.com/davshn/narsil-check) (
 
 **Ce qui est gardé pour de bon à la place.** Certaines réponses ne changent jamais une fois qu’une version est publiée, si bien que le mod les garde sans minuteur : les dépendances peer d’une version (`peers:<name>@<version>`), sa date de publication (`published:…`, seulement quand c’est une date valide) et la lecture d’une version majeure par Haiku (`why:…`).
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de ranger chaque bibliothèque en retard dans un groupe qui dit quoi en faire. L’idée que Claude doit bien saisir : le saut et la décision sont deux choses distinctes ; `bump` dit à quelle distance sont les versions, `group` dit quoi faire, et `blocked` est décidé en dernier.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, j’ai une liste de bibliothèques npm obsolètes, chacune avec sa version installée et sa dernière version. Range-les en groupes : `blocked` (une liste de raisons en mots n’est pas vide), `review` (un saut majeur), `bump` (un patch ou une mineure). Écris `bumpOf(from, to)` comme une fonction pure : none, patch, minor ou major, où en dessous de 1.0.0 une mineure compte comme majeure et en dessous de 0.1.0 un patch aussi, comme les lisent les plages caret de npm. Décide `blocked` en dernier pour qu’il l’emporte sur les autres. Dessine les groupes dans l’ordre blocked, review, bump, chacun avec un en-tête repliable `▾ Label (N)` et une ligne d’indication, et les raisons sous une ligne bloquée en rouge. Seul le groupe bump reçoit un bouton « Update all ». Mets en cache chaque réponse de registre dans `$.store` sous `npm:<name>` avec l’heure, réutilise-la pendant six heures et contourne le cache quand la personne appuie sur « Check again ». Teste `bumpOf` avec des cas 0.x et le cache avec `mock.clock`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. `bumpOf` est une fonction pure qui renvoie none, patch, minor ou major, et une bibliothèque à none est laissée hors de la liste.
+2. En dessous de 1.0.0, une minor compte comme une major (`0.3.1 → 0.4.0`), et en dessous de 0.1.0, un patch aussi (`0.0.3 → 0.0.4`).
+3. `blocked` est décidé en dernier, si bien qu’une mise à jour qui a une raison est bloquée quel que soit son saut, et ses raisons sont affichées en rouge en dessous.
+4. Seul le groupe `bump` a le bouton « Update all », et il ne prend jamais une bibliothèque d’un autre groupe.
+5. Chaque réponse du registre est gardée dans `$.store` sous `npm:<name>` avec l’heure, réutilisée pendant six heures, et ignorée quand vous appuyez sur « Check again ».
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « un patch qu’un plugin refuse apparaît toujours dans le groupe bump, et le bouton l’installerait ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour les quatre groupes n’a pas été consignée : ils sont déjà dans le premier commit, et aucun journal de tâches public ne les couvre. Les raisons de **Bloqueada** ont grandi plus tard, et l’une d’elles est consignée avec les mots de l’auteur ou de l’autrice.
 
-### Consigné : l’attente de 24 heures dans chaque écosystème
+#### Consigné : l’attente de 24 heures dans chaque écosystème
 
 `odd/tasks/release-age-all-ecosystems.md`, entrée de journal L1 (2026-11-06), cite l’auteur ou l’autrice. Le premier message posait une question sur les frameworks autres qu’Expo :
 
@@ -163,7 +183,7 @@ Une correction est arrivée le même jour. L7 cite la question de l’auteur ou 
 
 Traduction en français : « que se passe-t-il si une version arrive toujours avec une date illisible ? nous ne la mettrons jamais à jour ? » Le journal de tâches consigne la proposition acceptée (« si hazlo asi », « oui, fais-le comme ça ») : une telle version attend 24 heures à partir du moment où le mod l’a vue pour la première fois. Ce repli et le reste de la conception sont la proposition de l’agent, écrite dans le journal ; les mots de l’auteur ou de l’autrice sont la question et le « si ».
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/semver.ts hooks/words.ts` et de `git log -S` sur les libellés des groupes, dans narsil-check :
 
@@ -175,13 +195,9 @@ Traduction en français : « que se passe-t-il si une version arrive toujours av
 
 Le schéma : les groupes étaient justes dès le départ, et ce qui a changé, c’est le sens de **Bloqueada**, de « une autre dépendance la refuse » à « tout ce qui, à notre connaissance, rend risqué de la monter seule ».
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, j’ai une liste de bibliothèques npm obsolètes, chacune avec sa version installée et sa dernière version. Range-les en groupes : `blocked` (une liste de raisons en mots n’est pas vide), `review` (un saut majeur), `bump` (un patch ou une mineure). Écris `bumpOf(from, to)` comme une fonction pure : none, patch, minor ou major, où en dessous de 1.0.0 une mineure compte comme majeure et en dessous de 0.1.0 un patch aussi, comme les lisent les plages caret de npm. Décide `blocked` en dernier pour qu’il l’emporte sur les autres. Dessine les groupes dans l’ordre blocked, review, bump, chacun avec un en-tête repliable `▾ Label (N)` et une ligne d’indication, et les raisons sous une ligne bloquée en rouge. Seul le groupe bump reçoit un bouton « Update all ». Mets en cache chaque réponse de registre dans `$.store` sous `npm:<name>` avec l’heure, réutilise-la pendant six heures et contourne le cache quand la personne appuie sur « Check again ». Teste `bumpOf` avec des cas 0.x et le cache avec `mock.clock`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/semver.ts`, `hooks/npm.ts` et `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle laisse de côté Expo et les raisons elles-mêmes ; `reasons` est ce que vos vérifications ont trouvé.
 

@@ -3,7 +3,7 @@ title: Il pannello laterale
 description: 'Come Narsil Check disegna un pannello accanto alla chat con sezioni comprimibili, un punto colorato per sezione, chiusure che ricorda e righe che copi con un clic.'
 route: check
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -141,11 +141,31 @@ Ciò che viene copiato è più dell'etichetta della riga. Due funzioni pure cost
 
 Come in Narsil, il modulo degli hook decide cosa è successo e `hooks/words.ts` decide come si dice: la palette, le etichette e i suggerimenti dei gruppi (`GROUPS`), le etichette delle intestazioni (`sectionLabel`, `vulnsLabel`, `groupLabel`) e i colori. Sono funzioni pure, ed è per questo che `tests/pane.test.tsx` può controllarle senza montare niente, come in "the section is colored by what most needs you, and its toggle names it" (la sezione è colorata da ciò che più ha bisogno di te, e il suo interruttore lo nomina).
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un pannello laterale con sezioni che si comprimono e righe che si copiano. L'unica idea che deve fare bene è che il pannello viene aperto una volta e poi disegnato da un hook filtrato sul suo id, con lo stato di ogni sezione comprimibile conservato in un atom che il disegno legge.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Crea una mod di Claude Code chiamata `my-panel` con un pannello laterale. In `session.start`, chiama `$.ui.open({ id: 'my-panel', title: 'My panel' })` e cattura un rifiuto. Disegnalo in `ui.render` per `{ component: 'Pane', requestId: 'my-panel' }` con `$.ui.resolve(e)`. Mostra due sezioni, ciascuna in un riquadro con un bordo arrotondato del suo colore, e un'intestazione con un punto colorato (rosso per fallito, giallo per in attesa di me, verde per fatto, blu per informazione, grigio prima del caricamento) e un `Button` `plain` con l'etichetta `▾ Name` o `▸ Name` che la chiude. Tieni le chiavi delle sezioni chiuse in un unico atom dichiarato in `types/index.d.ts`. Fai di ogni riga un `Button` `plain` che copia il suo testo con `$.ui.copy({ text, surface: press.surface })` e mostra un toast che dice se `isCopied` era true. Controlla ogni API con i tipi di plugin-authoring e aggiungi un test con `claude-code/testing` che verifichi che una pressione su un'intestazione nasconde le sue righe.
+
+### Cosa controllare nella risposta di Claude
+
+1. `session.start` chiama `$.ui.open` con l'id e il titolo del pannello, e intercetta un rifiuto, così un pannello occupato da un altro plugin non rompe l'avvio della sessione.
+2. L'hook `ui.render` è filtrato su `{ component: 'Pane', requestId }` con l'id del pannello stesso, e prende i suoi elementi da `$.ui.resolve(e)`.
+3. Il punto di ogni sezione viene da una piccola funzione che controlla per primo il caso più urgente. Viene calcolato dai contenuti a ogni disegno, non conservato accanto ai dati.
+4. Una pressione su un'intestazione cambia un atom con `update`, e il pannello si ridisegna senza chiamate in più, perché il disegno legge quell'atom.
+5. Una pressione su una riga chiama `$.ui.copy` con `press.surface`, e il toast riporta entrambi i casi: `isCopied` true o false.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "premo l'intestazione di una sezione e le sue righe restano sullo schermo".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per il pannello non è stata registrata. Due log di task pubblici in narsil-check citano le parole dell'autore su alcune sue parti.
 
-### Registrato: la copia, e una sezione comprimibile
+#### Registrato: la copia, e una sezione comprimibile
 
 `odd/tasks/vulnerabilities.md` registra, nella sua voce di log L1 (2026-11-05), i due messaggi che hanno avviato la sezione delle vulnerabilità. S1 cita il primo:
 
@@ -161,7 +181,7 @@ S2 cita il secondo messaggio:
 
 In italiano: aggiungo solo che mi piacerebbe l'opzione di copiare le vulnerabilità per gravità negli appunti, come c'è nella sezione degli aggiornamenti.
 
-### Registrato: quando il pannello dovrebbe aprirsi
+#### Registrato: quando il pannello dovrebbe aprirsi
 
 `odd/tasks/ecosystems-wave-2.md` (il suo log inizia il 2026-11-04) elenca in S3 il comportamento che doveva restare, inclusa una regola precedente citata con le parole dell'autore:
 
@@ -171,7 +191,7 @@ In italiano: il pannello dovrebbe aprirsi automaticamente solo quando ci sono ve
 
 Quella regola non è durata. `/upgrades` è diventato `/narsil-check upgrade` in `684837f`, e da `be8eac0` il pannello si apre a ogni sessione, perché ha preso il posto della barra della sessione dell'app (vedi sotto).
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/register.tsx hooks/words.ts` in narsil-check:
 
@@ -186,13 +206,9 @@ Da `git log -- hooks/register.tsx hooks/words.ts` in narsil-check:
 
 Lo schema: prima un elenco di aggiornamenti, poi l'aspetto di Narsil, poi una sezione per controllo, ogni volta con la stessa intestazione (punto, freccia, nome, conteggio), e la copia che passa da un pulsante per gruppo a un clic sulla riga stessa.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Crea una mod di Claude Code chiamata `my-panel` con un pannello laterale. In `session.start`, chiama `$.ui.open({ id: 'my-panel', title: 'My panel' })` e cattura un rifiuto. Disegnalo in `ui.render` per `{ component: 'Pane', requestId: 'my-panel' }` con `$.ui.resolve(e)`. Mostra due sezioni, ciascuna in un riquadro con un bordo arrotondato del suo colore, e un'intestazione con un punto colorato (rosso per fallito, giallo per in attesa di me, verde per fatto, blu per informazione, grigio prima del caricamento) e un `Button` `plain` con l'etichetta `▾ Name` o `▸ Name` che la chiude. Tieni le chiavi delle sezioni chiuse in un unico atom dichiarato in `types/index.d.ts`. Fai di ogni riga un `Button` `plain` che copia il suo testo con `$.ui.copy({ text, surface: press.surface })` e mostra un toast che dice se `isCopied` era true. Controlla ogni API con i tipi di plugin-authoring e aggiungi un test con `claude-code/testing` che verifichi che una pressione su un'intestazione nasconde le sue righe.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325. È adattata da `hooks/register.tsx` e `hooks/words.ts` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later); i colori sono la sua `PALETTE`, e le righe sono sintetiche.
 

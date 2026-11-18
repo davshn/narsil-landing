@@ -3,7 +3,7 @@ title: Un adaptateur par écosystème
 description: 'Comment Narsil Check lit onze écosystèmes de paquets via un petit contrat : chaque adaptateur lit son manifeste, interroge son registre et dit comment monter une version.'
 route: check
 order: 6
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -177,11 +177,31 @@ Cargo, Python et le catalogue de versions de Gradle écrivent du TOML. `hooks/to
 
 Pourquoi en écrire un ? Le mod n’a pas de `package.json` à lui : ses hooks n’importent que `claude-code` et ses propres fichiers. Chaque analyseur dont il a besoin, TOML, YAML pour `pnpm-lock.yaml` (lu ligne par ligne dans `pnpmLocked`), versions et plages, vit dans le dépôt. L’en-tête du lecteur liste les fichiers de Cargo et de Python ; `hooks/maven.ts` l’importe aussi, pour `libs.versions.toml`.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de transformer votre liste de bibliothèques en retard en un seul moteur, avec un adaptateur pur par écosystème. L’idée que Claude doit bien saisir : un adaptateur n’appelle jamais `$` ; il nomme des fichiers, construit des adresses et des commandes, et analyse du texte, tandis que le module de hooks fait toute la lecture, toutes les requêtes et toutes les exécutions.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, je liste les dépendances npm obsolètes. Refactorise-le pour que chaque écosystème de paquets soit un objet adaptateur pur dans son propre fichier sous `hooks/`, sans aucun appel à `$` : `id`, `label`, `manifests` (noms de fichiers), `lockfiles`, `parse(files: Record<string, string>)` qui renvoie `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` et `installArgv(present, upgrades)`. Garde toutes les entrées-sorties dans `hooks/register.tsx` : vérifie quels manifestes existent avec `$.fs.exists`, lis-les avec `$.fs.read`, récupère `latestUrl` avec `$.http.fetch` et exécute `installArgv` avec `$.process.run`. Fais de npm le premier adaptateur sans changement de comportement, prouvé par les tests existants. Ajoute ensuite un adaptateur PyPI pour `requirements.txt` contre `https://pypi.org/pypi/<name>/json` (`info.version`). Teste chaque adaptateur comme des fonctions pures avec des fixtures textuelles et une réponse de registre synthétique.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Aucun adaptateur n’appelle `$`. `$.fs.exists`, `$.fs.read`, `$.http.fetch` et `$.process.run` n’apparaissent que dans `hooks/register.tsx`.
+2. Chaque adaptateur a `manifests`, `lockfiles`, `parse`, `latestUrl`, `latestOf` et `installArgv`. Un champ dont un seul écosystème a besoin est optionnel.
+3. npm devient le premier adaptateur sans changement de comportement, et les tests existants passent toujours.
+4. Un nom npm avec portée garde son `@` et échappe sa barre oblique dans l’URL (`@types%2Fnode`).
+5. Chaque adaptateur est testé comme des fonctions pures, avec des fixtures texte et une réponse de registre synthétique, sans aucune chaîne d’outils d’écosystème installée.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « les tests PyPI échouent sur une machine sans Python, parce que l’adaptateur exécute lui-même une commande ».
+
+### Comment l’auteur l’a demandé
 
 Les adaptateurs ont été construits en trois vagues le 2026-11-04, chacune avec un journal de tâches public dans narsil-check. Les journaux de tâches consignent les mots de l’auteur ou de l’autrice, ainsi que le plan que les vagues ont suivi ; les deux sont tenus séparés ci-dessous.
 
-### Consigné : la vague 2
+#### Consigné : la vague 2
 
 `odd/tasks/ecosystems-wave-2.md`, entrée de journal L1 (2026-11-04), cite l’auteur ou l’autrice :
 
@@ -195,7 +215,7 @@ S1 consigne le plan que la vague a suivi, sous « The user's request, as wave 2 
 
 Traduction en français : « 2. PyPI, Go, Cargo et Pub. Ils ont des registres avec des API JSON simples. » Le journal ne dit pas qui a écrit cette ligne du plan. Le même S1 ajoute, avec les mots propres au journal de tâches, que « Each ecosystem's adapter follows the shared contract: `detect`, `parse`, `latest`, `importPattern` (the planned contract), plus an install command for the bump group. » (l’adaptateur de chaque écosystème suit le contrat partagé : `detect`, `parse`, `latest`, `importPattern`, le contrat prévu, plus une commande d’installation pour le groupe des montées de version). Le contrat livré a nommé ces étapes `manifests`, `parse`, `latestUrl`/`latestOf` et `installArgv`. Son hypothèse énoncée : « peer dependency and exact-pin checks stay npm-only » (les vérifications des dépendances peer et des pins exacts restent propres à npm).
 
-### Consigné : la vague 3
+#### Consigné : la vague 3
 
 `odd/tasks/ecosystems-wave-3.md`, L1 (2026-11-04), cite l’auteur ou l’autrice : « dale a la oleada 3 » (« vas-y avec la vague 3 »). Son S1 consigne le plan :
 
@@ -205,7 +225,7 @@ Traduction en français : « 3. Maven (Kotlin/Java), NuGet et RubyGems. Gradle e
 
 Ce plan est la raison pour laquelle le README dit qu’une version Gradle gardée dans une variable « es código y queda fuera » (« est du code et reste de côté »).
 
-### Consigné : la vague 4
+#### Consigné : la vague 4
 
 `odd/tasks/ecosystems-wave-4.md`, L1 (2026-11-04), cite l’auteur ou l’autrice : « dale a la oleada 4 » (« vas-y avec la vague 4 »). Son S1 consigne le plan :
 
@@ -215,7 +235,7 @@ Traduction en français : « 4. SwiftPM. Je le laisse pour la fin parce qu’il 
 
 Ici, le plan a changé en chemin. L’hypothèse du journal de tâches : « tags are read with `git ls-remote --tags --refs <url>` instead of the GitHub API, which has no request limit and works for any git host » (les tags sont lus avec `git ls-remote --tags --refs <url>` au lieu de l’API GitHub, ce qui n’a pas de limite de requêtes et fonctionne avec n’importe quel hébergeur git). C’est là que le contrat a obtenu `latestCommand`, dans `8444155` « feat: let an adapter answer its latest version with a command » (permettre à un adaptateur de répondre sa dernière version avec une commande).
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 La vague 1, npm seul, n’a pas de journal de tâches, donc sa demande n’a pas été consignée. À partir de `git log -- hooks/adapter.ts hooks/ecosystems.ts hooks/toml.ts hooks/semver.ts` :
 
@@ -229,13 +249,9 @@ La vague 1, npm seul, n’a pas de journal de tâches, donc sa demande n’a pas
 
 Le schéma : d’abord faire de l’écosystème existant un adaptateur sans changer son comportement, puis ajouter un écosystème par commit, et faire grandir le contrat d’un champ optionnel chaque fois qu’un écosystème ne rentre pas dans le moule.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, je liste les dépendances npm obsolètes. Refactorise-le pour que chaque écosystème de paquets soit un objet adaptateur pur dans son propre fichier sous `hooks/`, sans aucun appel à `$` : `id`, `label`, `manifests` (noms de fichiers), `lockfiles`, `parse(files: Record<string, string>)` qui renvoie `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` et `installArgv(present, upgrades)`. Garde toutes les entrées-sorties dans `hooks/register.tsx` : vérifie quels manifestes existent avec `$.fs.exists`, lis-les avec `$.fs.read`, récupère `latestUrl` avec `$.http.fetch` et exécute `installArgv` avec `$.process.run`. Fais de npm le premier adaptateur sans changement de comportement, prouvé par les tests existants. Ajoute ensuite un adaptateur PyPI pour `requirements.txt` contre `https://pypi.org/pypi/<name>/json` (`info.version`). Teste chaque adaptateur comme des fonctions pures avec des fixtures textuelles et une réponse de registre synthétique.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/adapter.ts`, `hooks/npm.ts` et `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle ne lit les versions que dans le manifeste, sans lockfile.
 

@@ -3,7 +3,7 @@ title: Mettre à jour les triviales
 description: 'Comment le bouton Actualizar las N monte tous les patchs et mineures d’un coup, en gardant l’opérateur de plage et la section de chacun, puis lance l’outil d’installation de chaque écosystème.'
 route: check
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -137,17 +137,37 @@ Trois cas, chacun traité différemment dans `upgradeBumps` :
 - **L’outil s’exécute et échoue.** Le panneau montre la commande, son code de sortie et la fin de sa sortie, ou le message propre à l’attente quand pnpm ou npm a refusé une version trop récente, et analyse de nouveau. Les écosystèmes suivants ne sont pas tentés, et les fichiers déjà réécrits restent ; `git diff` les montre.
 - **Toute autre exception.** « No pude ejecutar … » (« je n’ai pas pu exécuter … ») avec l’erreur.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un seul bouton qui monte d’un coup toutes les mises à jour sûres. L’idée que Claude doit bien saisir : ce que « sûr » veut dire ici ; seuls montent les sauts patch et minor que rien ne bloque, chaque plage garde son préfixe, et chaque bibliothèque reste dans sa section.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute un bouton « Update all » sous les mises à jour npm qui sont un patch ou une mineure et ne sont pas bloquées. Choisis le gestionnaire de paquets d’après le lockfile (pnpm, yarn, bun, sinon npm). Garde le préfixe de chaque plage : `^1.2.0` avec une dernière version 1.4.0 devient `^1.4.0`, `~` reste `~`, l’absence de préfixe reste sans préfixe. Exécute une commande pour `dependencies` et une avec `--save-dev` (ou `-D`) pour `devDependencies`, avec `$.process.run` et un délai maximal. Pendant l’exécution, masque le bouton et affiche « Updating N libraries with <manager>… » ; un second appui ne doit rien faire. Sur un code de sortie non nul, montre la commande, son code de sortie et les dernières lignes de stderr. En cas de succès, affiche un toast « Updated N libraries » et dis « Run the tests before committing ». Analyse de nouveau depuis les registres dans les deux cas. Teste que les commandes pour trois mises à jour, dont une de développement, sont exactement deux, et qu’une mise à jour bloquée ou majeure n’y figure jamais.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Seul le groupe `bump` est installé. Les majeures et les mises à jour bloquées ne sont jamais dans les commandes.
+2. Chaque plage garde son préfixe `^` ou `~` : `^3.22.0` devient `^3.25.1`.
+3. Il y a une commande pour `dependencies` et une avec `--save-dev` (ou `-D`) pour `devDependencies`, et le gestionnaire de paquets est choisi à partir du lockfile.
+4. Pendant l’exécution, le bouton est masqué et un second appui ne fait rien.
+5. Un échec affiche la commande, son code de sortie et la fin de sa sortie. En cas de succès comme d’échec, la liste est analysée de nouveau.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après avoir appuyé sur le bouton, un outil de développement est passé dans `dependencies` ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour le bouton n’a pas été consignée : il est dans le premier commit, et aucun journal de tâches public ne couvre sa création.
 
-### Consigné dans un journal de tâches
+#### Consigné dans un journal de tâches
 
 Le journal de tâches `odd/tasks/release-age-all-ecosystems.md` consigne, avec les mots de l’agent, comment l’étape d’installation a été vérifiée quand l’attente de 24 heures l’a atteinte. Sa tâche T3 est « npm installs with `before` set to 24 hours ago » (npm installe avec `before` réglé 24 heures en arrière), et l’entrée L3 note qu’avec `npm_config_before` réglé un jour en arrière, npm a refusé une version de tailwindcss vieille d’une heure et a résolu sa plage vers la version précédente. C’est une preuve que l’agent a recueillie, pas une demande.
 
 `odd/tasks/ecosystems-wave-2.md` liste « the bump button » (le bouton de montée de version) dans S3, parmi ce qui devait continuer à fonctionner à mesure que de nouveaux écosystèmes étaient ajoutés ; c’est aussi la spec de l’agent.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -S rangeFor`, de `git log -S upgradeBumps` et des commits par écosystème dans narsil-check :
 
@@ -159,13 +179,9 @@ Le journal de tâches `odd/tasks/release-age-all-ecosystems.md` consigne, avec l
 
 Le schéma : le bouton était là dès le premier commit, et le travail ultérieur a restreint ce que « trivial » peut inclure et ce qui se passe quand un outil manque.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute un bouton « Update all » sous les mises à jour npm qui sont un patch ou une mineure et ne sont pas bloquées. Choisis le gestionnaire de paquets d’après le lockfile (pnpm, yarn, bun, sinon npm). Garde le préfixe de chaque plage : `^1.2.0` avec une dernière version 1.4.0 devient `^1.4.0`, `~` reste `~`, l’absence de préfixe reste sans préfixe. Exécute une commande pour `dependencies` et une avec `--save-dev` (ou `-D`) pour `devDependencies`, avec `$.process.run` et un délai maximal. Pendant l’exécution, masque le bouton et affiche « Updating N libraries with <manager>… » ; un second appui ne doit rien faire. Sur un code de sortie non nul, montre la commande, son code de sortie et les dernières lignes de stderr. En cas de succès, affiche un toast « Updated N libraries » et dis « Run the tests before committing ». Analyse de nouveau depuis les registres dans les deux cas. Teste que les commandes pour trois mises à jour, dont une de développement, sont exactement deux, et qu’une mise à jour bloquée ou majeure n’y figure jamais.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.process.run`, `$.ui.toast`). Elle est adaptée de `hooks/npm.ts` et `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). npm seulement ; `rescan` est votre propre analyse.
 

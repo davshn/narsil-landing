@@ -3,7 +3,7 @@ title: Strumenti per Claude
 description: 'Come Narsil Check dà a Claude quattro strumenti sulla lista di cose da fare con $.tool.register, li serve da hook tool.call, e come il modello decide quando usarli.'
 route: check
 order: 16
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -128,16 +128,9 @@ Il modello sceglie uno strumento da ciò che legge su di esso. Qui tre cose dann
 
 Niente di tutto questo forza una chiamata. Il modello può comunque rispondere senza lo strumento, o chiedere prima. Le descrizioni rendono ovvia la chiamata giusta.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
 
-La richiesta originale per questi strumenti non è stata registrata. Nessun log di task pubblico in narsil-check copre la lista di cose da fare o i suoi strumenti. Ciò che segue è una ricostruzione.
-
-### Ricostruzione dalla cronologia dei commit
-
-Da `git log -S tool.register` su `hooks/register.tsx` e `git log -- hooks/todos.ts` in narsil-check:
-
-- `5439638` (2026-11-05) "feat: Pendientes, a per-project task list Claude can read and finish" (Pendientes, una lista di attività per progetto che Claude può leggere e finire). L'unico commit che aggiunge `$.tool.register`. Il suo messaggio: "Claude gets todo_list, todo_add and todo_done, and /narsil-check template "…" asks Claude to add a task, with how the work was done, to a template's list through todo_add_to_template." (Claude riceve todo_list, todo_add e todo_done, e /narsil-check template "…" chiede a Claude di aggiungere un'attività, con come è stato fatto il lavoro, alla lista di un modello tramite todo_add_to_template). La lista e gli strumenti sono stati costruiti insieme, così il pannello e Claude hanno condiviso uno scrittore fin dall'inizio.
-- `8dc7904` (2026-11-05) "fix: keep a damaged Pendientes list and never let side steps block a save" (tiene una lista Pendientes danneggiata e non lascia mai che i passi secondari blocchino un salvataggio). Per gli strumenti: "Claude's tools return a readable error on any file failure" (gli strumenti di Claude restituiscono un errore leggibile per qualsiasi fallimento sul file). È da qui che viene `answered`.
+Chiedi a Claude di dare al modello degli strumenti sull'elenco che il pannello tiene già. L'unica idea che deve fare bene è che ogni strumento è sia dichiarato sia servito, e che ogni strumento passa per la stessa funzione di modifica che usa il pannello.
 
 ### Un prompt che puoi usare
 
@@ -145,7 +138,30 @@ Il prompt seguente è stato scritto per questa guida come suggerimento. Non è i
 
 > Nella mia mod di Claude Code `my-panel`, dai a Claude degli strumenti sulla lista di cose da fare che tengo già in `.atl/my-panel/todos.json`. In `session.start`, senza attenderla e intercettando il suo fallimento, chiama `$.tool.register` tre volte: `todo_list` (nessun input), `todo_add` (`name` obbligatorio, `content` facoltativo) e `todo_done` (`task`, un id o un nome esatto). Scrivi ogni descrizione in modo che dica quando usarlo: "Use it when the user asks to note something to do later", "Call it when you complete a task that is on the list". Lascia fuori `isDeferred`. Servi ciascuno con `on('tool.call', { tool: 'mcp__my-panel__todo_add' }, …)`, leggendo gli argomenti dall'evento, e passa per la stessa funzione di modifica che usa il pannello. Rispondi `{ result: text }` con una frase breve che includa l'id dell'attività, o `{ deny: text }` per un input sbagliato o qualsiasi errore lanciato, mai un `{ content, isError }` in stile MCP. Testa ogni strumento chiamandolo con `$.tool.call` e controllando il file e il testo.
 
-## Il codice minimo
+### Cosa controllare nella risposta di Claude
+
+1. Gli strumenti vengono registrati con `$.tool.register` da `session.start`, senza attenderlo, e un errore viene intercettato così il pannello funziona comunque.
+2. Ogni nome dichiarato ha il proprio hook `tool.call`, confrontato con il nome completo `mcp__<plugin>__<name>`.
+3. Ogni hook risponde `{ result: text }` o `{ deny: text }`, mai un `{ content, isError }` in stile MCP, e qualsiasi errore lanciato diventa un `deny` con la sua causa.
+4. Ogni descrizione dice quando usare lo strumento, non solo cosa fa.
+5. Gli hook aggiungono, completano e leggono le attività con le stesse funzioni che usa il pannello. Nessuno strumento scrive il file a modo suo.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "ho chiesto a Claude di annotare un'attività e la chiamata allo strumento è fallita senza un motivo".
+
+### Come l'ha chiesta l'autore
+
+La richiesta originale per questi strumenti non è stata registrata. Nessun log di task pubblico in narsil-check copre la lista di cose da fare o i suoi strumenti. Ciò che segue è una ricostruzione.
+
+#### Ricostruzione dalla cronologia dei commit
+
+Da `git log -S tool.register` su `hooks/register.tsx` e `git log -- hooks/todos.ts` in narsil-check:
+
+- `5439638` (2026-11-05) "feat: Pendientes, a per-project task list Claude can read and finish" (Pendientes, una lista di attività per progetto che Claude può leggere e finire). L'unico commit che aggiunge `$.tool.register`. Il suo messaggio: "Claude gets todo_list, todo_add and todo_done, and /narsil-check template "…" asks Claude to add a task, with how the work was done, to a template's list through todo_add_to_template." (Claude riceve todo_list, todo_add e todo_done, e /narsil-check template "…" chiede a Claude di aggiungere un'attività, con come è stato fatto il lavoro, alla lista di un modello tramite todo_add_to_template). La lista e gli strumenti sono stati costruiti insieme, così il pannello e Claude hanno condiviso uno scrittore fin dall'inizio.
+- `8dc7904` (2026-11-05) "fix: keep a damaged Pendientes list and never let side steps block a save" (tiene una lista Pendientes danneggiata e non lascia mai che i passi secondari blocchino un salvataggio). Per gli strumenti: "Claude's tools return a readable error on any file failure" (gli strumenti di Claude restituiscono un errore leggibile per qualsiasi fallimento sul file). È da qui che viene `answered`.
+
+## Codice di riferimento
+
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325 (`$.tool.register`, `on('tool.call', { tool }, …)`, le risposte `result` e `deny`). È adattata da `registerTools` e dagli hook `tool.call` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). `change` e `Task` sono quelli del codice della guida precedente, che si suppone stiano in `./todos`.
 

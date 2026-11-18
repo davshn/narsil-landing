@@ -3,7 +3,7 @@ title: Um branch atrás do seu remoto
 description: 'Como o Narsil Check faz fetch, conta os commits que faltam no seu branch, avisa no topo do painel e os traz com um botão de git pull -r.'
 route: check
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ Isso é deliberado no sentido de que o git já conhece essas regras. Um pull com
 
 Um conflito é o caso que vale conhecer. Quando o rebase para num conflito, o git sai com erro e deixa o repositório no meio do rebase. O painel mostra o fim da saída do git, e é só isso que ele faz: não executa `git rebase --abort` nem nada mais. Você mesmo resolve o conflito e continua, ou aborta. Como um pull que falhou não faz nova varredura, o aviso fica com a contagem anterior até a próxima revisão.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um aviso que conte os commits que faltam ao seu branch, e um botão que os traga. A única ideia que ele precisa acertar é que "sem resposta" não é zero: um `HEAD` destacado, a falta de upstream ou um comando que falhou mantêm o estado `unknown`, e nada aparece.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, adicione ao meu painel um aviso de "atrás do seu remoto". Numa função que nenhum hook aguarda, execute com `$.process.run` (tempo limite de dois minutos) `git branch --show-current`, depois `git fetch --quiet`, depois `git rev-list --count HEAD..@{upstream}`. Guarde o resultado num atom tipado em `types/index.d.ts`: `unknown` para um HEAD destacado, ausência de upstream, uma saída diferente de zero ou uma rejeição; caso contrário, o branch e a contagem. Execute-a no início da sessão. Quando a contagem for maior que zero, desenhe uma caixa com borda vermelha no topo do painel dizendo "O branch X está N commits atrás do seu remoto", com um botão que executa `git pull -r` (tempo limite de dois minutos). Guarde o estado do pull num segundo atom: rodando, concluído com um resumo curto da saída do git, ou falho com as últimas linhas de stderr. Ignore um segundo clique enquanto um roda. Depois de um pull bem-sucedido, execute a verificação de novo. Confira cada API com os tipos do plugin-authoring e teste com `claude-code/testing`, respondendo ao git por meio de um hook `on('process.run', ...)`.
+
+### O que conferir na resposta do Claude
+
+1. A verificação roda `git fetch --quiet` antes de `git rev-list --count HEAD..@{upstream}`, então a contagem fala do remoto como ele está agora.
+2. Um `HEAD` destacado, um branch sem upstream, uma saída diferente de zero ou uma rejeição deixam o estado `unknown`. O aviso só aparece com uma contagem acima de zero.
+3. A verificação começa com `void` a partir de `session.start` e nunca é aguardada, então um fetch lento não retém a sessão.
+4. O botão roda `git pull -r`, não `--ff-only`, com um timeout de dois minutos, e um segundo clique enquanto um pull roda não faz nada.
+5. Um pull que falhou mostra as últimas linhas do stderr do git em vermelho. Só um pull bem-sucedido roda a verificação de novo, o que esconde o aviso.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o pull falhou e o painel não diz por quê".
+
+### Como a pessoa autora pediu
 
 O pedido original do aviso e do botão não foi registrado. Nenhum dos registros de tarefas públicos do narsil-check (`odd/tasks/*.md`) cobre essa funcionalidade.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -S checkBehind`, `git log -S pullBranch` e `git log -S "pull -r"` no narsil-check:
 
@@ -153,13 +173,9 @@ A partir de `git log -S checkBehind`, `git log -S pullBranch` e `git log -S "pul
 
 O padrão: primeiro um botão manual, o seu comportamento corrigido no mesmo dia e, uma semana depois, o painel aprendendo a dizer quando o botão é necessário, colocando uma segunda cópia dele onde o olhar cai primeiro.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, adicione ao meu painel um aviso de "atrás do seu remoto". Numa função que nenhum hook aguarda, execute com `$.process.run` (tempo limite de dois minutos) `git branch --show-current`, depois `git fetch --quiet`, depois `git rev-list --count HEAD..@{upstream}`. Guarde o resultado num atom tipado em `types/index.d.ts`: `unknown` para um HEAD destacado, ausência de upstream, uma saída diferente de zero ou uma rejeição; caso contrário, o branch e a contagem. Execute-a no início da sessão. Quando a contagem for maior que zero, desenhe uma caixa com borda vermelha no topo do painel dizendo "O branch X está N commits atrás do seu remoto", com um botão que executa `git pull -r` (tempo limite de dois minutos). Guarde o estado do pull num segundo atom: rodando, concluído com um resumo curto da saída do git, ou falho com as últimas linhas de stderr. Ignore um segundo clique enquanto um roda. Depois de um pull bem-sucedido, execute a verificação de novo. Confira cada API com os tipos do plugin-authoring e teste com `claude-code/testing`, respondendo ao git por meio de um hook `on('process.run', ...)`.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia e conferida com os tipos do Claude Code 2.1.325. Foi adaptada de `hooks/register.tsx` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Ela deixa de fora a leitura da sessão e a varredura das bibliotecas.
 

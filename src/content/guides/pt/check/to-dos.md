@@ -3,7 +3,7 @@ title: Pendências
 description: 'Como o Narsil Check mantém uma lista de pendências por projeto num arquivo JSON não rastreado, a deixa fora do git e nunca sobrescreve uma lista danificada sem uma cópia.'
 route: check
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -104,11 +104,31 @@ A cópia fica dentro da mesma pasta excluída, então ela também não chega ao 
 
 `loadTodos` roda no início da sessão, e de novo cada vez que você expande a seção, então uma mudança feita por outra sessão ou à mão aparece quando você olha. Cada mudança atualiza o atom do painel diretamente com a lista que acabou de escrever, mas só quando a mudança foi na lista deste projeto: uma tarefa escrita na lista de outro projeto não substitui o que este painel mostra.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude uma lista curta por projeto, guardada num arquivo dentro do projeto e fora do git. A única ideia que ele precisa acertar é que o arquivo é a verdade: cada mudança o lê de novo logo antes de escrever, e um arquivo danificado nunca é lido como vazio.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, adicione uma seção de pendências mantida por projeto em `.atl/my-panel/todos.json` abaixo do nível superior do git (`git rev-parse --show-toplevel`, senão a pasta da sessão), como `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Desenhe cada tarefa com um botão `○` que a remove, um nome que alterna o seu conteúdo e um `Input` que adiciona `name: content`, dividido nos primeiros dois-pontos; omita o `Input` na superfície móvel. Mantenha a pasta fora do git adicionando `/.atl/my-panel/` ao arquivo que `git rev-parse --git-path info/exclude` nomeia, uma vez, e nunca deixe essa etapa impedir um salvamento. Passe cada mudança por uma única cadeia de promises, e releia o arquivo antes de cada escrita. Se o arquivo não for um JSON válido ou não tiver um array `tasks`, nunca o trate como vazio: mostre um erro e, na próxima mudança, copie-o para `todos.damaged-<ISO time>.json` antes de começar uma lista nova. Teste um arquivo danificado, um arquivo de exclusão que não pode ser escrito e uma mudança feita por outro escritor entre duas das suas.
+
+### O que conferir na resposta do Claude
+
+1. O arquivo fica abaixo do nível superior do git (`git rev-parse --show-toplevel`), ou, se não houver, da pasta da sessão, então a mesma lista é encontrada a partir de qualquer subpasta.
+2. A pasta fica fora do git pelo arquivo que `git rev-parse --git-path info/exclude` indica. A linha é adicionada uma vez, e uma falha ali não impede o salvamento.
+3. Cada mudança passa por uma única cadeia de promises, e a cadeia continua depois de uma mudança que falhou.
+4. Cada mudança lê o arquivo de novo e aplica a sua edição ao que está lá agora, então uma tarefa que outro escritor adicionou é mantida.
+5. Um arquivo que não é JSON válido, ou que não tem um array `tasks`, mostra um erro e não é escrito. A próxima mudança primeiro o copia para o lado e depois começa uma lista nova.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "deixei uma vírgula sobrando no arquivo, adicionei uma tarefa, e as minhas tarefas antigas sumiram sem nenhuma cópia ao lado do arquivo".
+
+### Como a pessoa autora pediu
 
 O pedido original deste recurso não foi registrado. Nenhum registro de tarefas público no narsil-check cobre a lista de pendências. O que segue é uma reconstrução.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/todos.ts` no narsil-check:
 
@@ -117,13 +137,9 @@ A partir de `git log -- hooks/todos.ts` no narsil-check:
 
 O segundo commit é o mais instrutivo. A primeira versão funcionava no caminho feliz. A correção é uma lista do que pode dar errado em torno de um arquivo: ele pode estar quebrado, uma etapa secundária pode falhar, uma superfície pode não ter um elemento, e uma promessa no README pode ser forte demais.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, adicione uma seção de pendências mantida por projeto em `.atl/my-panel/todos.json` abaixo do nível superior do git (`git rev-parse --show-toplevel`, senão a pasta da sessão), como `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Desenhe cada tarefa com um botão `○` que a remove, um nome que alterna o seu conteúdo e um `Input` que adiciona `name: content`, dividido nos primeiros dois-pontos; omita o `Input` na superfície móvel. Mantenha a pasta fora do git adicionando `/.atl/my-panel/` ao arquivo que `git rev-parse --git-path info/exclude` nomeia, uma vez, e nunca deixe essa etapa impedir um salvamento. Passe cada mudança por uma única cadeia de promises, e releia o arquivo antes de cada escrita. Se o arquivo não for um JSON válido ou não tiver um array `tasks`, nunca o trate como vazio: mostre um erro e, na próxima mudança, copie-o para `todos.damaged-<ISO time>.json` antes de começar uma lista nova. Teste um arquivo danificado, um arquivo de exclusão que não pode ser escrito e uma mudança feita por outro escritor entre duas das suas.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia e conferida com os tipos do Claude Code 2.1.325 (`$.fs.exists`, `$.fs.read`, `$.fs.write`, `$.process.run`). Foi adaptada de `hooks/todos.ts` e de `changeTodos` em `hooks/register.tsx` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Ela recebe a raiz do projeto já pronta e deixa o desenho de fora.
 

@@ -3,7 +3,7 @@ title: Un adaptador por ecosistema
 description: 'Cómo Narsil Check lee once ecosistemas de paquetes con un contrato pequeño: cada adaptador lee su manifiesto, consulta su registro y dice cómo subir una versión.'
 route: check
 order: 6
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -177,11 +177,31 @@ Cargo, Python y el catálogo de versiones de Gradle escriben TOML. `hooks/toml.t
 
 ¿Por qué escribir uno? El mod no tiene un `package.json` propio: sus hooks solo importan `claude-code` y sus propios archivos. Cada analizador que necesita, TOML, YAML para `pnpm-lock.yaml` (leído línea a línea en `pnpmLocked`), versiones y rangos, vive en el repositorio. La cabecera del lector enumera archivos de Cargo y de Python; `hooks/maven.ts` también lo importa, para `libs.versions.toml`.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude que convierta tu lista de bibliotecas desactualizadas en un solo motor con un adaptador puro por ecosistema. La única idea que debe entender bien es que un adaptador nunca llama a `$`: nombra archivos, construye direcciones y comandos y analiza texto, mientras que el módulo de hooks hace toda la lectura, las descargas y las ejecuciones.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, enumero las dependencias de npm desactualizadas. Refactorízalo para que cada ecosistema de paquetes sea un objeto adaptador puro en su propio archivo bajo `hooks/`, sin llamadas a `$`: `id`, `label`, `manifests` (nombres de archivo), `lockfiles`, `parse(files: Record<string, string>)` que devuelva `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` e `installArgv(present, upgrades)`. Mantén toda la E/S en `hooks/register.tsx`: comprueba qué manifiestos existen con `$.fs.exists`, léelos con `$.fs.read`, consulta `latestUrl` con `$.http.fetch` y ejecuta `installArgv` con `$.process.run`. Haz de npm el primer adaptador sin ningún cambio de comportamiento, demostrado por los tests existentes. Después añade un adaptador de PyPI para `requirements.txt` contra `https://pypi.org/pypi/<name>/json` (`info.version`). Prueba cada adaptador como funciones puras con fixtures de texto y una respuesta sintética del registro.
+
+### Qué revisar en la respuesta de Claude
+
+1. Ningún adaptador llama a `$`. `$.fs.exists`, `$.fs.read`, `$.http.fetch` y `$.process.run` aparecen solo en `hooks/register.tsx`.
+2. Cada adaptador tiene `manifests`, `lockfiles`, `parse`, `latestUrl`, `latestOf` e `installArgv`. Un campo que solo necesita un ecosistema es opcional.
+3. npm pasa a ser el primer adaptador sin ningún cambio de comportamiento, y los tests que ya existían siguen pasando.
+4. Un nombre de npm con scope conserva su `@` y escapa su barra en la URL (`@types%2Fnode`).
+5. Cada adaptador se prueba como funciones puras con fixtures de texto y una respuesta de registro sintética, sin instalar la cadena de herramientas de ningún ecosistema.
+
+Si una comprobación falla, dile a Claude lo que ves: "los tests de PyPI fallan en una máquina sin Python, porque el adaptador ejecuta un comando por su cuenta".
+
+### Cómo lo pidió el autor
 
 Los adaptadores se construyeron en tres oleadas el 2026-11-04, cada una con un registro de tareas público en narsil-check. Los registros de tareas recogen las palabras de quien creó Narsil Check, y también el plan que siguieron las oleadas; a continuación se mantienen separados.
 
-### Registrado: oleada 2
+#### Registrado: oleada 2
 
 `odd/tasks/ecosystems-wave-2.md`, entrada de registro L1 (2026-11-04), cita a quien creó Narsil Check:
 
@@ -195,7 +215,7 @@ S1 recoge el plan que siguió la oleada, bajo "The user's request, as wave 2 was
 
 El registro no dice quién escribió esa línea del plan. El mismo S1 añade, con las palabras propias del registro de tareas, que "Each ecosystem's adapter follows the shared contract: `detect`, `parse`, `latest`, `importPattern` (the planned contract), plus an install command for the bump group." (El adaptador de cada ecosistema sigue el contrato compartido: `detect`, `parse`, `latest`, `importPattern` (el contrato planificado), más una orden de instalación para el grupo de subida.) El contrato que se publicó llamó a esos pasos `manifests`, `parse`, `latestUrl`/`latestOf` e `installArgv`. Su suposición declarada: "peer dependency and exact-pin checks stay npm-only" (las comprobaciones de dependencias peer y de pins exactos se quedan solo en npm).
 
-### Registrado: oleada 3
+#### Registrado: oleada 3
 
 `odd/tasks/ecosystems-wave-3.md`, L1 (2026-11-04), cita a quien creó Narsil Check: "dale a la oleada 3". Su S1 recoge el plan:
 
@@ -205,7 +225,7 @@ La primera persona ("Leería") parece una propuesta que quien creó Narsil Check
 
 Ese plan es la razón de que el README diga que una versión de Gradle guardada en una variable "es código y queda fuera".
 
-### Registrado: oleada 4
+#### Registrado: oleada 4
 
 `odd/tasks/ecosystems-wave-4.md`, L1 (2026-11-04), cita a quien creó Narsil Check: "dale a la oleada 4". Su S1 recoge el plan:
 
@@ -213,7 +233,7 @@ Ese plan es la razón de que el README diga que una versión de Gradle guardada 
 
 Aquí el plan cambió por el camino. La suposición del registro de tareas: "tags are read with `git ls-remote --tags --refs <url>` instead of the GitHub API, which has no request limit and works for any git host" (las etiquetas se leen con `git ls-remote --tags --refs <url>` en lugar de con la API de GitHub, lo que no tiene límite de peticiones y funciona con cualquier servidor git). Ahí es donde el contrato obtuvo `latestCommand`, en `8444155` "feat: let an adapter answer its latest version with a command" (permitir que un adaptador responda su versión más reciente con una orden).
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 La oleada 1, solo npm, no tiene registro de tareas, así que su petición no quedó registrada. A partir de `git log -- hooks/adapter.ts hooks/ecosystems.ts hooks/toml.ts hooks/semver.ts`:
 
@@ -227,13 +247,9 @@ La oleada 1, solo npm, no tiene registro de tareas, así que su petición no que
 
 El patrón: primero convertir el ecosistema existente en un adaptador sin cambiar su comportamiento, después añadir un ecosistema por commit, y hacer crecer el contrato con un campo opcional cada vez que un ecosistema no encaja.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, enumero las dependencias de npm desactualizadas. Refactorízalo para que cada ecosistema de paquetes sea un objeto adaptador puro en su propio archivo bajo `hooks/`, sin llamadas a `$`: `id`, `label`, `manifests` (nombres de archivo), `lockfiles`, `parse(files: Record<string, string>)` que devuelva `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` e `installArgv(present, upgrades)`. Mantén toda la E/S en `hooks/register.tsx`: comprueba qué manifiestos existen con `$.fs.exists`, léelos con `$.fs.read`, consulta `latestUrl` con `$.http.fetch` y ejecuta `installArgv` con `$.process.run`. Haz de npm el primer adaptador sin ningún cambio de comportamiento, demostrado por los tests existentes. Después añade un adaptador de PyPI para `requirements.txt` contra `https://pypi.org/pypi/<name>/json` (`info.version`). Prueba cada adaptador como funciones puras con fixtures de texto y una respuesta sintética del registro.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325. Está adaptada de `hooks/adapter.ts`, `hooks/npm.ts` y `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Lee las versiones solo del manifiesto, sin lockfile.
 

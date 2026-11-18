@@ -3,7 +3,7 @@ title: El panel lateral
 description: 'Cómo Narsil Check dibuja un panel junto al chat con secciones plegables, un punto de color por sección, pliegues que recuerda y filas que copias con un clic.'
 route: check
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -141,11 +141,31 @@ Lo que se copia es más que la etiqueta de la fila. Dos funciones puras construy
 
 Como en Narsil, el módulo de hooks decide qué pasó y `hooks/words.ts` decide cómo se dice: la paleta, las etiquetas y pistas de los grupos (`GROUPS`), las etiquetas de las cabeceras (`sectionLabel`, `vulnsLabel`, `groupLabel`) y los colores. Son funciones puras, y por eso `tests/pane.test.tsx` puede comprobarlas sin montar nada, como en "the section is colored by what most needs you, and its toggle names it" (la sección se colorea según lo que más te necesita, y su interruptor la nombra).
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un panel lateral con secciones que se pliegan y filas que se copian. La única idea que debe entender bien es que el panel se abre una vez y después lo dibuja un hook filtrado por su propio id, con cada pliegue guardado en un átomo que lee el dibujo.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> Construye un mod de Claude Code llamado `my-panel` con un panel lateral. En `session.start`, llama a `$.ui.open({ id: 'my-panel', title: 'My panel' })` y captura un rechazo. Dibújalo en `ui.render` para `{ component: 'Pane', requestId: 'my-panel' }` con `$.ui.resolve(e)`. Muestra dos secciones, cada una en una caja con un borde redondeado de su color, y una cabecera con un punto de color (rojo para fallido, amarillo para lo que me espera, verde para hecho, azul para información, gris antes de cargar) y un `Button` `plain` con la etiqueta `▾ Name` o `▸ Name` que la pliegue. Guarda las claves de las secciones plegadas en un atom declarado en `types/index.d.ts`. Haz que cada fila sea un `Button` `plain` que copie su texto con `$.ui.copy({ text, surface: press.surface })` y muestre un toast que diga si `isCopied` fue true. Comprueba cada API con los tipos de plugin-authoring y añade un test con `claude-code/testing` que compruebe que una pulsación en una cabecera oculta sus filas.
+
+### Qué revisar en la respuesta de Claude
+
+1. `session.start` llama a `$.ui.open` con el id y el título del panel, y captura un rechazo, así que un panel que tiene otro plugin no rompe el inicio de la sesión.
+2. El hook `ui.render` está filtrado por `{ component: 'Pane', requestId }` con el id propio del panel, y obtiene sus elementos de `$.ui.resolve(e)`.
+3. El punto de cada sección sale de una pequeña función que comprueba primero el caso más urgente. Se calcula a partir del contenido en cada dibujo, no se guarda junto a los datos.
+4. Una pulsación en una cabecera cambia un átomo con `update`, y el panel se vuelve a dibujar sin ninguna llamada extra, porque el dibujo lee ese átomo.
+5. Una pulsación en una fila llama a `$.ui.copy` con `press.surface`, y el toast informa de los dos casos: `isCopied` verdadero o falso.
+
+Si una comprobación falla, dile a Claude lo que ves: "pulso la cabecera de una sección y sus filas siguen en pantalla".
+
+### Cómo lo pidió el autor
 
 La petición original del panel no quedó registrada. Dos registros de tareas públicos de narsil-check citan las palabras de quien creó Narsil Check sobre partes de él.
 
-### Registrado: copiar, y una sección plegable
+#### Registrado: copiar, y una sección plegable
 
 `odd/tasks/vulnerabilities.md` registra, en su entrada de registro L1 (2026-11-05), los dos mensajes que dieron origen a la sección de vulnerabilidades. S1 cita el primero:
 
@@ -157,7 +177,7 @@ S2 cita el segundo mensaje:
 
 > "solo agregar que me gustaria la opcion de copiar las vulnerabilidades por criticidad al porta papeles, como esta en el upgrade"
 
-### Registrado: cuándo debe abrirse el panel
+#### Registrado: cuándo debe abrirse el panel
 
 `odd/tasks/ecosystems-wave-2.md` (su registro empieza el 2026-11-04) enumera en S3 el comportamiento que debía mantenerse, incluida una regla anterior citada con las palabras de quien creó Narsil Check:
 
@@ -165,7 +185,7 @@ S2 cita el segundo mensaje:
 
 Esa regla no duró. `/upgrades` pasó a ser `/narsil-check upgrade` en `684837f`, y desde `be8eac0` el panel se abre en cada sesión, porque asumió la función de la barra de sesión de la app (ver más abajo).
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/register.tsx hooks/words.ts` en narsil-check:
 
@@ -180,13 +200,9 @@ A partir de `git log -- hooks/register.tsx hooks/words.ts` en narsil-check:
 
 El patrón: primero una lista de actualizaciones, después el aspecto de Narsil, después una sección por comprobación, cada vez con la misma cabecera (punto, flecha, nombre, recuento), y la copia pasando de un botón por grupo a un clic en la propia fila.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> Construye un mod de Claude Code llamado `my-panel` con un panel lateral. En `session.start`, llama a `$.ui.open({ id: 'my-panel', title: 'My panel' })` y captura un rechazo. Dibújalo en `ui.render` para `{ component: 'Pane', requestId: 'my-panel' }` con `$.ui.resolve(e)`. Muestra dos secciones, cada una en una caja con un borde redondeado de su color, y una cabecera con un punto de color (rojo para fallido, amarillo para lo que me espera, verde para hecho, azul para información, gris antes de cargar) y un `Button` `plain` con la etiqueta `▾ Name` o `▸ Name` que la pliegue. Guarda las claves de las secciones plegadas en un atom declarado en `types/index.d.ts`. Haz que cada fila sea un `Button` `plain` que copie su texto con `$.ui.copy({ text, surface: press.surface })` y muestre un toast que diga si `isCopied` fue true. Comprueba cada API con los tipos de plugin-authoring y añade un test con `claude-code/testing` que compruebe que una pulsación en una cabecera oculta sus filas.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325. Está adaptada de `hooks/register.tsx` y `hooks/words.ts` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later); los colores son su `PALETTE`, y las filas son sintéticas.
 

@@ -3,7 +3,7 @@ title: L’environnement de la session
 description: 'Comment Narsil Check affiche le dépôt, le dossier, la branche, Remote Control et Auto-fix, lus depuis git et les serveurs de l’application de bureau, et pourquoi il les interroge si peu.'
 route: check
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -111,11 +111,31 @@ Ce que vous voyez découle du calendrier ci-dessus. La lecture à dix secondes �
 
 Le tableau des surfaces du README dit qu’Entorno ne fonctionne pas en dehors de l’application de bureau et que « la sección dice por qué no pudo leerlos » (« la section dit pourquoi elle n’a pas pu les lire »). Le code est un peu plus clément que cela : les lignes de git s’affichent quand même. Les clics sur le dossier et la branche ont besoin des serveurs de l’application, si bien qu’en dehors du bureau ils répondent par un toast qui dit qu’ils n’ont pas pu.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une section d’environnement lue depuis git et depuis les serveurs de l’application de bureau. L’idée que Claude doit bien saisir : à quelle fréquence, rare, interroger ces serveurs ; chaque appel est vu par les autres mods, et un appel trop tôt peut déclencher une demande d’autorisation.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute une section « Environment » au panneau. Lis le dossier avec `$.session.cwd()`, la branche avec `$.process.run(['git', 'branch', '--show-current'])` et le dépôt distant avec `git remote get-url origin`, transformé en lien https pour les dépôts distants SSH et HTTPS. Lis le Remote Control depuis l’application de bureau avec `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, en préférant `structuredContent` et en te rabattant sur le JSON du contenu textuel. Chaque appel aux serveurs de l’application est vu par les autres mods, et un appel trop précoce peut déclencher une demande d’autorisation, donc lis une fois, dix secondes après `session.start` avec `$.clock.sleep`, sans l’attendre dans le hook ; si cela échoue, affiche « Reading… » et réessaie une fois au premier `turn.start` principal. Après chaque tour principal, ne relis que git. Garde l’erreur de chaque partie séparément et affiche-la en rouge. Teste avec `mock.clock` qu’aucun serveur n’est appelé avant dix secondes et qu’il ne l’est qu’une fois ensuite.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Aucun appel aux serveurs de l’application n’a lieu dans les dix premières secondes après `session.start`, et la lecture différée s’exécute avec `void`, si bien que le hook rend la main tout de suite.
+2. Si cette première lecture échoue, elle n’écrit rien, la section dit qu’elle est en train de lire, et elle réessaie une seule fois au premier `turn.start` principal, sans boucle de nouvelles tentatives.
+3. Après chaque tour principal, seul git est relu (dossier, branche et dépôt distant), pas les serveurs de l’application.
+4. Chaque réponse est lue d’abord dans `structuredContent` et, en repli, dans le JSON des blocs de texte, et chaque partie garde sa propre erreur, affichée en rouge.
+5. Le dépôt distant devient un lien https pour les dépôts distants SSH comme HTTPS, et tout le reste ne donne aucun lien.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « hors de l’application de bureau, la section affiche “Reading…” indéfiniment et la branche ne s’affiche jamais ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour cette section n’a pas été consignée. Aucun des journaux de tâches publics de narsil-check (`odd/tasks/*.md`) ne la couvre ; ils portent sur les écosystèmes, l’ancienneté des versions et les vulnérabilités.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/session.ts`, avec les commits liés de `hooks/register.tsx` :
 
@@ -131,13 +151,9 @@ La demande d’origine pour cette section n’a pas été consignée. Aucun des 
 
 Le schéma mérite d’être remarqué : trois correctifs d’affilée (`d8c664e`, `55fe118`, `4770a49`) ont chacun interrogé moins les serveurs. La première version insistait davantage quand les serveurs n’étaient pas prêts ; la dernière attend, interroge une fois, et ne réinterroge que pour une raison.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute une section « Environment » au panneau. Lis le dossier avec `$.session.cwd()`, la branche avec `$.process.run(['git', 'branch', '--show-current'])` et le dépôt distant avec `git remote get-url origin`, transformé en lien https pour les dépôts distants SSH et HTTPS. Lis le Remote Control depuis l’application de bureau avec `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, en préférant `structuredContent` et en te rabattant sur le JSON du contenu textuel. Chaque appel aux serveurs de l’application est vu par les autres mods, et un appel trop précoce peut déclencher une demande d’autorisation, donc lis une fois, dix secondes après `session.start` avec `$.clock.sleep`, sans l’attendre dans le hook ; si cela échoue, affiche « Reading… » et réessaie une fois au premier `turn.start` principal. Après chaque tour principal, ne relis que git. Garde l’erreur de chaque partie séparément et affiche-la en rouge. Teste avec `mock.clock` qu’aucun serveur n’est appelé avant dix secondes et qu’il ne l’est qu’une fois ensuite.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/register.tsx` et de `hooks/session.ts` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

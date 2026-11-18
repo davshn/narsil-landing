@@ -3,7 +3,7 @@ title: Dependências que se bloqueiam
 description: 'Como o Narsil Check encontra atualizações npm que não podem subir sozinhas: peers que a nova versão pede, peers que os pacotes instalados pedem e pins exatos na árvore.'
 route: check
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -148,11 +148,31 @@ Ele é citado do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0
 
 As verificações comparam com o que está instalado agora. O README é honesto sobre o limite: "si subes varias juntas, puede que el bloqueo se resuelva entre ellas" ("se você sobe várias juntas, pode ser que o bloqueio se resolva entre elas"). Só a verificação de pins conhece o batch; um conflito de peers entre duas atualizações que subiriam juntas ainda é mostrado. Esse é o lado seguro: o painel pode parar você quando você poderia ter seguido, mas não deixa passar uma atualização que quebra.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude verificações que avisem quando uma atualização npm não pode subir sozinha, antes que a atualização seja oferecida. A única ideia que ele precisa acertar é que as duas direções contam: o que a nova versão pede e o que os seus pacotes instalados pedem.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, antes de marcar uma atualização npm como segura, confira se ela pode subir sozinha. Escreva funções puras em `hooks/npm.ts`. `peerConflicts(name, target, installed)`: para cada entrada de `peerDependencies` da nova versão, se o projeto tem esse peer instalado numa versão fora do intervalo, diga "<name> <version> precisa de <peer> <range> (você tem <version>)"; para cada pacote instalado cujas `peerDependencies` nomeiam este pacote com um intervalo do qual a nova versão sai, diga "<other> exige <name> <range>". Um peer que o projeto não tem não é um conflito. `pinConflicts(name, target, lock)`: para cada pacote em `packages` do `package-lock.json` que depende deste numa versão exata (`1.2.3` ou `=1.2.3`) que a nova não é, diga "<owner> <version> fixa <name> <range>: ficariam duas cópias". Leia os intervalos de versão com um `satisfies` que trate `||`, `^`, `~` e intervalos com hífen e considere atendido o que não consegue ler. No módulo de hooks, busque o manifesto da nova versão em `https://registry.npmjs.org/<name>/<version>` com `$.http.fetch` e guarde-o em `$.store` para sempre. Coloque toda atualização com um motivo num grupo "bloqueada" e imprima os motivos abaixo dela. Teste com manifestos e lockfiles sintéticos.
+
+### O que conferir na resposta do Claude
+
+1. `peerConflicts` compara as duas direções: as `peerDependencies` da nova versão com o que você tem instalado, e as `peerDependencies` de cada pacote instalado sobre este pacote com a nova versão.
+2. Um peer que o projeto não tem não é um conflito, então nada é informado sobre ele.
+3. `pinConflicts` informa só pins exatos (`1.2.3` ou `=1.2.3`) que a nova versão não satisfaz. Um intervalo como `^8.53.0` fica de fora.
+4. `satisfies` lê intervalos com `||`, `^`, `~` e hífen, e trata um intervalo que não consegue ler como atendido, então `^8.57.0 || ^9.0.0 || ^10.0.0` não bloqueia todos os plugins.
+5. Qualquer atualização com um motivo vai para o grupo bloqueado com os seus motivos impressos abaixo dela, e o manifest da nova versão é buscado em `https://registry.npmjs.org/<name>/<version>` uma vez e guardado em `$.store` para sempre.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o eslint 10 aparece como uma atualização segura, mas a minha configuração do ESLint só aceita o eslint 9".
+
+### Como a pessoa autora pediu
 
 O pedido original dessas verificações não foi registrado. Elas já estão no primeiro commit, e nenhum registro de tarefas público as cobre.
 
-### Registrado num registro de tarefas, não com as palavras da pessoa autora
+#### Registrado num registro de tarefas, não com as palavras da pessoa autora
 
 `odd/tasks/ecosystems-wave-2.md` anota uma decisão sobre elas quando os outros ecossistemas chegaram. É uma suposição escrita pelo agente no registro de tarefas, não as palavras da pessoa autora:
 
@@ -162,7 +182,7 @@ Tradução para o português: "Suposição: as verificações de dependências p
 
 É por isso que a seção do README ainda começa com "Solo en npm".
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/npm.ts` e de `git log -S` sobre `peerConflicts`, `pinConflicts` e `lockedPackage` no narsil-check:
 
@@ -173,13 +193,9 @@ A partir de `git log -- hooks/npm.ts` e de `git log -S` sobre `peerConflicts`, `
 
 O padrão: as verificações foram projetadas inteiras desde o início, e a única correção foi sobre de onde vêm os dados, não sobre a regra.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, antes de marcar uma atualização npm como segura, confira se ela pode subir sozinha. Escreva funções puras em `hooks/npm.ts`. `peerConflicts(name, target, installed)`: para cada entrada de `peerDependencies` da nova versão, se o projeto tem esse peer instalado numa versão fora do intervalo, diga "<name> <version> precisa de <peer> <range> (você tem <version>)"; para cada pacote instalado cujas `peerDependencies` nomeiam este pacote com um intervalo do qual a nova versão sai, diga "<other> exige <name> <range>". Um peer que o projeto não tem não é um conflito. `pinConflicts(name, target, lock)`: para cada pacote em `packages` do `package-lock.json` que depende deste numa versão exata (`1.2.3` ou `=1.2.3`) que a nova não é, diga "<owner> <version> fixa <name> <range>: ficariam duas cópias". Leia os intervalos de versão com um `satisfies` que trate `||`, `^`, `~` e intervalos com hífen e considere atendido o que não consegue ler. No módulo de hooks, busque o manifesto da nova versão em `https://registry.npmjs.org/<name>/<version>` com `$.http.fetch` e guarde-o em `$.store` para sempre. Coloque toda atualização com um motivo num grupo "bloqueada" e imprima os motivos abaixo dela. Teste com manifestos e lockfiles sintéticos.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia e conferida com os tipos do Claude Code 2.1.325. Foi adaptada de `hooks/npm.ts` e `hooks/register.tsx` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Ela trata só intervalos com circunflexo, til, exatos e `>=`, e deixa de fora as famílias que se movem juntas.
 

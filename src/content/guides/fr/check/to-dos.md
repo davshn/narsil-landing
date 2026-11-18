@@ -3,7 +3,7 @@ title: Les tâches en attente
 description: 'Comment Narsil Check tient une liste de tâches par projet dans un fichier JSON non suivi, la garde hors de git, et n’écrase jamais une liste endommagée sans en faire une copie.'
 route: check
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -104,11 +104,31 @@ La copie est dans le même dossier exclu, elle n’atteint donc pas git non plus
 
 `loadTodos` s’exécute au début de la session, et de nouveau chaque fois que vous dépliez la section, si bien qu’un changement fait par une autre session ou à la main apparaît quand vous regardez. Chaque changement met directement à jour l’atome du panneau avec la liste qu’il vient d’écrire, mais seulement quand le changement portait sur la liste de ce projet : une tâche écrite dans la liste d’un autre projet ne remplace pas ce qu’affiche ce panneau.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une courte liste par projet, gardée dans un fichier à l’intérieur du projet et hors de git. L’idée que Claude doit bien saisir : le fichier fait foi ; chaque changement le relit juste avant d’écrire, et un fichier endommagé n’est jamais lu comme vide.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute une section de tâches en attente tenue par projet dans `.atl/my-panel/todos.json` sous le niveau supérieur de git (`git rev-parse --show-toplevel`, sinon le dossier de la session), sous la forme `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Dessine chaque tâche avec un bouton `○` qui la supprime, un nom qui affiche ou masque son contenu, et un `Input` qui ajoute `name: content`, coupé au premier deux-points ; n’affiche pas l’`Input` sur la surface mobile. Garde le dossier hors de git en ajoutant `/.atl/my-panel/` au fichier que nomme `git rev-parse --git-path info/exclude`, une seule fois, et ne laisse jamais cette étape arrêter un enregistrement. Fais passer chaque changement par une seule chaîne de promesses, et relis le fichier avant chaque écriture. Si le fichier n’est pas du JSON valide ou n’a pas de tableau `tasks`, ne le traite jamais comme vide : affiche une erreur, et au changement suivant copie-le dans `todos.damaged-<ISO time>.json` avant de commencer une nouvelle liste. Teste un fichier endommagé, un fichier d’exclusion qui ne peut pas être écrit, et un changement fait par un autre auteur entre deux des tiens.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le fichier vit sous le niveau supérieur de git (`git rev-parse --show-toplevel`), sinon dans le dossier de la session, si bien que la même liste est trouvée depuis n’importe quel sous-dossier.
+2. Le dossier est tenu hors de git par le fichier que nomme `git rev-parse --git-path info/exclude`. La ligne est ajoutée une seule fois, et un échec à cet endroit n’empêche pas l’enregistrement.
+3. Chaque changement passe par une seule chaîne de promesses, et la chaîne continue après un changement qui a échoué.
+4. Chaque changement relit le fichier et applique sa modification à ce qui s’y trouve maintenant, si bien qu’une tâche ajoutée par un autre auteur est conservée.
+5. Un fichier qui n’est pas du JSON valide, ou qui n’a pas de tableau `tasks`, affiche une erreur et n’est pas écrit. Le changement suivant le copie d’abord de côté, puis commence une nouvelle liste.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « j’ai laissé une virgule finale dans le fichier, j’ai ajouté une tâche, et mes anciennes tâches ont disparu sans aucune copie à côté du fichier ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour cette fonctionnalité n’a pas été consignée. Aucun journal de tâches public de narsil-check ne couvre la liste des tâches en attente. Ce qui suit est une reconstitution.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/todos.ts` dans narsil-check :
 
@@ -117,13 +137,9 @@ La demande d’origine pour cette fonctionnalité n’a pas été consignée. Au
 
 Le second commit est le plus instructif. La première version fonctionnait dans le cas idéal. La correction est une liste de ce qui peut mal tourner autour d’un fichier : il peut être cassé, une étape secondaire peut échouer, une surface peut ne pas avoir un élément, et une promesse du README peut être trop forte.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute une section de tâches en attente tenue par projet dans `.atl/my-panel/todos.json` sous le niveau supérieur de git (`git rev-parse --show-toplevel`, sinon le dossier de la session), sous la forme `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Dessine chaque tâche avec un bouton `○` qui la supprime, un nom qui affiche ou masque son contenu, et un `Input` qui ajoute `name: content`, coupé au premier deux-points ; n’affiche pas l’`Input` sur la surface mobile. Garde le dossier hors de git en ajoutant `/.atl/my-panel/` au fichier que nomme `git rev-parse --git-path info/exclude`, une seule fois, et ne laisse jamais cette étape arrêter un enregistrement. Fais passer chaque changement par une seule chaîne de promesses, et relis le fichier avant chaque écriture. Si le fichier n’est pas du JSON valide ou n’a pas de tableau `tasks`, ne le traite jamais comme vide : affiche une erreur, et au changement suivant copie-le dans `todos.damaged-<ISO time>.json` avant de commencer une nouvelle liste. Teste un fichier endommagé, un fichier d’exclusion qui ne peut pas être écrit, et un changement fait par un autre auteur entre deux des tiens.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.fs.exists`, `$.fs.read`, `$.fs.write`, `$.process.run`). Elle est adaptée de `hooks/todos.ts` et de `changeTodos` dans `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle reçoit la racine du projet déjà connue et laisse de côté le dessin.
 

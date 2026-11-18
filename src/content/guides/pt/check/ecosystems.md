@@ -3,7 +3,7 @@ title: Um adaptador por ecossistema
 description: 'Como o Narsil Check lê onze ecossistemas de pacotes por um contrato pequeno: cada adaptador lê o seu manifesto, consulta o seu registro e diz como subir uma versão.'
 route: check
 order: 6
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -177,11 +177,31 @@ O Cargo, o Python e o catálogo de versões do Gradle escrevem TOML. `hooks/toml
 
 Por que escrever um? O mod não tem um `package.json` próprio: os seus hooks só importam `claude-code` e os seus próprios arquivos. Todo parser de que ele precisa, TOML, YAML para o `pnpm-lock.yaml` (lido linha a linha em `pnpmLocked`), versões e intervalos, fica no repositório. O cabeçalho do leitor lista arquivos do Cargo e do Python; `hooks/maven.ts` também o importa, para o `libs.versions.toml`.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude que transforme a sua lista de bibliotecas desatualizadas num único motor com um adaptador puro por ecossistema. A única ideia que ele precisa acertar é que um adaptador nunca chama `$`: ele nomeia arquivos, monta endereços e comandos e analisa texto, enquanto o módulo de hooks faz toda a leitura, as buscas e as execuções.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, eu listo as dependências npm desatualizadas. Refatore-o para que cada ecossistema de pacotes seja um objeto adaptador puro no seu próprio arquivo em `hooks/`, sem chamadas a `$`: `id`, `label`, `manifests` (nomes de arquivos), `lockfiles`, `parse(files: Record<string, string>)` devolvendo `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` e `installArgv(present, upgrades)`. Mantenha toda a I/O em `hooks/register.tsx`: confira quais manifestos existem com `$.fs.exists`, leia-os com `$.fs.read`, busque `latestUrl` com `$.http.fetch` e execute `installArgv` com `$.process.run`. Faça do npm o primeiro adaptador sem mudança de comportamento, comprovado pelos testes existentes. Depois adicione um adaptador do PyPI para `requirements.txt` contra `https://pypi.org/pypi/<name>/json` (`info.version`). Teste cada adaptador como funções puras com fixtures de texto e uma resposta de registro sintética.
+
+### O que conferir na resposta do Claude
+
+1. Nenhum adaptador chama `$`. `$.fs.exists`, `$.fs.read`, `$.http.fetch` e `$.process.run` aparecem só em `hooks/register.tsx`.
+2. Cada adaptador tem `manifests`, `lockfiles`, `parse`, `latestUrl`, `latestOf` e `installArgv`. Um campo de que só um ecossistema precisa é opcional.
+3. O npm vira o primeiro adaptador sem mudança de comportamento, e os testes existentes continuam passando.
+4. Um nome npm com escopo mantém o seu `@` e escapa a barra na URL (`@types%2Fnode`).
+5. Cada adaptador é testado como funções puras com fixtures de texto e uma resposta sintética do registro, sem nenhuma ferramenta do ecossistema instalada.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "os testes do PyPI falham numa máquina sem Python, porque o adaptador roda um comando ele mesmo".
+
+### Como a pessoa autora pediu
 
 Os adaptadores foram construídos em três ondas em 2026-11-04, cada uma com um registro de tarefas público no narsil-check. Os registros de tarefas anotam as palavras da pessoa autora e também o plano que as ondas seguiram; os dois são mantidos separados abaixo.
 
-### Registrado: onda 2
+#### Registrado: onda 2
 
 `odd/tasks/ecosystems-wave-2.md`, entrada de log L1 (2026-11-04), cita a pessoa autora:
 
@@ -195,7 +215,7 @@ S1 anota o plano que a onda seguiu, sob "The user's request, as wave 2 was plann
 
 Tradução para o português: "2. PyPI, Go, Cargo e Pub. Eles têm registros com APIs JSON simples." O log não diz quem escreveu essa linha do plano. O mesmo S1 acrescenta, com as palavras do próprio registro de tarefas, que "Each ecosystem's adapter follows the shared contract: `detect`, `parse`, `latest`, `importPattern` (the planned contract), plus an install command for the bump group." (o adaptador de cada ecossistema segue o contrato compartilhado: `detect`, `parse`, `latest`, `importPattern`, o contrato planejado, mais um comando de instalação para o grupo de subida de versão). O contrato que foi entregue chamou esses passos de `manifests`, `parse`, `latestUrl`/`latestOf` e `installArgv`. A sua suposição declarada: "peer dependency and exact-pin checks stay npm-only" (as verificações de dependências peer e de pins exatos ficam só no npm).
 
-### Registrado: onda 3
+#### Registrado: onda 3
 
 `odd/tasks/ecosystems-wave-3.md`, L1 (2026-11-04), cita a pessoa autora: "dale a la oleada 3" ("manda ver na onda 3"). O seu S1 anota o plano:
 
@@ -205,7 +225,7 @@ Tradução para o português: "3. Maven (Kotlin/Java), NuGet e RubyGems. O Gradl
 
 Esse plano é o motivo pelo qual o README diz que uma versão do Gradle guardada numa variável "es código y queda fuera" ("é código e fica de fora").
 
-### Registrado: onda 4
+#### Registrado: onda 4
 
 `odd/tasks/ecosystems-wave-4.md`, L1 (2026-11-04), cita a pessoa autora: "dale a la oleada 4" ("manda ver na onda 4"). O seu S1 anota o plano:
 
@@ -215,7 +235,7 @@ Tradução para o português: "4. SwiftPM. Deixo para o final porque depende da 
 
 Aqui o plano mudou pelo caminho. A suposição do registro de tarefas: "tags are read with `git ls-remote --tags --refs <url>` instead of the GitHub API, which has no request limit and works for any git host" (as tags são lidas com `git ls-remote --tags --refs <url>` em vez da API do GitHub, o que não tem limite de requisições e funciona com qualquer host git). Foi aí que o contrato ganhou `latestCommand`, em `8444155` "feat: let an adapter answer its latest version with a command" (permitir que um adaptador responda a sua versão mais nova com um comando).
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A onda 1, só o npm, não tem registro de tarefas, então o seu pedido não foi registrado. A partir de `git log -- hooks/adapter.ts hooks/ecosystems.ts hooks/toml.ts hooks/semver.ts`:
 
@@ -229,13 +249,9 @@ A onda 1, só o npm, não tem registro de tarefas, então o seu pedido não foi 
 
 O padrão: primeiro transformar o ecossistema existente num adaptador sem mudar o seu comportamento, depois adicionar um ecossistema por commit, e fazer o contrato crescer um campo opcional a cada vez que um ecossistema não cabe.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, eu listo as dependências npm desatualizadas. Refatore-o para que cada ecossistema de pacotes seja um objeto adaptador puro no seu próprio arquivo em `hooks/`, sem chamadas a `$`: `id`, `label`, `manifests` (nomes de arquivos), `lockfiles`, `parse(files: Record<string, string>)` devolvendo `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` e `installArgv(present, upgrades)`. Mantenha toda a I/O em `hooks/register.tsx`: confira quais manifestos existem com `$.fs.exists`, leia-os com `$.fs.read`, busque `latestUrl` com `$.http.fetch` e execute `installArgv` com `$.process.run`. Faça do npm o primeiro adaptador sem mudança de comportamento, comprovado pelos testes existentes. Depois adicione um adaptador do PyPI para `requirements.txt` contra `https://pypi.org/pypi/<name>/json` (`info.version`). Teste cada adaptador como funções puras com fixtures de texto e uma resposta de registro sintética.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia e conferida com os tipos do Claude Code 2.1.325. Foi adaptada de `hooks/adapter.ts`, `hooks/npm.ts` e `hooks/register.tsx` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Ela lê as versões só do manifesto, sem lockfile.
 

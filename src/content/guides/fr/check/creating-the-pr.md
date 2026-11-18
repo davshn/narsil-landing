@@ -3,7 +3,7 @@ title: Créer la PR
 description: 'Comment Narsil Check transforme les manifests mis à jour en un commit, une branche chore/upgrade-deps et une pull request ouverte avec gh, puis vous ramène sur la branche principale.'
 route: check
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -101,11 +101,31 @@ Les types 2.1.325 disent de `$.process.run` : « Git runs with repo hooks off »
 
 Le commentaire au-dessus de `publish` dit encore « A commit of package.json and its lockfile alone » (un commit de package.json et de son lockfile seuls), de l’époque où le mod ne connaissait que npm. Le code commite les manifests et les lockfiles de chaque écosystème qui a des changements, comme le dit le README.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un bouton qui transforme les changements de dépendances sur le disque en un commit et, sur la branche principale, en une pull request. L’idée que Claude doit bien saisir : le commit ne contient que les fichiers de dépendances ; ils sont nommés après `--`, si bien que votre autre travail en cours reste dehors.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute un bouton qui transforme les changements de dépendances de `package.json` en pull request. Compare d’abord les plages de dépendances de `git show HEAD:package.json` avec le fichier sur le disque, et liste celles qui ont changé ; n’affiche le bouton que s’il y en a. À l’appui, avec `$.process.run` et sans shell : arrête-toi avec un message clair sur un HEAD détaché ; si la branche actuelle n’est pas celle par défaut (d’après `git symbolic-ref --short refs/remotes/origin/HEAD`, sinon `main` ou `master`), fais le commit et le push vers elle et arrête-toi là. Sur la branche par défaut, crée `chore/upgrade-deps-YYYY-MM-DD` (ajoute `-HHMM` si cette branche existe), exécute `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>` et `gh pr create --base <default> --head <branch> --title … --body …` avec un tableau des changements et un plan de test. Ensuite, reviens avec `git switch` et dis-le ; si le changement de branche échoue, reste et affiche l’erreur de git. Nomme l’étape qui échoue dans chaque erreur. Ignore un second appui pendant l’exécution. Teste-le en répondant à `process.run` dans les tests et en vérifiant l’argv exact de chaque commande, dans l’ordre.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Les changements en attente viennent de la comparaison entre les plages de dépendances de `git show HEAD:package.json` et le fichier sur le disque, si bien qu’un changement dans `scripts` ne propose pas de PR.
+2. La branche principale vient de `git symbolic-ref --short refs/remotes/origin/HEAD`, avec `main` ou `master` seulement quand origin n’en nomme aucune. Sur toute autre branche, le bouton commite et pousse sur cette branche, puis s’arrête.
+3. Le commit nomme ses fichiers, comme dans `git commit -m … -m … -- package.json package-lock.json`, jamais avec `git commit -a` ni un `git commit` nu.
+4. Après `gh pr create`, le bouton exécute `git switch` pour revenir sur la branche principale. Quand ce changement de branche échoue, il reste sur la nouvelle branche et affiche l’erreur de git.
+5. Chaque erreur nomme l’étape qui a échoué, et un second appui pendant que le travail tourne ne fait rien.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la PR contient un fichier que j’étais encore en train de modifier, pas seulement package.json et son lockfile ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour cette fonctionnalité n’a pas été consignée. Le bouton est déjà dans le premier commit, et aucun journal de tâches public ne couvre sa création. Un journal de tâches ultérieur le mentionne, avec les mots de l’agent.
 
-### Consigné dans un journal de tâches
+#### Consigné dans un journal de tâches
 
 `odd/tasks/ecosystems-wave-4.md`, qui ajoute les paquets Swift, liste comme spec S2 ce qui devait continuer à fonctionner. C’est la spec de l’agent, pas les mots de l’auteur ou de l’autrice :
 
@@ -113,7 +133,7 @@ La demande d’origine pour cette fonctionnalité n’a pas été consignée. Le
 
 Traduction en français : « Tout ce qu’ont construit les vagues précédentes continue de fonctionner pour SwiftPM : le regroupement, le bouton de montée de version, les raisons de Haiku, les boutons de copie, le bouton commit/push/PR et la règle d’ouverture automatique. »
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/git.ts` et de `git log -S` sur `hooks/register.tsx` dans narsil-check :
 
@@ -123,13 +143,9 @@ Traduction en français : « Tout ce qu’ont construit les vagues précédentes
 
 La conception n’a pas beaucoup changé. Ce qui a changé, c’est l’endroit où vous vous retrouvez ensuite.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute un bouton qui transforme les changements de dépendances de `package.json` en pull request. Compare d’abord les plages de dépendances de `git show HEAD:package.json` avec le fichier sur le disque, et liste celles qui ont changé ; n’affiche le bouton que s’il y en a. À l’appui, avec `$.process.run` et sans shell : arrête-toi avec un message clair sur un HEAD détaché ; si la branche actuelle n’est pas celle par défaut (d’après `git symbolic-ref --short refs/remotes/origin/HEAD`, sinon `main` ou `master`), fais le commit et le push vers elle et arrête-toi là. Sur la branche par défaut, crée `chore/upgrade-deps-YYYY-MM-DD` (ajoute `-HHMM` si cette branche existe), exécute `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>` et `gh pr create --base <default> --head <branch> --title … --body …` avec un tableau des changements et un plan de test. Ensuite, reviens avec `git switch` et dis-le ; si le changement de branche échoue, reste et affiche l’erreur de git. Nomme l’étape qui échoue dans chaque erreur. Ignore un second appui pendant l’exécution. Teste-le en répondant à `process.run` dans les tests et en vérifiant l’argv exact de chaque commande, dans l’ordre.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.process.run`, `$.ui.toast`). Elle est adaptée de `hooks/git.ts` et de `publish` dans `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle ne traite que la branche par défaut, et reçoit les fichiers et les changements déjà trouvés.
 

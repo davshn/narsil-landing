@@ -3,7 +3,7 @@ title: Le panneau latéral
 description: 'Comment Narsil Check dessine un panneau à côté du chat avec des sections repliables, un point coloré par section, des replis mémorisés et des lignes copiées d’un clic.'
 route: check
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -141,11 +141,31 @@ Ce qui est copié est plus que le libellé de la ligne. Deux fonctions pures con
 
 Comme dans Narsil, le module de hooks décide de ce qui s’est passé et `hooks/words.ts` décide de la façon de le dire : la palette, les libellés et indications des groupes (`GROUPS`), les libellés des en-têtes (`sectionLabel`, `vulnsLabel`, `groupLabel`) et les couleurs. Ce sont des fonctions pures, c’est pourquoi `tests/pane.test.tsx` peut les vérifier sans rien monter, comme dans « the section is colored by what most needs you, and its toggle names it » (la section est colorée selon ce qui a le plus besoin de vous, et son bouton de repli la nomme).
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un panneau latéral avec des sections qui se replient et des lignes qui se copient. L’idée que Claude doit bien saisir : le panneau est ouvert une fois, puis dessiné par un hook filtré sur son propre identifiant, et chaque repli est gardé dans un atome que le dessin lit.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Construis un mod Claude Code appelé `my-panel` avec un panneau latéral. Dans `session.start`, appelle `$.ui.open({ id: 'my-panel', title: 'My panel' })` et intercepte un rejet. Dessine-le dans `ui.render` pour `{ component: 'Pane', requestId: 'my-panel' }` avec `$.ui.resolve(e)`. Affiche deux sections, chacune dans une boîte avec une bordure arrondie de sa couleur, et un en-tête avec un point coloré (rouge pour échoué, jaune pour en attente de moi, vert pour fait, bleu pour information, gris avant le chargement) et un `Button` `plain` intitulé `▾ Name` ou `▸ Name` qui la replie. Garde les clés des sections repliées dans un atome déclaré dans `types/index.d.ts`. Fais de chaque ligne un `Button` `plain` qui copie son texte avec `$.ui.copy({ text, surface: press.surface })` et affiche un toast qui dit si `isCopied` valait true. Vérifie chaque API par rapport aux types de plugin-authoring et ajoute un test avec `claude-code/testing` montrant qu’un appui sur un en-tête masque ses lignes.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. `session.start` appelle `$.ui.open` avec l’identifiant et le titre du panneau, et intercepte un rejet, si bien qu’un panneau détenu par un autre plugin ne casse pas le démarrage de la session.
+2. Le hook `ui.render` est filtré sur `{ component: 'Pane', requestId }` avec le propre identifiant du panneau, et obtient ses éléments depuis `$.ui.resolve(e)`.
+3. Le point de chaque section vient d’une petite fonction qui vérifie d’abord le cas le plus urgent. Il est calculé à partir du contenu à chaque dessin, pas stocké à côté des données.
+4. Un appui sur un en-tête change un atome avec `update`, et le panneau se redessine sans appel supplémentaire, parce que le dessin lit cet atome.
+5. Un appui sur une ligne appelle `$.ui.copy` avec `press.surface`, et le toast rend compte des deux cas : `isCopied` à true ou à false.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « j’appuie sur l’en-tête d’une section et ses lignes restent à l’écran ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour le panneau n’a pas été consignée. Deux journaux de tâches publics de narsil-check citent les mots de l’auteur ou de l’autrice sur certaines de ses parties.
 
-### Consigné : la copie, et une section repliable
+#### Consigné : la copie, et une section repliable
 
 `odd/tasks/vulnerabilities.md` consigne, dans son entrée de journal L1 (2026-11-05), les deux messages qui ont lancé la section des vulnérabilités. S1 cite le premier :
 
@@ -161,7 +181,7 @@ S2 cite le second message :
 
 Traduction en français : seulement ajouter que j’aimerais l’option de copier les vulnérabilités par criticité dans le presse-papiers, comme c’est le cas dans la section des mises à jour.
 
-### Consigné : quand le panneau doit s’ouvrir
+#### Consigné : quand le panneau doit s’ouvrir
 
 `odd/tasks/ecosystems-wave-2.md` (son journal commence le 2026-11-04) énumère dans S3 le comportement qui devait être conservé, y compris une règle antérieure citée avec les mots de l’auteur ou de l’autrice :
 
@@ -171,7 +191,7 @@ Traduction en français : le panneau ne devrait s’ouvrir automatiquement que l
 
 Cette règle n’a pas duré. `/upgrades` est devenu `/narsil-check upgrade` dans `684837f`, et depuis `be8eac0` le panneau s’ouvre à chaque session, parce qu’il a repris le rôle de la barre de session de l’application (voir plus bas).
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/register.tsx hooks/words.ts` dans narsil-check :
 
@@ -186,13 +206,9 @@ Cette règle n’a pas duré. `/upgrades` est devenu `/narsil-check upgrade` dan
 
 Le schéma : d’abord une liste de mises à jour, puis l’apparence de Narsil, puis une section par vérification, chaque fois avec le même en-tête (point, flèche, nom, compte), et la copie qui passe d’un bouton par groupe à un clic sur la ligne elle-même.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Construis un mod Claude Code appelé `my-panel` avec un panneau latéral. Dans `session.start`, appelle `$.ui.open({ id: 'my-panel', title: 'My panel' })` et intercepte un rejet. Dessine-le dans `ui.render` pour `{ component: 'Pane', requestId: 'my-panel' }` avec `$.ui.resolve(e)`. Affiche deux sections, chacune dans une boîte avec une bordure arrondie de sa couleur, et un en-tête avec un point coloré (rouge pour échoué, jaune pour en attente de moi, vert pour fait, bleu pour information, gris avant le chargement) et un `Button` `plain` intitulé `▾ Name` ou `▸ Name` qui la replie. Garde les clés des sections repliées dans un atome déclaré dans `types/index.d.ts`. Fais de chaque ligne un `Button` `plain` qui copie son texte avec `$.ui.copy({ text, surface: press.surface })` et affiche un toast qui dit si `isCopied` valait true. Vérifie chaque API par rapport aux types de plugin-authoring et ajoute un test avec `claude-code/testing` montrant qu’un appui sur un en-tête masque ses lignes.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/register.tsx` et de `hooks/words.ts` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later) ; les couleurs sont sa `PALETTE`, et les lignes sont synthétiques.
 

@@ -3,7 +3,7 @@ title: 'El CI de tu PR'
 description: 'Cómo Narsil Check sigue los pasos de GitHub Actions del pull request de la sesión con la CLI gh, cada 10 segundos mientras una ejecución avanza, y se detiene cuando termina.'
 route: check
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -160,11 +160,31 @@ Los dos casos terminan igual. La vista recibe un `error`, la cabecera dice `CI �
 
 Sobre los permisos, el README solo dice que `gh` debe estar instalado y con sesión iniciada ("con `gh` instalado y con sesión iniciada"). Ni el README ni el código enumeran scopes para leer el CI. La nota del README sobre el permiso `workflow` trata de subir cambios a `.github/workflows` por HTTPS, que es otra funcionalidad.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude que siga con `gh`, paso a paso, la ejecución de GitHub Actions del pull request de la sesión. La única idea que debe entender bien es cuándo preguntar: solo por las ejecuciones del commit más reciente, solo mientras el pliegue está abierto y hay una ejecución en marcha, y con una sola vigilancia a la vez.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade un pliegue "CI" para el pull request abierto de la sesión, cuyo repositorio (`acme/shop`) y rama de cabeza ya tengo. Ejecuta `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` con `$.process.run` (tiempo límite de 30 s), guarda solo las ejecuciones del `headSha` de la primera fila, una por workflow, y después `gh run view <id> --repo <repo> --json jobs` para cada una. Oculta los pasos `Set up job`, `Complete job` y `Post …`. Muestra cada paso con ✓ verde, ✗ rojo, ◐ amarillo para en marcha, ○ gris para en cola y – gris para omitido. Trata una salida distinta de cero como un error con el stderr de gh, y también un rechazo (gh ausente) como un error; muéstralo en el pliegue. Sondea en un bucle con `$.clock.sleep(10_000)` solo mientras el pliegue esté abierto y una ejecución no esté completada, y detente en otro caso; da a cada vigilancia un id para que una más reciente la sustituya. Prueba los analizadores como funciones puras con JSON sintético de gh, y el bucle con `mock.clock`.
+
+### Qué revisar en la respuesta de Claude
+
+1. Solo se conservan las ejecuciones del `headSha` de la primera fila, una por workflow, así que las ejecuciones de un commit anterior nunca se mezclan con las del actual.
+2. Un código de salida distinto de cero de `gh` se lee como un error con su stderr, y un rechazo, cuando falta `gh`, también aparece como error en el pliegue.
+3. El bucle espera 10 segundos con `$.clock.sleep` entre lecturas, y se detiene cuando el pliegue está cerrado, cuando ya no queda ninguna ejecución en marcha o ante un error.
+4. Cada vigilancia tiene un id, así que una vigilancia más nueva hace que la anterior se detenga, y la vigilancia se inicia con `void`, nunca se espera dentro de un hook.
+5. Los pasos `Set up job`, `Complete job` y `Post …` se ocultan, y cada paso muestra su marca en su color.
+
+Si una comprobación falla, dile a Claude lo que ves: "el pliegue sigue preguntando a gh cada 10 segundos después de que la ejecución pasó".
+
+### Cómo lo pidió el autor
 
 La petición original del pliegue de CI no quedó registrada. Ninguno de los registros de tareas públicos de narsil-check (`odd/tasks/*.md`) trata de él.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/ci.ts`, con los commits relacionados de `hooks/register.tsx` y `hooks/session.ts`:
 
@@ -175,13 +195,9 @@ A partir de `git log -- hooks/ci.ts`, con los commits relacionados de `hooks/reg
 
 El patrón es distinto del de las guías anteriores: el pliegue de CI llegó completo en un solo commit, sobre la infraestructura del pull request del día anterior, y las correcciones que siguieron trataban de encontrar el pull request, no del CI en sí.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade un pliegue "CI" para el pull request abierto de la sesión, cuyo repositorio (`acme/shop`) y rama de cabeza ya tengo. Ejecuta `gh run list --repo <repo> --branch <branch> --json databaseId,headSha,workflowName,status,conclusion --limit 20` con `$.process.run` (tiempo límite de 30 s), guarda solo las ejecuciones del `headSha` de la primera fila, una por workflow, y después `gh run view <id> --repo <repo> --json jobs` para cada una. Oculta los pasos `Set up job`, `Complete job` y `Post …`. Muestra cada paso con ✓ verde, ✗ rojo, ◐ amarillo para en marcha, ○ gris para en cola y – gris para omitido. Trata una salida distinta de cero como un error con el stderr de gh, y también un rechazo (gh ausente) como un error; muéstralo en el pliegue. Sondea en un bucle con `$.clock.sleep(10_000)` solo mientras el pliegue esté abierto y una ejecución no esté completada, y detente en otro caso; da a cada vigilancia un id para que una más reciente la sustituya. Prueba los analizadores como funciones puras con JSON sintético de gh, y el bucle con `mock.clock`.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325. Está adaptada de `hooks/ci.ts` y `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Sigue un solo workflow y deja fuera la espera de un push.
 

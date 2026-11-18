@@ -3,7 +3,7 @@ title: Des dépendances qui se bloquent entre elles
 description: 'Comment Narsil Check trouve les mises à jour npm qui ne peuvent pas monter seules : les peers que demande la nouvelle version, ceux que demandent les paquets installés, et les pins exacts de l’arbre.'
 route: check
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -148,11 +148,31 @@ Il est cité de [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-
 
 Les vérifications comparent avec ce qui est installé maintenant. Le README est honnête sur la limite : « si subes varias juntas, puede que el bloqueo se resuelva entre ellas » (« si vous en montez plusieurs ensemble, il se peut que le blocage se résolve entre elles »). Seule la vérification des pins connaît le lot ; un conflit de peers entre deux mises à jour qui monteraient toutes les deux est quand même affiché. C’est le côté sûr : le panneau peut vous arrêter alors que vous auriez pu continuer, mais il ne laisse pas passer une mise à jour qui casse.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude des vérifications qui vous disent quand une mise à jour npm ne peut pas monter seule, avant qu’elle ne soit proposée. L’idée que Claude doit bien saisir : les deux sens comptent, ce que demande la nouvelle version et ce que demandent vos paquets installés.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, avant de marquer une mise à jour npm comme sûre, vérifie si elle peut monter seule. Écris des fonctions pures dans `hooks/npm.ts`. `peerConflicts(name, target, installed)` : pour chaque entrée `peerDependencies` de la nouvelle version, si le projet a ce peer installé dans une version hors de la plage, dis « <name> <version> needs <peer> <range> (you have <version>) » ; pour chaque paquet installé dont les `peerDependencies` nomment ce paquet avec une plage que la nouvelle version quitte, dis « <other> requires <name> <range> ». Un peer que le projet n’a pas n’est pas un conflit. `pinConflicts(name, target, lock)` : pour chaque paquet des `packages` de `package-lock.json` qui dépend de celui-ci à une version exacte (`1.2.3` ou `=1.2.3`) que la nouvelle n’est pas, dis « <owner> <version> pins <name> <range>: two copies would remain ». Lis les plages de versions avec un `satisfies` qui gère `||`, `^`, `~` et les plages à trait d’union et qui considère comme respecté ce qu’il ne sait pas lire. Dans le module de hooks, récupère le manifeste de la nouvelle version depuis `https://registry.npmjs.org/<name>/<version>` avec `$.http.fetch` et garde-le dans `$.store` pour de bon. Place toute mise à jour qui a une raison dans un groupe « blocked » et affiche les raisons en dessous. Teste avec des manifestes et des lockfiles synthétiques.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. `peerConflicts` compare dans les deux sens : les `peerDependencies` de la nouvelle version avec ce que vous avez installé, et les `peerDependencies` de chaque paquet installé sur ce paquet avec la nouvelle version.
+2. Un peer que le projet n’a pas n’est pas un conflit, donc rien n’est signalé pour lui.
+3. `pinConflicts` ne signale que les pins exacts (`1.2.3` ou `=1.2.3`) que la nouvelle version ne satisfait pas. Une plage comme `^8.53.0` est laissée tranquille.
+4. `satisfies` lit les plages `||`, `^`, `~` et à trait d’union, et considère comme respectée une plage qu’il ne sait pas lire, si bien que `^8.57.0 || ^9.0.0 || ^10.0.0` ne bloque pas tous les plugins.
+5. Toute mise à jour qui a une raison va dans le groupe bloqué, avec ses raisons affichées en dessous, et le manifeste de la nouvelle version est récupéré une seule fois depuis `https://registry.npmjs.org/<name>/<version>` puis gardé pour de bon dans `$.store`.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « eslint 10 apparaît comme une mise à jour sûre, mais ma configuration ESLint n’accepte qu’eslint 9 ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour ces vérifications n’a pas été consignée. Elles sont déjà dans le premier commit, et aucun journal de tâches public ne les couvre.
 
-### Consigné dans un journal de tâches, pas avec les mots de l’auteur ou de l’autrice
+#### Consigné dans un journal de tâches, pas avec les mots de l’auteur ou de l’autrice
 
 `odd/tasks/ecosystems-wave-2.md` consigne une décision à leur sujet au moment de l’arrivée des autres écosystèmes. C’est une hypothèse écrite dans le journal de tâches par l’agent, pas les mots de l’auteur ou de l’autrice :
 
@@ -162,7 +182,7 @@ Traduction en français : hypothèse ; les vérifications des dépendances peer 
 
 C’est pourquoi la section du README commence toujours par « Solo en npm ».
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/npm.ts` et de `git log -S` sur `peerConflicts`, `pinConflicts` et `lockedPackage` dans narsil-check :
 
@@ -173,13 +193,9 @@ C’est pourquoi la section du README commence toujours par « Solo en npm ».
 
 Le schéma : les vérifications ont été conçues d’un bloc dès le départ, et la seule correction portait sur l’origine des données, pas sur la règle.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, avant de marquer une mise à jour npm comme sûre, vérifie si elle peut monter seule. Écris des fonctions pures dans `hooks/npm.ts`. `peerConflicts(name, target, installed)` : pour chaque entrée `peerDependencies` de la nouvelle version, si le projet a ce peer installé dans une version hors de la plage, dis « <name> <version> needs <peer> <range> (you have <version>) » ; pour chaque paquet installé dont les `peerDependencies` nomment ce paquet avec une plage que la nouvelle version quitte, dis « <other> requires <name> <range> ». Un peer que le projet n’a pas n’est pas un conflit. `pinConflicts(name, target, lock)` : pour chaque paquet des `packages` de `package-lock.json` qui dépend de celui-ci à une version exacte (`1.2.3` ou `=1.2.3`) que la nouvelle n’est pas, dis « <owner> <version> pins <name> <range>: two copies would remain ». Lis les plages de versions avec un `satisfies` qui gère `||`, `^`, `~` et les plages à trait d’union et qui considère comme respecté ce qu’il ne sait pas lire. Dans le module de hooks, récupère le manifeste de la nouvelle version depuis `https://registry.npmjs.org/<name>/<version>` avec `$.http.fetch` et garde-le dans `$.store` pour de bon. Place toute mise à jour qui a une raison dans un groupe « blocked » et affiche les raisons en dessous. Teste avec des manifestes et des lockfiles synthétiques.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/npm.ts` et de `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle ne gère que les plages caret, tilde, exactes et `>=`, et laisse de côté les familles qui bougent ensemble.
 

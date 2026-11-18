@@ -3,7 +3,7 @@ title: Pendientes
 description: 'Cómo Narsil Check guarda una lista de pendientes por proyecto en un archivo JSON sin seguimiento, la mantiene fuera de git y nunca sobrescribe una lista dañada sin hacer una copia.'
 route: check
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -104,11 +104,31 @@ La copia está dentro de la misma carpeta excluida, así que tampoco llega a git
 
 `loadTodos` se ejecuta al empezar la sesión, y otra vez cada vez que despliegas la sección, así que un cambio hecho por otra sesión o a mano aparece cuando miras. Cada cambio actualiza directamente el atom del panel con la lista que acaba de escribir, pero solo cuando el cambio era en la lista de este proyecto: una tarea escrita en la lista de otro proyecto no sustituye lo que muestra este panel.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude una lista corta por proyecto, guardada en un archivo dentro del proyecto y fuera de git. La única idea que debe entender bien es que el archivo es la verdad: cada cambio lo vuelve a leer justo antes de escribir, y un archivo dañado nunca se lee como vacío.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade una sección de pendientes guardada por proyecto en `.atl/my-panel/todos.json` bajo el nivel superior de git (`git rev-parse --show-toplevel`, y si no la carpeta de la sesión), como `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Dibuja cada tarea con un botón `○` que la quite, un nombre que muestre u oculte su contenido, y un `Input` que añada `name: content`, dividido en los primeros dos puntos; omite el `Input` en la superficie móvil. Mantén la carpeta fuera de git añadiendo `/.atl/my-panel/` al archivo que nombra `git rev-parse --git-path info/exclude`, una sola vez, y no dejes nunca que ese paso detenga un guardado. Pasa cada cambio por una única cadena de promesas, y vuelve a leer el archivo antes de cada escritura. Si el archivo no es JSON válido o no tiene un array `tasks`, no lo trates nunca como vacío: muestra un error y, en el siguiente cambio, cópialo a `todos.damaged-<ISO time>.json` antes de empezar una lista nueva. Prueba un archivo dañado, un archivo de exclusión que no se puede escribir y un cambio hecho por otro escritor entre dos de los tuyos.
+
+### Qué revisar en la respuesta de Claude
+
+1. El archivo vive bajo el nivel superior de git (`git rev-parse --show-toplevel`), y si no, en la carpeta de la sesión, así que la misma lista se encuentra desde cualquier subcarpeta.
+2. La carpeta se mantiene fuera de git a través del archivo que nombra `git rev-parse --git-path info/exclude`. La línea se añade una sola vez, y un fallo ahí no detiene el guardado.
+3. Cada cambio pasa por una única cadena de promesas, y la cadena sigue después de un cambio que falló.
+4. Cada cambio vuelve a leer el archivo y aplica su edición a lo que hay ahora, así que se conserva una tarea que añadió otro escritor.
+5. Un archivo que no es JSON válido, o que no tiene un array `tasks`, muestra un error y no se escribe. El siguiente cambio primero lo copia aparte y después empieza una lista nueva.
+
+Si una comprobación falla, dile a Claude lo que ves: "dejé una coma de más al final del archivo, añadí una tarea y mis tareas anteriores desaparecieron sin ninguna copia junto al archivo".
+
+### Cómo lo pidió el autor
 
 La petición original de esta funcionalidad no quedó registrada. Ningún registro de tareas público de narsil-check cubre la lista de pendientes. Lo que sigue es una reconstrucción.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/todos.ts` en narsil-check:
 
@@ -117,13 +137,9 @@ A partir de `git log -- hooks/todos.ts` en narsil-check:
 
 El segundo commit es el más instructivo. La primera versión funcionaba en el camino feliz. La corrección es una lista de lo que puede ir mal alrededor de un archivo: puede estar roto, un paso secundario puede fallar, una superficie puede no tener un elemento, y una promesa del README puede ser demasiado fuerte.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade una sección de pendientes guardada por proyecto en `.atl/my-panel/todos.json` bajo el nivel superior de git (`git rev-parse --show-toplevel`, y si no la carpeta de la sesión), como `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Dibuja cada tarea con un botón `○` que la quite, un nombre que muestre u oculte su contenido, y un `Input` que añada `name: content`, dividido en los primeros dos puntos; omite el `Input` en la superficie móvil. Mantén la carpeta fuera de git añadiendo `/.atl/my-panel/` al archivo que nombra `git rev-parse --git-path info/exclude`, una sola vez, y no dejes nunca que ese paso detenga un guardado. Pasa cada cambio por una única cadena de promesas, y vuelve a leer el archivo antes de cada escritura. Si el archivo no es JSON válido o no tiene un array `tasks`, no lo trates nunca como vacío: muestra un error y, en el siguiente cambio, cópialo a `todos.damaged-<ISO time>.json` antes de empezar una lista nueva. Prueba un archivo dañado, un archivo de exclusión que no se puede escribir y un cambio hecho por otro escritor entre dos de los tuyos.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325 (`$.fs.exists`, `$.fs.read`, `$.fs.write`, `$.process.run`). Está adaptada de `hooks/todos.ts` y de `changeTodos` en `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Recibe la raíz del proyecto ya resuelta y deja fuera el dibujo.
 
