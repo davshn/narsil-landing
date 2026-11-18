@@ -24,9 +24,9 @@ Objective: a Narsil desk bot with a body and a voice, built in a public firmware
 | T2  | S8       | inline                         | done        | this branch                                              |
 | T3  | S7, S8   | inline                         | done        | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
 | T4  | S10      | inline                         | pending     |                                                          |
-| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4)                               |
-| T6  | S11      | delegated (4 parallel writers) | in progress | 6a translations commit                                   |
-| T7  | S10, S11 | inline                         | in progress | 6a: 622 unit tests, 246 pages, 164 e2e passed (chromium) |
+| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4); `39bf70e` (6b: guides 5–8)   |
+| T6  | S11      | delegated (4 parallel writers) | in progress | `4b4cbf5` (6a); 6b translations commit                   |
+| T7  | S10, S11 | inline                         | in progress | 6b: 632 unit tests, 266 pages, 177 e2e passed (chromium) |
 
 T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the home meta, footer, hero and route card, `CLAUDE.md`, README. T3: unit tests, e2e, build.
 
@@ -43,6 +43,14 @@ The bot code in these guides was written from documentation and has not run on t
 - Source contradictions: Waveshare documents ESP-IDF 5.3.1+, Xiaozhi needs 6.0.1+; the Xiaozhi README recommends `release/v6.1` while the cardputer README reports the `release-v6.1` image failing HTTPS; header size 13 vs 16 pins on Waveshare's page.
 - For S2–S4 the guides phrase the AI's questions from the options recorded in this conversation; S9 and L5 are not quoted on the site.
 
+Judgement calls in 6b (guides 5–8):
+
+- Claude provider: folder and `type` named `claude`; `Intent: nointent`, so `response()` only and no tools; the system prompt is split at `<context>` (it holds `{{current_time}}`, which changes every minute) and only the stable part carries `cache_control`; defaults `effort: low`, `max_tokens: 4096`; a `Dockerfile` with `RUN pip install anthropic` on the project image (assumes `pip` in the image) and a `docker-compose.override.yml` mounting the provider into `/opt/xiaozhi-esp32-server/core/providers/llm/claude/`; key from `ANTHROPIC_API_KEY` or the block's `api_key`; the cost example uses estimated token counts (2,000 system, 20 in, 60 out).
+- Voice: `language: Spanish` written in English (it fills an English template); voice `es-MX-DaliaNeural`, to confirm with `edge-tts --list-voices`; persona prompt in English; the Spanish `system_error_response`, `end_prompt` and exit commands (`salir`, `adiós`) are our wording; wake word stays "Hi ESP"; assumes a `.config.yaml` list replaces the default list.
+- ntfy: one JSON stream for both topics, `since=<last id>` on reconnect and `since=10m` on cold boot; 120 s read timeout (ntfy.sh keepalive interval not documented on the pages read); NVS namespace `narsil`, key `ntfy_topic`, entered on a settings screen from guide 9; decrypting sealed messages only in "Going further"; `ShowAlert` and `ShowStatus` must come from guide 9.
+- GitHub: "Pull requests: Read-only" on selected private repositories, none for public-only (GitHub lists no permission of its own for `/search/issues`); query `review-requested:@me` (alternative `author:@me`), polling every 2 minutes; assumes search responses carry an `etag`; User-Agent `narsil-bot`, NVS key `gh_token`, body capped at 64 KB; `ShowPullRequest` and `ShowGithubError` must come from guide 9.
+- Links to guides 9–12 point to `/en/bot/` or name the guide without a link; 6c must link them once they exist.
+
 ## Log
 
 - L1 (2026-11-17, owner): "Continúa" (phase 5 after path 2), then the hardware screenshot and S1.
@@ -51,3 +59,5 @@ The bot code in these guides was written from documentation and has not run on t
 - L4: risks for 5.1: Xiaozhi requires ESP-IDF 6.0.1 or later while Waveshare documents the P4 board with 5.3.1 or later; the build would run in Espressif's Docker image (ESP-IDF is not installed locally, Docker 29.8 is); flashing and on-screen checks are the owner's; creating the public fork is an outward action confirmed right before it.
 - L5 (2026-11-18, owner): S9 superseded as quoted; phase 5 continues as path 3 guides only (6a on branch `feat/bot-path-1`).
 - L6: 6a translated to es, it, fr, pt; the Italian writer used "l'autore" and it was replaced by "chi ha creato Narsil" (no gender is known for the owner).
+- L7 (2026-11-18, owner): "Listo, continúa con la 6b" (after #19 merged). 6b on branch `feat/bot-path-2`: guides 5–8, English by one delegated writer (context backstop), then four parallel translators.
+- L8: 6b translated to es, it, fr, pt. Checks: typecheck ok; `eslint src` ok (`e2e/**` is ignored by the ESLint config); prettier ok; 632 unit tests, coverage 97.62% lines; build 266 pages; chromium e2e first run 28 failed, the next two runs 177 passed with no change in between (cause not found). Open terms for the owner: es "tema" for an ntfy topic and decimal comma in prices; fr prices kept as `$0.20`; pt "modelo" used both for template and language model.
