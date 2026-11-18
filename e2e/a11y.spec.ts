@@ -32,6 +32,8 @@ const PATHS = [
   '/en/bot/own-server/',
   '/en/bot/claude-brain/',
   '/en/bot/github-prs/',
+  '/en/bot/uart-protocol/',
+  '/en/bot/holographic-head/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

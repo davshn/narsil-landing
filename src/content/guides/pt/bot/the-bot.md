@@ -52,7 +52,7 @@ A cabeça é a ESP32-S3-LCD-1.3-C, a versão da ESP32-S3-LCD-1.3 da Waveshare qu
 | Outros         | Slot para cartão TF, um conector GPIO de 2,54 mm                                                  |
 | Prisma         | Um cubo de vidro que fica sobre a tela e reflete a sua imagem                                     |
 
-O prisma é o motivo de o rosto parecer flutuar: a tela fica deitada e a face interna do cubo a reflete na sua direção. Um reflexo é uma imagem espelhada, então a cabeça desenha o rosto espelhado; o guia 11 trata disso.
+O prisma é o motivo de o rosto parecer flutuar: a tela fica deitada e a face interna do cubo a reflete na sua direção. Um reflexo é uma imagem espelhada, então a cabeça desenha o rosto espelhado; o [guia 11](/pt/bot/holographic-head/) trata disso.
 
 O ESP32-S3 tem Wi-Fi próprio, e a cabeça não o usa. Isso é uma decisão, explicada a seguir.
 
@@ -60,7 +60,7 @@ O ESP32-S3 tem Wi-Fi próprio, e a cabeça não o usa. Isso é uma decisão, exp
 
 Os dados da Narsil vivem na internet: os alertas chegam pelo ntfy, os pull requests vêm da API REST do GitHub e a voz vai para o seu servidor. Os três precisam de Wi-Fi, credenciais e lógica de novas tentativas. Se as duas placas se conectassem, as duas precisariam da senha do Wi-Fi, do token do GitHub e do tópico do ntfy, e as duas poderiam discordar sobre o que a Narsil está fazendo.
 
-Por isso a barriga é dona de cada conexão e de cada segredo, e decide o estado da Narsil. A cabeça recebe só o que desenhar: uma pose e um estado, por um cabo serial. Ela não guarda nenhum segredo e, se reiniciar, simplesmente espera a próxima mensagem. O guia 10 define esse protocolo.
+Por isso a barriga é dona de cada conexão e de cada segredo, e decide o estado da Narsil. A cabeça recebe só o que desenhar: uma pose e um estado, por um cabo serial. Ela não guarda nenhum segredo e, se reiniciar, simplesmente espera a próxima mensagem. O [guia 10](/pt/bot/uart-protocol/) define esse protocolo.
 
 ### O link UART
 
@@ -163,7 +163,7 @@ void head_link_init(void)
 }
 ```
 
-Um detalhe passa despercebido com facilidade. No ESP32-P4, os pinos padrão do ESP-IDF para a UART1 são GPIO10 e GPIO11, e nesta placa eles levam o áudio (seleção de palavra e entrada de dados do I2S). Em vez disso, `uart_set_pin` encaminha a UART1 para GPIO4 e GPIO5 pela matriz de GPIO, de modo que os pinos padrão nunca são tocados. Enviar é então uma chamada, `uart_write_bytes(HEAD_UART, data, len)`; o que vai em `data` é o guia 10.
+Um detalhe passa despercebido com facilidade. No ESP32-P4, os pinos padrão do ESP-IDF para a UART1 são GPIO10 e GPIO11, e nesta placa eles levam o áudio (seleção de palavra e entrada de dados do I2S). Em vez disso, `uart_set_pin` encaminha a UART1 para GPIO4 e GPIO5 pela matriz de GPIO, de modo que os pinos padrão nunca são tocados. Enviar é então uma chamada, `uart_write_bytes(HEAD_UART, data, len)`; o que vai em `data` é o [guia 10](/pt/bot/uart-protocol/).
 
 ## Erros comuns e como testar
 
@@ -178,7 +178,7 @@ Para testar o link antes de existir qualquer protocolo, grave nas duas placas o 
 
 ## Para ir além
 
-- A tela sensível ao toque da barriga pode fazer mais do que mostrar: um toque pode marcar um alerta como lido, o que o guia 9 constrói com LVGL.
+- A tela sensível ao toque da barriga pode fazer mais do que mostrar: um toque pode marcar um alerta como lido, o que o [guia 9](/pt/bot/belly-ui/) constrói com LVGL.
 - A QMI8658 da cabeça pode perceber quando alguém levanta o bot ou dá um toque nele. A cabeça poderia enviar isso de volta pelo seu fio TX, e é por isso que o link tem dois fios de dados e não um.
 - As duas placas têm conectores de bateria (MX1.25 na cabeça, um conector de lítio de 3,7 V na barriga). O bot deste caminho funciona por USB, o que mantém simples o design da alimentação.
 - A [página de ESP-IDF da Waveshare para a barriga](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/ESP-IDF/) lista projetos de exemplo (ferramentas I2C, estação Wi-Fi, codec I2S, LVGL) que são úteis para conferir cada parte da placa isoladamente.

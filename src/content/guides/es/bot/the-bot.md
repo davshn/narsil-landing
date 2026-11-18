@@ -52,7 +52,7 @@ La cabeza es la ESP32-S3-LCD-1.3-C, la versión de la ESP32-S3-LCD-1.3 de Wavesh
 | Otros          | Ranura para tarjeta TF, un conector GPIO de 2,54 mm                                               |
 | Prisma         | Un cubo de cristal que se apoya sobre la pantalla y refleja su imagen                             |
 
-El prisma es la razón de que la cara parezca flotar: la pantalla está tumbada y la cara interior del cubo la refleja hacia ti. Un reflejo es una imagen especular, así que la cabeza dibuja su cara en espejo; la guía 11 lo trata.
+El prisma es la razón de que la cara parezca flotar: la pantalla está tumbada y la cara interior del cubo la refleja hacia ti. Un reflejo es una imagen especular, así que la cabeza dibuja su cara en espejo; la [guía 11](/es/bot/holographic-head/) lo trata.
 
 El ESP32-S3 tiene su propio Wi-Fi, y la cabeza no lo usa. Es una decisión, explicada a continuación.
 
@@ -60,7 +60,7 @@ El ESP32-S3 tiene su propio Wi-Fi, y la cabeza no lo usa. Es una decisión, expl
 
 Los datos de Narsil viven en internet: los avisos llegan por ntfy, las pull requests vienen de la API REST de GitHub y la voz va a tu servidor. Los tres necesitan Wi-Fi, credenciales y lógica de reintentos. Si las dos placas se conectaran, las dos necesitarían la contraseña del Wi-Fi, el token de GitHub y el topic de ntfy, y las dos podrían discrepar sobre lo que está haciendo Narsil.
 
-Así que la panza es dueña de cada conexión y de cada secreto, y decide el estado de Narsil. La cabeza recibe solo lo que tiene que dibujar: una pose y un estado, por un cable serie. No guarda ningún secreto, y si se reinicia simplemente espera el siguiente mensaje. La guía 10 define ese protocolo.
+Así que la panza es dueña de cada conexión y de cada secreto, y decide el estado de Narsil. La cabeza recibe solo lo que tiene que dibujar: una pose y un estado, por un cable serie. No guarda ningún secreto, y si se reinicia simplemente espera el siguiente mensaje. La [guía 10](/es/bot/uart-protocol/) define ese protocolo.
 
 ### El enlace UART
 
@@ -159,7 +159,7 @@ void head_link_init(void)
 }
 ```
 
-Hay un detalle fácil de pasar por alto. En el ESP32-P4, los pines por defecto de ESP-IDF para UART1 son GPIO10 y GPIO11, y en esta placa esos llevan el audio (selección de palabra I2S y entrada de datos). `uart_set_pin` enruta UART1 a GPIO4 y GPIO5 a través de la matriz GPIO, así que los pines por defecto nunca se tocan. Enviar es después una sola llamada, `uart_write_bytes(HEAD_UART, data, len)`; lo que va en `data` es la guía 10.
+Hay un detalle fácil de pasar por alto. En el ESP32-P4, los pines por defecto de ESP-IDF para UART1 son GPIO10 y GPIO11, y en esta placa esos llevan el audio (selección de palabra I2S y entrada de datos). `uart_set_pin` enruta UART1 a GPIO4 y GPIO5 a través de la matriz GPIO, así que los pines por defecto nunca se tocan. Enviar es después una sola llamada, `uart_write_bytes(HEAD_UART, data, len)`; lo que va en `data` es la [guía 10](/es/bot/uart-protocol/).
 
 ## Errores comunes y cómo probarlo
 
@@ -174,7 +174,7 @@ Para probar el enlace antes de que exista ningún protocolo, flashea las dos pla
 
 ## Para ir más lejos
 
-- La pantalla táctil de la panza puede hacer algo más que mostrar: un toque puede marcar un aviso como leído, lo que la guía 9 construye con LVGL.
+- La pantalla táctil de la panza puede hacer algo más que mostrar: un toque puede marcar un aviso como leído, lo que la [guía 9](/es/bot/belly-ui/) construye con LVGL.
 - La QMI8658 de la cabeza puede detectar cuándo alguien levanta el bot o le da un golpecito. La cabeza podría enviarlo de vuelta por su cable TX, y por eso el enlace tiene dos cables de datos y no uno.
 - Las dos placas tienen conectores de batería (MX1.25 en la cabeza, un conector de litio de 3,7 V en la panza). El bot de este recorrido funciona por USB, lo que mantiene sencillo el diseño de la alimentación.
 - La [página de ESP-IDF de Waveshare para la panza](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/ESP-IDF/) lista proyectos de ejemplo (herramientas I2C, estación Wi-Fi, códec I2S, LVGL) útiles para comprobar cada parte de la placa por separado.

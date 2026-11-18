@@ -55,7 +55,7 @@ Le ventre peut donc reconnaître le type d’alerte à sa seule étiquette, et i
 
 ### Ce que transporte l’état
 
-Le message `-estado` est un objet JSON placé dans le champ `message` du message ntfy, envoyé avec la priorité 1. Le README de narsil-pet documente ses champs : `xp` (le niveau et l’expérience de Narsil), `art` (l’URL de son dessin à son stade, dans la pose de la conversation la plus importante), `at` (le moment de l’envoi, en secondes Unix), `cacheMinutes` (la durée d’un cache, quand il y en a un) et `usage` (le compte ntfy du jour). Le ventre utilise `xp` et `at`, et transmet la pose à la tête (guides 10 et 11).
+Le message `-estado` est un objet JSON placé dans le champ `message` du message ntfy, envoyé avec la priorité 1. Le README de narsil-pet documente ses champs : `xp` (le niveau et l’expérience de Narsil), `art` (l’URL de son dessin à son stade, dans la pose de la conversation la plus importante), `at` (le moment de l’envoi, en secondes Unix), `cacheMinutes` (la durée d’un cache, quand il y en a un) et `usage` (le compte ntfy du jour). Le ventre affiche `xp` avec l’heure propre à ntfy pour le message, et lit la pose et le stade dans `art` pour les transmettre à la tête ([guides 10](/fr/bot/uart-protocol/) et [11](/fr/bot/holographic-head/)).
 
 ### Ce que cache la clé, et ce qu’elle ne cache pas
 
@@ -98,7 +98,7 @@ Le Wi-Fi décroche, et les longues connexions se rompent. ntfy garde les message
 
 ### Où vit le topic
 
-Le topic est stocké dans la NVS du ventre, via la classe `Settings` de Xiaozhi (`main/settings.h`), dans l’espace de noms `narsil` sous la clé `ntfy_topic`. Vous le saisissez une seule fois sur l’écran de réglages du ventre, que construit le guide 9 ; il n’apparaît jamais dans le code source. Le guide 12 explique pourquoi la NVS n’est pas chiffrée par défaut et ce que cela signifie pour un appareil posé sur votre bureau.
+Le topic est stocké dans la NVS du ventre, via la classe `Settings` de Xiaozhi (`main/settings.h`), dans l’espace de noms `narsil` sous la clé `ntfy_topic`. Vous le saisissez une seule fois sur l’écran de réglages du ventre, que construit le [guide 9](/fr/bot/belly-ui/) ; il n’apparaît jamais dans le code source. Le [guide 12](/fr/bot/secrets-privacy/) explique pourquoi la NVS n’est pas chiffrée par défaut et ce que cela signifie pour un appareil posé sur votre bureau.
 
 ## Comment on l’a demandé à l’IA
 
@@ -114,7 +114,7 @@ Narsil publie déjà ces tâches sur ntfy pour le téléphone ; l’IA a donc pr
 
 Traduction en français : par câble depuis le ventre.
 
-Le ventre est donc la seule carte sur le réseau pour les alertes : il s’abonne à ntfy, et la tête ne reçoit que la pose et l’état par le fil (guide 10). La façon de se reconnecter, et ce qu’il faut afficher quand une clé est définie, n’ont pas fait l’objet de questions ; l’IA les a tirées de la documentation de ntfy et du `sealedMessage` de narsil-pet.
+Le ventre est donc la seule carte sur le réseau pour les alertes : il s’abonne à ntfy, et la tête ne reçoit que la pose et l’état par le fil ([guide 10](/fr/bot/uart-protocol/)). La façon de se reconnecter, et ce qu’il faut afficher quand une clé est définie, n’ont pas fait l’objet de questions ; l’IA les a tirées de la documentation de ntfy et du `sealedMessage` de narsil-pet.
 
 ### Un prompt à utiliser
 
@@ -124,7 +124,7 @@ Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’es
 
 ## Le code minimal
 
-Une tâche pour le ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `ShowAlert` et `ShowStatus` sont les fonctions de l’écran du guide 9 :
+Une tâche pour le ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `ShowAlert` et `ShowStatus` sont les fonctions de l’écran du [guide 9](/fr/bot/belly-ui/) :
 
 ```cpp
 #include <cJSON.h>
@@ -224,5 +224,5 @@ Lancez `/narsil movil prueba` dans Claude Code : une ligne `message` apparaît. 
 
 - **Lire les alertes scellées.** `hooks/seal.ts` dérive deux clés de la vôtre avec HMAC-SHA256 (`enc` et `mac`), applique un XOR entre le texte et un flux de clé HMAC par blocs de 32 octets, et vérifie une étiquette sur le nonce et le texte chiffré. mbedTLS, qui fait partie d’ESP-IDF, a HMAC-SHA256 ; porter `unseal` permet au ventre de lire le texte pendant que le topic ne montre que du bruit.
 - **Votre propre serveur ntfy.** ntfy peut tourner chez vous avec un contrôle d’accès, si bien que le topic n’est pas public. narsil-pet publie sur `https://ntfy.sh`, il faudrait donc changer les deux côtés.
-- **L’état pour la tête.** Le message `-estado` est ce qui pilote la pose de Narsil sur la tête ; le guide 10 l’envoie par l’UART.
-- Le guide 8 ajoute l’autre liste qu’affiche le ventre : les pull requests qui ont besoin de vous. L’écran lui-même est le guide 9, dans le [parcours du bot](/fr/bot/).
+- **L’état pour la tête.** Le message `-estado` est ce qui pilote la pose de Narsil sur la tête ; le [guide 10](/fr/bot/uart-protocol/) l’envoie par l’UART.
+- Le guide 8 ajoute l’autre liste qu’affiche le ventre : les pull requests qui ont besoin de vous. L’écran lui-même est le [guide 9](/fr/bot/belly-ui/).

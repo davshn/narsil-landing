@@ -55,7 +55,7 @@ Así que la panza puede saber el tipo de aviso solo por su etiqueta, y conoce la
 
 ### Qué lleva el estado
 
-El mensaje `-estado` es un objeto JSON dentro del campo `message` del mensaje de ntfy, enviado con prioridad 1. El README de narsil-pet documenta sus campos: `xp` (el nivel y la experiencia de Narsil), `art` (la URL de su dibujo en su etapa, en la pose de la conversación más importante), `at` (cuándo se envió, en segundos Unix), `cacheMinutes` (cuánto dura una caché, cuando la hay) y `usage` (la cuenta de ntfy del día). La panza usa `xp` y `at`, y le pasa la pose a la cabeza (guías 10 y 11).
+El mensaje `-estado` es un objeto JSON dentro del campo `message` del mensaje de ntfy, enviado con prioridad 1. El README de narsil-pet documenta sus campos: `xp` (el nivel y la experiencia de Narsil), `art` (la URL de su dibujo en su etapa, en la pose de la conversación más importante), `at` (cuándo se envió, en segundos Unix), `cacheMinutes` (cuánto dura una caché, cuando la hay) y `usage` (la cuenta de ntfy del día). La panza muestra `xp` con la hora propia de ntfy para el mensaje, y lee la pose y la etapa de `art` para pasárselas a la cabeza ([guías 10](/es/bot/uart-protocol/) y [11](/es/bot/holographic-head/)).
 
 ### Qué oculta la clave, y qué no
 
@@ -98,7 +98,7 @@ El Wi-Fi se cae, y las conexiones largas se cortan. ntfy guarda los mensajes dur
 
 ### Dónde vive el tema
 
-El tema se guarda en la NVS de la panza, mediante la clase `Settings` de Xiaozhi (`main/settings.h`), en el espacio de nombres `narsil` con la clave `ntfy_topic`. Lo escribes una vez en la pantalla de ajustes de la panza, que construye la guía 9; nunca aparece en el código fuente. La guía 12 explica por qué la NVS no está cifrada por defecto y qué significa eso para un dispositivo en tu escritorio.
+El tema se guarda en la NVS de la panza, mediante la clase `Settings` de Xiaozhi (`main/settings.h`), en el espacio de nombres `narsil` con la clave `ntfy_topic`. Lo escribes una vez en la pantalla de ajustes de la panza, que construye la [guía 9](/es/bot/belly-ui/); nunca aparece en el código fuente. [La guía 12](/es/bot/secrets-privacy/) explica por qué la NVS no está cifrada por defecto y qué significa eso para un dispositivo en tu escritorio.
 
 ## Cómo se le pidió a la IA
 
@@ -110,7 +110,7 @@ Narsil ya publica esas tareas en ntfy para el teléfono, así que la IA propuso 
 
 > Por cable desde la panza
 
-Así que la panza es la única placa en la red para los avisos: se suscribe a ntfy, y la cabeza recibe solo la pose y el estado por el cable (guía 10). Cómo reconectar, y qué mostrar cuando hay una clave, no se preguntaron; la IA los tomó de la documentación de ntfy y del `sealedMessage` de narsil-pet.
+Así que la panza es la única placa en la red para los avisos: se suscribe a ntfy, y la cabeza recibe solo la pose y el estado por el cable ([guía 10](/es/bot/uart-protocol/)). Cómo reconectar, y qué mostrar cuando hay una clave, no se preguntaron; la IA los tomó de la documentación de ntfy y del `sealedMessage` de narsil-pet.
 
 ### Un prompt que puedes usar
 
@@ -120,7 +120,7 @@ El siguiente prompt se escribió para esta guía como sugerencia. No es la conve
 
 ## El código mínimo
 
-Una tarea para la panza, en C++ junto al código de Xiaozhi (MIT, como los ejemplos propios del sitio). `ShowAlert` y `ShowStatus` son las funciones de la pantalla de la guía 9:
+Una tarea para la panza, en C++ junto al código de Xiaozhi (MIT, como los ejemplos propios del sitio). `ShowAlert` y `ShowStatus` son las funciones de la pantalla de la [guía 9](/es/bot/belly-ui/):
 
 ```cpp
 #include <cJSON.h>
@@ -220,5 +220,5 @@ Ejecuta `/narsil movil prueba` en Claude Code: aparece una línea `message`. Des
 
 - **Leer los avisos sellados.** `hooks/seal.ts` deriva dos claves de la tuya con HMAC-SHA256 (`enc` y `mac`), hace XOR del texto con un flujo de clave HMAC en bloques de 32 bytes y comprueba una etiqueta sobre el nonce y el texto cifrado. mbedTLS, parte de ESP-IDF, tiene HMAC-SHA256; portar `unseal` permite a la panza leer el texto mientras el tema muestra ruido.
 - **Tu propio servidor de ntfy.** ntfy puede correr en casa con control de acceso, así que el tema no es público. narsil-pet publica en `https://ntfy.sh`, así que habría que cambiar los dos lados.
-- **El estado para la cabeza.** El mensaje `-estado` es lo que mueve la pose de Narsil en la cabeza; la guía 10 lo envía por la UART.
-- La guía 8 añade la otra lista que muestra la panza: los pull requests que te necesitan. La pantalla en sí es la guía 9, en la [ruta del bot](/es/bot/).
+- **El estado para la cabeza.** El mensaje `-estado` es lo que mueve la pose de Narsil en la cabeza; la [guía 10](/es/bot/uart-protocol/) lo envía por la UART.
+- La guía 8 añade la otra lista que muestra la panza: los pull requests que te necesitan. La pantalla en sí es la [guía 9](/es/bot/belly-ui/).

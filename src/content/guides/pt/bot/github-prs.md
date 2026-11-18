@@ -76,7 +76,7 @@ Diante de um `403` ou `429`, a barriga espera o tempo de `retry-after` (ou de `x
 
 A requisição usa o [`esp_http_client`](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/protocols/esp_http_client.html) do ESP-IDF com o pacote de certificados (`crt_bundle_attach = esp_crt_bundle_attach`), como o stream do ntfy no guia 7. Desta vez a resposta é curta, então ela usa `esp_http_client_perform`, junta o corpo no evento `HTTP_EVENT_ON_DATA`, pega o `etag` em `HTTP_EVENT_ON_HEADER` (onde `evt->header_key` e `evt->header_value` guardam cada cabeçalho da resposta) e lê o status com `esp_http_client_get_status_code` depois que o `perform` retorna.
 
-O token vive na NVS, no namespace `narsil` do `Settings` do Xiaozhi, sob a chave `gh_token`, digitado uma vez na tela de configurações da barriga (guia 9). Ele nunca é compilado no firmware nem escrito no log.
+O token vive na NVS, no namespace `narsil` do `Settings` do Xiaozhi, sob a chave `gh_token`, digitado uma vez na tela de configurações da barriga ([guia 9](/pt/bot/belly-ui/)). Ele nunca é compilado no firmware nem escrito no log.
 
 ## Como foi pedido à IA
 
@@ -98,7 +98,7 @@ O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa 
 
 ## O código mínimo
 
-Uma função para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowPullRequest` e `ShowGithubError` são as funções da tela do guia 9; uma tarefa chama `PollPullRequests()` a cada dois minutos:
+Uma função para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowPullRequest` e `ShowGithubError` são as funções da tela do [guia 9](/pt/bot/belly-ui/); uma tarefa chama `PollPullRequests()` a cada dois minutos:
 
 ```cpp
 #include <cJSON.h>
@@ -204,4 +204,4 @@ Uma resposta JSON com `total_count` significa que o token funciona. Acrescente `
 - **Verificações e revisões.** Os endpoints de pulls (`GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews`, por exemplo) dão o estado de revisão de cada pull request; eles também precisam de **Pull requests: Read-only**.
 - **Notificações em vez de busca.** A API de notificações do GitHub responde "o que aconteceu comigo", mas o GitHub não a lista entre os endpoints para tokens fine-grained, então ela precisaria de um token clássico.
 - **Rotação.** Com um token de 30 dias, coloque um lembrete na sua agenda. A barriga pode mostrar a data de expiração se você a digitar junto com o token.
-- O guia 9 desenha as duas listas, alertas e pull requests, na tela da barriga, no [caminho do bot](/pt/bot/).
+- O [guia 9](/pt/bot/belly-ui/) desenha as duas listas, alertas e pull requests, na tela da barriga.

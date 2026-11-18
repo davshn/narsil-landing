@@ -18,15 +18,15 @@ Objective: a Narsil desk bot with a body and a voice, built in a public firmware
 
 ## Tasks
 
-| ID  | Specs    | Route                          | Status      | Commit                                                   |
-| --- | -------- | ------------------------------ | ----------- | -------------------------------------------------------- |
-| T1  | S7       | inline                         | done        | this branch                                              |
-| T2  | S8       | inline                         | done        | this branch                                              |
-| T3  | S7, S8   | inline                         | done        | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
-| T4  | S10      | inline                         | pending     |                                                          |
-| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4); `39bf70e` (6b: guides 5–8)   |
-| T6  | S11      | delegated (4 parallel writers) | in progress | `4b4cbf5` (6a); 6b translations commit                   |
-| T7  | S10, S11 | inline                         | in progress | 6b: 632 unit tests, 266 pages, 177 e2e passed (chromium) |
+| ID  | Specs    | Route                          | Status | Commit                                                   |
+| --- | -------- | ------------------------------ | ------ | -------------------------------------------------------- |
+| T1  | S7       | inline                         | done   | this branch                                              |
+| T2  | S8       | inline                         | done   | this branch                                              |
+| T3  | S7, S8   | inline                         | done   | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
+| T4  | S10      | inline                         | done   | 6a: `/[locale]/bot/` pages and the third home card       |
+| T5  | S10, S11 | delegated (context backstop)   | done   | `87d2515` (1–4), `39bf70e` (5–8), `8c7ed6b` (9–12)       |
+| T6  | S11      | delegated (4 parallel writers) | done   | `4b4cbf5` (6a), `7767e8d` (6b), 6c translations commit   |
+| T7  | S10, S11 | inline                         | done   | 6c: 654 unit tests, 286 pages, 191 e2e passed (chromium) |
 
 T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the home meta, footer, hero and route card, `CLAUDE.md`, README. T3: unit tests, e2e, build.
 
@@ -51,6 +51,13 @@ Judgement calls in 6b (guides 5–8):
 - GitHub: "Pull requests: Read-only" on selected private repositories, none for public-only (GitHub lists no permission of its own for `/search/issues`); query `review-requested:@me` (alternative `author:@me`), polling every 2 minutes; assumes search responses carry an `etag`; User-Agent `narsil-bot`, NVS key `gh_token`, body capped at 64 KB; `ShowPullRequest` and `ShowGithubError` must come from guide 9.
 - Links to guides 9–12 point to `/en/bot/` or name the guide without a link; 6c must link them once they exist.
 
+Judgement calls in 6c (guides 9–12):
+
+- Belly UI: a `NarsilDisplay` subclass of `MipiLcdDisplay` overrides `SetupUI` and builds a second LVGL screen (Xiaozhi's stays alive, hidden); the board file only changes `new MipiLcdDisplay(` to `new NarsilDisplay(`; `ShowNarsilScreen()` is called next to `StartNtfy()` so the Wi-Fi setup screen still shows on first boot; settings open with a long press on the strip, saved values are never shown, an empty field keeps the saved value, Save restarts the board; `ClearPullRequests()` is new and guide 8's `PollPullRequests` needs one extra line for an empty result; alert time formatted with `gmtime_r`; last 20 alerts kept; row colors reuse narsil-pet's `STATUS_COLOR`.
+- UART protocol: lines `$N1,<type>,...*<XOR hex>\n`, 64-byte cap; types `P` (pose and stage), `V` (`idle`, `listening`, `speaking`) and the head's hello `H`; the belly resends its state every 5 s; the head dims after 15 s of silence; pose and stage parsed from the `art` URL; voice state from polling `GetDeviceState()` every 100 ms.
+- Head: pins read from the schematic text layer (CLK 40, MOSI 41, CS 39, DC 38, RST 42, backlight 20, assumed active high); SPI 20 MHz, `invert_color(true)`, RGB order, `mirror(true, false)` as the starting value with the alignment check deciding; art as one `faces.bin` built from narsil-pet's `-oscuro` PNGs with `LVGLImage.py --cf RGB565_SWAPPED`, embedded with `EMBED_FILES`; the whole drawing, not a cropped face; dot colors and the 3-second red boot test are our choices.
+- Secrets: no encryption enabled by default; the HMAC NVS scheme recommended only when the board leaves your desk (it burns one eFuse key block); Anthropic's commercial terms link not fetched.
+
 ## Log
 
 - L1 (2026-11-17, owner): "Continúa" (phase 5 after path 2), then the hardware screenshot and S1.
@@ -61,3 +68,5 @@ Judgement calls in 6b (guides 5–8):
 - L6: 6a translated to es, it, fr, pt; the Italian writer used "l'autore" and it was replaced by "chi ha creato Narsil" (no gender is known for the owner).
 - L7 (2026-11-18, owner): "Listo, continúa con la 6b" (after #19 merged). 6b on branch `feat/bot-path-2`: guides 5–8, English by one delegated writer (context backstop), then four parallel translators.
 - L8: 6b translated to es, it, fr, pt. Checks: typecheck ok; `eslint src` ok (`e2e/**` is ignored by the ESLint config); prettier ok; 632 unit tests, coverage 97.62% lines; build 266 pages; chromium e2e first run 28 failed, the next two runs 177 passed with no change in between (cause not found). Open terms for the owner: es "tema" for an ntfy topic and decimal comma in prices; fr prices kept as `$0.20`; pt "modelo" used both for template and language model.
+- L9 (2026-11-18, owner): "sigue" (after #22 merged). 6c on branch `feat/bot-path-3`: guides 9–12, English by one delegated writer (context backstop), then four parallel translators; links from guides 5–8 to guides 9–12 are updated in every locale.
+- L10: 6c translated to es, it, fr, pt, with the links to guides 9–12 mirrored in the earlier guides of every locale; no internal `/en/` link left in other locales. Checks: typecheck, `eslint src`, prettier ok; 654 unit tests, coverage 97.52% lines; build 286 pages; 191 chromium e2e passed on the first run. Path 3 (S11) is complete.
