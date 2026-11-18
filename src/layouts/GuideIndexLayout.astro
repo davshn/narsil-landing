@@ -1,5 +1,7 @@
 ---
+import BotArchitecture from '@components/guide/BotArchitecture/BotArchitecture.astro'
 import GuideCurriculum from '@components/guide/GuideCurriculum/GuideCurriculum.astro'
+import PathStages from '@components/guide/PathStages/PathStages.astro'
 import Button from '@components/ui/Button/Button.astro'
 import Text from '@components/ui/Text/Text.astro'
 import { guideRefs } from '@content/guide-pages'
@@ -8,6 +10,7 @@ import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildBreadcrumbList, buildWebPage } from '@seo/json-ld'
 import { guideHref, guidesFor } from '@utils/guides'
+import { botPartGuides, groupStages, PATH_STAGE_STARTS } from '@utils/path-stages'
 import { readingDuration, readingMinutes } from '@utils/reading-time'
 import { fillTemplate } from '@utils/template'
 
@@ -47,6 +50,18 @@ const items = guides.map((guide, index) => ({
   description: guide.entry.data.description,
   href: guideHref(locale, route, guide.slug),
   meta: fillTemplate(t.guide.guideMinutes, { value: minutesOf[index] }),
+}))
+
+const numbered = guides.map((guide, index) => ({
+  slug: guide.slug,
+  number: index + 1,
+  title: guide.title,
+  href: guideHref(locale, route, guide.slug),
+}))
+const stages = groupStages(numbered, PATH_STAGE_STARTS[route]).map((group, index) => ({
+  title: copy.stages[index]?.title ?? '',
+  text: copy.stages[index]?.text ?? '',
+  guides: group,
 }))
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
@@ -104,6 +119,19 @@ const jsonLd = [
         </aside>
       )}
     </header>
+
+    <PathStages title={t.guide.stagesTitle} labelTemplate={t.guide.stageGuide} stages={stages} />
+
+    {route === 'bot' && guides.length > 0 && (
+      <BotArchitecture
+        title={t.botMap.title}
+        text={t.botMap.text}
+        labelTemplate={t.guide.stageGuide}
+        parts={t.botMap.parts}
+        guides={botPartGuides(numbered)}
+        links={t.botMap.links}
+      />
+    )}
 
     <section class="path-guides" aria-labelledby="guides-title">
       <h2 id="guides-title" class="path-section-title">

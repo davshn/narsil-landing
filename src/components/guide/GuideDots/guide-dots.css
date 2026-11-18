@@ -1,0 +1,28 @@
+@reference '../../../styles/global.css';
+
+.guide-dots {
+  @apply m-0 flex list-none flex-wrap gap-2 p-0;
+}
+
+.guide-dot {
+  @apply inline-flex size-8 items-center justify-center rounded-full bg-background text-sm font-semibold text-primary no-underline;
+  box-shadow: var(--shadow-neu-sm);
+  transition:
+    box-shadow var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.guide-dot:hover {
+  @apply text-foreground;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.guide-dot:focus-visible {
+  @apply outline-2 outline-offset-2 outline-ring;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-dot {
+    transition: none;
+  }
+}

@@ -1,0 +1,107 @@
+@reference '../../../styles/global.css';
+
+.stages {
+  --stage-marker: 1rem;
+  --stage-rail: 2px;
+  --stage-gap: var(--spacing-8);
+  @apply flex flex-col gap-8 p-6 sm:p-8;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.stages-heading {
+  @apply text-2xl font-bold tracking-tight sm:text-3xl;
+}
+
+.stages-list {
+  @apply m-0 grid list-none p-0;
+  row-gap: var(--stage-gap);
+}
+
+.stage {
+  @apply relative flex flex-col gap-2;
+  padding-left: calc(var(--stage-marker) + var(--spacing-5));
+}
+
+.stage-marker {
+  @apply absolute left-0 rounded-full bg-primary;
+  top: 0.3rem;
+  width: var(--stage-marker);
+  height: var(--stage-marker);
+  box-shadow: 0 0 0 4px var(--color-background);
+}
+
+.stage:not(:last-child)::before {
+  content: '';
+  @apply absolute bg-primary;
+  top: calc(0.3rem + var(--stage-marker));
+  bottom: calc(var(--stage-gap) * -1 + 0.3rem);
+  left: calc((var(--stage-marker) - var(--stage-rail)) / 2);
+  width: var(--stage-rail);
+  opacity: 0.45;
+}
+
+.stage:not(:last-child)::after {
+  content: '';
+  @apply absolute;
+  bottom: calc(var(--stage-gap) * -1 + 0.3rem);
+  left: calc(var(--stage-marker) / 2 - 0.3125rem);
+  border-top: 0.4375rem solid var(--color-primary);
+  border-right: 0.3125rem solid transparent;
+  border-left: 0.3125rem solid transparent;
+}
+
+.stage-title {
+  @apply text-lg font-semibold;
+  line-height: var(--leading-snug);
+}
+
+.stage-text {
+  @apply text-sm text-muted-foreground;
+  line-height: var(--leading-relaxed);
+}
+
+.stage .guide-dots {
+  @apply mt-2;
+}
+
+@media (min-width: 1024px) {
+  .stages-list {
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    column-gap: var(--stage-gap);
+  }
+
+  .stage {
+    padding-top: calc(var(--stage-marker) + var(--spacing-5));
+    padding-left: 0;
+  }
+
+  .stage-marker {
+    top: 0;
+  }
+
+  .stage-title {
+    @apply text-base;
+  }
+
+  .stage:not(:last-child)::before {
+    top: calc((var(--stage-marker) - var(--stage-rail)) / 2);
+    right: calc(var(--stage-gap) * -1 + 0.4375rem);
+    bottom: auto;
+    left: calc(var(--stage-marker) + 0.3rem);
+    width: auto;
+    height: var(--stage-rail);
+  }
+
+  .stage:not(:last-child)::after {
+    top: calc(var(--stage-marker) / 2 - 0.3125rem);
+    right: calc(var(--stage-gap) * -1 + 0.3rem);
+    bottom: auto;
+    left: auto;
+    border-top: 0.3125rem solid transparent;
+    border-right: 0;
+    border-bottom: 0.3125rem solid transparent;
+    border-left: 0.4375rem solid var(--color-primary);
+  }
+}

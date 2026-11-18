@@ -1,3 +1,5 @@
+import { enDiagrams } from '../diagrams/en'
+
 import type { TranslationShape } from '../index'
 
 export const en: TranslationShape = {
@@ -128,6 +130,7 @@ export const en: TranslationShape = {
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
+    stages: enDiagrams.stages.mods,
   },
   pet: {
     title: 'Your own status pet',
@@ -139,6 +142,7 @@ export const en: TranslationShape = {
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
+    stages: enDiagrams.stages.pet,
   },
   check: {
     title: 'Your own review panel',
@@ -150,6 +154,7 @@ export const en: TranslationShape = {
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
+    stages: enDiagrams.stages.check,
   },
   bot: {
     title: 'A Narsil desk bot',
@@ -161,6 +166,7 @@ export const en: TranslationShape = {
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
+    stages: enDiagrams.stages.bot,
   },
   claude: {
     title: 'Narsil in Claude',
@@ -172,7 +178,9 @@ export const en: TranslationShape = {
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
+    stages: enDiagrams.stages.claude,
   },
+  botMap: enDiagrams.botMap,
   guide: {
     breadcrumbLabel: 'Breadcrumb',
     stepOf: 'Guide {current} of {total}',
@@ -192,6 +200,8 @@ export const en: TranslationShape = {
     readingMinutes: 'About {value} min of reading',
     readingHours: 'About {value} h of reading',
     guideMinutes: '{value} min',
+    stagesTitle: 'The path at a glance',
+    stageGuide: 'Guide {number}: {title}',
     coffeeTitle: 'Did this guide help?',
     coffeeText: 'Every guide is free. If this one saved you time, you can buy me a coffee.',
     coffeeCta: 'Buy me a coffee',

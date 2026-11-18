@@ -1,0 +1,61 @@
+---
+import GuideDots from '@components/guide/GuideDots/GuideDots.astro'
+
+import type { StageCopy } from '@i18n/index'
+import type { BotPart, NumberedGuide } from '@utils/path-stages'
+
+import './bot-architecture.css'
+
+interface Props {
+  title: string
+  text: string
+  labelTemplate: string
+  parts: Record<BotPart, StageCopy>
+  guides: Record<BotPart, NumberedGuide[]>
+  links: {
+    uart: string
+    lan: string
+    https: string
+  }
+}
+
+const { title, text, labelTemplate, parts, guides, links } = Astro.props
+
+const chain: Array<
+  { kind: 'part'; part: BotPart } | { kind: 'link'; area: string; label: string }
+> = [
+  { kind: 'part', part: 'head' },
+  { kind: 'link', area: 'uart', label: links.uart },
+  { kind: 'part', part: 'belly' },
+  { kind: 'link', area: 'lan', label: links.lan },
+  { kind: 'part', part: 'server' },
+  { kind: 'link', area: 'cloud', label: links.https },
+  { kind: 'part', part: 'claude' },
+  { kind: 'link', area: 'feed', label: links.https },
+  { kind: 'part', part: 'feeds' },
+]
+---
+
+<section class="bot-map" aria-labelledby="bot-map-title" data-bot-map>
+  <div class="bot-map-intro">
+    <h2 id="bot-map-title" class="bot-map-title">
+      {title}
+    </h2>
+    <p class="bot-map-text">{text}</p>
+  </div>
+  <div class="bot-map-grid">
+    {chain.map((item) =>
+      item.kind === 'part' ? (
+        <div class="bot-map-part" data-part={item.part}>
+          <h3 class="bot-map-name">{parts[item.part].title}</h3>
+          <p class="bot-map-detail">{parts[item.part].text}</p>
+          <GuideDots guides={guides[item.part]} labelTemplate={labelTemplate} />
+        </div>
+      ) : (
+        <p class={`bot-map-link bot-map-link-${item.area}`} data-link={item.area}>
+          <span class="bot-map-link-label">{item.label}</span>
+        </p>
+      ),
+    )}
+  </div>
+</section>

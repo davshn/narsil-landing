@@ -48,16 +48,38 @@ export interface ShowcaseCopy {
   detailAlt?: string
 }
 
+export interface StageCopy {
+  title: string
+  text: string
+}
+
 export interface PathCopy {
   title: string
   description: string
   intro: [string, string]
   listTitle: string
   startCta: string
+  stages: StageCopy[]
 }
 
 export const pathKeys = ['mods', 'pet', 'check', 'bot', 'claude'] as const
 export type PathKey = (typeof pathKeys)[number]
+
+export interface BotMapCopy {
+  title: string
+  text: string
+  parts: Record<'head' | 'belly' | 'feeds' | 'server' | 'claude', StageCopy>
+  links: {
+    uart: string
+    lan: string
+    https: string
+  }
+}
+
+export interface DiagramCopy {
+  stages: Record<PathKey, StageCopy[]>
+  botMap: BotMapCopy
+}
 
 export interface TranslationShape {
   meta: {
@@ -122,6 +144,7 @@ export interface TranslationShape {
   check: PathCopy
   bot: PathCopy
   claude: PathCopy
+  botMap: BotMapCopy
   guide: {
     breadcrumbLabel: string
     stepOf: string
@@ -140,6 +163,8 @@ export interface TranslationShape {
     readingMinutes: string
     readingHours: string
     guideMinutes: string
+    stagesTitle: string
+    stageGuide: string
     coffeeTitle: string
     coffeeText: string
     coffeeCta: string

@@ -1,3 +1,5 @@
+import { ptDiagrams } from '../diagrams/pt'
+
 import type { TranslationShape } from '../index'
 
 export const pt: TranslationShape = {
@@ -131,6 +133,7 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
+    stages: ptDiagrams.stages.mods,
   },
   pet: {
     title: 'Seu próprio mascote de status',
@@ -142,6 +145,7 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
+    stages: ptDiagrams.stages.pet,
   },
   check: {
     title: 'Seu próprio painel de revisão',
@@ -153,6 +157,7 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
+    stages: ptDiagrams.stages.check,
   },
   bot: {
     title: 'Um bot do Narsil',
@@ -164,6 +169,7 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
+    stages: ptDiagrams.stages.bot,
   },
   claude: {
     title: 'Narsil no Claude',
@@ -175,7 +181,9 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Começar o primeiro guia',
+    stages: ptDiagrams.stages.claude,
   },
+  botMap: ptDiagrams.botMap,
   guide: {
     breadcrumbLabel: 'Trilha de navegação',
     stepOf: 'Guia {current} de {total}',
@@ -195,6 +203,8 @@ export const pt: TranslationShape = {
     readingMinutes: 'Cerca de {value} min de leitura',
     readingHours: 'Cerca de {value} h de leitura',
     guideMinutes: '{value} min',
+    stagesTitle: 'O caminho em um relance',
+    stageGuide: 'Guia {number}: {title}',
     coffeeTitle: 'Este guia ajudou?',
     coffeeText:
       'Todos os guias são gratuitos. Se este poupou seu tempo, você pode me pagar um café.',

@@ -1,0 +1,40 @@
+---
+import GuideDots from '@components/guide/GuideDots/GuideDots.astro'
+
+import type { NumberedGuide } from '@utils/path-stages'
+
+import './path-stages.css'
+
+interface Stage {
+  title: string
+  text: string
+  guides: NumberedGuide[]
+}
+
+interface Props {
+  title: string
+  labelTemplate: string
+  stages: Stage[]
+}
+
+const { title, labelTemplate, stages } = Astro.props
+const visible = stages.filter((stage) => stage.guides.length > 0)
+---
+
+{visible.length > 0 && (
+  <section class="stages" aria-labelledby="stages-title" data-path-stages>
+    <h2 id="stages-title" class="stages-heading">
+      {title}
+    </h2>
+    <ol class="stages-list">
+      {visible.map((stage) => (
+        <li class="stage">
+          <span class="stage-marker" aria-hidden="true" />
+          <h3 class="stage-title">{stage.title}</h3>
+          <p class="stage-text">{stage.text}</p>
+          <GuideDots guides={stage.guides} labelTemplate={labelTemplate} />
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
