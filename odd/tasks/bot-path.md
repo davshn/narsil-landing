@@ -32,7 +32,16 @@ T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the
 
 ## Not on the site
 
-The bot code in these guides was written from documentation and has not run on the boards; the owner corrects the guides after building.
+The bot code in these guides was written from documentation and has not run on the boards; the owner corrects the guides after building. Judgement calls in 6a that no source settled, to check first when building:
+
+- Belly UART on GPIO4 (TX) and GPIO5 (RX): on the header and unused by Xiaozhi's `config.h` and the BSP; GPIO37/38 avoided because they are the boot console.
+- Head UART on GPIO13 (RX) and GPIO14 (TX): read from the schematic's text layer as adjacent header pins; the least certain value, the guide tells readers to check the silkscreen.
+- Each board on its own USB power, GND shared, 3V3 not shared; UART_NUM_1 at 115200 baud.
+- Server providers: OpenaiASR (FunASR's SenseVoice has no Spanish) and EdgeTTS; example time zone -5.
+- The OTA URL is set in the Wi-Fi portal (NVS `wifi/ota_url`), not in Kconfig, so the server address stays out of the repository.
+- `idf.py monitor` over RFC2217 inferred from the documented flash command.
+- Source contradictions: Waveshare documents ESP-IDF 5.3.1+, Xiaozhi needs 6.0.1+; the Xiaozhi README recommends `release/v6.1` while the cardputer README reports the `release-v6.1` image failing HTTPS; header size 13 vs 16 pins on Waveshare's page.
+- For S2–S4 the guides phrase the AI's questions from the options recorded in this conversation; S9 and L5 are not quoted on the site.
 
 ## Log
 
