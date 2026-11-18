@@ -54,6 +54,7 @@ test.describe('Landing page smoke tests', () => {
       ).toBeVisible()
       await expect(about).toContainText(t.support.about.name)
       await expect(about).toContainText(t.support.about.bio)
+      await expect(about.getByRole('img', { name: t.support.about.photoAlt })).toBeVisible()
       const portfolio = about.locator('[data-developer-profile]')
       await expect(portfolio).toHaveText(t.support.developer.link)
       await expect(portfolio).toHaveAttribute('href', 'https://davshn.tech/en')

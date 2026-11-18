@@ -146,6 +146,7 @@ export interface TranslationShape {
     about: {
       title: string
       name: string
+      photoAlt: string
       bio: string
     }
     reposTitle: string

@@ -1,0 +1,47 @@
+@reference '../../../styles/global.css';
+
+.developer-about {
+  @apply mt-10 flex flex-col items-center gap-6 bg-card text-card-foreground text-center sm:flex-row sm:items-start sm:text-left;
+  padding: var(--spacing-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.developer-about-photo {
+  @apply shrink-0 rounded-full;
+  padding: var(--spacing-2);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.developer-about-img {
+  @apply block rounded-full;
+  width: 160px;
+  height: 160px;
+  object-fit: cover;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.developer-about-body {
+  @apply flex flex-col gap-2;
+}
+
+.developer-about-title {
+  @apply text-xl font-semibold;
+}
+
+.developer-about-name {
+  @apply text-lg font-semibold text-primary;
+}
+
+.developer-about-bio {
+  color: var(--color-muted-foreground);
+}
+
+.developer-about-profile {
+  @apply mt-2 text-sm;
+  color: var(--color-muted-foreground);
+}
+
+.developer-about-link {
+  @apply text-primary underline underline-offset-4;
+}
