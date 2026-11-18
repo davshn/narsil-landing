@@ -1,11 +1,10 @@
 ---
 import Container from '@components/ui/Container/Container.astro'
 import Text from '@components/ui/Text/Text.astro'
+import { languageTags, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
-import { buildWebPage } from '@seo/json-ld'
-
-import type { Locale } from '@i18n/index'
+import { buildBreadcrumbList, buildWebApplication } from '@seo/json-ld'
 
 interface Props {
   locale: Locale
@@ -20,13 +19,21 @@ const { locale, title, description, intro, guideHref, guideText } = Astro.props
 const t = useTranslations(locale)
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
-const jsonLd = buildWebPage({
-  name: title,
-  url: new URL(Astro.url.pathname, siteUrl).href,
-  description,
-  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-  inLanguage: locale,
-})
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+const jsonLd = [
+  buildWebApplication({
+    name: title,
+    description,
+    url: pageUrl,
+    inLanguage: languageTags[locale],
+    isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  }),
+  buildBreadcrumbList([
+    { name: t.meta.siteName, url: new URL(`/${locale}/`, siteUrl).href },
+    { name: t.tools.title, url: new URL(`/${locale}/tools/`, siteUrl).href },
+    { name: title, url: pageUrl },
+  ]),
+]
 ---
 
 <SiteLayout

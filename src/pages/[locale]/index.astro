@@ -10,7 +10,7 @@ import CardBody from '@components/ui/Card/CardBody.astro'
 import Container from '@components/ui/Container/Container.astro'
 import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
 import Text from '@components/ui/Text/Text.astro'
-import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { defaultLocale, isLocale, languageTags, locales, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
@@ -59,14 +59,14 @@ const jsonLd = [
     name: t.meta.siteName,
     url: siteUrl,
     description: t.meta.description,
-    inLanguage: locale,
+    inLanguage: languageTags[locale],
   }),
   buildWebPage({
     name: t.meta.title,
     url: pageUrl,
     description: t.meta.description,
     isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-    inLanguage: locale,
+    inLanguage: languageTags[locale],
   }),
 ]
 ---

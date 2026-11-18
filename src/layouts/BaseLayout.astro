@@ -15,6 +15,8 @@ interface Props {
     title?: string
     description?: string
     image?: string
+    type?: 'website' | 'article'
+    modifiedTime?: string
   }
   jsonLd?: object | object[]
   siteName?: string
@@ -29,7 +31,13 @@ const {
   jsonLd,
   siteName = title,
 } = Astro.props
-const { title: customOgTitle, description: customOgDescription, image: ogImage } = og ?? {}
+const {
+  title: customOgTitle,
+  description: customOgDescription,
+  image: ogImage,
+  type: ogType = 'website',
+  modifiedTime,
+} = og ?? {}
 
 const ogTitle = customOgTitle ?? title
 const ogDescription = customOgDescription ?? description
@@ -82,7 +90,10 @@ const alternateOgLocales = locales.filter((loc) => loc !== locale).map((loc) => 
       />
     )}
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    {ogType === 'article' && modifiedTime !== undefined && (
+      <meta property="article:modified_time" content={modifiedTime} />
+    )}
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content={ogLocales[locale]} />
     {alternateOgLocales.map((ogLocale) => (
