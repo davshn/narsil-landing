@@ -55,7 +55,7 @@ So the belly can tell the kind of alert from its tag alone, and it knows the tim
 
 ### What the status carries
 
-The `-estado` message is a JSON object inside the ntfy message's `message` field, sent with priority 1. narsil-pet's README documents its fields: `xp` (Narsil's level and experience), `art` (the URL of her drawing at her stage, in the pose of the most important conversation), `at` (when it was sent, in Unix seconds), `cacheMinutes` (how long a cache lasts, when one exists) and `usage` (the day's ntfy count). The belly uses `xp` and `at`, and passes the pose on to the head (guides 10 and 11).
+The `-estado` message is a JSON object inside the ntfy message's `message` field, sent with priority 1. narsil-pet's README documents its fields: `xp` (Narsil's level and experience), `art` (the URL of her drawing at her stage, in the pose of the most important conversation), `at` (when it was sent, in Unix seconds), `cacheMinutes` (how long a cache lasts, when one exists) and `usage` (the day's ntfy count). The belly shows `xp` with ntfy's own time for the message, and reads the pose and stage from `art` to pass them on to the head ([guides 10](/en/bot/uart-protocol/) and [11](/en/bot/holographic-head/)).
 
 ### What the key hides, and what it does not
 
@@ -98,7 +98,7 @@ Wi-Fi drops, and long connections break. ntfy keeps messages for a while (the se
 
 ### Where the topic lives
 
-The topic is stored in the belly's NVS, through Xiaozhi's `Settings` class (`main/settings.h`), in the namespace `narsil` under the key `ntfy_topic`. You type it once on the belly's settings screen, which guide 9 builds; it never appears in the source code. Guide 12 explains why NVS is not encrypted by default and what that means for a device on your desk.
+The topic is stored in the belly's NVS, through Xiaozhi's `Settings` class (`main/settings.h`), in the namespace `narsil` under the key `ntfy_topic`. You type it once on the belly's settings screen, which [guide 9](/en/bot/belly-ui/) builds; it never appears in the source code. [Guide 12](/en/bot/secrets-privacy/) explains why NVS is not encrypted by default and what that means for a device on your desk.
 
 ## How it was asked of the AI
 
@@ -114,7 +114,7 @@ Narsil already publishes those tasks to ntfy for the phone, so the AI proposed r
 
 In English: "by cable, from the belly".
 
-So the belly is the only board on the network for alerts: it subscribes to ntfy, and the head gets only pose and state over the wire (guide 10). How to reconnect, and what to show when a key is set, were not asked; the AI took them from ntfy's documentation and from narsil-pet's `sealedMessage`.
+So the belly is the only board on the network for alerts: it subscribes to ntfy, and the head gets only pose and state over the wire ([guide 10](/en/bot/uart-protocol/)). How to reconnect, and what to show when a key is set, were not asked; the AI took them from ntfy's documentation and from narsil-pet's `sealedMessage`.
 
 ### A prompt you can use
 
@@ -124,7 +124,7 @@ The following prompt was written for this guide as a suggestion. It is not the c
 
 ## The minimal code
 
-A task for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowAlert` and `ShowStatus` are the screen's functions from guide 9:
+A task for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowAlert` and `ShowStatus` are the screen's functions from [guide 9](/en/bot/belly-ui/):
 
 ```cpp
 #include <cJSON.h>
@@ -224,5 +224,5 @@ Run `/narsil movil prueba` in Claude Code: a `message` line appears. Then do the
 
 - **Reading sealed alerts.** `hooks/seal.ts` derives two keys from yours with HMAC-SHA256 (`enc` and `mac`), XORs the text with an HMAC keystream in 32-byte blocks and checks a tag over the nonce and the ciphertext. mbedTLS, part of ESP-IDF, has HMAC-SHA256; porting `unseal` lets the belly read the text while the topic shows noise.
 - **Your own ntfy server.** ntfy can run at home with access control, so the topic is not public. narsil-pet posts to `https://ntfy.sh`, so both sides would have to change.
-- **The status for the head.** The `-estado` message is what drives Narsil's pose on the head; guide 10 sends it over the UART.
-- Guide 8 adds the other list the belly shows: the pull requests that need you. The screen itself is guide 9, in the [bot path](/en/bot/).
+- **The status for the head.** The `-estado` message is what drives Narsil's pose on the head; [guide 10](/en/bot/uart-protocol/) sends it over the UART.
+- Guide 8 adds the other list the belly shows: the pull requests that need you. The screen itself is [guide 9](/en/bot/belly-ui/).

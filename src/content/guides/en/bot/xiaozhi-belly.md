@@ -168,4 +168,4 @@ To test, open the monitor (guide 2) during the first boot. You should see the Wi
 - Xiaozhi's [OTA document](https://github.com/78/xiaozhi-esp32/blob/main/docs/ota.md) describes how a server can also offer firmware updates; xinnan-tech's server can serve them from its `data/bin` folder, so the belly can update over Wi-Fi.
 - `scripts/build.py --list-wake-words` lists the wake-word models of the current ESP-SR component, and `--wake-word` picks one.
 - The [custom board guide](https://github.com/78/xiaozhi-esp32/blob/main/docs/custom-board.md) warns never to overwrite an existing board's configuration for a custom one, because OTA can replace your firmware with the stock one for that board. Keep it in mind whenever you add your own code to the belly.
-- Xiaozhi can also show expressions on its own screen; guide 9 replaces the belly's screen with Narsil's own interface.
+- Xiaozhi can also show expressions on its own screen; [guide 9](/en/bot/belly-ui/) replaces the belly's screen with Narsil's own interface.
