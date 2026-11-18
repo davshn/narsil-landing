@@ -3,7 +3,7 @@ title: Installer, recharger, valider et tester
 description: Charger un mod depuis son dossier ou une marketplace locale, le recharger après une modification et le vérifier avec claude plugin validate, claude plugin test et tsc.
 route: mods
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -22,7 +22,9 @@ sources:
 
 ## Ce que ça fait
 
-Ce guide reprend le mod `greeter` de « De quoi se compose un mod », l’exécute dans une session, le recharge après une modification et le vérifie de trois façons : `claude plugin validate` pour ce que verra le moteur, `claude plugin test` pour ce que font les hooks et `tsc` pour les types.
+Construire un mod avec Claude est une boucle : Claude écrit, vous chargez le mod, vous le vérifiez, et vous dites à Claude ce que vous avez vu. Ce guide couvre la partie chargement et vérification de cette boucle pour le mod `greeter` de « De quoi se compose un mod ».
+
+Vous apprendrez à exécuter un mod dans une session, comment une modification parvient à une session en cours, et trois vérifications : `claude plugin validate` pour ce que verra le moteur, `claude plugin test` pour ce que font les hooks et `tsc` pour les types.
 
 ## Comment ça marche à l’intérieur
 
@@ -36,7 +38,23 @@ Claude Code lit un mod depuis l’un de deux types d’emplacement, et c’est c
 
 Un rechargement exécute à nouveau `register` dans un environnement neuf. Les variables de module et les minuteurs en attente disparaissent ; les valeurs de `$.state` et de `$.store` restent.
 
-## Pas à pas
+## Le construire avec Claude
+
+Claude peut faire l’essentiel de ce travail pour vous : écrire le fichier de marketplace, écrire un test, configurer la vérification des types et lancer les trois vérifications. Ce que vous devez savoir, c’est ce que prouve chaque vérification, pour pouvoir lire sa sortie. Chargez d’abord le mod depuis son dossier (étape 1 ci-dessous), pour que Claude Code écrive les fichiers de types dont la vérification des types a besoin. Puis demandez :
+
+> Dans le dossier de mon mod Claude Code `greeter`, en utilisant le skill plugin-authoring : ajoute un `.claude-plugin/marketplace.json` qui liste le mod avec `"source": "./"` ; ajoute un `tsconfig.json` qui étend `./.claude-plugin/types/tsconfig.json`, et ajoute `.claude-plugin/types/` à `.gitignore` ; écris `tests/greeter.test.tsx` avec `claude-code/testing` qui démarre une session, fait deux appels d’outils et vérifie le toast et la ligne d’état. Lance ensuite `claude plugin validate`, `claude plugin test` et `npx tsc` sur le dossier et montre-moi chaque sortie.
+
+Lisez ensuite vous-même les trois sorties :
+
+- **validate** doit lister les hooks et les appels que vous attendez. Il lit le code source ; il ne l’exécute pas.
+- **test** doit indiquer `1 pass` et `0 fail`. Si un test échoue avec « returned no result », il manque une réponse à un hook du test qui tient le rôle du moteur.
+- **tsc** ne doit rien afficher. Chaque ligne qu’il affiche est une erreur de type, avec son fichier et sa ligne.
+
+Deux choses restent à votre charge, parce qu’elles se passent dans votre propre session, et non dans les fichiers de Claude : charger le mod (avec `--plugin-dir` ou une marketplace locale) et lancer `/reload-plugins` après une modification. Les étapes ci-dessous expliquent les deux.
+
+## Ce que fait chaque étape
+
+Claude peut lancer ces commandes pour vous, mais vous devez savoir ce que fait chacune et ce que signifie sa sortie. Les voici dans l’ordre où vous les utiliseriez.
 
 ### 1. L’exécuter depuis son dossier
 

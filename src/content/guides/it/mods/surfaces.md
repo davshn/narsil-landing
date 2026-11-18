@@ -3,7 +3,7 @@ title: 'Superfici: terminale, desktop, VS Code e mobile'
 description: Dove disegna una mod, quali elementi ha ogni superficie e come scrivere un solo hook di render che funzioni nel terminale, nell'app desktop, in VS Code e nell'app mobile.
 route: mods
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Cosa fa
 
-La stessa mod può disegnare nel terminale, nell'app desktop di Claude, in VS Code e nell'app mobile di Claude. Ognuno di questi è una superficie, e ognuno ha il proprio insieme di elementi. Questa guida spiega come un hook di render scopre su quale superficie disegna, cosa offre ciascuna superficie e come scrivere un solo albero che regga su tutte.
+La stessa mod può disegnare nel terminale, nell'app desktop di Claude, in VS Code e nell'app mobile di Claude. Ognuno di questi posti è una superficie, e ognuno ha il proprio insieme di elementi (riquadri, testo, pulsanti, campi).
+
+Questa guida spiega come una mod scopre su quale superficie disegna, cosa offre ciascuna superficie e come chiedere a Claude un solo design che regga su tutte.
 
 ## Come funziona dentro
 
@@ -52,7 +54,24 @@ Dove viene disegnato ciascun punto, come lo indica il file di dichiarazioni:
 
 Due output non passano per `ui.render`. `$.ui.status(text)` fissa una riga per il plugin sotto il prompt. `$.ui.toast(text)` fluttua nell'angolo in alto a destra della trascrizione, e dove la trascrizione viene stampata nello scrollback è una riga nella barra delle notifiche. Il file di dichiarazioni non elenca superficie per superficie dove compaiono questi due.
 
-## Passo dopo passo
+## Costruiscila con Claude
+
+La trappola delle superfici è che una mod può sembrare corretta sulla superficie che provi e rompersi su un'altra. Per questo il prompt chiede a Claude di controllare la tabella degli elementi prima di usare un elemento, e di testare ogni superficie:
+
+> Usando la skill plugin-authoring, aggiungi alla mia mod di Claude Code `greeter` una banda sopra il prompt: un hook `ui.render` su `AbovePrompt` che mostri il numero di chiamate a strumenti e la superficie su cui viene disegnata, e che restituisca `next(e)` quando `e.props.hasSurvey` è true. Prendi gli elementi da `$.ui.resolve(e)`. Poi disegna un `Pane` con l'id di richiesta `notes` che mostri un campo di testo solo dove la superficie ha `Input` e non è mobile, e la riga "Ask Claude to add a note." in tutti gli altri casi. Scrivi un test con `claude-code/testing` che monti il pannello su `terminal`, `desktop`, `vscode` e `mobile` in un unico ciclo.
+
+Quando Claude risponde, controlla:
+
+1. Gli elementi vengono da `$.ui.resolve(e)`. Nessuno è importato o dato per scontato.
+2. Ogni elemento che non è in tutte e quattro le tabelle (`Input`, `Svg`, `Raster`, `Image`, `Client`) viene controllato prima dell'uso, con un'alternativa.
+3. Il test percorre tutte e quattro le superfici.
+4. Nessun hook di render chiama `$.state.set`.
+
+Anche se usi solo il terminale, quel ciclo di test è il modo in cui scopri se la mod regge nell'app desktop e su un telefono.
+
+## Capisci il codice, passo dopo passo
+
+Ecco come appare una buona risposta. Leggila per capire perché c'è ogni controllo e per confrontarla con ciò che ha scritto Claude.
 
 ### 1. Una banda che legge la propria superficie
 

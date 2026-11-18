@@ -3,7 +3,7 @@ title: 'Surfaces : terminal, bureau, VS Code et mobile'
 description: 'Où dessine un mod, quels éléments offre chaque surface, et comment écrire un hook de rendu qui fonctionne dans le terminal, l’application de bureau, VS Code et l’application mobile.'
 route: mods
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Ce que ça fait
 
-Un même mod peut dessiner dans le terminal, dans l’application de bureau Claude, dans VS Code et dans l’application mobile Claude. Chacun de ces environnements est une surface, et chaque surface a son propre jeu d’éléments. Ce guide explique comment un hook de rendu apprend sur quelle surface il dessine, ce que propose chaque surface, et comment écrire un seul arbre qui tienne sur toutes.
+Un même mod peut dessiner dans le terminal, dans l’application de bureau Claude, dans VS Code et dans l’application mobile Claude. Chacun de ces endroits est une surface, et chaque surface a son propre jeu d’éléments (boîtes, texte, boutons, champs).
+
+Ce guide explique comment un mod apprend sur quelle surface il dessine, ce que propose chaque surface, et comment demander à Claude un seul design qui tienne sur toutes.
 
 ## Comment ça marche à l’intérieur
 
@@ -52,7 +54,24 @@ Où chaque emplacement est dessiné, tel que l’indique le fichier de déclarat
 
 Deux sorties ne passent pas par `ui.render`. `$.ui.status(text)` épingle une ligne pour le plugin sous le prompt. `$.ui.toast(text)` flotte dans le coin supérieur droit de la transcription et, là où la transcription est imprimée dans l’historique de défilement, occupe une ligne de la barre de notifications. Le fichier de déclarations n’indique pas, surface par surface, où apparaissent ces deux sorties.
 
-## Pas à pas
+## Le construire avec Claude
+
+Le piège avec les surfaces, c’est qu’un mod peut sembler correct sur la surface que vous testez et casser sur une autre. Le prompt demande donc à Claude de consulter la table des éléments avant d’utiliser un élément, et de tester chaque surface :
+
+> En utilisant le skill plugin-authoring, ajoute une bande au-dessus du prompt à mon mod Claude Code `greeter` : un hook `ui.render` sur `AbovePrompt` qui affiche le nombre d’appels d’outils et la surface sur laquelle il est dessiné, et qui renvoie `next(e)` quand `e.props.hasSurvey` est vrai. Prends les éléments dans `$.ui.resolve(e)`. Dessine ensuite un `Pane` avec l’identifiant de requête `notes` qui affiche un champ de texte uniquement là où la surface a `Input` et n’est pas mobile, et la ligne « Ask Claude to add a note. » partout ailleurs. Écris un test avec `claude-code/testing` qui monte le panneau sur `terminal`, `desktop`, `vscode` et `mobile` dans une seule boucle.
+
+Quand Claude répond, vérifiez :
+
+1. Les éléments viennent de `$.ui.resolve(e)`. Aucun n’est importé ni supposé.
+2. Chaque élément qui ne figure pas dans les quatre tables (`Input`, `Svg`, `Raster`, `Image`, `Client`) est vérifié avant usage, avec une solution de repli.
+3. Le test parcourt les quatre surfaces.
+4. Aucun hook de rendu n’appelle `$.state.set`.
+
+Même si vous n’utilisez que le terminal, cette boucle de test est le moyen de savoir si le mod tient dans l’application de bureau et sur un téléphone.
+
+## Comprendre le code, pas à pas
+
+Voici à quoi ressemble une bonne réponse. Lisez-la pour comprendre pourquoi chaque vérification est là et pour la comparer avec ce que Claude a écrit.
 
 ### 1. Une bande qui lit sa surface
 

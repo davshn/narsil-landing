@@ -14,16 +14,16 @@ Objective: rewrite the site copy so it teaches clearly and puts building with Cl
 
 ## Tasks
 
-| ID  | Specs          | Route                          | Status  | Commit |
-| --- | -------------- | ------------------------------ | ------- | ------ |
-| T1  | S3, S4         | inline                         | pending |        |
-| T2  | S2, S3, S5     | inline                         | pending |        |
-| T3  | S6             | delegated (4 parallel writers) | pending |        |
-| T4  | S2             | inline                         | pending |        |
-| T5  | S2–S6 (pet)    | later slice                    | pending |        |
-| T6  | S2–S6 (check)  | later slice                    | pending |        |
-| T7  | S2–S6 (claude) | later slice                    | pending |        |
-| T8  | S2–S6 (bot)    | later slice                    | pending |        |
+| ID  | Specs          | Route                          | Status  | Commit                                                       |
+| --- | -------------- | ------------------------------ | ------- | ------------------------------------------------------------ |
+| T1  | S3, S4         | inline                         | done    | `acd2f1d`                                                    |
+| T2  | S2, S3, S5     | inline                         | done    | `acd2f1d`                                                    |
+| T3  | S6             | delegated (4 parallel writers) | done    | translations commit                                          |
+| T4  | S2             | inline                         | done    | 728 unit tests, 99.15 % lines, 18 mods e2e passed (chromium) |
+| T5  | S2–S6 (pet)    | later slice                    | pending |                                                              |
+| T6  | S2–S6 (check)  | later slice                    | pending |                                                              |
+| T7  | S2–S6 (claude) | later slice                    | pending |                                                              |
+| T8  | S2–S6 (bot)    | later slice                    | pending |                                                              |
 
 T1: English UI copy in `src/i18n/locales/en.ts`. T2: the five English mods guides. T3: UI copy and mods guides in es, it, fr, pt, one writer per locale (disjoint files, several minutes each). T4: e2e expectations for the new guide headings and full checks.
 
@@ -32,3 +32,5 @@ T1: English UI copy in `src/i18n/locales/en.ts`. T2: the five English mods guide
 - L1 (2026-11-18, owner): "revisa todos los textos de la app, quiero que te asegures de que sean escritos de forma educativa y muy clara, priorizando la creacion con IA y despriorizando el copiar codigo, modifica lo que consideres"
 - L2 (2026-11-18, owner): "dale, empieza con la interfaz y mods"
 - L3: No unit test checks guide headings; `e2e/guides.spec.ts` counts five `h2` in `what-is-a-mod` and names "How it was asked of the AI" and "The minimal code" for the other paths, which change in later slices.
+- L4: The writers found a literal `\n\n` in the English `install-and-test.md` from the scripted edit; fixed to a paragraph break. Localized headings: es "Constrúyelo con Claude", it "Costruiscila con Claude", fr "Le construire avec Claude", pt "Construa com o Claude".
+- L5: Next slice is the pet path (T5).

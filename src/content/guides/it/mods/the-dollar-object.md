@@ -3,7 +3,7 @@ title: L'oggetto $
 description: Le aree dell'interfaccia del motore che ogni hook riceve, con le loro firme reali e dove narsil-pet e narsil-check usano ciascuna.
 route: mods
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Cosa fa
 
-Ogni hook riceve `$`, l'interfaccia del motore. Una mod non ha Node né DOM, quindi `$` è il modo in cui raggiunge lo schermo, i suoi dati salvati, l'orologio, la rete, i processi, i file, la sessione, il modello, gli strumenti e i comandi. Questa guida percorre le aree che usano le due mod di Narsil, con la firma di ogni metodo come la dichiara Claude Code 2.1.325.
+Ogni hook riceve `$`, l'interfaccia del motore. Una mod non ha Node né browser, quindi `$` è il suo unico modo per raggiungere l'esterno: lo schermo, i suoi dati salvati, l'orologio, la rete, i processi, i file, la sessione, il modello, gli strumenti e i comandi.
+
+Questa guida è una mappa di `$`. Mostra quale area fa cosa, così puoi chiedere a Claude la cosa giusta e riconoscere una chiamata che non esiste. Ogni metodo compare con la sua firma come la dichiara Claude Code 2.1.325, e con il punto in cui la usano le mod di Narsil.
 
 `$` ha più di quanto trovi qui (temi, impostazioni, agenti, telemetria e altro). Il file di dichiarazioni, `claude-code.d.ts`, documenta ogni nome e ogni metodo con il suo commento di documentazione e un esempio.
 
@@ -51,7 +53,24 @@ Un helper che riceve `$: EngineInterface` può usare le stesse chiamate di un ho
 | `$.env`     | Variabili d'ambiente                                                                              | narsil-pet                                 |
 | `$.plugin`  | Il nome e la cartella del plugin stesso                                                           | narsil-pet                                 |
 
-## Passo dopo passo
+## Costruiscila con Claude
+
+Non serve imparare `$` a memoria. Ciò che aiuta è sapere quale area fa cosa, così puoi descrivere la tua idea in quei termini e accorgerti di una chiamata che non esiste. Un buon modo di lavorare è chiedere a Claude un piano prima del codice:
+
+> Usando la skill plugin-authoring, voglio che la mia mod di Claude Code `greeter` conti quante sessioni ho avviato, conservi quel numero tra una sessione e l'altra, lo mostri in un toast quando inizia una sessione e risponda a un comando `/greeter` con lo stesso numero. Prima dimmi quali aree di `$` useresti per ciascuna parte e perché. Poi scrivi il codice, controllando ogni chiamata con `claude-code.d.ts`.
+
+Il passo del piano conta. Se Claude dice che conserverà il numero in `$.state`, sai già che qualcosa non va: `$.state` finisce con la sessione, ed è `$.store` quello che dura. Accorgertene in una frase costa meno che scoprirlo più tardi nel codice.
+
+Quando Claude scrive il codice, controlla:
+
+1. Ogni chiamata a `$` compare nella tabella qui sopra o in `claude-code.d.ts`. Se non trovi una chiamata, chiedi a Claude dove è dichiarata.
+2. Il numero si legge e si scrive con `$.store.get` e `$.store.set`.
+3. Il comando è registrato con `$.command.register` in `session.start` e riceve risposta in un hook `command.run`.
+4. Le chiamate che possono fallire hanno un `.catch`, oppure il loro risultato viene controllato (`isSent`, `isAnswered` e simili).
+
+## Capisci ogni area, con esempi
+
+Ogni area qui sotto ha qualche riga scritta come la scriverebbe Claude, e cosa restituisce ogni metodo. Non serve memorizzarle: usale per riconoscere ciò che scrive Claude e per chiedere la cosa giusta.
 
 ### $.ui: ciò che vede la persona
 

@@ -3,7 +3,7 @@ title: De qué está hecho un mod
 description: Los tres archivos de un mod de Claude Code, la función register y sus hooks, y el mod más pequeño que muestra algo en pantalla.
 route: mods
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Qué hace
 
-Un mod es un plugin de Claude Code hecho de hooks de función: TypeScript que se ejecuta dentro de Claude Code y cambia lo que muestra o cómo se comporta. Al terminar esta guía sabrás qué archivos necesita un mod y qué hace la función `register`, y tendrás un mod que muestra un toast cuando empieza una sesión y lleva la cuenta de las llamadas a herramientas en su barra de estado.
+Un mod es un plugin de Claude Code hecho de hooks. Un hook es una función que Claude Code llama cuando pasa algo: empieza una sesión, Claude llama a una herramienta, termina un turno. Los mods se escriben en TypeScript y cambian lo que muestra Claude Code o cómo se comporta.
+
+En esta guía le pedirás a Claude que construya un mod pequeño llamado `greeter`. Muestra un mensaje breve (un toast) cuando empieza una sesión y cuenta las llamadas a herramientas en su barra de estado. Por el camino aprenderás qué archivos necesita todo mod y qué hace la función `register`, para que puedas saber si lo que escribió Claude es correcto.
 
 La API de mods está en acceso anticipado y cambia entre versiones. Todo lo que aparece aquí se comprobó con Claude Code 2.1.325 y su archivo de declaraciones, `claude-code.d.ts`. Si tu versión es más reciente, ese archivo es la referencia.
 
@@ -46,11 +48,35 @@ Un hook que termina sin llamar a `next` responde el evento por sí mismo. Un hoo
 
 El archivo opcional `types/index.d.ts` es el contrato de tipos del mod. Declara la forma de los valores que el mod guarda en `$.state` (y, en un mod que añade un sustantivo a `$`, ese sustantivo). `plugin.json` lo nombra en `"types"`, y `claude plugin validate` comprueba con él las lecturas y escrituras de estado del mod.
 
-## Paso a paso
+## Constrúyelo con Claude
+
+No necesitas escribir estos archivos tú. Claude Code incluye una skill para escribir mods, `plugin-authoring`, que conoce los tipos reales de la API de mods. Pídele a Claude que la use y describe lo que quieres con palabras sencillas: el nombre del mod, qué hace y cuándo.
+
+> Usando la skill plugin-authoring, crea un mod de Claude Code llamado `greeter` en una carpeta nueva. Cuando empieza una sesión, muestra un toast que dice "Hello from greeter". Cuenta cada llamada a una herramienta y muestra la cuenta en su barra de estado, por ejemplo "greeter: 3 tool calls". Guarda la cuenta en `$.state` con un `atom` declarado en `types/index.d.ts`, para que sobreviva a una recarga del módulo. Cuando termines, ejecuta `claude plugin validate` sobre la carpeta y muéstrame lo que informa.
+
+Por qué funciona este prompt:
+
+- **Nombra la skill**, así que Claude comprueba cada llamada con la API real en lugar de adivinar.
+- **Describe un comportamiento que puedes ver** (el toast y la barra de estado), así que sabrás cuándo funciona.
+- **Dice dónde vive la cuenta.** Sin esa línea, una primera respuesta habitual guarda la cuenta en una variable normal que vuelve a cero cada vez que guardas el archivo. El paso 4 de abajo explica por qué.
+- **Pide una prueba.** La salida de validate lista los hooks y las llamadas que el mod hace de verdad.
+
+Cuando Claude responda, comprueba cuatro cosas antes de seguir:
+
+1. La carpeta tiene los cuatro archivos de la tabla de arriba: `plugin.json`, `hooks.json`, `register.tsx` y `types/index.d.ts`.
+2. Cada hook termina con `return next(e)`.
+3. La cuenta usa `atom` y `update`, no una variable declarada con `let`.
+4. `claude plugin validate` lista `hooks: session.start, tool.call`.
+
+Si algo no cuadra, cuéntale a Claude lo que ves, no solo cómo arreglarlo: "la cuenta vuelve a 0 cada vez que guardo `register.tsx`". Describir el síntoma permite a Claude encontrar la causa, y tú aprendes a leer el mod como lo lee él.
+
+## Entiende el código, paso a paso
+
+Así es una buena respuesta, construida pieza a pieza. Léela para entender qué hace cada línea y para compararla con lo que escribió Claude. Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 ### 1. El manifiesto
 
-Crea una carpeta llamada `greeter` y escribe `.claude-plugin/plugin.json`:
+El mod vive en una carpeta llamada `greeter`. Su manifiesto es `.claude-plugin/plugin.json`:
 
 ```json
 {
@@ -64,7 +90,7 @@ El `name` es el nombre con el que Claude Code, su registro de depuración y tus 
 
 ### 2. El archivo de hooks
 
-Escribe `hooks/hooks.json`:
+`hooks/hooks.json` le dice a Claude Code qué archivo contiene los hooks:
 
 ```json
 { "modules": ["./register.tsx"] }
@@ -72,7 +98,7 @@ Escribe `hooks/hooks.json`:
 
 ### 3. Un hook que muestra algo
 
-Escribe `hooks/register.tsx` con un hook en `session.start`:
+`hooks/register.tsx` empieza con un hook en `session.start`:
 
 ```tsx
 import type { Register } from 'claude-code'
@@ -89,7 +115,7 @@ export const register: Register = (on) => {
 
 ### 4. Una barra de estado que cuenta las llamadas a herramientas
 
-Añade un segundo hook. `tool.call` se ejecuta en cada llamada a una herramienta, y `$.ui.status(text)` fija una línea para este plugin bajo el prompt hasta que la siguiente llamada la sustituye:
+Un segundo hook cuenta las llamadas. `tool.call` se ejecuta en cada llamada a una herramienta, y `$.ui.status(text)` fija una línea para este plugin bajo el prompt hasta que la siguiente llamada la sustituye:
 
 ```tsx
 import type { Register } from 'claude-code'
@@ -110,11 +136,11 @@ export const register: Register = (on) => {
 }
 ```
 
-Esto funciona, pero `count` es una variable del módulo. Al guardar el archivo, el módulo se recarga en un entorno nuevo, así que la cuenta vuelve a empezar.
+Esta es una primera respuesta habitual, y un buen ejemplo de por qué conviene comprobar: funciona hasta que guardas el archivo. `count` es una variable del módulo, y al guardar, el módulo se recarga en un entorno nuevo, así que la cuenta vuelve a empezar en 0.
 
 ### 5. Un contrato de tipos y un estado que sobrevive a una recarga
 
-`$.state` guarda valores con nombre durante la sesión, y estos sobreviven a una recarga en caliente del módulo. Declara el valor en `types/index.d.ts`:
+La solución es `$.state`, que guarda valores con nombre durante la sesión y los conserva cuando el módulo se recarga. El valor se declara en `types/index.d.ts`:
 
 ```ts
 declare module 'claude-code' {
@@ -124,7 +150,7 @@ declare module 'claude-code' {
 }
 ```
 
-Nombra el archivo en el manifiesto:
+El manifiesto nombra ese archivo:
 
 ```json
 {
@@ -135,7 +161,7 @@ Nombra el archivo en el manifiesto:
 }
 ```
 
-Después usa las funciones auxiliares de estado `atom` y `update` de `claude-code`:
+Y el hook usa las funciones auxiliares de estado `atom` y `update` de `claude-code`:
 
 ```tsx
 import { atom, update } from 'claude-code'
@@ -169,7 +195,7 @@ greeter/
   types/index.d.ts
 ```
 
-La guía "Instalar, recargar, validar y probar" muestra cómo cargarlo en una sesión.
+La siguiente guía, "Instalar, recargar, validar y probar", muestra cómo cargarlo en una sesión y probarlo.
 
 ## Errores comunes y cómo probarlo
 

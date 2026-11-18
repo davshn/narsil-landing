@@ -3,7 +3,7 @@ title: 'Réutiliser le code de Narsil : la GPL v3'
 description: Les deux mods Narsil sont sous licence GPL-3.0-or-later. Ce que cela implique quand vous étudiez, modifiez ou partagez du code qui en est tiré.
 route: mods
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -22,7 +22,7 @@ sources:
 
 ## Ce que ça fait
 
-narsil-pet et narsil-check sont open source, et les guides de ce site citent et adaptent leur code. Ce guide explique, en termes simples, ce que leur licence vous permet de faire de ce code et ce qu’elle exige de vous quand vous le transmettez.
+narsil-pet et narsil-check sont open source, et les guides de ce site citent et adaptent leur code. Quand vous demandez à Claude de construire un mod à partir de ces guides, le résultat peut contenir du code qui en est tiré. Ce guide explique, en termes simples, ce que leur licence vous permet de faire de ce code et ce qu’elle exige de vous quand vous le transmettez.
 
 Ceci n’est pas un conseil juridique. Ce guide résume le texte de licence fourni avec les deux mods. Pour une décision importante, lisez la licence complète et consultez un ou une juriste.
 
@@ -49,7 +49,24 @@ Quand vous transmettez le code, les principales conditions sont les suivantes :
 
 Un mod est distribué sous forme de fichiers source : en pratique, partager un mod construit à partir du code de Narsil revient donc à partager ce code source sous la GPL v3.
 
-## Pas à pas
+## Le construire avec Claude
+
+Préparer un mod pour le partager est une bonne tâche pour Claude : c’est un travail minutieux et répétitif. Demandez :
+
+> Mon mod Claude Code `my-band` contient du code adapté de narsil-pet (https://github.com/davshn/narsil-pet), qui est sous licence GPL-3.0-or-later. Prépare-le pour le partage : ajoute le texte de la GPL v3 dans `LICENSE`, copié depuis le fichier `LICENSE` de narsil-pet, et non écrit de mémoire ; mets `"license": "GPL-3.0-or-later"` dans `.claude-plugin/plugin.json` ; et en haut de chaque fichier contenant du code de narsil-pet, ajoute un commentaire qui nomme le dépôt et le fichier d’origine, ce que j’ai modifié avec la date du jour, et la licence. Garde les mentions qui étaient déjà là. Lance ensuite `claude plugin validate` et dis-moi s’il signale toujours `LICENSE_MISSING`.
+
+Quand Claude répond, vérifiez :
+
+1. `LICENSE` contient le texte complet de la GPL v3, et non un résumé. Comparez ses premières lignes avec le `LICENSE` de narsil-pet.
+2. `plugin.json` indique `GPL-3.0-or-later`.
+3. Chaque fichier adapté nomme sa source et ce qui a changé.
+4. `claude plugin validate` ne signale plus `LICENSE_MISSING`.
+
+Claude peut rédiger les mentions, mais la décision de partager, et la manière de le faire, vous appartient. Ni Claude ni ce guide ne donnent de conseil juridique.
+
+## Ce que signifie chaque étape
+
+Les étapes ci-dessous expliquent pourquoi chaque modification est nécessaire, pour que vous puissiez vérifier le travail de Claude et l’expliquer à d’autres.
 
 ### 1. Décider si vous allez le partager
 

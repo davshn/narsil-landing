@@ -3,9 +3,9 @@ import type { TranslationShape } from '../index'
 export const fr: TranslationShape = {
   meta: {
     siteName: 'Narsil Workshop',
-    title: 'Narsil Workshop — créez vos propres mods Claude Code et un bot Narsil',
+    title: 'Narsil Workshop — créez des mods Claude Code et un bot Narsil avec Claude',
     description:
-      'Des guides gratuits, pas à pas, pour créer un mod de mascotte d’état comme Narsil, un panneau de revue comme Narsil Check et un bot Narsil qui parle avec Claude et affiche vos pull requests GitHub.',
+      'Des guides gratuits, pas à pas, pour créer des mods Claude Code avec Claude : une mascotte d’état comme Narsil, un panneau de revue comme Narsil Check et un bot Narsil. Apprenez quoi demander, pourquoi ça marche et comment vérifier le résultat.',
   },
   common: {
     skipToContent: 'Aller au contenu',
@@ -20,7 +20,8 @@ export const fr: TranslationShape = {
     support: 'Soutenir le projet',
   },
   footer: {
-    description: 'Des guides gratuits pour créer de zéro des mods Claude Code et un bot Narsil.',
+    description:
+      'Des guides gratuits pour créer des mods Claude Code et un bot Narsil avec Claude, et pour comprendre ce que vous avez construit.',
     donate: 'Offrez-moi un café',
     trademark:
       'Claude et Claude Code sont des marques d’Anthropic, PBC. Ce projet n’est ni affilié à Anthropic ni approuvé par Anthropic.',
@@ -30,9 +31,9 @@ export const fr: TranslationShape = {
       'Code du site et des exemples : MIT. Texte des guides : CC BY-SA 4.0. Code cité de Narsil et Narsil Check : GPL-3.0-or-later.',
   },
   home: {
-    headline: 'Créez vos propres mods Claude Code, pas à pas',
+    headline: 'Créez vos propres mods Claude Code avec Claude, pas à pas',
     subheadline:
-      'Découvrez comment Narsil et Narsil Check fonctionnent de l’intérieur, reconstruisez chaque fonctionnalité de zéro et terminez avec un bot Narsil qui parle avec Claude et affiche vos pull requests.',
+      'Découvrez comment fonctionnent Narsil et Narsil Check, demandez à Claude de construire chaque fonctionnalité avec vous et comprenez chaque pièce qu’il écrit. Terminez avec un bot Narsil qui parle avec Claude et affiche vos pull requests.',
     cta: 'Voir les parcours',
     fundamentalsCta: 'Commencer par les bases',
     heroAlt: 'Narsil, un petit dragon des mers, qui dit bonjour',
@@ -75,22 +76,22 @@ export const fr: TranslationShape = {
     aboutTitle: 'Qu’est-ce que Narsil ?',
     about: [
       'Narsil est un mod Claude Code : une petite mascotte qui vit au-dessus du prompt et vous indique d’un coup d’œil si Claude travaille, a besoin de vous, a terminé ou est bloqué. Narsil Check est son frère, un panneau latéral qui vérifie votre branche, la CI, les dépendances et les vulnérabilités.',
-      'Ici, vous ne vous contenterez pas de les installer. Chaque guide explique quels hooks une fonctionnalité écoute, quel état elle conserve et ce qu’elle dessine, puis construit une version minimale qui fonctionne, avec ses tests.',
+      'Ici, vous ne vous contenterez pas de les installer : vous construirez vos propres versions avec Claude. Chaque guide explique une fonctionnalité avec des mots simples, vous donne un prompt pour la demander à Claude et vous montre comment vérifier que ce que Claude a construit est correct. Le code est là pour être lu et comparé, pas copié.',
     ],
     routesTitle: 'Trois parcours',
     routesSubtitle:
-      'Choisissez un parcours et suivez ses guides dans l’ordre. Si vous n’avez jamais créé de mod, commencez par les bases des mods.',
+      'Choisissez un parcours et suivez ses guides dans l’ordre. Si vous n’avez jamais créé de mod, commencez par les bases des mods : elles expliquent les quelques idées sur lesquelles reposent tous les prompts des autres parcours.',
     routes: [
       {
         title: 'Votre propre mascotte d’état',
         description:
-          'Créez un mod comme Narsil : des états au-dessus du prompt, des animations, toutes les conversations au même endroit, une fenêtre flottante, la voix, des horloges de contexte et de cache, et des alertes sur votre téléphone.',
+          'Créez un mod comme Narsil avec Claude : des états au-dessus du prompt, des animations, toutes les conversations au même endroit, une fenêtre flottante, la voix, des horloges de contexte et de cache, et des alertes sur votre téléphone.',
         icon: 'lucide:sparkles',
       },
       {
         title: 'Votre propre panneau de revue',
         description:
-          'Créez un mod comme Narsil Check : un panneau latéral avec les étapes de la CI, une branche en retard sur la distante, des mises à jour classées par risque, les vulnérabilités d’OSV.dev et des outils pour Claude.',
+          'Créez un mod comme Narsil Check avec Claude : un panneau latéral avec les étapes de la CI, une branche en retard sur la distante, des mises à jour classées par risque, les vulnérabilités d’OSV.dev et des outils pour Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -115,10 +116,10 @@ export const fr: TranslationShape = {
   mods: {
     title: 'Bases des mods',
     description:
-      'De quoi est fait un mod Claude Code, l’objet $, comment installer et tester un mod, où il s’exécute et ce que la licence GPL v3 de Narsil implique pour votre code.',
+      'Les idées qu’il vous faut avant de créer un mod Claude Code avec Claude : de quoi est fait un mod, l’objet $, comment installer et tester un mod, où il s’exécute et ce que la licence GPL v3 de Narsil implique pour votre code.',
     intro: [
-      'Avant de reconstruire Narsil ou Narsil Check, il vous faut les pièces que partagent tous les mods : trois petits fichiers, une fonction qui enregistre des hooks et l’objet $, qui atteint tout ce qui se trouve hors du module.',
-      'Lisez ces guides dans l’ordre. Chacun se termine par un moyen de vérifier que ce que vous avez construit fonctionne.',
+      'Avant de demander à Claude de construire un mod, il est utile de connaître les pièces que partagent tous les mods : trois petits fichiers, une fonction qui enregistre des hooks (des fonctions qui s’exécutent quand quelque chose se produit dans Claude Code) et l’objet $, qui atteint tout ce qui se trouve hors du mod. Avec ces idées, vous pouvez écrire des prompts clairs et vérifier ce que Claude vous donne.',
+      'Lisez ces guides dans l’ordre. Chacun explique une idée, vous donne un prompt pour l’essayer avec Claude, parcourt le code que Claude devrait produire et se termine par un moyen de vérifier que ça fonctionne.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
@@ -126,10 +127,10 @@ export const fr: TranslationShape = {
   pet: {
     title: 'Votre propre mascotte d’état',
     description:
-      'Créez un mod comme Narsil, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, comment elle a été demandée à l’IA et le code minimal pour la faire vôtre.',
+      'Créez un mod comme Narsil avec Claude, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, le prompt pour la demander à Claude et le code à lire et à comparer avec ce que Claude a écrit.',
     intro: [
-      'Narsil a été construit en parlant avec Claude Code. Chaque guide de ce parcours explique l’une de ses fonctionnalités : ce qu’elle apporte à qui l’utilise, les hooks et l’état qui la portent, les choix de conception et la demande qui l’a lancée.',
-      'Quand la demande d’origine a été conservée, le guide la cite mot pour mot. Sinon, le guide le dit et la reconstitue à partir de l’historique des commits.',
+      'Narsil a été construit en parlant avec Claude Code, et vous pouvez construire votre propre mascotte de la même façon. Chaque guide explique une fonctionnalité : ce qu’elle apporte à qui l’utilise, l’idée qui la porte et le prompt qui amène Claude à la construire.',
+      'Quand la demande d’origine a été conservée, le guide la cite mot pour mot, pour que vous voyiez comment l’auteur a parlé à Claude. Le code qui suit est une référence : lisez-le pour comprendre le résultat et pour vérifier ce que Claude a écrit pour vous.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
@@ -137,10 +138,10 @@ export const fr: TranslationShape = {
   check: {
     title: 'Votre propre panneau de revue',
     description:
-      'Créez un mod comme Narsil Check, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, comment elle a été demandée à l’IA et le code minimal pour la faire vôtre.',
+      'Créez un mod comme Narsil Check avec Claude, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, le prompt pour la demander à Claude et le code à lire et à comparer avec ce que Claude a écrit.',
     intro: [
-      'Narsil Check est un panneau latéral qui vérifie votre session avant de livrer : environnement, connecteurs, CI, branche en retard sur la distante, mises à jour classées par risque, vulnérabilités et une liste de tâches que Claude peut utiliser. Chaque guide explique l’une de ses fonctionnalités, les choix de conception et la demande qui l’a lancée.',
-      'Quand la demande d’origine a été conservée, le guide la cite mot pour mot. Sinon, le guide le dit et la reconstitue à partir de l’historique des commits.',
+      'Narsil Check est un panneau latéral qui vérifie votre session avant de livrer : environnement, connecteurs, CI, branche en retard sur la distante, mises à jour classées par risque, vulnérabilités et une liste de tâches que Claude peut utiliser. Chaque guide explique une fonctionnalité, les choix qui la portent et le prompt qui amène Claude à la construire.',
+      'Quand la demande d’origine a été conservée, le guide la cite mot pour mot, pour que vous voyiez comment l’auteur a parlé à Claude. Le code qui suit est une référence : lisez-le pour comprendre le résultat et pour vérifier ce que Claude a écrit pour vous.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
@@ -148,10 +149,10 @@ export const fr: TranslationShape = {
   bot: {
     title: 'Un bot Narsil',
     description:
-      'Donnez un corps à Narsil : un écran tactile ESP32-P4 dans le ventre, une tête holographique ESP32-S3 et une voix grâce à Xiaozhi et Claude sur votre serveur. Ce que fait chaque partie et comment elle a été demandée à l’IA.',
+      'Donnez un corps à Narsil : un écran tactile ESP32-P4 dans le ventre, une tête holographique ESP32-S3 et une voix grâce à Xiaozhi et Claude sur votre serveur. Ce que fait chaque partie, comment elle marche et comment la construire avec Claude.',
     intro: [
       'Le bot a deux cartes reliées par quatre fils. Le ventre, un ESP32-P4 avec un écran tactile de 4,3 pouces, fait tourner Xiaozhi : il écoute, parle avec Claude par votre serveur et affiche vos tâches et vos pull requests. La tête, un ESP32-S3 avec un écran de 1,3 pouce dans un cube prisme, ne dessine que le visage de Narsil et reçoit son état du ventre par UART.',
-      'Lisez les guides dans l’ordre. Chacun explique ce que fait la partie, comment elle marche, les choix derrière et la conversation où ils ont été pris, puis le code.',
+      'Lisez les guides dans l’ordre. Chacun explique ce que fait la partie et comment elle marche, montre la conversation avec Claude où les choix ont été pris, puis le code, pour que vous puissiez comprendre et vérifier ce que Claude construit pour vous.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
@@ -161,8 +162,8 @@ export const fr: TranslationShape = {
     description:
       'Comment est faite l’extension expérimentale qui amène Narsil dans claude.ai sur Android : la bande de la conversation, le menu latéral, les couleurs et les paquets Android.',
     intro: [
-      'Narsil dans Claude est une extension pour Firefox et Vivaldi sur Android qui affiche Narsil dans la vraie application web claude.ai. Chaque guide explique une de ses parties : ce qu’elle fait, comment elle marche à l’intérieur et comment on l’a demandée à l’IA.',
-      'Elle est expérimentale : elle dépend de la structure de la page claude.ai, pas d’une API publique, donc une mise à jour de Claude peut la casser. Son code n’est pas public, donc le code minimal de ces guides est écrit pour les guides.',
+      'Narsil dans Claude est une extension pour Firefox et Vivaldi sur Android qui affiche Narsil dans la vraie application web claude.ai. Chaque guide explique une de ses parties : ce qu’elle fait, comment elle marche et comment demander à Claude de la construire.',
+      'Elle est expérimentale : elle dépend de la structure de la page claude.ai, pas d’une API publique, donc une mise à jour de Claude peut la casser. Son code n’est pas public, donc le code de référence de ces guides est écrit pour les guides.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
@@ -174,7 +175,7 @@ export const fr: TranslationShape = {
     verifiedWith: 'Vérifié avec Claude Code {version}',
     sourcesTitle: 'Pour aller plus loin : comment le fait le vrai mod',
     sourcesIntro:
-      'Ces fichiers font partie des mods originaux, publiés sous GPL v3. Le code cité sur cette page en provient et conserve cette licence.',
+      'Ces fichiers font partie des mods originaux, publiés sous GPL v3. Lisez-les pour voir comment le vrai mod résout le même problème. Le code cité sur cette page en provient et conserve cette licence.',
     pathNavLabel: 'Guides de ce parcours',
     tocTitle: 'Sur cette page',
     pagerLabel: 'Guide précédent et suivant',
@@ -194,9 +195,9 @@ export const fr: TranslationShape = {
   tools: {
     title: 'Outils',
     description:
-      'De petits outils qui tournent dans le navigateur et aident à comprendre les guides : essayez les règles de Narsil et Narsil Check avec vos propres valeurs.',
+      'De petits outils qui tournent dans le navigateur et aident à comprendre les guides : essayez les règles de Narsil et Narsil Check avec vos propres valeurs avant de demander à Claude de les construire.',
     intro:
-      'Chaque outil exécute une règle des mods pour que vous l’essayiez avec vos propres valeurs, à côté du guide qui l’explique.',
+      'Chaque outil exécute une règle des mods pour que vous l’essayiez avec vos propres valeurs. Une fois la règle comprise, vous pouvez la décrire clairement à Claude et vérifier que ce qu’il construit se comporte de la même façon.',
     privacy:
       'Tout tourne dans votre navigateur. Rien de ce que vous tapez ne quitte cette page ni n’entre dans un lien.',
     open: 'Ouvrir l’outil',
@@ -350,8 +351,8 @@ export const fr: TranslationShape = {
       'Narsil Workshop est gratuit et n’aura jamais de publicité ni de prix. S’il vous aide, vous pouvez m’offrir un café pour écrire d’autres guides.',
     lines: [
       'Merci de lire Narsil Workshop. Chaque guide est gratuit et le restera : pas de publicité, pas d’inscription et aucun coût, jamais.',
-      'Si un guide vous a aidé à créer votre propre mod ou votre bot, vous pouvez m’offrir un café. C’est un paiement unique du montant de votre choix, et il est entièrement facultatif.',
-      'Chaque café sert à écrire d’autres guides, exemples et outils pour celles et ceux qui veulent comprendre et étendre Claude Code.',
+      'Si un guide vous a aidé à créer votre propre mod ou votre bot avec Claude, vous pouvez m’offrir un café. C’est un paiement unique du montant de votre choix, et il est entièrement facultatif.',
+      'Chaque café sert à écrire d’autres guides, prompts et outils pour celles et ceux qui veulent construire avec Claude Code et comprendre ce qu’ils construisent.',
     ],
     donate: 'Offrez-moi un café',
     unavailable: 'Les dons ne sont pas encore ouverts.',

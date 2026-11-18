@@ -22,7 +22,9 @@ sources:
 
 ## What it does
 
-Building a mod with Claude is a loop: Claude writes, you load the mod, you check it, and you tell Claude what you saw. This guide covers the load-and-check part of that loop for the `greeter` mod from "What a mod is made of".\n\nYou will learn how to run a mod in a session, how an edit reaches a running session, and three checks: `claude plugin validate` for what the engine will see, `claude plugin test` for what the hooks do, and `tsc` for the types.
+Building a mod with Claude is a loop: Claude writes, you load the mod, you check it, and you tell Claude what you saw. This guide covers the load-and-check part of that loop for the `greeter` mod from "What a mod is made of".
+
+You will learn how to run a mod in a session, how an edit reaches a running session, and three checks: `claude plugin validate` for what the engine will see, `claude plugin test` for what the hooks do, and `tsc` for the types.
 
 ## How it works inside
 
