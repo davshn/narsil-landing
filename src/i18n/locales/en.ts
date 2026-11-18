@@ -139,6 +139,17 @@ export const en: TranslationShape = {
     listTitle: 'The guides',
     startCta: 'Start the first guide',
   },
+  bot: {
+    title: 'A Narsil desk bot',
+    description:
+      'Give Narsil a body: an ESP32-P4 touch screen in the belly, a holographic ESP32-S3 head, and a voice through Xiaozhi with Claude on your own server. What each part does, how it works, and how it was asked of the AI.',
+    intro: [
+      'The bot has two boards joined by four wires. The belly, an ESP32-P4 with a 4.3-inch touch screen, runs Xiaozhi: it listens, talks with Claude through your own server, and shows your tasks and pull requests. The head, an ESP32-S3 with a 1.3-inch screen inside a prism cube, only draws Narsil’s face, and it gets its state from the belly over UART.',
+      'Read the guides in order. Each one explains what the part does, how it works, the decisions behind it and the conversation where they were taken, then the code.',
+    ],
+    listTitle: 'The guides',
+    startCta: 'Start the first guide',
+  },
   guide: {
     breadcrumbLabel: 'Breadcrumb',
     stepOf: 'Guide {current} of {total}',

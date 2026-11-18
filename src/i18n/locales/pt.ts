@@ -142,6 +142,17 @@ export const pt: TranslationShape = {
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
   },
+  bot: {
+    title: 'Um bot do Narsil',
+    description:
+      'Dê um corpo ao Narsil: uma tela touch ESP32-P4 na barriga, uma cabeça holográfica ESP32-S3 e voz com o Xiaozhi e o Claude no seu servidor. O que cada parte faz, como funciona e como foi pedida à IA.',
+    intro: [
+      'O bot tem duas placas ligadas por quatro fios. A barriga, um ESP32-P4 com tela touch de 4,3 polegadas, roda o Xiaozhi: escuta, conversa com o Claude pelo seu servidor e mostra suas tarefas e seus pull requests. A cabeça, um ESP32-S3 com tela de 1,3 polegada dentro de um cubo prisma, só desenha o rosto do Narsil e recebe o estado da barriga por UART.',
+      'Leia os guias em ordem. Cada um explica o que a parte faz, como funciona, as decisões por trás e a conversa em que foram tomadas, e depois o código.',
+    ],
+    listTitle: 'Os guias',
+    startCta: 'Comece o primeiro guia',
+  },
   guide: {
     breadcrumbLabel: 'Trilha de navegação',
     stepOf: 'Guia {current} de {total}',

@@ -121,7 +121,9 @@ const jsonLd = [
           ? { ...route, href: routeHref(locale, 'pet') }
           : index === 1
             ? { ...route, href: routeHref(locale, 'check') }
-            : route,
+            : index === 2
+              ? { ...route, href: routeHref(locale, 'bot') }
+              : route,
       )}
       columns={3}
     />

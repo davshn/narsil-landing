@@ -29,7 +29,7 @@ interface Props {
   step: number
   total: number
   updated: Date
-  verifiedWith: string
+  verifiedWith?: string
   sources: GuideSource[]
   previous?: PagerLink
   next?: PagerLink
@@ -94,7 +94,9 @@ const jsonLd = buildWebPage({
           {`${t.guide.updated}: `}
           <time datetime={updated.toISOString().slice(0, 10)}>{updatedText}</time>
         </span>
-        <span>{fillTemplate(t.guide.verifiedWith, { version: verifiedWith })}</span>
+        {verifiedWith !== undefined && (
+          <span>{fillTemplate(t.guide.verifiedWith, { version: verifiedWith })}</span>
+        )}
       </p>
     </header>
 
