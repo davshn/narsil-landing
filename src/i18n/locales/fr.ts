@@ -168,6 +168,24 @@ export const fr: TranslationShape = {
     ],
     donate: 'Offrez-moi un café',
     unavailable: 'Les dons ne sont pas encore ouverts.',
+    flow: {
+      title: 'Où va votre café',
+      steps: [
+        'Un café',
+        'Du temps pour écrire et maintenir les guides',
+        'Des guides gratuits pour tous',
+      ],
+      promises: [
+        'Sans publicité',
+        'Sans inscription',
+        'Sans analytics, ne demande jamais vos jetons',
+      ],
+    },
+    about: {
+      title: 'À propos du développeur',
+      name: 'Hernán David Figueroa',
+      bio: 'Développeur full-stack avec plus de 8 ans d’expérience, spécialisé dans la fintech et les paiements sécurisés. Je travaille sur des terminaux de paiement et des fonctions de paiement pour Android et iOS dans une passerelle de paiement colombienne. J’ai créé Narsil et cet atelier pour que chacun puisse comprendre et étendre Claude Code. Je vis à Bogotá.',
+    },
     reposTitle: 'Le code source',
     repos: {
       pet: 'Narsil, le mod de mascotte d’état',

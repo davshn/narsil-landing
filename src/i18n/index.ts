@@ -138,6 +138,16 @@ export interface TranslationShape {
     lines: [string, string, string]
     donate: string
     unavailable: string
+    flow: {
+      title: string
+      steps: [string, string, string]
+      promises: [string, string, string]
+    }
+    about: {
+      title: string
+      name: string
+      bio: string
+    }
     reposTitle: string
     repos: {
       pet: string

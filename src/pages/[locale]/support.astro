@@ -43,6 +43,25 @@ const jsonLd = buildWebPage({
         <Text as="p">{line}</Text>
       ))}
     </div>
+
+    <section aria-labelledby="support-flow-title" class="mb-8" data-support-flow>
+      <h2 id="support-flow-title" class="text-xl font-semibold mb-4">
+        {t.support.flow.title}
+      </h2>
+      <div class="support-flow">
+        <ol class="support-flow-steps">
+          {t.support.flow.steps.map((step) => (
+            <li class="support-flow-step">{step}</li>
+          ))}
+        </ol>
+        <ul class="support-flow-promises">
+          {t.support.flow.promises.map((promise) => (
+            <li class="support-flow-promise">{promise}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
     {donation === undefined ? (
       <Text as="p">{t.support.unavailable}</Text>
     ) : (
@@ -67,17 +86,26 @@ const jsonLd = buildWebPage({
       ))}
     </ul>
 
-    <Text as="p" size="sm" tone="muted" class="mt-8">
-      {`${t.support.developer.text} `}
-      <a
-        class="text-primary underline underline-offset-4"
-        href={DEVELOPER_PROFILE_URL}
-        target="_blank"
-        rel="noopener"
-        data-developer-profile
-      >
-        {t.support.developer.link}
-      </a>
-    </Text>
+    <section aria-labelledby="support-about-title" class="support-about" data-support-about>
+      <h2 id="support-about-title" class="text-xl font-semibold mb-4">
+        {t.support.about.title}
+      </h2>
+      <p class="text-lg font-semibold mb-2">{t.support.about.name}</p>
+      <Text as="p" class="mb-4">
+        {t.support.about.bio}
+      </Text>
+      <Text as="p" size="sm" tone="muted">
+        {`${t.support.developer.text} `}
+        <a
+          class="text-primary underline underline-offset-4"
+          href={DEVELOPER_PROFILE_URL}
+          target="_blank"
+          rel="noopener"
+          data-developer-profile
+        >
+          {t.support.developer.link}
+        </a>
+      </Text>
+    </section>
   </Container>
 </SiteLayout>

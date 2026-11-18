@@ -35,3 +35,45 @@
   @apply rounded-md px-2 py-0.5 text-sm;
   box-shadow: var(--shadow-neu-inset-sm);
 }
+
+.support-flow {
+  @apply flex flex-col gap-6 p-6 bg-card text-card-foreground;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-inset-md);
+}
+
+.support-flow-steps {
+  @apply flex flex-col items-stretch gap-8 list-none p-0 m-0;
+}
+
+.support-flow-step {
+  @apply relative px-4 py-3 text-center font-semibold;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.support-flow-step:first-child {
+  border: 2px solid var(--color-primary);
+}
+
+.support-flow-step:not(:last-child)::after {
+  @apply absolute left-1/2 -translate-x-1/2 text-muted-foreground;
+  content: '↓' / '';
+  top: calc(100% + 0.25rem);
+  line-height: 1.5rem;
+}
+
+.support-flow-promises {
+  @apply flex flex-wrap justify-center gap-2 list-none p-0 m-0;
+}
+
+.support-flow-promise {
+  @apply px-3 py-1 text-sm text-muted-foreground border border-border;
+  border-radius: var(--radius-full);
+}
+
+.support-about {
+  @apply mt-10 p-6 bg-card text-card-foreground;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-md);
+}

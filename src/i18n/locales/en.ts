@@ -166,6 +166,16 @@ export const en: TranslationShape = {
     ],
     donate: 'Buy me a coffee',
     unavailable: 'Donations are not open yet.',
+    flow: {
+      title: 'Where your coffee goes',
+      steps: ['One coffee', 'Time to write and maintain guides', 'Free guides for everyone'],
+      promises: ['No ads', 'No sign-up', 'No analytics, never asks for your tokens'],
+    },
+    about: {
+      title: 'About the developer',
+      name: 'Hernán David Figueroa',
+      bio: 'Full-stack developer with more than 8 years of experience, specialized in fintech and secure payments. I work on POS terminals and payment features for Android and iOS at a Colombian payment gateway. I built Narsil and this workshop so anyone can understand and extend Claude Code. I live in Bogotá.',
+    },
     reposTitle: 'The source code',
     repos: {
       pet: 'Narsil, the status pet mod',
