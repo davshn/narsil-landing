@@ -1,11 +1,14 @@
 ---
 import Features from '@components/sections/Features/Features.astro'
 import Hero from '@components/sections/Hero/Hero.astro'
+import NarsilStates from '@components/sections/NarsilStates/NarsilStates.astro'
+import Showcase from '@components/sections/Showcase/Showcase.astro'
 import Badge from '@components/ui/Badge/Badge.astro'
 import Button from '@components/ui/Button/Button.astro'
 import Card from '@components/ui/Card/Card.astro'
 import CardBody from '@components/ui/Card/CardBody.astro'
 import Container from '@components/ui/Container/Container.astro'
+import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
 import Text from '@components/ui/Text/Text.astro'
 import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
@@ -13,6 +16,13 @@ import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
 import { routeHref } from '@utils/guides'
+
+import checkDark from '../../assets/screens/check-oscuro.png'
+import checkLight from '../../assets/screens/check-claro.png'
+import overlayDark from '../../assets/screens/overlay-oscuro.png'
+import overlayLight from '../../assets/screens/overlay-claro.png'
+import phoneDark from '../../assets/screens/phone-oscuro.png'
+import phoneLight from '../../assets/screens/phone-claro.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -22,6 +32,9 @@ const rawLocale = Astro.params.locale ?? ''
 const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
 const t = useTranslations(locale)
 const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
+
+const [working, waiting, done, failed] = t.home.states.items
+const [overlayCopy, checkCopy, phoneCopy] = t.home.showcase.items
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href
@@ -50,7 +63,10 @@ const jsonLd = [
       { label: t.home.fundamentalsCta, href: routeHref(locale, 'mods') },
       { label: t.home.cta, href: '#routes', variant: 'outline' },
     ]}
-  />
+    layout="split"
+  >
+    <NarsilSprite slot="media" pose="hola" size="lg" alt={t.home.heroAlt} framed />
+  </Hero>
 
   <Container as="section" maxWidth="md" padding="section">
     <h2 class="section-title mb-6">{t.home.aboutTitle}</h2>
@@ -60,6 +76,35 @@ const jsonLd = [
       ))}
     </div>
   </Container>
+
+  <NarsilStates
+    title={t.home.states.title}
+    subtitle={t.home.states.subtitle}
+    states={[
+      { pose: 'trabajando', tone: 'working', ...working },
+      { pose: 'necesita', tone: 'waiting', ...waiting },
+      { pose: 'terminado', tone: 'done', ...done },
+      { pose: 'error', tone: 'error', ...failed },
+    ]}
+  />
+
+  <Showcase
+    title={t.home.showcase.title}
+    subtitle={t.home.showcase.subtitle}
+    note={t.home.showcase.note}
+    items={[
+      {
+        ...overlayCopy,
+        frame: 'window',
+        light: overlayLight,
+        dark: overlayDark,
+        width: 300,
+        height: 620,
+      },
+      { ...checkCopy, frame: 'pane', light: checkLight, dark: checkDark, width: 340, height: 842 },
+      { ...phoneCopy, frame: 'phone', light: phoneLight, dark: phoneDark, width: 390, height: 844 },
+    ]}
+  />
 
   <div id="routes">
     <Features

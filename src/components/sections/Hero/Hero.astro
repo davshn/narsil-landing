@@ -61,6 +61,11 @@ const Heading = headingLevel
     )}
     <slot />
   </div>
+  {Astro.slots.has('media') && (
+    <div class="hero-media">
+      <slot name="media" />
+    </div>
+  )}
   {image !== undefined && (
     <div class="hero-image">
       <img src={image.src} alt={image.alt} loading="eager" />

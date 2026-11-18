@@ -31,6 +31,44 @@ export const pt: TranslationShape = {
       'Aprenda como o Narsil e o Narsil Check funcionam por dentro, reconstrua cada funcionalidade do zero e termine com um bot ESP32-S3 que mostra seus pull requests.',
     cta: 'Ver as trilhas',
     fundamentalsCta: 'Comece pelos fundamentos',
+    heroAlt: 'Narsil, um pequeno dragão marinho, acenando',
+    states: {
+      title: 'O que o Narsil mostra num relance',
+      subtitle:
+        'Cada estado tem sua própria pose e cor, então você sabe o que o Claude está fazendo sem ler o terminal.',
+      items: [
+        { label: 'Trabalhando', text: 'O Claude está lendo, editando ou executando comandos.' },
+        {
+          label: 'Precisa de você',
+          text: 'O Claude fez uma pergunta ou está esperando uma permissão.',
+        },
+        { label: 'Concluído', text: 'O turno terminou. Hora de revisar o que mudou.' },
+        { label: 'Erro', text: 'Uma ferramenta falhou ou o turno parou com um erro.' },
+      ],
+    },
+    showcase: {
+      title: 'Como fica',
+      subtitle:
+        'A mesma informação acompanha você em todo lugar: acima do prompt, numa janela flutuante, num painel lateral e no celular.',
+      items: [
+        {
+          title: 'A janela flutuante',
+          text: 'O Narsil, seus limites de uso e cada conversa aberta com contexto, tarefas, cache e próximos passos, numa janela pequena que fica sempre por cima.',
+          alt: 'A janela flutuante do Narsil: uma conversa trabalhando com suas tarefas, as barras de uso e outras duas conversas abertas',
+        },
+        {
+          title: 'O painel do Narsil Check',
+          text: 'Um painel lateral com o ambiente da sessão, os passos do CI, as atualizações de bibliotecas agrupadas por risco, as vulnerabilidades e as tarefas pendentes.',
+          alt: 'O painel do Narsil Check: ambiente e CI, três atualizações de bibliotecas, uma vulnerabilidade e duas tarefas pendentes',
+        },
+        {
+          title: 'No celular',
+          text: 'Um app web instalável que recebe os alertas do Narsil pelo ntfy e mostra o que o seu PC mostrou por último.',
+          alt: 'O app do Narsil no celular: o estado atual, o nível, os limites de uso, o cache e os próximos passos',
+        },
+      ],
+      note: 'São as interfaces reais com dados de exemplo. O painel do Narsil Check foi recriado a partir do código-fonte, porque ele só é desenhado dentro do Claude Code. As ilustrações do Narsil vêm de davshn/narsil-pet (GPL v3).',
+    },
     aboutTitle: 'O que é o Narsil?',
     about: [
       'O Narsil é um mod do Claude Code: um pequeno mascote que fica acima do prompt e mostra num relance se o Claude está trabalhando, precisa de você, terminou ou travou. O Narsil Check é o irmão dele, um painel lateral que revisa sua branch, a CI, as dependências e as vulnerabilidades.',

@@ -1,0 +1,47 @@
+@reference '../../../styles/global.css';
+
+.narsil-states-header {
+  @apply mx-auto max-w-2xl text-center;
+}
+
+.narsil-states-grid {
+  @apply mt-12 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4;
+}
+
+.narsil-state {
+  @apply flex flex-col items-center gap-2 p-6 text-center;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.narsil-state-label {
+  @apply mt-2 flex items-center gap-2 text-sm font-bold uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--state-color);
+}
+
+.narsil-state-label::before {
+  content: '';
+  @apply inline-block h-2 w-2 rounded-full;
+  background: var(--state-color);
+}
+
+.narsil-state-text {
+  @apply text-sm text-muted-foreground;
+}
+
+.narsil-state-working {
+  --state-color: var(--color-primary);
+}
+
+.narsil-state-waiting {
+  --state-color: var(--color-warning);
+}
+
+.narsil-state-done {
+  --state-color: var(--color-success);
+}
+
+.narsil-state-error {
+  --state-color: var(--color-destructive);
+}
