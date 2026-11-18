@@ -1,17 +1,72 @@
 @reference '../../../styles/global.css';
 
+.narsil-states-layout {
+  @apply grid gap-12 lg:items-start;
+}
+
+@media (min-width: 1024px) {
+  .narsil-states-layout:has(.narsil-states-intro) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: var(--spacing-16);
+  }
+}
+
+.narsil-states-intro {
+  @apply flex flex-col gap-5;
+}
+
+.narsil-states-paragraph {
+  @apply text-lg text-muted-foreground;
+  line-height: var(--leading-relaxed);
+  max-width: 60ch;
+}
+
+.narsil-states-main {
+  @apply flex min-w-0 flex-col gap-6;
+}
+
 .narsil-states-header {
-  @apply mx-auto max-w-2xl text-center;
+  @apply flex flex-col gap-2;
+}
+
+.narsil-states-title {
+  @apply text-2xl font-bold tracking-tight sm:text-3xl;
+}
+
+.narsil-states-subtitle {
+  @apply text-muted-foreground;
+}
+
+.narsil-states-scroller {
+  @apply -mx-4 overflow-x-auto px-4 pb-4 pt-2 sm:mx-0 sm:overflow-visible sm:p-0;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--spacing-4);
+}
+
+.narsil-states-scroller:focus-visible {
+  @apply rounded-lg outline-2 outline-offset-2 outline-ring;
 }
 
 .narsil-states-grid {
-  @apply mt-12 grid list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-4;
+  @apply m-0 grid list-none gap-4 p-0;
+  grid-auto-flow: column;
+  grid-auto-columns: 72%;
+}
+
+@media (min-width: 640px) {
+  .narsil-states-grid {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-5);
+  }
 }
 
 .narsil-state {
-  @apply flex flex-col items-center gap-2 p-6 text-center;
+  @apply flex flex-col items-center gap-2 p-5 text-center;
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-neu-md);
+  scroll-snap-align: start;
 }
 
 .narsil-state-label {

@@ -109,7 +109,7 @@ test.describe('Status pet path', () => {
 
     test(`/${locale}/ links the first learning path to the pet path`, async ({ page }) => {
       await page.goto(`/${locale}/`)
-      await page.locator('#routes .features-item-link').first().click()
+      await page.locator('#routes .path-card-link').first().click()
       await expect(page).toHaveURL(new RegExp(`/${locale}/mods/pet/$`, 'v'))
     })
   }
@@ -172,7 +172,7 @@ test.describe('Review panel path', () => {
 
     test(`/${locale}/ links the second learning path to the check path`, async ({ page }) => {
       await page.goto(`/${locale}/`)
-      await page.locator('#routes .features-item-link').nth(1).click()
+      await page.locator('#routes .path-card-link').nth(1).click()
       await expect(page).toHaveURL(new RegExp(`/${locale}/mods/check/$`, 'v'))
     })
   }
@@ -273,7 +273,7 @@ test.describe('Narsil desk bot path', () => {
 
     test(`/${locale}/ links the third learning path to the bot path`, async ({ page }) => {
       await page.goto(`/${locale}/`)
-      await page.locator('#routes .features-item-link').nth(2).click()
+      await page.locator('#routes .path-card-link').nth(2).click()
       await expect(page).toHaveURL(new RegExp(`/${locale}/bot/$`, 'v'))
     })
   }
