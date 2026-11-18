@@ -80,6 +80,7 @@ export interface TranslationShape {
   footer: {
     description: string
     donate: string
+    support: string
     trademark: string
     license: string
     privacy: string
@@ -106,9 +107,6 @@ export interface TranslationShape {
     routesTitle: string
     routesSubtitle: string
     routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy]
-    coffeeTitle: string
-    coffeeText: string
-    coffeeCta: string
     extension: {
       badge: string
       title: string

@@ -23,6 +23,7 @@ export const fr: TranslationShape = {
     description:
       'Des guides gratuits pour créer des mods Claude Code et un bot Narsil avec Claude, et pour comprendre ce que vous avez construit.',
     donate: 'Offrez-moi un café',
+    support: 'Gratuit, sans publicité et sans inscription.',
     trademark:
       'Claude et Claude Code sont des marques d’Anthropic, PBC. Ce projet n’est ni affilié à Anthropic ni approuvé par Anthropic.',
     privacy:
@@ -107,10 +108,6 @@ export const fr: TranslationShape = {
         icon: 'lucide:smartphone',
       },
     ],
-    coffeeTitle: 'Gratuit, et ça le restera',
-    coffeeText:
-      'Pas de publicité, pas d’inscription et pas de prix. Si un guide vous aide, vous pouvez m’offrir un café pour écrire le suivant.',
-    coffeeCta: 'Offrez-moi un café',
     extension: {
       badge: 'Expérimental',
       title: 'Narsil dans Claude, l’extension de navigateur',
