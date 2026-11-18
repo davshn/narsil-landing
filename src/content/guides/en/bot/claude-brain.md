@@ -83,7 +83,27 @@ To get one:
 2. Set a monthly limit in [Spend limits](https://platform.claude.com/settings/spend-limits) (`platform.claude.com/settings/spend-limits`): next to **Monthly spend limit**, click **Adjust limit** or **Set limit**. According to the [rate limits page](https://platform.claude.com/docs/en/api/rate-limits), once your own limit is reached the API answers HTTP 400 until the next month or until you raise it, so a runaway loop costs at most that.
 3. To revoke it, delete the key on the same **API keys** page. Requests with it stop working at once; create a new one and update the PC.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a new language model provider for the xiaozhi-esp32-server: one Python file that calls the Claude Messages API through the official `anthropic` SDK. The one idea it must get right is that the provider is a generator: it yields the text as Claude writes it, so the belly starts speaking before the answer is finished.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> I run xinnan-tech/xiaozhi-esp32-server in Docker. Write a new LLM provider for it that calls Claude through the official `anthropic` Python SDK, not the OpenAI-compatible endpoint. First read `core/providers/llm/base.py`, `core/providers/llm/gemini/gemini.py`, `core/utils/llm.py` and `core/utils/dialogue.py` to learn the interface and the dialogue format. Convert system messages to the `system` parameter, stream with `messages.stream` and yield from `text_stream`, read the model, `max_tokens` and the API key from the provider's config block, and cache the stable part of the system prompt with `cache_control`. Show me the `.config.yaml` entry and how to add the file and the SDK to the Docker container.
+
+### What to check in Claude's answer
+
+1. The file is `core/providers/llm/claude/claude.py`, its class is `LLMProvider` and extends `LLMProviderBase`, and the config block says `type: claude`, so `create_instance` finds it.
+2. `response` opens `client.messages.stream(...)` and yields from `text_stream`. It uses the native SDK, not the OpenAI-compatible endpoint, which has no prompt caching.
+3. System messages become the `system` parameter, and anything before the first user turn is dropped, so `messages` always starts with a `user` turn.
+4. The system prompt is split at `<context>`: the stable part carries `cache_control: {"type": "ephemeral"}`, and the part with the time goes after it, uncached.
+5. The API key comes from the `ANTHROPIC_API_KEY` environment variable or from `api_key` in `data/.config.yaml` on your PC. It never appears in the code or in a repository, and the answer reminds you to set a monthly spend limit in the Console.
+
+If a check fails, tell Claude what you see: "`usage.cache_read_input_tokens` is zero on every turn".
+
+### How the author asked for it
 
 This guide comes from one decision. In guide 4, the author placed the server on the PC with a reason:
 
@@ -97,13 +117,9 @@ The AI then asked how the server should reach Claude. It offered two options: (1
 
 That answer is spec S5: a native provider. The model, the effort level and the cache split were not asked; the AI took them from Anthropic's documentation and the server's own template, and they are settings you can change.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> I run xinnan-tech/xiaozhi-esp32-server in Docker. Write a new LLM provider for it that calls Claude through the official `anthropic` Python SDK, not the OpenAI-compatible endpoint. First read `core/providers/llm/base.py`, `core/providers/llm/gemini/gemini.py`, `core/utils/llm.py` and `core/utils/dialogue.py` to learn the interface and the dialogue format. Convert system messages to the `system` parameter, stream with `messages.stream` and yield from `text_stream`, read the model, `max_tokens` and the API key from the provider's config block, and cache the stable part of the system prompt with `cache_control`. Show me the `.config.yaml` entry and how to add the file and the SDK to the Docker container.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The provider, `providers/claude/claude.py` in your `xiaozhi-server` folder on the PC (MIT, like the site's own examples):
 

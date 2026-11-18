@@ -100,7 +100,27 @@ Le Wi-Fi décroche, et les longues connexions se rompent. ntfy garde les message
 
 Le topic est stocké dans la NVS du ventre, via la classe `Settings` de Xiaozhi (`main/settings.h`), dans l’espace de noms `narsil` sous la clé `ntfy_topic`. Vous le saisissez une seule fois sur l’écran de réglages du ventre, que construit le [guide 9](/fr/bot/belly-ui/) ; il n’apparaît jamais dans le code source. Le [guide 12](/fr/bot/secrets-privacy/) explique pourquoi la NVS n’est pas chiffrée par défaut et ce que cela signifie pour un appareil posé sur votre bureau.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une tâche sur le ventre qui suit les deux topics ntfy de Narsil dans un seul flux JSON et transmet chaque alerte et chaque état à l’écran. L’idée que Claude doit bien saisir : le topic fonctionne comme un mot de passe, il vit donc dans la NVS du ventre, et une reconnexion demande avec `since=` exactement ce qui a été manqué.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
+
+> Mon ESP32-P4 fait tourner Xiaozhi (ESP-IDF 6). Ajoute une tâche FreeRTOS qui s’abonne à deux topics ntfy.sh dans un seul flux JSON (`https://ntfy.sh/<a>,<b>/json`), le lit avec `esp_http_client_open`, `esp_http_client_fetch_headers` et `esp_http_client_read`, le découpe en lignes, analyse chacune avec cJSON et passe les événements `message` à une fonction de rappel. Utilise le bundle de certificats, lis le topic dans la NVS avec la classe `Settings` de Xiaozhi, garde l’ID du dernier message et reconnecte-toi avec `since=` après une erreur. Cite la documentation de ntfy pour le format du flux et le paramètre `since`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Un seul flux suit les deux topics, celui des alertes et le même nom avec `-estado`, séparés par une virgule dans `https://ntfy.sh/<topic>,<topic>-estado/json`, et l’URL ne contient pas `poll=1`.
+2. Le flux est lu avec `esp_http_client_open`, `esp_http_client_fetch_headers` et `esp_http_client_read`, découpé en lignes à chaque `\n`, et seuls les événements `message` atteignent l’écran ; `open` et `keepalive` ne l’atteignent pas.
+3. Elle retient le dernier `id` de message et se reconnecte avec `since=<that id>`. Au premier démarrage, elle demande `since=10m`, jamais `since=all`.
+4. Le topic est lu dans la NVS avec la classe `Settings` de Xiaozhi (espace de noms `narsil`, clé `ntfy_topic`). Il n’apparaît jamais dans un fichier source, une valeur par défaut ou le dépôt, et Claude vous indique que `/narsil movil nuevo` crée un nouveau topic s’il fuit.
+5. Le HTTPS utilise le bundle de certificats (`crt_bundle_attach = esp_crt_bundle_attach`), et un texte qui commence par `narsil1:` est affiché comme « Narsil », avec le type d’alerte tiré de son tag.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après avoir éteint puis rallumé le Wi-Fi, l’alerte de test envoyée entre-temps n’apparaît jamais ».
+
+### Comment l’auteur l’a demandé
 
 Le rôle du ventre figurait dans la première description du bot par l’auteur ou l’autrice :
 
@@ -116,13 +136,9 @@ Traduction en français : par câble depuis le ventre.
 
 Le ventre est donc la seule carte sur le réseau pour les alertes : il s’abonne à ntfy, et la tête ne reçoit que la pose et l’état par le fil ([guide 10](/fr/bot/uart-protocol/)). La façon de se reconnecter, et ce qu’il faut afficher quand une clé est définie, n’ont pas fait l’objet de questions ; l’IA les a tirées de la documentation de ntfy et du `sealedMessage` de narsil-pet.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
-
-> Mon ESP32-P4 fait tourner Xiaozhi (ESP-IDF 6). Ajoute une tâche FreeRTOS qui s’abonne à deux topics ntfy.sh dans un seul flux JSON (`https://ntfy.sh/<a>,<b>/json`), le lit avec `esp_http_client_open`, `esp_http_client_fetch_headers` et `esp_http_client_read`, le découpe en lignes, analyse chacune avec cJSON et passe les événements `message` à une fonction de rappel. Utilise le bundle de certificats, lis le topic dans la NVS avec la classe `Settings` de Xiaozhi, garde l’ID du dernier message et reconnecte-toi avec `since=` après une erreur. Cite la documentation de ntfy pour le format du flux et le paramètre `since`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Une tâche pour le ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `ShowAlert` et `ShowStatus` sont les fonctions de l’écran du [guide 9](/fr/bot/belly-ui/) :
 

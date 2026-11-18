@@ -98,7 +98,27 @@ Essa emoção de `llm` é útil mais adiante: é a primeira coisa que a barriga 
 
 O Xiaozhi registra ferramentas no dispositivo pelo singleton `McpServer`, com `AddTool(name, description, properties, callback)`. O servidor envia `initialize`, depois `tools/list`, depois `tools/call` por JSON-RPC 2.0, como explica o seu [documento de uso do MCP](https://github.com/78/xiaozhi-esp32/blob/main/docs/mcp-usage.md). É assim que o cérebro da Narsil vai poder agir sobre o bot, e não só falar por meio dele; guias posteriores acrescentam as ferramentas próprias do bot.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude que compile o Xiaozhi para a placa da barriga e o aponte para o seu próprio servidor. A única ideia que ele precisa acertar é que a URL de OTA decide qual servidor a barriga usa, e que você a salva no dispositivo, nunca no repositório.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
+
+> Tenho um fork de 78/xiaozhi-esp32 e uma Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Leia a pasta da placa `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` e `docs/ota.md`, e depois explique: qual variante de compilação serve para a minha placa e como descubro a revisão do meu chip, o comando `scripts/build.py` exato, e todas as formas pelas quais o firmware decide qual URL de OTA usar. Quero o endereço do meu servidor fora do repositório, então recomende a opção que o guarda no dispositivo, e me diga o que vou ver na primeira inicialização.
+
+### O que conferir na resposta do Claude
+
+1. O comando de compilação nomeia a pasta da placa `waveshare/esp32-p4-wifi6-touch-lcd` e passa `--name`, para que `build.py` não pare num contêiner sem terminal.
+2. A variante bate com a revisão do seu chip: `esp32-p4-wifi6-touch-lcd-4.3` antes da revisão 3, `esp32-p4x-wifi6-touch-lcd-4.3` para a revisão 3.x. Ele diz para você ler a revisão que o esptool imprime.
+3. O endereço do servidor é salvo no dispositivo, na aba Advanced do portal de Wi-Fi, como `wifi/ota_url`. Ele não é escrito em `Kconfig.projbuild` nem em nenhum arquivo do repositório.
+4. A URL de OTA usa o endereço do seu PC na sua rede, `http://` simples, a porta 8003 e o caminho `/xiaozhi/ota/` com a barra final. Nunca `127.0.0.1` nem `localhost`.
+5. Explica o fallback: uma URL salva inválida é ignorada, e o firmware usa `CONFIG_OTA_URL`, o serviço oficial.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o monitor mostra Ignoring invalid saved OTA URL; using the default".
+
+### Como a pessoa autora pediu
 
 A voz não estava no primeiro design. Quando as duas placas já tinham os seus papéis, a IA perguntou como a Narsil deveria falar, e a pessoa autora já tinha uma resposta:
 
@@ -116,13 +136,9 @@ Tradução para o português: "servidor próprio".
 
 Essa resposta é o motivo de este guia dedicar tempo à URL de OTA: ela é a única configuração que leva a barriga do serviço oficial para o seu. O guia 4 constrói o próprio servidor.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
-
-> Tenho um fork de 78/xiaozhi-esp32 e uma Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Leia a pasta da placa `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` e `docs/ota.md`, e depois explique: qual variante de compilação serve para a minha placa e como descubro a revisão do meu chip, o comando `scripts/build.py` exato, e todas as formas pelas quais o firmware decide qual URL de OTA usar. Quero o endereço do meu servidor fora do repositório, então recomende a opção que o guarda no dispositivo, e me diga o que vou ver na primeira inicialização.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 A barriga não precisa de código novo para este guia: é o Xiaozhi como vem, compilado para a placa certa. A partir da raiz do fork, no PowerShell, com a imagem Docker do guia 2:
 

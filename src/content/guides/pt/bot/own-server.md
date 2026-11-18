@@ -95,7 +95,27 @@ O bot usa o `OpenaiASR` para o reconhecimento e mantém o `EdgeTTS` para a sínt
 
 O servidor faz um trabalho: a voz. A barriga se conecta ao ntfy e ao GitHub por conta própria (guias 7 e 8), e a cabeça desenha o que a barriga lhe envia. Se o seu PC estiver desligado, ou o Docker estiver parado, os alertas da Narsil, os seus pull requests e o rosto dela continuam funcionando. Só a palavra de ativação não leva a lugar nenhum até o servidor voltar.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude que configure o servidor da xinnan-tech em modo mínimo com Docker no seu PC. A única ideia que ele precisa acertar é que o servidor fica na sua rede local, e que as suas mudanças e chaves vão em `data/.config.yaml`, nunca em `config.yaml`.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para configurar o bot.
+
+> Quero rodar o xinnan-tech/xiaozhi-esp32-server no seu modo mínimo com Docker no meu PC com Windows, acessível só a partir da minha rede local, para um dispositivo Xiaozhi. Leia o README do projeto, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` e `docker-compose.yml`, e depois me dê: a estrutura de pastas, um `data/.config.yaml` que sobrescreva só o que eu preciso (endereço do WebSocket com o meu IP da rede local, fuso horário, um reconhecedor de fala que entenda espanhol), os comandos para iniciá-lo e ler os seus logs, e a URL de OTA que devo dar ao dispositivo. Cite o aviso de segurança do projeto e me diga quais portas ele abre.
+
+### O que conferir na resposta do Claude
+
+1. Cita o aviso de segurança e mantém o servidor na sua rede local: nenhuma porta 8000 ou 8003 redirecionada no roteador, porque a autenticação vem desativada por padrão.
+2. As suas chaves vivem só em `data/.config.yaml`, no seu PC e fora de qualquer repositório. A resposta não edita `config.yaml` e não coloca uma chave em nenhum outro arquivo.
+3. `server.websocket` é definido explicitamente com o endereço do seu PC na rede local e a porta 8000, porque os endereços no log do Docker são os do contêiner.
+4. O reconhecedor de fala entende espanhol, como o `OpenaiASR`, e não o `FunASR`, cujo modelo suporta zh, en, ja, ko e yue.
+5. Define o seu próprio `server.timezone_offset` em vez do padrão `+8`, e dá a URL de OTA com a porta 8003 e o caminho `/xiaozhi/ota/`.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a página de OTA no meu navegador mostra um endereço WebSocket que não é o do meu PC".
+
+### Como a pessoa autora pediu
 
 A decisão de rodar um servidor veio no guia 3: a pessoa autora escolheu "servidor propio", um servidor próprio, em vez do xiaozhi.me. A IA então propôs este servidor no modo mínimo, com Docker, só na rede local, e perguntou de novo antes de seguir. A pessoa autora confirmou:
 
@@ -111,13 +131,9 @@ Tradução para o português: "no PC; de qualquer forma, a ideia é usá-lo para
 
 Essa segunda resposta explica duas coisas neste guia. O servidor roda no Docker no PC em que a pessoa autora já trabalha, então nada novo precisa ficar ligado. E o Claude é o cérebro: a decisão seguinte, registrada como a especificação S5, escolheu a opção "1", um provedor nativo da Anthropic escrito em Python com o Anthropic SDK, em vez de um endpoint compatível com a OpenAI. O guia 5 o constrói.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para configurar o bot.
-
-> Quero rodar o xinnan-tech/xiaozhi-esp32-server no seu modo mínimo com Docker no meu PC com Windows, acessível só a partir da minha rede local, para um dispositivo Xiaozhi. Leia o README do projeto, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` e `docker-compose.yml`, e depois me dê: a estrutura de pastas, um `data/.config.yaml` que sobrescreva só o que eu preciso (endereço do WebSocket com o meu IP da rede local, fuso horário, um reconhecedor de fala que entenda espanhol), os comandos para iniciá-lo e ler os seus logs, e a URL de OTA que devo dar ao dispositivo. Cite o aviso de segurança do projeto e me diga quais portas ele abre.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 A pasta no PC, segundo o guia de implantação:
 

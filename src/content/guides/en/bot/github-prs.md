@@ -78,7 +78,27 @@ The request uses ESP-IDF's [`esp_http_client`](https://docs.espressif.com/projec
 
 The token lives in NVS, in Xiaozhi's `Settings` namespace `narsil` under the key `gh_token`, typed once on the belly's settings screen ([guide 9](/en/bot/belly-ui/)). It is never compiled into the firmware or written to the log.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a function on the belly that asks GitHub's search API for the open pull requests that request your review, and shows them on the screen. The one idea it must get right is that the token can only read, with the least access, and lives in NVS on the belly, never in the code or the log.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> On an ESP32-P4 with ESP-IDF 6, I want to show the open GitHub pull requests that request my review. Check in GitHub's REST docs whether `GET /search/issues` works with a fine-grained personal access token and which permission it needs, the current `X-GitHub-Api-Version`, the search rate limit and how conditional requests with `If-None-Match` work. Then write a function that calls it with `esp_http_client` and the certificate bundle, reads the token from NVS, keeps the ETag, handles 304, 401, 403 and 429, and parses `items` with cJSON. Tell me how to create the token with the least access and how to revoke it.
+
+### What to check in Claude's answer
+
+1. It makes one request, `GET /search/issues` with `is:pr+is:open+review-requested:@me`, and sends the `Authorization`, `Accept`, `X-GitHub-Api-Version` (`2026-03-10`) and `User-Agent` headers.
+2. The token is a fine-grained personal access token with an expiry date: no permission at all for public repositories, or **Pull requests: Read-only** only for the private ones you add. Claude also tells you how to revoke it: **Delete** next to the token on GitHub's token page.
+3. The token is read from NVS (namespace `narsil`, key `gh_token`) and sent only in the `Authorization` header. It is never compiled into the firmware or printed to the log, not even the header.
+4. It asks every two minutes, one request at a time. It keeps the `etag`, sends it back as `If-None-Match`, and keeps the list it has on a `304`.
+5. It shows `401` on the screen as a wrong, expired or deleted token, and on `403` or `429` it waits for `retry-after` (or `x-ratelimit-reset`) before trying again. HTTPS uses the certificate bundle.
+
+If a check fails, tell Claude what you see: "the list is empty, but I have a review request on a private repository".
+
+### How the author asked for it
 
 The pull requests came with the bot's purpose: a belly screen that shows what needs you, next to Narsil's tasks. Where the network work happens was settled by the author's answer about the head:
 
@@ -90,13 +110,9 @@ So the belly calls GitHub itself. Spec S6 then set the rule for every secret, th
 
 The rest was the AI's job to look up, not the author's to decide: which endpoint lists the pull requests that need you, whether a fine-grained token can call it, and which permission is the least that works. The AI read GitHub's search docs and its pages of endpoints and permissions for fine-grained tokens, and chose search with a read-only **Pull requests** permission only where private repositories need it.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> On an ESP32-P4 with ESP-IDF 6, I want to show the open GitHub pull requests that request my review. Check in GitHub's REST docs whether `GET /search/issues` works with a fine-grained personal access token and which permission it needs, the current `X-GitHub-Api-Version`, the search rate limit and how conditional requests with `If-None-Match` work. Then write a function that calls it with `esp_http_client` and the certificate bundle, reads the token from NVS, keeps the ETag, handles 304, 401, 403 and 429, and parses `items` with cJSON. Tell me how to create the token with the least access and how to revoke it.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A function for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowPullRequest` and `ShowGithubError` are the screen's functions from [guide 9](/en/bot/belly-ui/); a task calls `PollPullRequests()` every two minutes:
 

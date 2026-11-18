@@ -88,7 +88,27 @@ Una pressione lunga sulla striscia (`LV_EVENT_LONG_PRESSED`, così un tocco di p
 
 La guida 12 spiega cosa protegge la NVS e cosa no.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude una classe `NarsilDisplay` che mantenga l'interfaccia di Xiaozhi e carichi un secondo schermo LVGL tutto di Narsil. L'unica idea che deve fare bene è il lock del display: ogni funzione chiamata dal task di ntfy o di GitHub prende `DisplayLockGuard` prima della sua prima chiamata `lv_`.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
+
+> Il mio fork di 78/xiaozhi-esp32 gira su una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Leggi `main/idf_component.yml` per la versione di LVGL, `main/display/display.h`, `main/display/lcd_display.h`, `main/settings.h` e il file della scheda in `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`. Poi scrivi una classe `NarsilDisplay` derivata da `MipiLcdDisplay` che mantenga la UI di Xiaozhi ma carichi un secondo screen LVGL tutto mio: una striscia di stato, una lista di avvisi dove un tocco segna una riga come letta, una lista di pull request e una schermata delle impostazioni che salvi due stringhe nella NVS tramite `Settings`. Ogni funzione chiamata da un altro task FreeRTOS deve prendere `DisplayLockGuard`. Usa solo l'API della versione di LVGL che hai trovato, e collega la documentazione di ogni widget.
+
+### Cosa controllare nella risposta di Claude
+
+1. Usa i nomi di LVGL 9 della versione che fissa Xiaozhi (`~9.5.0`), come `lv_screen_active` e `lv_button_create`, mai `lv_scr_act`, `lv_btn_create` o `lv_obj_del`.
+2. `ShowAlert`, `ShowStatus`, `ShowPullRequest` e `ShowGithubError` prendono `DisplayLockGuard` e saltano il disegno quando non riescono a ottenerlo. Il parsing del JSON e l'invio alla testa avvengono fuori dal lock.
+3. `SetupUI` chiama prima l'originale e costruisce lo schermo di Narsil come secondo schermo. Quello schermo viene caricato quando il Wi-Fi è attivo, non dentro `SetupUI`, così il primo avvio mostra ancora la configurazione del Wi-Fi.
+4. L'avviso più recente va in cima, la lista tiene gli ultimi 20, e un tocco attenua una riga e abbassa il conteggio dei non letti. Uno stato il cui `time` è più vecchio dell'ultimo mostrato viene ignorato.
+5. La schermata delle impostazioni si apre con una pressione lunga, mostra il token come puntini, non riempie mai un campo con il valore salvato e non lo scrive mai nel log. Salva tramite `Settings` aperta con `read_write` impostato a `true`, nel namespace `narsil` sotto `ntfy_topic` e `gh_token`, mai nel codice.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la scheda funziona per ore, poi va in crash in una funzione di disegno".
+
+### Come l'ha chiesta l'autore
 
 Lo schermo della pancia è la prima cosa che chi ha creato Narsil ha descritto, prima di qualsiasi codice:
 
@@ -100,13 +120,9 @@ Questo ha fissato a cosa serve lo schermo: il lavoro di Narsil, non un orologio 
 
 Due cose sono state lasciate all'IA da scoprire, invece che a chi ha creato Narsil da decidere. La prima era come sostituire lo schermo di Xiaozhi senza rompere il suo lavoro vocale; l'IA ha letto `main/display/display.h`, `lcd_display.h` e il file della scheda, e ha scelto una sottoclasse che tiene vivo ma nascosto lo schermo di Xiaozhi, invece di eliminarlo o riscriverlo. La seconda era dove si scrivono i segreti. La specifica S6 diceva già che vivono nella NVS o nella configurazione locale, mai nel repository, quindi l'IA ha proposto una schermata delle impostazioni sulla pancia stessa, aperta con una pressione lunga sulla striscia perché un tocco di passaggio non la mostri mai.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
-
-> Il mio fork di 78/xiaozhi-esp32 gira su una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Leggi `main/idf_component.yml` per la versione di LVGL, `main/display/display.h`, `main/display/lcd_display.h`, `main/settings.h` e il file della scheda in `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`. Poi scrivi una classe `NarsilDisplay` derivata da `MipiLcdDisplay` che mantenga la UI di Xiaozhi ma carichi un secondo screen LVGL tutto mio: una striscia di stato, una lista di avvisi dove un tocco segna una riga come letta, una lista di pull request e una schermata delle impostazioni che salvi due stringhe nella NVS tramite `Settings`. Ogni funzione chiamata da un altro task FreeRTOS deve prendere `DisplayLockGuard`. Usa solo l'API della versione di LVGL che hai trovato, e collega la documentazione di ogni widget.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Due file accanto al file della scheda, in C++ come Xiaozhi (MIT, come gli esempi del sito). L'header:
 

@@ -117,7 +117,27 @@ Wiping the board protects the board. Revoking the credential protects you even w
 | Anthropic key  | Delete it in the [Claude Console](https://platform.claude.com/settings/keys) (guide 5). It never was on the bot; rotate it if the PC was involved. |
 | OpenAI key     | Delete it on OpenAI's API keys page. Same rule: it lives on the PC.                                                                                |
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a map of the bot's secrets and data: where each secret lives, what leaves your network, and how to wipe the board and revoke each credential. The one idea it must get right is that the paid API keys never touch the bot, and that everything the board holds can be revoked at its source.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> My desk bot is an ESP32-P4 running a fork of 78/xiaozhi-esp32, talking to xinnan-tech/xiaozhi-esp32-server on my PC with OpenaiASR, a Claude provider and EdgeTTS, plus ntfy.sh and the GitHub REST API from the board. List every secret it holds and where (read `main/settings.h`, `main/ota.cc` and esp-wifi-connect's `ssid_manager.cc` for the NVS namespaces), everything that leaves my network and to whom, and what stays on the LAN. Then explain ESP-IDF 6's NVS encryption schemes for the ESP32-P4 and flash encryption, quoting their docs, with the trade-offs for a hobby device I re-flash often. Finish with how to wipe the board and revoke each credential.
+
+### What to check in Claude's answer
+
+1. Every secret has its place: the Wi-Fi settings, the OTA URL, the WebSocket settings, the ntfy topic and the GitHub token in the belly's NVS; the Anthropic and OpenAI keys only on your PC; nothing on the head and nothing in the repository.
+2. It says plainly that NVS is not encrypted by default, so anyone with the board and a USB cable can read the topic and the token as plain text.
+3. Its list of what leaves your network names your voice as audio to OpenAI, your words to Anthropic, Narsil's answers to Microsoft through EdgeTTS, the topic subscription to ntfy.sh, and the token with the search to GitHub. The audio between belly and server stays on the LAN over plain `ws://`, so the bot belongs on your home Wi-Fi, not a shared one.
+4. It gives both NVS encryption schemes for the ESP32-P4 with their cost: the HMAC scheme burns one eFuse key block for good, and with flash encryption a plaintext image flashed by mistake soft-bricks the board.
+5. It revokes each credential at its source, starting with the token: **Delete** on GitHub's token page, `/narsil movil nuevo` for the topic, the router for the Wi-Fi password, and each API key on its provider's page.
+
+If a check fails, tell Claude what you see: "the plan only erases the flash, and never says how to revoke the GitHub token".
+
+### How the author asked for it
 
 The rule behind this guide came from the decision about where the firmware lives. The AI asked whether the bot's code should go in a repository of its own, and the author answered:
 
@@ -143,13 +163,9 @@ In English: "on the PC, the idea is to use it to work with Claude anyway".
 
 That is why the paid keys stay on the PC. Which recognizer to use was the AI's call from the server's documentation; it chose `OpenaiASR` because the default offline recognizer does not support Spanish, and this guide is where that choice is spelled out as audio leaving the network.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> My desk bot is an ESP32-P4 running a fork of 78/xiaozhi-esp32, talking to xinnan-tech/xiaozhi-esp32-server on my PC with OpenaiASR, a Claude provider and EdgeTTS, plus ntfy.sh and the GitHub REST API from the board. List every secret it holds and where (read `main/settings.h`, `main/ota.cc` and esp-wifi-connect's `ssid_manager.cc` for the NVS namespaces), everything that leaves my network and to whom, and what stays on the LAN. Then explain ESP-IDF 6's NVS encryption schemes for the ESP32-P4 and flash encryption, quoting their docs, with the trade-offs for a hobby device I re-flash often. Finish with how to wipe the board and revoke each credential.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The bot needs no new code for this guide. The one optional piece is the "Forget" button, added to guide 9's settings screen next to "Back":
 

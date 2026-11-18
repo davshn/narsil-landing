@@ -117,7 +117,27 @@ Borrar la placa protege la placa. Revocar la credencial te protege incluso cuand
 | Clave de Anthropic   | Bórrala en la [Claude Console](https://platform.claude.com/settings/keys) (guía 5). Nunca estuvo en el bot; rótala si el PC estuvo implicado. |
 | Clave de OpenAI      | Bórrala en la página de claves de la API de OpenAI. La misma regla: vive en el PC.                                                            |
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un mapa de los secretos y los datos del bot: dónde vive cada secreto, qué sale de tu red, y cómo borrar la placa y revocar cada credencial. La idea que debe acertar es que las claves de API de pago nunca tocan el bot, y que todo lo que guarda la placa se puede revocar en su origen.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
+
+> Mi bot de escritorio es un ESP32-P4 que corre un fork de 78/xiaozhi-esp32, y habla con xinnan-tech/xiaozhi-esp32-server en mi PC con OpenaiASR, un proveedor de Claude y EdgeTTS, además de ntfy.sh y la API REST de GitHub desde la placa. Lista cada secreto que guarda y dónde (lee `main/settings.h`, `main/ota.cc` y el `ssid_manager.cc` de esp-wifi-connect para ver los espacios de nombres de la NVS), todo lo que sale de mi red y hacia quién, y lo que se queda en la LAN. Después explica los esquemas de cifrado de la NVS de ESP-IDF 6 para el ESP32-P4 y el cifrado de la flash, citando su documentación, con lo que cuestan para un dispositivo de hobby que vuelvo a flashear a menudo. Termina con cómo borrar la placa y revocar cada credencial.
+
+### Qué revisar en la respuesta de Claude
+
+1. Cada secreto tiene su sitio: los ajustes del Wi-Fi, la URL OTA, los ajustes del WebSocket, el tema de ntfy y el token de GitHub en la NVS de la panza; las claves de Anthropic y de OpenAI solo en tu PC; nada en la cabeza y nada en el repositorio.
+2. Dice con claridad que la NVS no está cifrada por defecto, así que cualquiera con la placa y un cable USB puede leer el tema y el token como texto plano.
+3. Su lista de lo que sale de tu red nombra tu voz como audio a OpenAI, tus palabras a Anthropic, las respuestas de Narsil a Microsoft mediante EdgeTTS, la suscripción al tema a ntfy.sh, y el token con la búsqueda a GitHub. El audio entre la panza y el servidor se queda en la LAN sobre `ws://` sin cifrar, así que el bot va en el Wi-Fi de tu casa, no en uno compartido.
+4. Da los dos esquemas de cifrado de la NVS para el ESP32-P4 con su coste: el esquema HMAC quema para siempre un bloque de claves de eFuse, y con el cifrado de la flash una imagen en texto plano flasheada por error deja la placa bloqueada, de forma recuperable.
+5. Revoca cada credencial en su origen, empezando por el token: **Delete** en la página de tokens de GitHub, `/narsil movil nuevo` para el tema, el router para la contraseña del Wi-Fi, y cada clave de API en la página de su proveedor.
+
+Si una comprobación falla, dile a Claude lo que ves: "el plan solo borra la flash, y nunca dice cómo revocar el token de GitHub".
+
+### Cómo lo pidió el autor
 
 La regla detrás de esta guía salió de la decisión sobre dónde vive el firmware. La IA preguntó si el código del bot debía ir en un repositorio propio, y quien creó Narsil respondió:
 
@@ -139,13 +159,9 @@ Y dónde corre:
 
 Por eso las claves de pago se quedan en el PC. Qué reconocedor usar lo decidió la IA a partir de la documentación del servidor; eligió `OpenaiASR` porque el reconocedor sin conexión por defecto no admite el español, y esta guía es donde esa elección se explica como audio que sale de la red.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
-
-> Mi bot de escritorio es un ESP32-P4 que corre un fork de 78/xiaozhi-esp32, y habla con xinnan-tech/xiaozhi-esp32-server en mi PC con OpenaiASR, un proveedor de Claude y EdgeTTS, además de ntfy.sh y la API REST de GitHub desde la placa. Lista cada secreto que guarda y dónde (lee `main/settings.h`, `main/ota.cc` y el `ssid_manager.cc` de esp-wifi-connect para ver los espacios de nombres de la NVS), todo lo que sale de mi red y hacia quién, y lo que se queda en la LAN. Después explica los esquemas de cifrado de la NVS de ESP-IDF 6 para el ESP32-P4 y el cifrado de la flash, citando su documentación, con lo que cuestan para un dispositivo de hobby que vuelvo a flashear a menudo. Termina con cómo borrar la placa y revocar cada credencial.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 El bot no necesita código nuevo para esta guía. La única pieza opcional es el botón "Forget", añadido a la pantalla de ajustes de la guía 9 junto a "Back":
 

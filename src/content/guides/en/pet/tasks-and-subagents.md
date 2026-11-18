@@ -58,7 +58,7 @@ The tools it reads (`TASK_TOOLS`) and what each call does to the list:
 - **`TaskCreate`** adds one task. Its id is not in the input: it comes back in the tool's result (`result.task.id`). So the hook reads the result, and falls back to the next position when there is none.
 - **`TaskUpdate`** changes one task by `taskId`: a new `status`, a new `subject`, or `status: 'deleted'`, which removes it.
 - **`mcp__ccd_turn__update_plan`**, the desktop app's plan (`PLAN_TOOL`). `applyPlan` handles its shapes: `items` replaces the list; `advance: true` completes the step in progress and starts the next pending one; `done: [n]` completes steps by their 1-based place; `start: n` moves the in-progress mark to step `n`.
-- **`mcp__ccd_turn__wrap_up`**, the desktop app's next-step box (`WRAP_UP_TOOL`). It closes the turn and, in the app, checks the plan off with no last `update_plan`. Narsil therefore marks every pending or in-progress task as completed on it. This is the fix described in "How it was asked of the AI".
+- **`mcp__ccd_turn__wrap_up`**, the desktop app's next-step box (`WRAP_UP_TOOL`). It closes the turn and, in the app, checks the plan off with no last `update_plan`. Narsil therefore marks every pending or in-progress task as completed on it. This is the fix described in "How the author asked for it".
 
 The hook in `tool.call` handles these tools only for the main conversation (`e.agentId === undefined`) and in a particular order: it awaits `next(e)` first, and applies the call only when the result is not an error and was not denied. A refused `TaskUpdate` must not move the list, and `TaskCreate`'s id exists only after the tool ran. Then it writes the `tasks` atom and pushes the state to the hub at once.
 

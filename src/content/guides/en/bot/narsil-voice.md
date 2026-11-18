@@ -68,7 +68,27 @@ The bot replaces all three. The error phrase is spoken as written, so it is in S
 
 The wake word is listened for on the belly, not on the server. Xiaozhi's `scripts/build.py` picks "Hi ESP" for a Spanish build (guide 3), and the bot keeps it. Xiaozhi's `Kconfig.projbuild` also offers a custom wake word on the ESP32-P4 (`USE_CUSTOM_WAKE_WORD`, with the phrase in `CUSTOM_WAKE_WORD`), through ESP-SR's MultiNet model; its help text asks for pinyin for Chinese phrases. "Going further" has more.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for Narsil's `prompt` and the `data/.config.yaml` lines that give her Spanish answers and a Spanish voice. The one idea it must get right is that the character, the language of the answers and the voice are three separate settings: `prompt`, `TTS.EdgeTTS.language` and `TTS.EdgeTTS.voice`.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> My Xiaozhi device talks through xinnan-tech/xiaozhi-esp32-server with Claude as the LLM. Read the server's `agent-base-prompt.txt` and `core/utils/prompt_manager.py` to see where the `prompt` setting goes and how `{{language}}` is filled. Then write a `prompt` for my character, a calm and warm sea serpent who answers in at most two short sentences for a voice, and the `data/.config.yaml` lines that set Spanish answers, a Latin American Spanish EdgeTTS voice that `edge-tts --list-voices` lists, and Spanish versions of `system_error_response` and `exit_commands`.
+
+### What to check in Claude's answer
+
+1. The `prompt` only says who Narsil is: a calm, warm sea serpent who speaks in the first person and never says her own name. The template around it already adds the general rules.
+2. It asks for two short sentences at most unless you ask for more, with no lists, no Markdown and no code read aloud.
+3. `language` is set to `Spanish` under `TTS.EdgeTTS`, the block named in `selected_module.TTS`. Without it, the answers fall back to Chinese.
+4. `voice` is a Latin American Spanish voice that `edge-tts --list-voices` prints, such as `es-MX-DaliaNeural`, not the default `zh-CN-XiaoxiaoNeural`. Claude should not ask you for a key: EdgeTTS needs none, but it sends the answers, as text, to Microsoft.
+5. `system_error_response` is in Spanish, because it is spoken as written, and `exit_commands` holds Spanish words such as `salir` instead of `退出` and `关闭`.
+
+If a check fails, tell Claude what you see: "Narsil answers in Spanish, but with a Chinese voice".
+
+### How the author asked for it
 
 The character was never a question, because it was settled from the first message. The author described the head as Narsil's face:
 
@@ -84,13 +104,9 @@ In English: "I was thinking of doing it with Xiaozhi".
 
 A face that is Narsil's needs a voice that is hers too. The AI did not write a new character: it read narsil-pet's README and `hooks/words.ts`, and kept what they say about her. The voice name, the `language` value and the Spanish error phrase were not asked; they are the AI's choices from Microsoft's voice list and the server's template, and you can change any of them.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> My Xiaozhi device talks through xinnan-tech/xiaozhi-esp32-server with Claude as the LLM. Read the server's `agent-base-prompt.txt` and `core/utils/prompt_manager.py` to see where the `prompt` setting goes and how `{{language}}` is filled. Then write a `prompt` for my character, a calm and warm sea serpent who answers in at most two short sentences for a voice, and the `data/.config.yaml` lines that set Spanish answers, a Latin American Spanish EdgeTTS voice that `edge-tts --list-voices` lists, and Spanish versions of `system_error_response` and `exit_commands`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The lines `data/.config.yaml` adds to guides 4 and 5:
 

@@ -117,7 +117,27 @@ Effacer la carte protège la carte. Révoquer l’identifiant vous protège, mê
 | Clé Anthropic         | Supprimez-la dans la [Claude Console](https://platform.claude.com/settings/keys) (guide 5). Elle n’a jamais été sur le bot ; renouvelez-la si le PC était concerné. |
 | Clé OpenAI            | Supprimez-la sur la page des clés d’API d’OpenAI. Même règle : elle vit sur le PC.                                                                                  |
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un inventaire des secrets et des données du bot : où vit chaque secret, ce qui quitte votre réseau, et comment effacer la carte et révoquer chaque identifiant. L’idée que Claude doit bien saisir : les clés d’API payantes ne touchent jamais le bot, et tout ce que garde la carte peut être révoqué à sa source.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
+
+> Mon bot de bureau est un ESP32-P4 qui fait tourner un fork de 78/xiaozhi-esp32, et qui parle à xinnan-tech/xiaozhi-esp32-server sur mon PC avec OpenaiASR, un fournisseur Claude et EdgeTTS, plus ntfy.sh et l’API REST de GitHub depuis la carte. Liste chaque secret qu’il détient et où (lis `main/settings.h`, `main/ota.cc` et le `ssid_manager.cc` d’esp-wifi-connect pour les espaces de noms de la NVS), tout ce qui quitte mon réseau et vers qui, et ce qui reste sur le réseau local. Explique ensuite les schémas de chiffrement de la NVS d’ESP-IDF 6 pour l’ESP32-P4 et le chiffrement de la flash, en citant leur documentation, avec les compromis pour un appareil de loisir que je reflashe souvent. Termine par la façon d’effacer la carte et de révoquer chaque identifiant.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Chaque secret a sa place : les réglages Wi-Fi, l’URL OTA, les réglages WebSocket, le topic ntfy et le token GitHub dans la NVS du ventre ; les clés Anthropic et OpenAI seulement sur votre PC ; rien sur la tête et rien dans le dépôt.
+2. Elle dit clairement que la NVS n’est pas chiffrée par défaut, si bien que toute personne ayant la carte et un câble USB peut lire le topic et le token en clair.
+3. Sa liste de ce qui quitte votre réseau nomme votre voix, sous forme d’audio, vers OpenAI, vos mots vers Anthropic, les réponses de Narsil vers Microsoft via EdgeTTS, l’abonnement au topic vers ntfy.sh, et le token avec la recherche vers GitHub. L’audio entre le ventre et le serveur reste sur le réseau local en `ws://` simple, donc le bot a sa place sur votre Wi-Fi domestique, pas sur un réseau partagé.
+4. Elle donne les deux schémas de chiffrement de la NVS pour l’ESP32-P4 avec leur coût : le schéma HMAC grave définitivement un bloc de clé eFuse, et avec le chiffrement de la flash, une image en clair flashée par erreur bloque logiciellement la carte.
+5. Elle révoque chaque identifiant à sa source, en commençant par le token : **Delete** sur la page des tokens de GitHub, `/narsil movil nuevo` pour le topic, le routeur pour le mot de passe Wi-Fi, et chaque clé d’API sur la page de son fournisseur.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le plan efface seulement la flash, et ne dit jamais comment révoquer le token GitHub ».
+
+### Comment l’auteur l’a demandé
 
 La règle derrière ce guide vient de la décision sur l’endroit où vit le firmware. L’IA a demandé si le code du bot devait aller dans un dépôt à lui, et l’auteur ou l’autrice a répondu :
 
@@ -143,13 +163,9 @@ Traduction en français : sur le PC, de toute façon l’idée est de l’utilis
 
 C’est pourquoi les clés payantes restent sur le PC. Le choix du système de reconnaissance revenait à l’IA, d’après la documentation du serveur ; elle a choisi `OpenaiASR` parce que le système de reconnaissance hors ligne par défaut ne prend pas en charge l’espagnol, et ce guide est l’endroit où ce choix est expliqué comme de l’audio qui quitte le réseau.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
-
-> Mon bot de bureau est un ESP32-P4 qui fait tourner un fork de 78/xiaozhi-esp32, et qui parle à xinnan-tech/xiaozhi-esp32-server sur mon PC avec OpenaiASR, un fournisseur Claude et EdgeTTS, plus ntfy.sh et l’API REST de GitHub depuis la carte. Liste chaque secret qu’il détient et où (lis `main/settings.h`, `main/ota.cc` et le `ssid_manager.cc` d’esp-wifi-connect pour les espaces de noms de la NVS), tout ce qui quitte mon réseau et vers qui, et ce qui reste sur le réseau local. Explique ensuite les schémas de chiffrement de la NVS d’ESP-IDF 6 pour l’ESP32-P4 et le chiffrement de la flash, en citant leur documentation, avec les compromis pour un appareil de loisir que je reflashe souvent. Termine par la façon d’effacer la carte et de révoquer chaque identifiant.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Le bot n’a besoin d’aucun nouveau code pour ce guide. La seule pièce facultative est le bouton « Forget », ajouté à l’écran de réglages du guide 9 à côté de « Back » :
 

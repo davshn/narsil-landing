@@ -78,7 +78,27 @@ A requisição usa o [`esp_http_client`](https://docs.espressif.com/projects/esp
 
 O token vive na NVS, no namespace `narsil` do `Settings` do Xiaozhi, sob a chave `gh_token`, digitado uma vez na tela de configurações da barriga ([guia 9](/pt/bot/belly-ui/)). Ele nunca é compilado no firmware nem escrito no log.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude uma função na barriga que pergunte à API de busca do GitHub pelos pull requests abertos que pedem a sua revisão e os mostre na tela. A única ideia que ele precisa acertar é que o token só pode ler, com o mínimo acesso, e vive na NVS da barriga, nunca no código nem no log.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
+
+> Num ESP32-P4 com ESP-IDF 6, quero mostrar os pull requests abertos do GitHub que pedem a minha revisão. Confira na documentação REST do GitHub se o `GET /search/issues` funciona com um fine-grained personal access token e qual permissão ele precisa, o `X-GitHub-Api-Version` atual, o limite de taxa da busca e como funcionam as requisições condicionais com `If-None-Match`. Depois escreva uma função que o chame com o `esp_http_client` e o pacote de certificados, leia o token da NVS, guarde o ETag, trate 304, 401, 403 e 429, e analise `items` com o cJSON. Diga-me como criar o token com o mínimo acesso e como revogá-lo.
+
+### O que conferir na resposta do Claude
+
+1. Faz uma única requisição, `GET /search/issues` com `is:pr+is:open+review-requested:@me`, e envia os cabeçalhos `Authorization`, `Accept`, `X-GitHub-Api-Version` (`2026-03-10`) e `User-Agent`.
+2. O token é um token de acesso pessoal refinado com data de expiração: nenhuma permissão para repositórios públicos, ou só **Pull requests: Read-only** para os privados que você adicionar. O Claude também diz como revogá-lo: **Delete** ao lado do token na página de tokens do GitHub.
+3. O token é lido da NVS (namespace `narsil`, chave `gh_token`) e enviado só no cabeçalho `Authorization`. Ele nunca é compilado no firmware nem impresso no log, nem mesmo o cabeçalho.
+4. Pergunta a cada dois minutos, uma requisição por vez. Guarda o `etag`, o envia de volta como `If-None-Match` e mantém a lista que já tem quando recebe um `304`.
+5. Mostra `401` na tela como um token errado, expirado ou excluído, e com `403` ou `429` espera `retry-after` (ou `x-ratelimit-reset`) antes de tentar de novo. O HTTPS usa o pacote de certificados.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a lista está vazia, mas eu tenho um pedido de revisão num repositório privado".
+
+### Como a pessoa autora pediu
 
 Os pull requests vieram com o propósito do bot: uma tela na barriga que mostra o que precisa de você, ao lado das tarefas da Narsil. Onde acontece o trabalho de rede ficou resolvido pela resposta da pessoa autora sobre a cabeça:
 
@@ -90,13 +110,9 @@ Então a barriga chama o GitHub por conta própria. A especificação S6 depois 
 
 O resto era trabalho de pesquisa da IA, não decisão da pessoa autora: qual endpoint lista os pull requests que precisam de você, se um token fine-grained consegue chamá-lo e qual é a permissão mínima que funciona. A IA leu a documentação de busca do GitHub e as suas páginas de endpoints e permissões para tokens fine-grained, e escolheu a busca com uma permissão **Pull requests** só de leitura apenas onde os repositórios privados precisam dela.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
-
-> Num ESP32-P4 com ESP-IDF 6, quero mostrar os pull requests abertos do GitHub que pedem a minha revisão. Confira na documentação REST do GitHub se o `GET /search/issues` funciona com um fine-grained personal access token e qual permissão ele precisa, o `X-GitHub-Api-Version` atual, o limite de taxa da busca e como funcionam as requisições condicionais com `If-None-Match`. Depois escreva uma função que o chame com o `esp_http_client` e o pacote de certificados, leia o token da NVS, guarde o ETag, trate 304, 401, 403 e 429, e analise `items` com o cJSON. Diga-me como criar o token com o mínimo acesso e como revogá-lo.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Uma função para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowPullRequest` e `ShowGithubError` são as funções da tela do [guia 9](/pt/bot/belly-ui/); uma tarefa chama `PollPullRequests()` a cada dois minutos:
 

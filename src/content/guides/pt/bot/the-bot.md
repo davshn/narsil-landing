@@ -110,7 +110,27 @@ O caminho da voz é o único que precisa do seu PC. Os alertas, os pull requests
 
 O firmware das duas placas vive num único repositório público, `davshn/narsil-bot`: um fork de 78/xiaozhi-esp32 para a barriga, com o firmware da cabeça na sua própria pasta `head/`.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude que leia as páginas oficiais das duas placas e proponha o papel de cada uma, os pinos da UART, a alimentação e a lista de peças. A única ideia que ele precisa acertar é que a barriga é dona de toda conexão e de todo segredo, e a cabeça só desenha o que recebe por três fios.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para projetar o bot.
+
+> Quero construir um bot de mesa com duas placas ESP32: uma Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 como corpo e uma ESP32-S3-LCD-1.3-C (ST7789 240×240 sob um cubo prisma) como cabeça. O corpo deve fazer toda a parte de rede e a cabeça deve só desenhar um rosto que recebe por UART. Leia as páginas e os esquemas oficiais da Waveshare e da SpotPear, e depois proponha: o papel de cada placa, quais pinos livres do conector usar para a UART de cada lado (evitando pinos que o suporte de placa ou o console de inicialização já usam), como alimentar as duas placas e uma lista de materiais. Cite a página de onde vem cada pino e me faça uma pergunta de cada vez quando algo for uma escolha real.
+
+### O que conferir na resposta do Claude
+
+1. A barriga faz toda a parte de rede e guarda a senha do Wi-Fi, o token do GitHub e o tópico ntfy. A cabeça não guarda segredos e só recebe uma pose e um estado pela UART.
+2. A UART usa pinos livres do conector: GPIO4 (TX) e GPIO5 (RX) na barriga, GPIO13 (RX) e GPIO14 (TX) na cabeça. Evita os pinos que o `config.h` do Xiaozhi já ocupa, como do GPIO9 ao GPIO13 para o áudio.
+3. Os fios se cruzam: cada TX vai para o RX da outra placa, e um terceiro fio une os dois terras.
+4. Cada placa tem o seu próprio cabo USB-C, e os pinos 3V3 ficam desconectados. As duas placas usam lógica de 3,3 V, então não é preciso um conversor de nível.
+5. Os pinos do console ficam livres: GPIO37 e GPIO38 na barriga, GPIO43 e GPIO44 na cabeça. Cada escolha de pino cita a página ou o esquema de onde vem.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a cabeça imprime lixo, e o meu plano não tem um fio de terra entre as placas".
+
+### Como a pessoa autora pediu
 
 O design começou num carrinho de compras. Em 2026-11-17 a pessoa autora compartilhou uma captura de tela de um carrinho do AliExpress com as duas placas e um pacote de fios Dupont, e descreveu a ideia:
 
@@ -128,13 +148,9 @@ Tradução para o português: "Por cabo a partir da barriga".
 
 Essa resposta é a regra de "Por que a barriga faz toda a parte de rede" acima: uma placa é dona da rede e dos segredos, a outra só desenha. A IA fez as suas perguntas uma de cada vez, com as páginas da Waveshare e da SpotPear como fontes, e registrou cada resposta no documento de tarefas do projeto como uma especificação numerada.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para projetar o bot.
-
-> Quero construir um bot de mesa com duas placas ESP32: uma Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 como corpo e uma ESP32-S3-LCD-1.3-C (ST7789 240×240 sob um cubo prisma) como cabeça. O corpo deve fazer toda a parte de rede e a cabeça deve só desenhar um rosto que recebe por UART. Leia as páginas e os esquemas oficiais da Waveshare e da SpotPear, e depois proponha: o papel de cada placa, quais pinos livres do conector usar para a UART de cada lado (evitando pinos que o suporte de placa ou o console de inicialização já usam), como alimentar as duas placas e uma lista de materiais. Cite a página de onde vem cada pino e me faça uma pergunta de cada vez quando algo for uma escolha real.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 A fiação vira código num só lugar em cada placa: a configuração da UART. Este é o lado da barriga, escrito para este guia com o driver UART do ESP-IDF (`driver/uart.h`, as mesmas chamadas do exemplo `uart_echo` do ESP-IDF). O lado da cabeça é igual, com os seus próprios pinos.
 

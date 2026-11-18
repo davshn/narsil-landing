@@ -94,7 +94,27 @@ La [página de primeros pasos](https://docs.espressif.com/projects/esp-idf/en/v6
 
 Una instalación nativa flashea directamente, sin puente. El coste es una instalación grande en el PC, y tienes que instalar la misma rama `release/v6.1` que pide Xiaozhi, no la versión que EIM ofrezca primero.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude los comandos para compilar las dos placas en la imagen de Docker de Espressif y flashearlas desde Windows. La idea que debe acertar es que el firmware que corre decide la versión: Xiaozhi necesita ESP-IDF 6.0.1 o posterior, así que la compilación usa `espressif/idf:release-v6.1`, y el flasheo ocurre fuera de Docker.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se prepararon las herramientas del bot.
+
+> Compilo firmware para ESP32 en Windows con Docker y no quiero ESP-IDF instalado de forma nativa. Mi proyecto es un fork de 78/xiaozhi-esp32 para una placa ESP32-P4, más una pequeña aplicación ESP-IDF para un ESP32-S3 en una subcarpeta. Lee el README y el workflow de CI de Xiaozhi y la guía de la imagen Docker de IDF de Espressif, y después dime: qué etiqueta de `espressif/idf` usar y por qué, el comando `docker run` exacto para compilar cada destino desde PowerShell, y cómo flashear y monitorizar cada placa desde Windows sabiendo que Docker no puede pasar los puertos serie USB. Cita la documentación de cada versión y cada comando.
+
+### Qué revisar en la respuesta de Claude
+
+1. La imagen es `espressif/idf:release-v6.1`, la rama `release/v6.1` que recomienda Xiaozhi, no la etiqueta `v6.1` ni una versión 5.x de la página de Waveshare.
+2. La compilación corre en Docker con la carpeta del proyecto montada en `/project`, y pasa `-e IDF_GIT_SAFE_DIR=/project` para el error de "dubious ownership".
+3. La panza se compila para `esp32p4` con `scripts/build.py`, y la cabeza para `esp32s3` con `idf.py set-target esp32s3`.
+4. El flasheo no usa `--device` en Windows. Usa esptool en el anfitrión con `write-flash 0x0` para el binario combinado, o `esp_rfc2217_server` con `host.docker.internal` como anfitrión del puerto.
+5. La panza se flashea por su puerto Type-C marcado "USB to UART", y la respuesta menciona `idf.py fullclean` después de un cambio de versión de ESP-IDF.
+
+Si una comprobación falla, dile a Claude lo que ves: "la compilación de la panza falla con ESP-IDF 5.5.2" o "el contenedor no encuentra mi puerto COM".
+
+### Cómo lo pidió el autor
 
 La cuestión de las herramientas vino de una decisión anterior. Cuando la IA preguntó qué debía correr en la panza para darle voz a Narsil, quien creó Narsil respondió:
 
@@ -108,13 +128,9 @@ La segunda decisión que da forma a las herramientas es dónde vive el código. 
 
 Después, ante la pregunta de si debía ser público o privado desde el principio, la respuesta fue "1", la primera opción ofrecida: público desde el principio. Por eso las dos placas se compilan desde un único repositorio, `davshn/narsil-bot`, y por eso las herramientas tienen que manejar dos destinos en un mismo árbol.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se prepararon las herramientas del bot.
-
-> Compilo firmware para ESP32 en Windows con Docker y no quiero ESP-IDF instalado de forma nativa. Mi proyecto es un fork de 78/xiaozhi-esp32 para una placa ESP32-P4, más una pequeña aplicación ESP-IDF para un ESP32-S3 en una subcarpeta. Lee el README y el workflow de CI de Xiaozhi y la guía de la imagen Docker de IDF de Espressif, y después dime: qué etiqueta de `espressif/idf` usar y por qué, el comando `docker run` exacto para compilar cada destino desde PowerShell, y cómo flashear y monitorizar cada placa desde Windows sabiendo que Docker no puede pasar los puertos serie USB. Cita la documentación de cada versión y cada comando.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Compilar la panza, desde la raíz del fork en PowerShell (`${PWD}` es la carpeta actual de PowerShell; la opción `-u $UID` es para Linux y macOS y aquí se omite):
 

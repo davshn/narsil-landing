@@ -119,7 +119,27 @@ Les deux côtés utilisent le [pilote UART](https://docs.espressif.com/projects/
 
 Les appels sont ceux de l’exemple `uart_echo` d’ESP-IDF : `uart_driver_install` avec un tampon de réception, `uart_param_config`, `uart_set_pin`, puis `uart_write_bytes` pour envoyer et `uart_read_bytes` avec un délai pour recevoir. Sur la tête, `uart_read_bytes` avec un délai de 200 ms sert aussi d’horloge à sa boucle principale : il revient plus tôt quand des octets arrivent, et sinon laisse la tête vérifier le silence.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un petit protocole texte entre le ventre et la tête, et ses deux côtés en ESP-IDF. L’idée que Claude doit bien saisir, c’est la ligne : `$`, la version `N1`, un type, les champs, `*` et une somme de contrôle XOR à deux chiffres des octets entre `$` et `*`.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
+
+> Deux cartes ESP32 partagent un UART (UART_NUM_1, 115200 bauds, masse commune). Le corps n’envoie à la tête qu’une pose et un état vocal ; la tête les dessine et doit survivre aux redémarrages et aux fils débranchés. Conçois un protocole texte par lignes avec un champ de version et une somme de contrôle XOR d’un octet, liste chaque message avec un exemple et sa somme de contrôle, et écris les deux côtés en ESP-IDF 6 avec `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` et `uart_read_bytes`. Le corps répète son état toutes les 5 s ; la tête envoie un salut au démarrage et rien d’autre. Explique comment je teste chaque côté depuis un PC avec un adaptateur USB-série.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La somme de contrôle couvre seulement les octets entre `$` et `*`, écrite en hexadécimal majuscule. Le code de Claude obtient `1B` pour `$N1,H*1B`.
+2. Il y a trois messages : `P` avec une pose et une étape, `V` avec `idle`, `listening` ou `speaking`, et le `H` (hello) de la tête. La tête n’envoie rien d’autre, donc elle ne peut jamais rien demander au ventre ni atteindre un secret.
+3. Le ventre envoie ses lignes `P` et `V` quand elles changent, toutes les cinq secondes de toute façon, et tout de suite après un hello. La tête baisse son rétroéclairage après 15 secondes sans ligne valide, et jette les lignes de plus de 64 octets.
+4. La pose vient de l’URL `art` : le nom de fichier avant `-oscuro.png` et le nombre après `/etapa` (1 s’il n’y en a pas), vérifiés par rapport aux cinq noms de poses et aux étapes 1 à 5.
+5. Les deux côtés utilisent `UART_NUM_1` à 115200 bauds, 8 bits de données, sans parité, 1 bit de stop et sans contrôle de flux : GPIO4 et GPIO5 sur le ventre, GPIO14 et GPIO13 sur la tête, avec une masse commune.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « je tape `$N1,P,necesita,2*33` dans le terminal de la tête et rien ne change ».
+
+### Comment l’auteur l’a demandé
 
 La liaison elle-même vient de l’une des premières réponses de l’auteur ou de l’autrice. À la question de savoir si la tête rejoindrait le réseau par elle-même ou recevrait ses données du ventre, la réponse a été :
 
@@ -135,13 +155,9 @@ Traduction en français : la tête sera un écran holographique qui ne soit que 
 
 Ensemble, ces deux réponses sont la portée du protocole : un fil, et seulement ce dont le visage a besoin. Le format n’était pas une décision de l’auteur ou de l’autrice. L’IA a comparé les trames binaires et les lignes de texte, et a choisi des lignes de texte avec une version et une somme de contrôle parce qu’on peut les lire et les taper à la main pendant les tests. Déduire la pose de l’URL `art`, au lieu d’ajouter un nouveau champ côté PC, vient de la lecture d’`artUrl` et de `sendStatus` dans narsil-pet : l’information était déjà là, donc rien n’avait à changer côté PC.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
-
-> Deux cartes ESP32 partagent un UART (UART_NUM_1, 115200 bauds, masse commune). Le corps n’envoie à la tête qu’une pose et un état vocal ; la tête les dessine et doit survivre aux redémarrages et aux fils débranchés. Conçois un protocole texte par lignes avec un champ de version et une somme de contrôle XOR d’un octet, liste chaque message avec un exemple et sa somme de contrôle, et écris les deux côtés en ESP-IDF 6 avec `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` et `uart_read_bytes`. Le corps répète son état toutes les 5 s ; la tête envoie un salut au démarrage et rien d’autre. Explique comment je teste chaque côté depuis un PC avec un adaptateur USB-série.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Le côté ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `head_link_init` du guide 1 configure le port ; ceci ajoute les messages et la tâche de liaison :
 

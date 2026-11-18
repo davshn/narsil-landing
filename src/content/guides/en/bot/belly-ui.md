@@ -88,7 +88,27 @@ A long press on the strip (`LV_EVENT_LONG_PRESSED`, so a passing tap never opens
 
 Guide 12 explains what NVS protects and what it does not.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a `NarsilDisplay` class that keeps Xiaozhi's interface and loads a second LVGL screen of Narsil's own. The one idea it must get right is the display lock: every function called from the ntfy or GitHub task takes `DisplayLockGuard` before its first `lv_` call.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> My fork of 78/xiaozhi-esp32 runs on a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Read `main/idf_component.yml` for the LVGL version, `main/display/display.h`, `main/display/lcd_display.h`, `main/settings.h` and the board file in `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`. Then write a `NarsilDisplay` class derived from `MipiLcdDisplay` that keeps Xiaozhi's UI but loads a second LVGL screen of my own: a status strip, a list of alerts where a tap marks a row as read, a list of pull requests, and a settings screen that saves two strings to NVS through `Settings`. Every function called from another FreeRTOS task must take `DisplayLockGuard`. Use only the API of the LVGL version you found, and link the docs for each widget.
+
+### What to check in Claude's answer
+
+1. It uses the LVGL 9 names of the version Xiaozhi pins (`~9.5.0`), such as `lv_screen_active` and `lv_button_create`, never `lv_scr_act`, `lv_btn_create` or `lv_obj_del`.
+2. `ShowAlert`, `ShowStatus`, `ShowPullRequest` and `ShowGithubError` take `DisplayLockGuard` and skip the drawing when they cannot get it. Parsing JSON and sending to the head happen outside the lock.
+3. `SetupUI` calls the original first and builds Narsil's screen as a second screen. That screen is loaded once Wi-Fi is up, not inside `SetupUI`, so the first boot still shows the Wi-Fi setup.
+4. The newest alert goes on top, the list keeps the last 20, and a tap dims a row and lowers the unread count. A status whose `time` is older than the last one shown is ignored.
+5. The settings screen opens with a long press, shows the token as dots, never fills a field with the saved value and never logs it. It saves through `Settings` opened with `read_write` set to `true`, in the namespace `narsil` under `ntfy_topic` and `gh_token`, never in the code.
+
+If a check fails, tell Claude what you see: "the board works for hours, then crashes in a draw function".
+
+### How the author asked for it
 
 The belly screen is the first thing the author described, before any code:
 
@@ -100,13 +120,9 @@ That set what the screen is for: Narsil's work, not a general clock or dashboard
 
 Two things were left to the AI to find out rather than to the author to decide. The first was how to replace Xiaozhi's screen without breaking its voice work; the AI read `main/display/display.h`, `lcd_display.h` and the board file, and chose a subclass that keeps Xiaozhi's screen alive but hidden over deleting or rewriting it. The second was where the secrets are typed. Spec S6 already said they live in NVS or local configuration, never in the repository, so the AI proposed a settings screen on the belly itself, opened with a long press on the strip so that a passing tap never shows it.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> My fork of 78/xiaozhi-esp32 runs on a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Read `main/idf_component.yml` for the LVGL version, `main/display/display.h`, `main/display/lcd_display.h`, `main/settings.h` and the board file in `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`. Then write a `NarsilDisplay` class derived from `MipiLcdDisplay` that keeps Xiaozhi's UI but loads a second LVGL screen of my own: a status strip, a list of alerts where a tap marks a row as read, a list of pull requests, and a settings screen that saves two strings to NVS through `Settings`. Every function called from another FreeRTOS task must take `DisplayLockGuard`. Use only the API of the LVGL version you found, and link the docs for each widget.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Two files next to the board file, in C++ like Xiaozhi (MIT, like the site's own examples). The header:
 

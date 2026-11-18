@@ -94,7 +94,27 @@ A [página Get Started](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp3
 
 Uma instalação nativa grava diretamente, sem ponte. O custo é uma instalação grande no PC, e você precisa instalar o mesmo branch `release/v6.1` que o Xiaozhi pede, e não a versão que o EIM oferecer primeiro.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude os comandos para compilar as duas placas na imagem Docker da Espressif e gravá-las a partir do Windows. A única ideia que ele precisa acertar é que o firmware que roda decide a versão: o Xiaozhi precisa do ESP-IDF 6.0.1 ou posterior, então a compilação usa `espressif/idf:release-v6.1`, e a gravação acontece fora do Docker.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para configurar o bot.
+
+> Eu compilo firmware de ESP32 no Windows com Docker e não quero o ESP-IDF instalado de forma nativa. O meu projeto é um fork de 78/xiaozhi-esp32 para uma placa ESP32-P4, mais um pequeno app ESP-IDF para um ESP32-S3 numa subpasta. Leia o README e o workflow de CI do Xiaozhi e o guia IDF Docker Image da Espressif, e depois me diga: qual tag de `espressif/idf` usar e por quê, o comando `docker run` exato para compilar cada alvo a partir do PowerShell, e como gravar e monitorar cada placa a partir do Windows, dado que o Docker não consegue repassar portas seriais USB. Cite a documentação para cada versão e comando.
+
+### O que conferir na resposta do Claude
+
+1. A imagem é `espressif/idf:release-v6.1`, o branch `release/v6.1` que o Xiaozhi recomenda, não a tag `v6.1` nem uma versão 5.x da página da Waveshare.
+2. A compilação roda no Docker com a pasta do projeto montada em `/project`, e passa `-e IDF_GIT_SAFE_DIR=/project` para o erro de "dubious ownership".
+3. A barriga é compilada para `esp32p4` com `scripts/build.py`, e a cabeça para `esp32s3` com `idf.py set-target esp32s3`.
+4. A gravação não usa `--device` no Windows. Ela usa o esptool no host com `write-flash 0x0` para o binário unificado, ou o `esp_rfc2217_server` com `host.docker.internal` como host da porta.
+5. A barriga é gravada pela sua porta Type-C marcada "USB to UART", e a resposta menciona `idf.py fullclean` depois de uma mudança de versão do ESP-IDF.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a compilação da barriga falha com o ESP-IDF 5.5.2" ou "o contêiner não encontra a minha porta COM".
+
+### Como a pessoa autora pediu
 
 A questão do conjunto de ferramentas veio de uma decisão anterior. Quando a IA perguntou o que a barriga deveria rodar para dar uma voz à Narsil, a pessoa autora respondeu:
 
@@ -112,13 +132,9 @@ Tradução para o português: "repositório próprio, como fork".
 
 Depois, perguntada se ele deveria ser público ou privado desde o início, a pessoa autora respondeu "1", a primeira opção oferecida: público desde o início. É por isso que as duas placas são compiladas a partir de um único repositório, `davshn/narsil-bot`, e por isso o conjunto de ferramentas precisa lidar com dois alvos numa única árvore.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para configurar o bot.
-
-> Eu compilo firmware de ESP32 no Windows com Docker e não quero o ESP-IDF instalado de forma nativa. O meu projeto é um fork de 78/xiaozhi-esp32 para uma placa ESP32-P4, mais um pequeno app ESP-IDF para um ESP32-S3 numa subpasta. Leia o README e o workflow de CI do Xiaozhi e o guia IDF Docker Image da Espressif, e depois me diga: qual tag de `espressif/idf` usar e por quê, o comando `docker run` exato para compilar cada alvo a partir do PowerShell, e como gravar e monitorar cada placa a partir do Windows, dado que o Docker não consegue repassar portas seriais USB. Cite a documentação para cada versão e comando.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Compilar a barriga, a partir da raiz do fork no PowerShell (`${PWD}` é a pasta atual do PowerShell; a flag `-u $UID` é para Linux e macOS e fica de fora aqui):
 
