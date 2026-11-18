@@ -47,3 +47,7 @@
 .tool-result-note {
   @apply text-sm text-muted-foreground;
 }
+
+.tool-fields-3 {
+  @apply sm:grid-cols-3;
+}

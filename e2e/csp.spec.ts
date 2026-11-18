@@ -20,6 +20,8 @@ test.describe('Content Security Policy', () => {
     '/en/mods/pet/states/',
     '/en/tools/',
     '/en/tools/semver/',
+    '/en/tools/xp/',
+    '/en/tools/priority/',
   ]) {
     test(`${path} ships a hash-based script policy and runs without violations`, async ({
       page,

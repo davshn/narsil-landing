@@ -1,11 +1,8 @@
 ---
 import { SemverClassifier } from '@components/tools/SemverClassifier/SemverClassifier'
-import Container from '@components/ui/Container/Container.astro'
-import Text from '@components/ui/Text/Text.astro'
 import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
-import SiteLayout from '@layouts/SiteLayout.astro'
-import { buildWebPage } from '@seo/json-ld'
+import ToolLayout from '@layouts/ToolLayout.astro'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -13,47 +10,16 @@ export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
 
 const rawLocale = Astro.params.locale ?? ''
 const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
-const t = useTranslations(locale)
-const copy = t.tools.semver
-
-const siteUrl = Astro.site?.href ?? Astro.url.origin
-const jsonLd = buildWebPage({
-  name: copy.title,
-  url: new URL(Astro.url.pathname, siteUrl).href,
-  description: copy.description,
-  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-  inLanguage: locale,
-})
+const copy = useTranslations(locale).tools.semver
 ---
 
-<SiteLayout
-  title={`${copy.title} — ${t.meta.siteName}`}
-  description={copy.description}
+<ToolLayout
   locale={locale}
-  jsonLd={jsonLd}
+  title={copy.title}
+  description={copy.description}
+  intro={copy.intro}
+  guideHref={`/${locale}/mods/check/classifying-updates/`}
+  guideText={copy.guideText}
 >
-  <Container as="section" maxWidth="md" padding="section">
-    <nav aria-label={t.guide.breadcrumbLabel} class="mb-4 text-sm">
-      <a class="text-primary underline underline-offset-4" href={`/${locale}/tools/`}>
-        {t.tools.title}
-      </a>
-    </nav>
-    <h1 class="text-3xl font-bold mb-6">{copy.title}</h1>
-    <div class="flex flex-col gap-4 mb-8">
-      <Text as="p">{copy.intro}</Text>
-      <Text as="p" tone="muted">
-        {t.tools.privacy}
-      </Text>
-    </div>
-    <SemverClassifier client:visible copy={copy} />
-    <p class="mt-8">
-      <a
-        class="text-primary underline underline-offset-4"
-        href={`/${locale}/mods/check/classifying-updates/`}
-        data-tool-guide
-      >
-        {copy.guideText}
-      </a>
-    </p>
-  </Container>
-</SiteLayout>
+  <SemverClassifier client:visible copy={copy} />
+</ToolLayout>

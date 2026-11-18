@@ -214,6 +214,49 @@ export const fr: TranslationShape = {
       invalidInstalled: 'La version installée n’est pas une version que Narsil Check sait lire.',
       invalidCandidate: 'La nouvelle version n’est pas une version que Narsil Check sait lire.',
     },
+    xp: {
+      title: 'Calculateur d’XP',
+      description:
+        'Comptez les tours terminés, les tests qui passent et les sous-agents terminés pour voir l’XP, le niveau et le stade de Narsil, et la distance au suivant.',
+      intro:
+        'Narsil gagne 10 XP par tour terminé, 5 par exécution de tests qui passe et 3 par sous-agent qui termine. Chaque niveau demande 100 XP de plus que le précédent, et cinq stades changent son apparence.',
+      guideText: 'Comment Narsil gagne de l’expérience et grandit',
+      turnsLabel: 'Tours terminés',
+      testsLabel: 'Tests qui passent',
+      agentsLabel: 'Sous-agents terminés',
+      resultLabel: 'Où en est Narsil',
+      total: '{xp} XP au total.',
+      level: 'Niveau {level} · {into}/{needed} XP',
+      stage: 'Stade {stage} sur {stages}.',
+      nextStage:
+        'Le stade {stage} commence au niveau {level} : encore {xp} XP, environ {turns} tours terminés de plus.',
+      grown: 'Narsil a fini de grandir : le stade 5 est le dernier.',
+    },
+    priority: {
+      title: 'Simulateur de priorité',
+      description:
+        'Choisissez l’état de quelques conversations pour voir celle que montre Narsil et dans quel ordre la bande les liste, quatre par page.',
+      intro:
+        'Narsil montre la conversation la plus importante : d’abord une erreur, puis une qui a besoin de vous, puis une au travail, puis une terminée. En cas d’égalité, le changement le plus récent l’emporte. La bande liste d’abord cette conversation, quel que soit son état.',
+      guideText: 'Comment Narsil suit toutes les conversations',
+      statuses: {
+        error: 'Erreur',
+        waiting: 'A besoin de vous',
+        working: 'Au travail',
+        done: 'Terminé',
+        idle: 'À l’arrêt',
+      },
+      own: 'Cette conversation',
+      other: 'Conversation {n}',
+      statusLabel: 'État',
+      minutesLabel: 'Minutes depuis son dernier changement',
+      add: 'Ajouter une conversation',
+      remove: 'Retirer {name}',
+      wearsLabel: 'Narsil montre',
+      wears: '{name} : {status}',
+      rowsLabel: 'Lignes de la bande',
+      page: 'Page {page}',
+    },
   },
   support: {
     title: 'Soutenir Narsil Workshop',
