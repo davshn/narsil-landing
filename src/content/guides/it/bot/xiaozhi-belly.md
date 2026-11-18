@@ -168,4 +168,4 @@ Per testare, apri il monitor (guida 2) durante il primo avvio. Dovresti vedere l
 - Il [documento OTA](https://github.com/78/xiaozhi-esp32/blob/main/docs/ota.md) di Xiaozhi descrive come un server può anche offrire aggiornamenti del firmware; il server di xinnan-tech può servirli dalla sua cartella `data/bin`, così la pancia può aggiornarsi via Wi-Fi.
 - `scripts/build.py --list-wake-words` elenca i modelli di wake word del componente ESP-SR corrente, e `--wake-word` ne sceglie uno.
 - La [guida alle schede personalizzate](https://github.com/78/xiaozhi-esp32/blob/main/docs/custom-board.md) avverte di non sovrascrivere mai la configurazione di una scheda esistente per una personalizzata, perché l'OTA può sostituire il tuo firmware con quello originale di quella scheda. Tienilo presente ogni volta che aggiungi codice tuo alla pancia.
-- Xiaozhi può anche mostrare espressioni sul proprio schermo; la guida 9 sostituisce lo schermo della pancia con l'interfaccia di Narsil.
+- Xiaozhi può anche mostrare espressioni sul proprio schermo; la [guida 9](/it/bot/belly-ui/) sostituisce lo schermo della pancia con l'interfaccia di Narsil.

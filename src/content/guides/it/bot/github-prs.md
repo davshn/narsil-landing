@@ -76,7 +76,7 @@ Su `403` o `429`, la pancia attende il tempo indicato in `retry-after` (o `x-rat
 
 La richiesta usa [`esp_http_client`](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/protocols/esp_http_client.html) di ESP-IDF con il bundle di certificati (`crt_bundle_attach = esp_crt_bundle_attach`), come lo stream di ntfy della guida 7. Questa volta la risposta è breve, quindi usa `esp_http_client_perform`, raccoglie il corpo nell'evento `HTTP_EVENT_ON_DATA`, cattura l'`etag` in `HTTP_EVENT_ON_HEADER` (dove `evt->header_key` ed `evt->header_value` contengono ogni header della risposta) e legge lo stato con `esp_http_client_get_status_code` dopo che `perform` è tornata.
 
-Il token vive nella NVS, nel namespace `narsil` di `Settings` di Xiaozhi sotto la chiave `gh_token`, scritto una volta nella schermata delle impostazioni della pancia (guida 9). Non viene mai compilato nel firmware né scritto nel log.
+Il token vive nella NVS, nel namespace `narsil` di `Settings` di Xiaozhi sotto la chiave `gh_token`, scritto una volta nella schermata delle impostazioni della pancia ([guida 9](/it/bot/belly-ui/)). Non viene mai compilato nel firmware né scritto nel log.
 
 ## Come è stata chiesta all’IA
 
@@ -98,7 +98,7 @@ Il prompt seguente è stato scritto per questa guida come suggerimento. Non è l
 
 ## Il codice minimo
 
-Una funzione per la pancia, in C++ accanto al codice di Xiaozhi (MIT, come gli esempi del sito). `ShowPullRequest` e `ShowGithubError` sono le funzioni dello schermo della guida 9; un task chiama `PollPullRequests()` ogni due minuti:
+Una funzione per la pancia, in C++ accanto al codice di Xiaozhi (MIT, come gli esempi del sito). `ShowPullRequest` e `ShowGithubError` sono le funzioni dello schermo della [guida 9](/it/bot/belly-ui/); un task chiama `PollPullRequests()` ogni due minuti:
 
 ```cpp
 #include <cJSON.h>
@@ -204,4 +204,4 @@ Una risposta JSON con `total_count` significa che il token funziona. Aggiungi `-
 - **Check e review.** Gli endpoint delle pull (`GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews`, per esempio) danno lo stato di review di ogni pull request; anche loro richiedono **Pull requests: Read-only**.
 - **Notifiche invece della ricerca.** L'API delle notifiche di GitHub risponde a "cosa mi è successo", ma GitHub non la elenca tra gli endpoint per i token fine-grained, quindi richiederebbe un token classico.
 - **Rotazione.** Con un token da 30 giorni, metti un promemoria nel calendario. La pancia può mostrare la data di scadenza se la scrivi insieme al token.
-- La guida 9 disegna entrambe le liste, avvisi e pull request, sullo schermo della pancia, nel [percorso del bot](/it/bot/).
+- La [guida 9](/it/bot/belly-ui/) disegna entrambe le liste, avvisi e pull request, sullo schermo della pancia.

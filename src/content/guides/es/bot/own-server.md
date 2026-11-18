@@ -87,7 +87,7 @@ Las ventajas y desventajas:
 
 - **Lo local mantiene tu voz en casa y no cuesta nada por uso**, pero usa la memoria y la CPU de tu PC. El README indica que correr `FunASR` en local consume más memoria, y que usar APIs para todo mantiene bajo el consumo de recursos.
 - **El idioma importa.** Narsil habla español. El comentario del bloque `FunASR` lista las etiquetas de idioma que admite SenseVoice como zh, en, ja, ko y yue, así que para español el bot usa otro reconocedor. `OpenaiASR` (modelo `gpt-4o-mini-transcribe` por defecto) y `GroqASR` (`whisper-large-v3-turbo`) son APIs multilingües; `VoskASR` funciona sin conexión y admite varios idiomas con un modelo descargado.
-- **Una API envía tu audio fuera de tu red** y necesita una clave. La guía 12 lista lo que sale de la red y por qué.
+- **Una API envía tu audio fuera de tu red** y necesita una clave. [La guía 12](/es/bot/secrets-privacy/) lista lo que sale de la red y por qué.
 
 El bot usa `OpenaiASR` para el reconocimiento y mantiene `EdgeTTS` para la síntesis, que no necesita clave en `config.yaml`. La voz de Narsil en sí, y el ajuste `voice`, son la guía 6.
 

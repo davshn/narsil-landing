@@ -18,15 +18,15 @@ Objective: a Narsil desk bot with a body and a voice, built in a public firmware
 
 ## Tasks
 
-| ID  | Specs    | Route                          | Status      | Commit                                                   |
-| --- | -------- | ------------------------------ | ----------- | -------------------------------------------------------- |
-| T1  | S7       | inline                         | done        | this branch                                              |
-| T2  | S8       | inline                         | done        | this branch                                              |
-| T3  | S7, S8   | inline                         | done        | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
-| T4  | S10      | inline                         | pending     |                                                          |
-| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4); `39bf70e` (6b: guides 5–8)   |
-| T6  | S11      | delegated (4 parallel writers) | in progress | `4b4cbf5` (6a); 6b translations commit                   |
-| T7  | S10, S11 | inline                         | in progress | 6b: 632 unit tests, 266 pages, 177 e2e passed (chromium) |
+| ID  | Specs    | Route                          | Status | Commit                                                   |
+| --- | -------- | ------------------------------ | ------ | -------------------------------------------------------- |
+| T1  | S7       | inline                         | done   | this branch                                              |
+| T2  | S8       | inline                         | done   | this branch                                              |
+| T3  | S7, S8   | inline                         | done   | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
+| T4  | S10      | inline                         | done   | 6a: `/[locale]/bot/` pages and the third home card       |
+| T5  | S10, S11 | delegated (context backstop)   | done   | `87d2515` (1–4), `39bf70e` (5–8), `8c7ed6b` (9–12)       |
+| T6  | S11      | delegated (4 parallel writers) | done   | `4b4cbf5` (6a), `7767e8d` (6b), 6c translations commit   |
+| T7  | S10, S11 | inline                         | done   | 6c: 654 unit tests, 286 pages, 191 e2e passed (chromium) |
 
 T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the home meta, footer, hero and route card, `CLAUDE.md`, README. T3: unit tests, e2e, build.
 
@@ -69,3 +69,4 @@ Judgement calls in 6c (guides 9–12):
 - L7 (2026-11-18, owner): "Listo, continúa con la 6b" (after #19 merged). 6b on branch `feat/bot-path-2`: guides 5–8, English by one delegated writer (context backstop), then four parallel translators.
 - L8: 6b translated to es, it, fr, pt. Checks: typecheck ok; `eslint src` ok (`e2e/**` is ignored by the ESLint config); prettier ok; 632 unit tests, coverage 97.62% lines; build 266 pages; chromium e2e first run 28 failed, the next two runs 177 passed with no change in between (cause not found). Open terms for the owner: es "tema" for an ntfy topic and decimal comma in prices; fr prices kept as `$0.20`; pt "modelo" used both for template and language model.
 - L9 (2026-11-18, owner): "sigue" (after #22 merged). 6c on branch `feat/bot-path-3`: guides 9–12, English by one delegated writer (context backstop), then four parallel translators; links from guides 5–8 to guides 9–12 are updated in every locale.
+- L10: 6c translated to es, it, fr, pt, with the links to guides 9–12 mirrored in the earlier guides of every locale; no internal `/en/` link left in other locales. Checks: typecheck, `eslint src`, prettier ok; 654 unit tests, coverage 97.52% lines; build 286 pages; 191 chromium e2e passed on the first run. Path 3 (S11) is complete.

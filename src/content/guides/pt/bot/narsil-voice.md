@@ -50,7 +50,7 @@ O `EdgeTTS` usa o serviço de fala on-line do Microsoft Edge por meio do pacote 
 
 A Narsil fala espanhol latino-americano neutro, então o bot usa `es-MX-DaliaNeural`, uma voz feminina para espanhol (México) na [lista de vozes de fala](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts) da Microsoft. O Edge oferece um subconjunto dessa lista; o `edge-tts --list-voices`, do [README do edge-tts](https://github.com/rany2/edge-tts), imprime as vozes que ele de fato pode usar, então confira a sua escolha ali. `es-CO-SalomeNeural` e `es-US-PalomaNeural` são outras vozes femininas latino-americanas da lista da Microsoft.
 
-O EdgeTTS não precisa de chave, mas é um serviço on-line: as respostas da Narsil, como texto, vão para a Microsoft para serem faladas. O guia 12 lista o que sai da sua rede.
+O EdgeTTS não precisa de chave, mas é um serviço on-line: as respostas da Narsil, como texto, vão para a Microsoft para serem faladas. O [guia 12](/pt/bot/secrets-privacy/) lista o que sai da sua rede.
 
 ### As frases próprias do servidor
 

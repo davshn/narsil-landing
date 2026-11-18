@@ -55,7 +55,7 @@ Assim, a barriga consegue saber o tipo de alerta só pela tag, e sabe a hora pel
 
 ### O que o estado leva
 
-A mensagem `-estado` é um objeto JSON dentro do campo `message` da mensagem do ntfy, enviada com prioridade 1. O README do narsil-pet documenta os seus campos: `xp` (o nível e a experiência da Narsil), `art` (a URL do desenho dela no seu estágio, na pose da conversa mais importante), `at` (quando foi enviada, em segundos Unix), `cacheMinutes` (quanto dura um cache, quando existe um) e `usage` (a contagem do ntfy no dia). A barriga usa `xp` e `at`, e repassa a pose para a cabeça (guias 10 e 11).
+A mensagem `-estado` é um objeto JSON dentro do campo `message` da mensagem do ntfy, enviada com prioridade 1. O README do narsil-pet documenta os seus campos: `xp` (o nível e a experiência da Narsil), `art` (a URL do desenho dela no seu estágio, na pose da conversa mais importante), `at` (quando foi enviada, em segundos Unix), `cacheMinutes` (quanto dura um cache, quando existe um) e `usage` (a contagem do ntfy no dia). A barriga mostra `xp` com a própria hora do ntfy para a mensagem, e lê a pose e o estágio em `art` para repassá-los à cabeça ([guias 10](/pt/bot/uart-protocol/) e [11](/pt/bot/holographic-head/)).
 
 ### O que a chave esconde, e o que não esconde
 
@@ -98,7 +98,7 @@ O Wi-Fi cai, e conexões longas se rompem. O ntfy guarda as mensagens por um tem
 
 ### Onde o tópico vive
 
-O tópico fica guardado na NVS da barriga, por meio da classe `Settings` do Xiaozhi (`main/settings.h`), no namespace `narsil`, sob a chave `ntfy_topic`. Você o digita uma vez na tela de configurações da barriga, que o guia 9 constrói; ele nunca aparece no código-fonte. O guia 12 explica por que a NVS não é criptografada por padrão e o que isso significa para um dispositivo na sua mesa.
+O tópico fica guardado na NVS da barriga, por meio da classe `Settings` do Xiaozhi (`main/settings.h`), no namespace `narsil`, sob a chave `ntfy_topic`. Você o digita uma vez na tela de configurações da barriga, que o [guia 9](/pt/bot/belly-ui/) constrói; ele nunca aparece no código-fonte. O [guia 12](/pt/bot/secrets-privacy/) explica por que a NVS não é criptografada por padrão e o que isso significa para um dispositivo na sua mesa.
 
 ## Como foi pedido à IA
 
@@ -114,7 +114,7 @@ A Narsil já publica essas tarefas no ntfy para o celular, então a IA propôs l
 
 Tradução para o português: "por cabo, a partir da barriga".
 
-Assim, a barriga é a única placa na rede para os alertas: ela assina o ntfy, e a cabeça recebe só a pose e o estado pelo fio (guia 10). Como reconectar, e o que mostrar quando há uma chave definida, não foram perguntados; a IA os tirou da documentação do ntfy e do `sealedMessage` do narsil-pet.
+Assim, a barriga é a única placa na rede para os alertas: ela assina o ntfy, e a cabeça recebe só a pose e o estado pelo fio ([guia 10](/pt/bot/uart-protocol/)). Como reconectar, e o que mostrar quando há uma chave definida, não foram perguntados; a IA os tirou da documentação do ntfy e do `sealedMessage` do narsil-pet.
 
 ### Um prompt que você pode usar
 
@@ -124,7 +124,7 @@ O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa 
 
 ## O código mínimo
 
-Uma tarefa para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowAlert` e `ShowStatus` são as funções da tela do guia 9:
+Uma tarefa para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowAlert` e `ShowStatus` são as funções da tela do [guia 9](/pt/bot/belly-ui/):
 
 ```cpp
 #include <cJSON.h>
@@ -224,5 +224,5 @@ Rode `/narsil movil prueba` no Claude Code: aparece uma linha `message`. Depois 
 
 - **Ler alertas selados.** O `hooks/seal.ts` deriva duas chaves da sua com HMAC-SHA256 (`enc` e `mac`), faz XOR do texto com um keystream HMAC em blocos de 32 bytes e confere uma tag sobre o nonce e o texto cifrado. O mbedTLS, parte do ESP-IDF, tem HMAC-SHA256; portar o `unseal` permite que a barriga leia o texto enquanto o tópico mostra ruído.
 - **O seu próprio servidor ntfy.** O ntfy pode rodar em casa com controle de acesso, para que o tópico não seja público. O narsil-pet publica em `https://ntfy.sh`, então os dois lados teriam de mudar.
-- **O estado para a cabeça.** A mensagem `-estado` é o que comanda a pose da Narsil na cabeça; o guia 10 a envia pela UART.
-- O guia 8 acrescenta a outra lista que a barriga mostra: os pull requests que precisam de você. A tela em si é o guia 9, no [caminho do bot](/pt/bot/).
+- **O estado para a cabeça.** A mensagem `-estado` é o que comanda a pose da Narsil na cabeça; o [guia 10](/pt/bot/uart-protocol/) a envia pela UART.
+- O guia 8 acrescenta a outra lista que a barriga mostra: os pull requests que precisam de você. A tela em si é o [guia 9](/pt/bot/belly-ui/).

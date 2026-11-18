@@ -76,7 +76,7 @@ Sur `403` ou `429`, le ventre attend le temps indiqué dans `retry-after` (ou `x
 
 La requête utilise [`esp_http_client`](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/protocols/esp_http_client.html) d’ESP-IDF avec le bundle de certificats (`crt_bundle_attach = esp_crt_bundle_attach`), comme le flux ntfy du guide 7. Cette fois la réponse est courte, elle utilise donc `esp_http_client_perform`, recueille le corps dans l’événement `HTTP_EVENT_ON_DATA`, attrape l’`etag` dans `HTTP_EVENT_ON_HEADER` (où `evt->header_key` et `evt->header_value` contiennent chaque en-tête de réponse), et lit le statut avec `esp_http_client_get_status_code` après le retour de `perform`.
 
-Le token vit dans la NVS, dans l’espace de noms `narsil` de la classe `Settings` de Xiaozhi, sous la clé `gh_token`, saisi une seule fois sur l’écran de réglages du ventre (guide 9). Il n’est jamais compilé dans le firmware ni écrit dans le journal.
+Le token vit dans la NVS, dans l’espace de noms `narsil` de la classe `Settings` de Xiaozhi, sous la clé `gh_token`, saisi une seule fois sur l’écran de réglages du ventre ([guide 9](/fr/bot/belly-ui/)). Il n’est jamais compilé dans le firmware ni écrit dans le journal.
 
 ## Comment on l’a demandé à l’IA
 
@@ -98,7 +98,7 @@ Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’es
 
 ## Le code minimal
 
-Une fonction pour le ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `ShowPullRequest` et `ShowGithubError` sont les fonctions de l’écran du guide 9 ; une tâche appelle `PollPullRequests()` toutes les deux minutes :
+Une fonction pour le ventre, en C++ à côté du code de Xiaozhi (MIT, comme les exemples propres au site). `ShowPullRequest` et `ShowGithubError` sont les fonctions de l’écran du [guide 9](/fr/bot/belly-ui/) ; une tâche appelle `PollPullRequests()` toutes les deux minutes :
 
 ```cpp
 #include <cJSON.h>
@@ -204,4 +204,4 @@ Une réponse JSON avec `total_count` signifie que le token fonctionne. Ajoutez `
 - **Vérifications et revues.** Les endpoints des pulls (`GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews`, par exemple) donnent l’état de revue de chaque pull request ; ils demandent eux aussi **Pull requests: Read-only**.
 - **Les notifications au lieu de la recherche.** L’API de notifications de GitHub répond à « que m’est-il arrivé », mais GitHub ne la liste pas parmi les endpoints des tokens fine-grained : elle demanderait donc un token classique.
 - **La rotation.** Avec un token de 30 jours, mettez un rappel dans votre agenda. Le ventre peut afficher la date d’expiration si vous la saisissez avec le token.
-- Le guide 9 dessine les deux listes, alertes et pull requests, sur l’écran du ventre, dans le [parcours du bot](/fr/bot/).
+- Le [guide 9](/fr/bot/belly-ui/) dessine les deux listes, alertes et pull requests, sur l’écran du ventre.

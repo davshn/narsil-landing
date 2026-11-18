@@ -164,4 +164,4 @@ Para probarlo, abre el monitor (guía 2) durante el primer arranque. Deberías v
 - El [documento OTA](https://github.com/78/xiaozhi-esp32/blob/main/docs/ota.md) de Xiaozhi describe cómo un servidor también puede ofrecer actualizaciones de firmware; el servidor de xinnan-tech puede servirlas desde su carpeta `data/bin`, así que la panza puede actualizarse por Wi-Fi.
 - `scripts/build.py --list-wake-words` lista los modelos de palabra de activación del componente ESP-SR actual, y `--wake-word` elige uno.
 - La [guía de placas personalizadas](https://github.com/78/xiaozhi-esp32/blob/main/docs/custom-board.md) advierte que nunca sobrescribas la configuración de una placa existente para una personalizada, porque la OTA puede sustituir tu firmware por el de serie de esa placa. Tenlo en cuenta siempre que añadas tu propio código a la panza.
-- Xiaozhi también puede mostrar expresiones en su propia pantalla; la guía 9 sustituye la pantalla de la panza por la interfaz propia de Narsil.
+- Xiaozhi también puede mostrar expresiones en su propia pantalla; la [guía 9](/es/bot/belly-ui/) sustituye la pantalla de la panza por la interfaz propia de Narsil.

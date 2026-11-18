@@ -87,7 +87,7 @@ I compromessi:
 
 - **Il locale tiene la tua voce in casa e non costa niente per utilizzo**, ma usa la memoria e la CPU del tuo PC. Il README nota che eseguire `FunASR` in locale richiede più memoria, e che usare API per tutto mantiene basso l'uso di risorse.
 - **La lingua conta.** Narsil parla spagnolo. Il commento del blocco `FunASR` elenca i tag di lingua supportati da SenseVoice come zh, en, ja, ko e yue, quindi per lo spagnolo il bot usa un altro riconoscitore. `OpenaiASR` (modello `gpt-4o-mini-transcribe` per impostazione predefinita) e `GroqASR` (`whisper-large-v3-turbo`) sono API multilingue; `VoskASR` è offline e supporta diverse lingue con un modello scaricato.
-- **Un'API invia il tuo audio fuori dalla tua rete** e richiede una chiave. La guida 12 elenca cosa esce dalla rete e perché.
+- **Un'API invia il tuo audio fuori dalla tua rete** e richiede una chiave. La [guida 12](/it/bot/secrets-privacy/) elenca cosa esce dalla rete e perché.
 
 Il bot usa `OpenaiASR` per il riconoscimento e mantiene `EdgeTTS` per la sintesi, che in `config.yaml` non richiede chiave. La voce di Narsil in sé, e l'impostazione `voice`, sono la guida 6.
 
