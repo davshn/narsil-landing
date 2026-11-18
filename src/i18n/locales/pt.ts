@@ -67,6 +67,8 @@ export const pt: TranslationShape = {
           title: 'Narsil no Claude, no celular',
           text: 'Uma extensão experimental que leva o Narsil para dentro do claude.ai no Android: no menu lateral, o nível dele, seus limites de uso e as mensagens do ntfy do dia; acima da caixa de texto, o estado da conversa aberta. O código dela não é público, mas os guias explicam como ela é feita.',
           alt: 'O menu lateral do claude.ai num celular Android com o bloco do Narsil: o nível, os limites de 5 horas e da semana, e as mensagens do ntfy do dia. Os dados pessoais estão desfocados.',
+          detailAlt:
+            'Uma conversa do claude.ai num celular Android: acima da caixa de texto, a faixa do Narsil mostra o estado TRABAJANDO (trabalhando), o contexto em 80 %, o cache em 60 min e o último evento, Usando Bash (usando o Bash). A conversa está desfocada.',
         },
       ],
       note: 'A janela flutuante usa dados de exemplo, e a captura do celular é real, com os dados pessoais desfocados. O painel do Narsil Check foi recriado a partir do código-fonte, porque ele só é desenhado dentro do Claude Code. As ilustrações do Narsil vêm de davshn/narsil-pet (GPL v3).',
