@@ -60,12 +60,12 @@ export const fr: TranslationShape = {
           alt: 'Le panneau Narsil Check : environnement et CI, trois mises à jour de dépendances, une vulnérabilité et deux tâches en attente',
         },
         {
-          title: 'Sur votre téléphone',
-          text: 'Une application web installable qui reçoit les alertes de Narsil via ntfy et affiche ce que votre PC a montré en dernier.',
-          alt: 'L’application Narsil sur le téléphone : l’état actuel, le niveau, les limites d’utilisation, le cache et les prochaines étapes',
+          title: 'Narsil dans Claude, sur votre téléphone',
+          text: 'Une extension expérimentale qui amène Narsil dans claude.ai sur Android : dans le menu latéral, son niveau, vos limites d’utilisation et les messages ntfy du jour ; au-dessus de la zone de saisie, l’état de la conversation ouverte. Son code n’est pas public, mais les guides expliquent comment elle est construite.',
+          alt: 'Le menu latéral de claude.ai sur un téléphone Android avec le bloc de Narsil : le niveau, les limites de 5 heures et hebdomadaires, et les messages ntfy du jour. Les données personnelles sont floutées.',
         },
       ],
-      note: 'Ce sont les vraies interfaces, avec des données d’exemple. Le panneau Narsil Check est recréé à partir de son code source, car il ne s’affiche que dans Claude Code. Les illustrations de Narsil viennent de davshn/narsil-pet (GPL v3).',
+      note: 'La fenêtre flottante utilise des données d’exemple, et la capture du téléphone est réelle, avec les données personnelles floutées. Le panneau Narsil Check est recréé à partir de son code source, car il ne s’affiche que dans Claude Code. Les illustrations de Narsil viennent de davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: 'Qu’est-ce que Narsil ?',
     about: [
@@ -102,7 +102,7 @@ export const fr: TranslationShape = {
       badge: 'Expérimental',
       title: 'Narsil dans Claude, l’extension de navigateur',
       text: 'Narsil vit aussi dans claude.ai sur votre téléphone : une extension pour Firefox et Vivaldi sur Android affiche au-dessus de la zone de saisie l’état, le contexte, le cache et le dernier événement de la conversation ouverte, et dans le menu latéral le niveau de Narsil, vos limites d’utilisation et les messages ntfy.sh du jour. Elle habille aussi Claude aux couleurs de Narsil.',
-      note: 'Elle est expérimentale : elle est bien testée, mais elle s’appuie sur la structure de la page claude.ai et non sur une API publique, donc une mise à jour de Claude peut la casser. Elle ne fait que lire et n’envoie jamais vos données nulle part.',
+      note: 'Elle est expérimentale : elle est bien testée, mais elle s’appuie sur la structure de la page claude.ai et non sur une API publique, donc une mise à jour de Claude peut la casser. Elle ne fait que lire et n’envoie jamais vos données nulle part. Son code n’est pas public, mais les guides expliquent comment elle est construite.',
     },
   },
   mods: {
