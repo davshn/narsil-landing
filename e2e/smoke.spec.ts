@@ -45,6 +45,7 @@ test.describe('Landing page smoke tests', () => {
     const footer = page.locator('footer')
     await expect(footer.locator('[data-donate]')).toHaveText(t.footer.donate)
     await expect(footer).toContainText(t.footer.trademark)
+    await expect(footer).toContainText(t.footer.license)
   })
 
   test('main landmark exists with id', async ({ page }) => {

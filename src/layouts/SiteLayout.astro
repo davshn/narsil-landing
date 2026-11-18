@@ -71,7 +71,7 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
     slot="footer"
     brand={t.meta.siteName}
     description={`${t.footer.description} ${t.footer.privacy}`}
-    copyright={t.footer.trademark}
+    copyright={`${t.footer.trademark} ${t.footer.license}`}
   >
     {donation !== undefined && (
       <Button

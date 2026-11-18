@@ -3,9 +3,9 @@ import type { TranslationShape } from '../index'
 export const en: TranslationShape = {
   meta: {
     siteName: 'Narsil Workshop',
-    title: 'Narsil Workshop — build your own Claude Code mods and an ESP32-S3 desk bot',
+    title: 'Narsil Workshop — build your own Claude Code mods and a Narsil desk bot',
     description:
-      'Free, step-by-step guides to build a status pet mod like Narsil, a review panel mod like Narsil Check, and an ESP32-S3 bot that shows your GitHub pull requests.',
+      'Free, step-by-step guides to build a status pet mod like Narsil, a review panel mod like Narsil Check, and a Narsil desk bot that talks with Claude and shows your GitHub pull requests.',
   },
   common: {
     skipToContent: 'Skip to content',
@@ -19,16 +19,18 @@ export const en: TranslationShape = {
     support: 'Support the project',
   },
   footer: {
-    description: 'Free guides to build Claude Code mods and an ESP32-S3 desk bot from scratch.',
+    description: 'Free guides to build Claude Code mods and a Narsil desk bot from scratch.',
     donate: 'Buy me a coffee',
     trademark:
       'Claude and Claude Code are trademarks of Anthropic, PBC. This project is not affiliated with or endorsed by Anthropic.',
     privacy: 'This site has no analytics and never asks for your tokens or keys.',
+    license:
+      'Site code and example code: MIT. Guide text: CC BY-SA 4.0. Code quoted from Narsil and Narsil Check: GPL-3.0-or-later.',
   },
   home: {
     headline: 'Build your own Claude Code mods, step by step',
     subheadline:
-      'Learn how Narsil and Narsil Check work inside, rebuild each feature from scratch, and finish with an ESP32-S3 desk bot that shows your pull requests.',
+      'Learn how Narsil and Narsil Check work inside, rebuild each feature from scratch, and finish with a Narsil desk bot that talks with Claude and shows your pull requests.',
     cta: 'See the learning paths',
     fundamentalsCta: 'Start with the fundamentals',
     heroAlt: 'Narsil, a small sea dragon, waving hello',
@@ -87,9 +89,9 @@ export const en: TranslationShape = {
         icon: 'lucide:list-checks',
       },
       {
-        title: 'An ESP32-S3 desk bot',
+        title: 'A Narsil desk bot',
         description:
-          'Build a small device with a screen that shows the pull requests waiting for you on GitHub and the Narsil status, received through a private ntfy topic.',
+          'Give Narsil a body: an ESP32-P4 touch screen in the belly with your tasks and pull requests, a holographic ESP32-S3 head with her face, and a voice through Xiaozhi and Claude on your own server.',
         icon: 'lucide:cpu',
       },
     ],
