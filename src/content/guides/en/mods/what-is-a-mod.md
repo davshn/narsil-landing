@@ -3,7 +3,7 @@ title: What a mod is made of
 description: The three files of a Claude Code mod, the register function and its hooks, and the smallest mod that shows something on screen.
 route: mods
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## What it does
 
-A mod is a Claude Code plugin of function hooks: TypeScript that runs inside Claude Code and changes what it shows or how it behaves. By the end of this guide you will know which files a mod needs, what the `register` function does, and you will have a mod that shows a toast when a session starts and keeps a tool-call count in its status line.
+A mod is a Claude Code plugin made of hooks. A hook is a function that Claude Code calls when something happens: a session starts, Claude calls a tool, a turn ends. Mods are written in TypeScript and change what Claude Code shows or how it behaves.
+
+In this guide you will ask Claude to build a small mod called `greeter`. It shows a short message (a toast) when a session starts and counts tool calls in its status line. Along the way you will learn which files every mod needs and what the `register` function does, so you can tell whether what Claude wrote is right.
 
 The mod API is early access and changes between releases. Everything here was checked against Claude Code 2.1.325 and its declaration file, `claude-code.d.ts`. When your build is newer, that file is the authority.
 
@@ -46,11 +48,35 @@ A hook that returns without calling `next` answers the event itself. A hook that
 
 The optional `types/index.d.ts` file is the mod's type contract. It declares the shape of the values the mod keeps in `$.state` (and, for a mod that adds a noun to `$`, that noun). `plugin.json` names it under `"types"`, and `claude plugin validate` checks the mod's state reads and writes against it.
 
-## Step by step
+## Build it with Claude
+
+You do not need to type these files yourself. Claude Code includes a skill for writing mods, `plugin-authoring`, which knows the real types of the mod API. Ask Claude to use it, and describe what you want in plain words: the mod's name, what it does, and when.
+
+> Using the plugin-authoring skill, create a Claude Code mod called `greeter` in a new folder. When a session starts, it shows a toast that says "Hello from greeter". It counts every tool call and shows the count in its status line, for example "greeter: 3 tool calls". Keep the count in `$.state` with an `atom` declared in `types/index.d.ts`, so it survives a reload of the module. When you finish, run `claude plugin validate` on the folder and show me what it reports.
+
+Why this prompt works:
+
+- **It names the skill**, so Claude checks each call against the real API instead of guessing.
+- **It describes behavior you can see** (the toast and the status line), so you can tell when it works.
+- **It says where the count lives.** Without that line, a common first answer keeps the count in a plain variable that resets every time you save the file. Step 4 below shows why.
+- **It asks for proof.** The validate output lists the hooks and calls the mod really makes.
+
+When Claude answers, check four things before you go on:
+
+1. The folder has the four files from the table above: `plugin.json`, `hooks.json`, `register.tsx` and `types/index.d.ts`.
+2. Every hook ends with `return next(e)`.
+3. The count uses `atom` and `update`, not a variable declared with `let`.
+4. `claude plugin validate` lists `hooks: session.start, tool.call`.
+
+If something is off, tell Claude what you see, not only how to fix it: "the count goes back to 0 every time I save `register.tsx`". Describing the symptom lets Claude find the cause, and you learn to read the mod the way it does.
+
+## Understand the code, step by step
+
+This is what a good answer looks like, built one piece at a time. Read it to understand what each line does and to compare it with what Claude wrote. Claude may choose other names or another order and still be right.
 
 ### 1. The manifest
 
-Create a folder called `greeter` and write `.claude-plugin/plugin.json`:
+The mod lives in a folder called `greeter`. Its manifest is `.claude-plugin/plugin.json`:
 
 ```json
 {
@@ -64,7 +90,7 @@ The `name` is how Claude Code, its debug log and your state keys refer to the mo
 
 ### 2. The hooks file
 
-Write `hooks/hooks.json`:
+`hooks/hooks.json` tells Claude Code which file holds the hooks:
 
 ```json
 { "modules": ["./register.tsx"] }
@@ -72,7 +98,7 @@ Write `hooks/hooks.json`:
 
 ### 3. A hook that shows something
 
-Write `hooks/register.tsx` with one hook on `session.start`:
+`hooks/register.tsx` starts with one hook on `session.start`:
 
 ```tsx
 import type { Register } from 'claude-code'
@@ -89,7 +115,7 @@ export const register: Register = (on) => {
 
 ### 4. A status line that counts tool calls
 
-Add a second hook. `tool.call` runs for every tool call, and `$.ui.status(text)` pins one line for this plugin under the prompt until the next call replaces it:
+A second hook counts the calls. `tool.call` runs for every tool call, and `$.ui.status(text)` pins one line for this plugin under the prompt until the next call replaces it:
 
 ```tsx
 import type { Register } from 'claude-code'
@@ -110,11 +136,11 @@ export const register: Register = (on) => {
 }
 ```
 
-This works, but `count` is a module variable. Saving the file reloads the module in a fresh environment, so the count starts over.
+This is a common first answer, and a good example of why you check: it works until you save the file. `count` is a module variable, and saving reloads the module in a fresh environment, so the count starts over at 0.
 
 ### 5. A type contract and state that survives a reload
 
-`$.state` holds named values for the session, and they survive a hot reload of the module. Declare the value in `types/index.d.ts`:
+The fix is `$.state`, which holds named values for the session and keeps them when the module reloads. The value is declared in `types/index.d.ts`:
 
 ```ts
 declare module 'claude-code' {
@@ -124,7 +150,7 @@ declare module 'claude-code' {
 }
 ```
 
-Name the file in the manifest:
+The manifest names that file:
 
 ```json
 {
@@ -135,7 +161,7 @@ Name the file in the manifest:
 }
 ```
 
-Then use the state helpers `atom` and `update` from `claude-code`:
+And the hook uses the state helpers `atom` and `update` from `claude-code`:
 
 ```tsx
 import { atom, update } from 'claude-code'
@@ -169,7 +195,7 @@ greeter/
   types/index.d.ts
 ```
 
-The guide "Install, reload, validate, and test" shows how to load it in a session.
+The next guide, "Install, reload, validate, and test", shows how to load it in a session and test it.
 
 ## Common mistakes and how to test it
 

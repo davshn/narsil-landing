@@ -3,7 +3,7 @@ title: The $ object
 description: The areas of the engine interface every hook receives, with their real signatures and where narsil-pet and narsil-check use each one.
 route: mods
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## What it does
 
-Every hook receives `$`, the engine interface. A mod has no Node and no DOM, so `$` is how it reaches the screen, its saved data, the clock, the network, processes, files, the session, the model, tools and commands. This guide walks through the areas the two Narsil mods use, with each method's signature as Claude Code 2.1.325 declares it.
+Every hook receives `$`, the engine interface. A mod has no Node and no browser, so `$` is its only way to reach the outside: the screen, its saved data, the clock, the network, processes, files, the session, the model, tools and commands.
+
+This guide is a map of `$`. It shows which area does what, so you can ask Claude for the right thing and recognize a call that does not exist. Each method appears with its signature as Claude Code 2.1.325 declares it, and with the place where the Narsil mods use it.
 
 `$` has more than what is here (themes, settings, agents, telemetry and others). The declaration file, `claude-code.d.ts`, documents every noun and method with its doc comment and an example.
 
@@ -51,7 +53,24 @@ A helper that takes `$: EngineInterface` can use the same calls as a hook.
 | `$.env`     | Environment variables                                                                   | narsil-pet                             |
 | `$.plugin`  | The plugin's own name and folder                                                        | narsil-pet                             |
 
-## Step by step
+## Build it with Claude
+
+You do not need to learn `$` by heart. What helps is knowing which area does what, so you can describe your idea in those terms and spot a call that does not exist. A good way to work is to ask Claude for a plan before the code:
+
+> Using the plugin-authoring skill, I want my Claude Code mod `greeter` to count how many sessions I have started, keep that number between sessions, show it in a toast when a session starts, and answer a `/greeter` command with the same number. First tell me which areas of `$` you would use for each part and why. Then write the code, checking every call against `claude-code.d.ts`.
+
+The plan step matters. If Claude says it will keep the number in `$.state`, you already know something is wrong: `$.state` ends with the session, and `$.store` is the one that lasts. Catching that in one sentence is cheaper than finding it later in the code.
+
+When Claude writes the code, check:
+
+1. Every `$` call appears in the table above or in `claude-code.d.ts`. If you cannot find a call, ask Claude where it is declared.
+2. The number is read and written with `$.store.get` and `$.store.set`.
+3. The command is registered with `$.command.register` in `session.start` and answered in a `command.run` hook.
+4. Calls that can fail have a `.catch`, or their result is checked (`isSent`, `isAnswered` and the like).
+
+## Understand each area, with examples
+
+Each area below has a few lines written the way Claude would write them, and what each method returns. You do not need to memorize them: use them to recognize what Claude writes and to ask for the right thing.
 
 ### $.ui: what the person sees
 

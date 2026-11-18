@@ -3,7 +3,7 @@ title: 'Superficies: terminal, escritorio, VS Code y móvil'
 description: Dónde dibuja un mod, qué elementos tiene cada superficie y cómo escribir un hook de dibujo que funcione en la terminal, la aplicación de escritorio, VS Code y la aplicación móvil.
 route: mods
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Qué hace
 
-Un mismo mod puede dibujar en la terminal, en la aplicación de escritorio de Claude, en VS Code y en la aplicación móvil de Claude. Cada uno de estos lugares es una superficie, y cada superficie tiene su propio conjunto de elementos. Esta guía explica cómo sabe un hook de dibujo en qué superficie dibuja, qué ofrece cada superficie y cómo escribir un árbol que funcione en todas.
+Un mismo mod puede dibujar en la terminal, en la aplicación de escritorio de Claude, en VS Code y en la aplicación móvil de Claude. Cada uno de estos lugares es una superficie, y cada superficie tiene su propio conjunto de elementos (cajas, texto, botones, campos).
+
+Esta guía explica cómo sabe un mod en qué superficie dibuja, qué ofrece cada superficie y cómo pedirle a Claude un diseño que funcione en todas.
 
 ## Cómo funciona por dentro
 
@@ -52,7 +54,24 @@ Dónde se dibuja cada sitio, según el archivo de declaraciones:
 
 Dos salidas no pasan por `ui.render`. `$.ui.status(text)` fija una línea para el plugin bajo el prompt. `$.ui.toast(text)` flota sobre la esquina superior derecha de la transcripción y, donde la transcripción se imprime en el historial de desplazamiento, es una línea en la barra de notificaciones. El archivo de declaraciones no detalla, superficie por superficie, dónde aparecen estas dos salidas.
 
-## Paso a paso
+## Constrúyelo con Claude
+
+La trampa de las superficies es que un mod puede verse bien en la superficie donde lo pruebas y romperse en otra. Por eso el prompt pide a Claude que consulte la tabla de elementos antes de usar un elemento, y que pruebe todas las superficies:
+
+> Usando la skill plugin-authoring, añade a mi mod de Claude Code `greeter` una banda encima del prompt: un hook `ui.render` en `AbovePrompt` que muestre la cuenta de llamadas a herramientas y la superficie donde se dibuja, y que devuelva `next(e)` cuando `e.props.hasSurvey` sea true. Toma los elementos de `$.ui.resolve(e)`. Después dibuja un `Pane` con el id de solicitud `notes` que muestre un campo de texto solo donde la superficie tenga `Input` y no sea el móvil, y la línea "Ask Claude to add a note." en todas las demás. Escribe una prueba con `claude-code/testing` que monte el panel en `terminal`, `desktop`, `vscode` y `mobile` en un solo bucle.
+
+Cuando Claude responda, comprueba:
+
+1. Los elementos vienen de `$.ui.resolve(e)`. Ninguno se importa ni se da por supuesto.
+2. Cada elemento que no está en las cuatro tablas (`Input`, `Svg`, `Raster`, `Image`, `Client`) se comprueba antes de usarlo, con una alternativa.
+3. La prueba recorre las cuatro superficies.
+4. Ningún hook de dibujo llama a `$.state.set`.
+
+Aunque solo uses la terminal, ese bucle de prueba es la forma de saber si el mod funciona en la aplicación de escritorio y en un teléfono.
+
+## Entiende el código, paso a paso
+
+Así es una buena respuesta. Léela para entender por qué está cada comprobación y para compararla con lo que escribió Claude.
 
 ### 1. Una banda que lee su superficie
 

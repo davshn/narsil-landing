@@ -25,7 +25,7 @@ test.describe('Mod fundamentals', () => {
       await page.goto(`/${locale}/mods/${FIRST_GUIDE}/`)
       await expect(page.locator('html')).toHaveAttribute('lang', /^[a-z]{2}(?:-[A-Z]{2})?$/v)
       await expect(page.locator('[data-guide-meta]')).toContainText('2.1.325')
-      await expect(page.locator('[data-guide-body] h2')).toHaveCount(5)
+      await expect(page.locator('[data-guide-body] h2')).toHaveCount(6)
       await expect(page.locator('[data-guide-body] pre.astro-code').first()).toBeVisible()
       await expect(page.locator('[data-guide-sources] a').first()).toHaveAttribute(
         'href',

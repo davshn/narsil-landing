@@ -3,7 +3,7 @@ title: L’objet $
 description: Les domaines de l’interface du moteur que reçoit chaque hook, avec leurs vraies signatures et l’endroit où narsil-pet et narsil-check utilisent chacun d’eux.
 route: mods
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## Ce que ça fait
 
-Chaque hook reçoit `$`, l’interface du moteur. Un mod n’a ni Node ni DOM : c’est donc par `$` qu’il accède à l’écran, à ses données enregistrées, à l’horloge, au réseau, aux processus, aux fichiers, à la session, au modèle, aux outils et aux commandes. Ce guide parcourt les domaines qu’utilisent les deux mods Narsil, avec la signature de chaque méthode telle que la déclare Claude Code 2.1.325.
+Chaque hook reçoit `$`, l’interface du moteur. Un mod n’a ni Node ni navigateur, si bien que `$` est son seul moyen d’atteindre l’extérieur : l’écran, ses données enregistrées, l’horloge, le réseau, les processus, les fichiers, la session, le modèle, les outils et les commandes.
+
+Ce guide est une carte de `$`. Il montre quel domaine fait quoi, pour que vous puissiez demander la bonne chose à Claude et reconnaître un appel qui n’existe pas. Chaque méthode apparaît avec sa signature telle que la déclare Claude Code 2.1.325, et avec l’endroit où les mods Narsil l’utilisent.
 
 `$` contient davantage que ce qui figure ici (thèmes, paramètres, agents, télémétrie et d’autres). Le fichier de déclarations, `claude-code.d.ts`, documente chaque nom et chaque méthode avec son commentaire de documentation et un exemple.
 
@@ -51,7 +53,24 @@ Une fonction utilitaire qui reçoit `$: EngineInterface` peut faire les mêmes a
 | `$.env`     | Variables d’environnement                                                                           | narsil-pet                             |
 | `$.plugin`  | Le nom et le dossier du plugin lui-même                                                             | narsil-pet                             |
 
-## Pas à pas
+## Le construire avec Claude
+
+Vous n’avez pas besoin d’apprendre `$` par cœur. Ce qui aide, c’est de savoir quel domaine fait quoi, pour pouvoir décrire votre idée dans ces termes et repérer un appel qui n’existe pas. Une bonne façon de travailler consiste à demander à Claude un plan avant le code :
+
+> En utilisant le skill plugin-authoring, je veux que mon mod Claude Code `greeter` compte combien de sessions j’ai démarrées, garde ce nombre d’une session à l’autre, l’affiche dans un toast au démarrage d’une session, et réponde à une commande `/greeter` avec le même nombre. Dis-moi d’abord quels domaines de `$` tu utiliserais pour chaque partie et pourquoi. Écris ensuite le code, en vérifiant chaque appel dans `claude-code.d.ts`.
+
+L’étape du plan compte. Si Claude annonce qu’il gardera le nombre dans `$.state`, vous savez déjà que quelque chose ne va pas : `$.state` se termine avec la session, et c’est `$.store` qui dure. Le repérer en une phrase coûte moins cher que de le découvrir plus tard dans le code.
+
+Quand Claude écrit le code, vérifiez :
+
+1. Chaque appel à `$` figure dans le tableau ci-dessus ou dans `claude-code.d.ts`. Si vous ne trouvez pas un appel, demandez à Claude où il est déclaré.
+2. Le nombre est lu et écrit avec `$.store.get` et `$.store.set`.
+3. La commande est enregistrée avec `$.command.register` dans `session.start` et reçoit sa réponse dans un hook `command.run`.
+4. Les appels qui peuvent échouer ont un `.catch`, ou leur résultat est vérifié (`isSent`, `isAnswered` et autres).
+
+## Comprendre chaque domaine, avec des exemples
+
+Chaque domaine ci-dessous a quelques lignes écrites comme Claude les écrirait, et ce que renvoie chaque méthode. Inutile de les mémoriser : servez-vous-en pour reconnaître ce qu’écrit Claude et pour demander la bonne chose.
 
 ### $.ui : ce que voit la personne
 
