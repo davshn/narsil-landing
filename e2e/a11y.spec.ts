@@ -24,6 +24,7 @@ const PATHS = [
   '/en/mods/check/',
   '/en/mods/check/side-panel/',
   '/en/mods/check/ecosystems/',
+  '/en/mods/check/explain-major/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

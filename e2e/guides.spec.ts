@@ -146,6 +146,10 @@ const CHECK_GUIDES = [
   'ecosystems',
   'classifying-updates',
   'blocking-dependencies',
+  'release-age',
+  'pinned-versions',
+  'explain-major',
+  'trivial-updates',
 ]
 
 test.describe('Review panel path', () => {
