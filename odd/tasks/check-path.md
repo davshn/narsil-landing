@@ -18,21 +18,21 @@ Objective: the `/mods/check/` path with the 17 guides of brief 3.2, delivered in
 
 ## Tasks
 
-| ID  | Specs   | Route                          | Status  | Commit                                               |
-| --- | ------- | ------------------------------ | ------- | ---------------------------------------------------- |
-| T1  | S1      | inline                         | done    | `f44cd60`                                            |
-| T2  | S2–S7   | delegated (context backstop)   | done    | `d95d02d`                                            |
-| T3  | S8      | delegated (4 parallel writers) | done    | translations commit                                  |
-| T4  | S1, S8  | inline                         | done    | 123 e2e passed (chromium), 598 unit tests, 156 pages |
-| T5  | S9      | delegated (context backstop)   | done    | `486452c`                                            |
-| T6  | S8, S9  | delegated (4 parallel writers) | done    | translations commit                                  |
-| T7  | S9      | inline                         | done    | 129 e2e passed (chromium), 598 unit tests, 176 pages |
-| T8  | S10     | delegated (context backstop)   | done    | `c74e0b5`                                            |
-| T9  | S8, S10 | delegated (4 parallel writers) | done    | translations commit                                  |
-| T10 | S10     | inline                         | done    | 135 e2e passed (chromium), 598 unit tests, 196 pages |
-| T11 | S11     | delegated (context backstop)   | pending |                                                      |
-| T12 | S8, S11 | delegated (4 parallel writers) | pending |                                                      |
-| T13 | S11     | inline                         | pending |                                                      |
+| ID  | Specs   | Route                          | Status | Commit                                               |
+| --- | ------- | ------------------------------ | ------ | ---------------------------------------------------- |
+| T1  | S1      | inline                         | done   | `f44cd60`                                            |
+| T2  | S2–S7   | delegated (context backstop)   | done   | `d95d02d`                                            |
+| T3  | S8      | delegated (4 parallel writers) | done   | translations commit                                  |
+| T4  | S1, S8  | inline                         | done   | 123 e2e passed (chromium), 598 unit tests, 156 pages |
+| T5  | S9      | delegated (context backstop)   | done   | `486452c`                                            |
+| T6  | S8, S9  | delegated (4 parallel writers) | done   | translations commit                                  |
+| T7  | S9      | inline                         | done   | 129 e2e passed (chromium), 598 unit tests, 176 pages |
+| T8  | S10     | delegated (context backstop)   | done   | `c74e0b5`                                            |
+| T9  | S8, S10 | delegated (4 parallel writers) | done   | translations commit                                  |
+| T10 | S10     | inline                         | done   | 135 e2e passed (chromium), 598 unit tests, 196 pages |
+| T11 | S11     | delegated (context backstop)   | done   | `2103510`                                            |
+| T12 | S8, S11 | delegated (4 parallel writers) | done   | translations commit                                  |
+| T13 | S11     | inline                         | done   | 144 e2e passed (chromium), 598 unit tests, 221 pages |
 
 ## Log
 
@@ -43,3 +43,4 @@ Objective: the `/mods/check/` path with the 17 guides of brief 3.2, delivered in
 - L5 (2026-11-17, owner): "Ya está, continúa" (PR #9 merged).
 - L6: findings in narsil-check from 4c, described in the guides and not changed: hold-comment detection (`HOLD`) lives in `hooks/adapter.ts:91`, not `hooks/words.ts`, and never applies to npm's `package.json`; the CHANGELOG fallback is npm only; when an install command fails, later ecosystems are skipped and rewritten manifests stay modified unless the tool is missing.
 - L7 (2026-11-17, owner): "Ya continúa" (PR #10 merged).
+- L8: findings in narsil-check from 4d, described in the guides and not changed: README line 125 says the Gradle wrapper never enters the PR commit, but since `7048580` it is its own ecosystem and `checkPending` would commit it (no test covers it); to-do writes are serialized but not atomic; the comment above `publish` still says package.json only; compiler plugins live in `hooks/maven.ts`. OSV.dev receives only name, ecosystem and version per package (`osv.ts:39–43`, batches of 500), plus one GET per uncached advisory. Path 2 is complete: 17 guides in 5 locales.
