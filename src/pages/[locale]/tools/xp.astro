@@ -1,0 +1,25 @@
+---
+import { XpCalculator } from '@components/tools/XpCalculator/XpCalculator'
+import { defaultLocale, isLocale, languageTags, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import ToolLayout from '@layouts/ToolLayout.astro'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const copy = useTranslations(locale).tools.xp
+---
+
+<ToolLayout
+  locale={locale}
+  title={copy.title}
+  description={copy.description}
+  intro={copy.intro}
+  guideHref={`/${locale}/mods/pet/experience-and-growth/`}
+  guideText={copy.guideText}
+>
+  <XpCalculator client:visible copy={copy} locale={languageTags[locale]} />
+</ToolLayout>

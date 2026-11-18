@@ -164,6 +164,38 @@ export interface TranslationShape {
       invalidInstalled: string
       invalidCandidate: string
     }
+    xp: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      turnsLabel: string
+      testsLabel: string
+      agentsLabel: string
+      resultLabel: string
+      total: string
+      level: string
+      stage: string
+      nextStage: string
+      grown: string
+    }
+    priority: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      statuses: { error: string; waiting: string; working: string; done: string; idle: string }
+      own: string
+      other: string
+      statusLabel: string
+      minutesLabel: string
+      add: string
+      remove: string
+      wearsLabel: string
+      wears: string
+      rowsLabel: string
+      page: string
+    }
   }
   support: {
     title: string

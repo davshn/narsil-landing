@@ -212,6 +212,49 @@ export const en: TranslationShape = {
       invalidInstalled: 'The installed version is not a version Narsil Check can read.',
       invalidCandidate: 'The new version is not a version Narsil Check can read.',
     },
+    xp: {
+      title: 'XP calculator',
+      description:
+        'Count finished turns, passing test runs and finished subagents to see the XP, level and stage Narsil reaches, and how far the next stage is.',
+      intro:
+        'Narsil earns 10 XP for each finished turn, 5 for each test run that passes and 3 for each subagent that finishes. Each level needs 100 XP more than the one before, and five stages change her look.',
+      guideText: 'How Narsil earns experience and grows',
+      turnsLabel: 'Finished turns',
+      testsLabel: 'Passing test runs',
+      agentsLabel: 'Finished subagents',
+      resultLabel: 'Where Narsil stands',
+      total: '{xp} XP in total.',
+      level: 'Level {level} · {into}/{needed} XP',
+      stage: 'Stage {stage} of {stages}.',
+      nextStage:
+        'Stage {stage} starts at level {level}: {xp} XP more, about {turns} more finished turns.',
+      grown: 'Narsil is fully grown: stage 5 is the last one.',
+    },
+    priority: {
+      title: 'Priority simulator',
+      description:
+        'Set the state of a few conversations to see which one Narsil shows and in what order the band lists them, four to a page.',
+      intro:
+        'Narsil shows the most important conversation: an error first, then one that needs you, then one that is working, then one that is done. A tie goes to the most recent change. The band lists this conversation first, whatever its state.',
+      guideText: 'How Narsil follows every conversation',
+      statuses: {
+        error: 'Error',
+        waiting: 'Needs you',
+        working: 'Working',
+        done: 'Done',
+        idle: 'Idle',
+      },
+      own: 'This conversation',
+      other: 'Conversation {n}',
+      statusLabel: 'State',
+      minutesLabel: 'Minutes since its last change',
+      add: 'Add a conversation',
+      remove: 'Remove {name}',
+      wearsLabel: 'Narsil shows',
+      wears: '{name}: {status}',
+      rowsLabel: 'Band rows',
+      page: 'Page {page}',
+    },
   },
   support: {
     title: 'Support Narsil Workshop',

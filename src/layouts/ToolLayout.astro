@@ -1,0 +1,58 @@
+---
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage } from '@seo/json-ld'
+
+import type { Locale } from '@i18n/index'
+
+interface Props {
+  locale: Locale
+  title: string
+  description: string
+  intro: string
+  guideHref: string
+  guideText: string
+}
+
+const { locale, title, description, intro, guideHref, guideText } = Astro.props
+const t = useTranslations(locale)
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const jsonLd = buildWebPage({
+  name: title,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  description,
+  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  inLanguage: locale,
+})
+---
+
+<SiteLayout
+  title={`${title} — ${t.meta.siteName}`}
+  description={description}
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Container as="section" maxWidth="md" padding="section">
+    <nav aria-label={t.guide.breadcrumbLabel} class="mb-4 text-sm">
+      <a class="text-primary underline underline-offset-4" href={`/${locale}/tools/`}>
+        {t.tools.title}
+      </a>
+    </nav>
+    <h1 class="text-3xl font-bold mb-6">{title}</h1>
+    <div class="flex flex-col gap-4 mb-8">
+      <Text as="p">{intro}</Text>
+      <Text as="p" tone="muted">
+        {t.tools.privacy}
+      </Text>
+    </div>
+    <slot />
+    <p class="mt-8">
+      <a class="text-primary underline underline-offset-4" href={guideHref} data-tool-guide>
+        {guideText}
+      </a>
+    </p>
+  </Container>
+</SiteLayout>

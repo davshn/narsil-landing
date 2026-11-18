@@ -1,0 +1,39 @@
+@reference '../../../styles/global.css';
+
+.priority-list {
+  @apply m-0 flex list-none flex-col gap-4 p-0;
+}
+
+.priority-fieldset {
+  @apply m-0 flex flex-col gap-3 border-0 p-4;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.priority-name {
+  @apply float-left mb-1 w-full font-semibold;
+}
+
+.priority-add,
+.priority-remove {
+  @apply self-start rounded-full px-5 py-2 text-sm font-semibold text-primary;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.priority-add:focus-visible,
+.priority-remove:focus-visible {
+  @apply outline-2 outline-offset-2 outline-ring;
+}
+
+.priority-add:disabled {
+  @apply cursor-not-allowed text-muted-foreground;
+  box-shadow: none;
+}
+
+.priority-page {
+  @apply flex flex-col gap-1;
+}
+
+.priority-rows {
+  @apply m-0 flex list-decimal flex-col gap-1 pl-6;
+}

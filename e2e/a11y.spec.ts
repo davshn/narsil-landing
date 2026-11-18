@@ -7,6 +7,8 @@ const PATHS = [
   '/en/',
   '/en/tools/',
   '/en/tools/semver/',
+  '/en/tools/xp/',
+  '/en/tools/priority/',
   '/es/',
   '/it/',
   '/fr/',
