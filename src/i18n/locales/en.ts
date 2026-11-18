@@ -255,6 +255,44 @@ export const en: TranslationShape = {
       rowsLabel: 'Band rows',
       page: 'Page {page}',
     },
+    context: {
+      title: 'Context fill estimator',
+      description:
+        'Enter two readings of the context bar and the minutes between them to see when the window fills, the way Narsil estimates it.',
+      intro:
+        'Narsil projects the pace of the last 15 minutes in a straight line to 100 %. It needs at least a minute of readings, shows nothing while the fill is not growing, and hides estimates past two hours.',
+      guideText: 'How Narsil shows the context and the limits',
+      earlierLabel: 'Fill before (%)',
+      nowLabel: 'Fill now (%)',
+      minutesLabel: 'Minutes between the readings',
+      resultLabel: 'Estimate',
+      estimate: 'Full in about {minutes} min.',
+      far: 'More than two hours away: Narsil does not show an estimate that far ahead.',
+      full: 'The context window is full.',
+      old: 'Narsil only uses readings from the last 15 minutes, so there is no estimate.',
+      short: 'The readings are less than a minute apart, so there is no estimate yet.',
+      flat: 'The fill is not growing, so there is no estimate.',
+    },
+    cache: {
+      title: 'Cache clock',
+      description:
+        'Choose a subscription or an API key and the minutes since the last request to see how much prompt cache is left, as Narsil counts it.',
+      intro:
+        'The prompt cache lasts 60 minutes on a subscription plan and 5 minutes with an API key, counted from the start of the last request. Once it goes cold, the next message is charged in full. You can also set the length by hand, as /narsil cache does.',
+      guideText: 'How Narsil counts down the prompt cache',
+      accountLabel: 'How you use Claude Code',
+      accounts: {
+        plan: 'Subscription plan',
+        api: 'API key',
+        custom: 'Set by hand',
+      },
+      customLabel: 'Cache length (minutes)',
+      elapsedLabel: 'Minutes since the last request started',
+      resultLabel: 'Prompt cache',
+      lasts: 'The cache lasts {minutes} min.',
+      warm: 'Cache: {left} min left',
+      cold: 'Cold cache: the next message is charged in full',
+    },
   },
   support: {
     title: 'Support Narsil Workshop',

@@ -1,0 +1,29 @@
+@reference '../../../styles/global.css';
+
+.cache-accounts {
+  @apply m-0 flex flex-wrap gap-x-6 gap-y-3 border-0 p-0;
+}
+
+.cache-accounts legend {
+  @apply mb-2 w-full;
+}
+
+.cache-account {
+  @apply inline-flex items-center gap-2 text-sm;
+}
+
+.cache-account input {
+  accent-color: var(--color-primary);
+}
+
+.cache-account input:focus-visible {
+  @apply outline-2 outline-offset-2 outline-ring;
+}
+
+.cache-warm {
+  @apply text-success;
+}
+
+.cache-cold {
+  @apply text-warning;
+}

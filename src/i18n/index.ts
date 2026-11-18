@@ -196,6 +196,36 @@ export interface TranslationShape {
       rowsLabel: string
       page: string
     }
+    context: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      earlierLabel: string
+      nowLabel: string
+      minutesLabel: string
+      resultLabel: string
+      estimate: string
+      far: string
+      full: string
+      old: string
+      short: string
+      flat: string
+    }
+    cache: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      accountLabel: string
+      accounts: { plan: string; api: string; custom: string }
+      customLabel: string
+      elapsedLabel: string
+      resultLabel: string
+      lasts: string
+      warm: string
+      cold: string
+    }
   }
   support: {
     title: string
