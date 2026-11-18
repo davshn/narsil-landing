@@ -22,6 +22,33 @@
   @apply m-0 flex flex-col items-center gap-6;
 }
 
+.showcase-shots {
+  @apply flex w-full justify-center;
+}
+
+.showcase-shots-detailed {
+  @apply grid justify-items-center;
+  padding-bottom: var(--spacing-10);
+}
+
+.showcase-shots-detailed > * {
+  grid-area: 1 / 1;
+}
+
+.showcase-detail {
+  @apply self-end overflow-hidden;
+  z-index: 1;
+  width: min(100%, 21rem);
+  margin-bottom: calc(var(--spacing-10) * -1);
+  border-radius: var(--radius-lg);
+  border: var(--border-width-thin) solid var(--color-border);
+  box-shadow: var(--shadow-xl);
+}
+
+.showcase-detail img {
+  @apply block h-auto w-full;
+}
+
 .showcase-frame {
   @apply w-full overflow-hidden bg-background;
   max-width: 22rem;
