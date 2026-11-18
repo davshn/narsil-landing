@@ -16,18 +16,19 @@ Objective: the `/mods/check/` path with the 17 guides of brief 3.2, delivered in
 
 ## Tasks
 
-| ID  | Specs  | Route                          | Status  | Commit                                               |
-| --- | ------ | ------------------------------ | ------- | ---------------------------------------------------- |
-| T1  | S1     | inline                         | done    | `f44cd60`                                            |
-| T2  | S2–S7  | delegated (context backstop)   | done    | `d95d02d`                                            |
-| T3  | S8     | delegated (4 parallel writers) | done    | translations commit                                  |
-| T4  | S1, S8 | inline                         | done    | 123 e2e passed (chromium), 598 unit tests, 156 pages |
-| T5  | S9     | delegated (context backstop)   | pending |                                                      |
-| T6  | S8, S9 | delegated (4 parallel writers) | pending |                                                      |
-| T7  | S9     | inline                         | pending |                                                      |
+| ID  | Specs  | Route                          | Status | Commit                                               |
+| --- | ------ | ------------------------------ | ------ | ---------------------------------------------------- |
+| T1  | S1     | inline                         | done   | `f44cd60`                                            |
+| T2  | S2–S7  | delegated (context backstop)   | done   | `d95d02d`                                            |
+| T3  | S8     | delegated (4 parallel writers) | done   | translations commit                                  |
+| T4  | S1, S8 | inline                         | done   | 123 e2e passed (chromium), 598 unit tests, 156 pages |
+| T5  | S9     | delegated (context backstop)   | done   | `486452c`                                            |
+| T6  | S8, S9 | delegated (4 parallel writers) | done   | translations commit                                  |
+| T7  | S9     | inline                         | done   | 129 e2e passed (chromium), 598 unit tests, 176 pages |
 
 ## Log
 
 - L1 (2026-11-17, owner): "Listo mergeado continúa" (after PR #7, path 1 complete; phase 4 follows the four-PR plan announced for it).
 - L2: discrepancies the 4a guides describe, following the code: the folder comes from `$.session.cwd()` and the branch and repository from `git`, not from the desktop app's MCP servers (only Remote Control, the worktree, the PR and Auto-fix, and the connectors do); the 2.1.325 types say `$.mcp.call` raises no permission prompt (line 2885) while narsil-check's README and `4770a49` record one; folds are kept in `$.state` (session) while the README says they persist across sessions.
 - L3 (2026-11-17, owner): "Listo continúa" (PR #8 merged).
+- L4: findings in narsil-check from 4b, described in the guides and not changed: `hooks/git.ts` holds only the upgrade PR texts, the fetch, count and `git pull -r` are in `hooks/register.tsx`; the fetch result is never checked, so the behind count can be stale offline; no dirty-tree check before the pull, and a conflict leaves the repository mid-rebase; the README says nine ecosystems while `ADAPTERS` has eleven.
