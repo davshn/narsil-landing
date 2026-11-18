@@ -3,7 +3,7 @@ title: 'Surfaces: terminal, desktop, VS Code, and mobile'
 description: Where a mod draws, which elements each surface has, and how to write one render hook that works on the terminal, the desktop app, VS Code, and the mobile app.
 route: mods
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -18,7 +18,9 @@ sources:
 
 ## What it does
 
-The same mod can draw in the terminal, in the Claude desktop app, in VS Code and in the Claude mobile app. Each of these is a surface, and each has its own set of elements. This guide explains how a render hook learns which surface it draws on, what each surface offers, and how to write one tree that holds up on all of them.
+The same mod can draw in the terminal, in the Claude desktop app, in VS Code and in the Claude mobile app. Each of these places is a surface, and each one has its own set of elements (boxes, text, buttons, fields).
+
+This guide explains how a mod learns which surface it draws on, what each surface offers, and how to ask Claude for one design that holds up on all of them.
 
 ## How it works inside
 
@@ -52,7 +54,24 @@ Where each site is drawn, as the declaration file states it:
 
 Two outputs do not go through `ui.render`. `$.ui.status(text)` pins a line for the plugin under the prompt. `$.ui.toast(text)` floats over the transcript's top right corner, and where the transcript is printed into scrollback it is one line on the notification bar. The declaration file does not list surface by surface where these two appear.
 
-## Step by step
+## Build it with Claude
+
+The trap with surfaces is that a mod can look right on the surface you test and break on another. So the prompt asks Claude to check the element table before using an element, and to test every surface:
+
+> Using the plugin-authoring skill, add a band above the prompt to my Claude Code mod `greeter`: a `ui.render` hook on `AbovePrompt` that shows the tool-call count and the surface it is drawn on, and returns `next(e)` when `e.props.hasSurvey` is true. Take the elements from `$.ui.resolve(e)`. Then draw a `Pane` with the request id `notes` that shows a text field only where the surface has `Input` and is not mobile, and the line "Ask Claude to add a note." everywhere else. Write a test with `claude-code/testing` that mounts the pane on `terminal`, `desktop`, `vscode` and `mobile` in one loop.
+
+When Claude answers, check:
+
+1. The elements come from `$.ui.resolve(e)`. None is imported or assumed.
+2. Every element that is not in all four tables (`Input`, `Svg`, `Raster`, `Image`, `Client`) is checked before use, with a fallback.
+3. The test loops over all four surfaces.
+4. No render hook calls `$.state.set`.
+
+Even if you only use the terminal, that test loop is how you learn whether the mod holds up in the desktop app and on a phone.
+
+## Understand the code, step by step
+
+This is what a good answer looks like. Read it to understand why each check is there and to compare it with what Claude wrote.
 
 ### 1. A band that reads its surface
 

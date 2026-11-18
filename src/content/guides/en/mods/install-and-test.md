@@ -3,7 +3,7 @@ title: Install, reload, validate, and test
 description: Load a mod from its folder or a local marketplace, reload it after an edit, and check it with claude plugin validate, claude plugin test, and tsc.
 route: mods
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -22,7 +22,7 @@ sources:
 
 ## What it does
 
-This guide takes the `greeter` mod from "What a mod is made of" and runs it in a session, reloads it after a change, and checks it three ways: `claude plugin validate` for what the engine will see, `claude plugin test` for what the hooks do, and `tsc` for the types.
+Building a mod with Claude is a loop: Claude writes, you load the mod, you check it, and you tell Claude what you saw. This guide covers the load-and-check part of that loop for the `greeter` mod from "What a mod is made of".\n\nYou will learn how to run a mod in a session, how an edit reaches a running session, and three checks: `claude plugin validate` for what the engine will see, `claude plugin test` for what the hooks do, and `tsc` for the types.
 
 ## How it works inside
 
@@ -36,7 +36,23 @@ Claude Code reads a mod from one of two kinds of place, and that decides how an 
 
 A reload runs `register` again in a fresh environment. Module variables and pending timers are gone; values in `$.state` and `$.store` remain.
 
-## Step by step
+## Build it with Claude
+
+Claude can do most of this work for you: write the marketplace file, write a test, set up type-checking and run the three checks. What you need to know is what each check proves, so you can read its output. First load the mod from its folder (step 1 below), so Claude Code writes the type files the type-check needs. Then ask:
+
+> In my Claude Code mod folder `greeter`, using the plugin-authoring skill: add a `.claude-plugin/marketplace.json` that lists the mod with `"source": "./"`; add a `tsconfig.json` that extends `./.claude-plugin/types/tsconfig.json`, and add `.claude-plugin/types/` to `.gitignore`; write `tests/greeter.test.tsx` with `claude-code/testing` that starts a session, makes two tool calls, and checks the toast and the status line. Then run `claude plugin validate`, `claude plugin test` and `npx tsc` on the folder and show me each output.
+
+Then read the three outputs yourself:
+
+- **validate** should list the hooks and calls you expect. It reads the source; it does not run it.
+- **test** should say `1 pass` and `0 fail`. If a test fails with "returned no result", a hook in the test that stands in for the engine is missing an answer.
+- **tsc** should print nothing. Any line it prints is a type error, with its file and line.
+
+Two things stay with you, because they happen in your own session, not in Claude's files: loading the mod (with `--plugin-dir` or a local marketplace) and running `/reload-plugins` after an edit. The steps below explain both.
+
+## What each step does
+
+Claude can run these commands for you, but you should know what each one does and what its output means. Here they are in the order you would use them.
 
 ### 1. Run it from its folder
 
