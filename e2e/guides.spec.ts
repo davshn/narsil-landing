@@ -139,6 +139,7 @@ test.describe('Status pet path', () => {
 
 const CHECK_GUIDES = [
   'side-panel',
+  'work-map',
   'session-environment',
   'connectors',
   'pr-ci',
