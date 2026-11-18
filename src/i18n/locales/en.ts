@@ -174,6 +174,7 @@ export const en: TranslationShape = {
     about: {
       title: 'About the developer',
       name: 'Hernán David Figueroa',
+      photoAlt: 'Photo of Hernán David Figueroa',
       bio: 'Full-stack developer with more than 8 years of experience, specialized in fintech and secure payments. I work on POS terminals and payment features for Android and iOS at a Colombian payment gateway. I built Narsil and this workshop so anyone can understand and extend Claude Code. I live in Bogotá.',
     },
     reposTitle: 'The source code',

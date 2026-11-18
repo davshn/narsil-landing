@@ -1,4 +1,5 @@
 ---
+import DeveloperAbout from '@components/sections/DeveloperAbout/DeveloperAbout.astro'
 import Button from '@components/ui/Button/Button.astro'
 import Container from '@components/ui/Container/Container.astro'
 import Text from '@components/ui/Text/Text.astro'
@@ -6,7 +7,6 @@ import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage } from '@seo/json-ld'
-import { DEVELOPER_PROFILE_URL } from '@utils/developer'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
 import { REPOSITORIES, type RepositoryKey } from '@utils/repositories'
 
@@ -86,26 +86,6 @@ const jsonLd = buildWebPage({
       ))}
     </ul>
 
-    <section aria-labelledby="support-about-title" class="support-about" data-support-about>
-      <h2 id="support-about-title" class="text-xl font-semibold mb-4">
-        {t.support.about.title}
-      </h2>
-      <p class="text-lg font-semibold mb-2">{t.support.about.name}</p>
-      <Text as="p" class="mb-4">
-        {t.support.about.bio}
-      </Text>
-      <Text as="p" size="sm" tone="muted">
-        {`${t.support.developer.text} `}
-        <a
-          class="text-primary underline underline-offset-4"
-          href={DEVELOPER_PROFILE_URL}
-          target="_blank"
-          rel="noopener"
-          data-developer-profile
-        >
-          {t.support.developer.link}
-        </a>
-      </Text>
-    </section>
+    <DeveloperAbout copy={t.support} />
   </Container>
 </SiteLayout>

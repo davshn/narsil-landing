@@ -71,9 +71,3 @@
   @apply px-3 py-1 text-sm text-muted-foreground border border-border;
   border-radius: var(--radius-full);
 }
-
-.support-about {
-  @apply mt-10 p-6 bg-card text-card-foreground;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-neu-md);
-}
