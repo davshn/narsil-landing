@@ -116,7 +116,27 @@ Pour désinstaller depuis Firefox, ouvrez le menu, allez dans **Extensions**, ch
 
 Si vous ne signez plus rien, révoquez les identifiants d’API sur la même page d’addons.mozilla.org où vous les avez créés.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un script Node qui dérive un paquet Manifest V3 pour Vivaldi à partir de votre extension Firefox, et une étape de restauration dans l’arrière-plan. L’idée que Claude doit bien saisir : il n’y a qu’une seule source ; le paquet Chromium est une copie avec un manifeste dérivé, et non une seconde version du code.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Mon extension Firefox vit dans `extension/` avec un `manifest.json` en Manifest V2. Écris un script Node, sans dépendances, qui copie le dossier dans `dist/chromium` et y écrit un `manifest.json` en Manifest V3 : retire `browser_specific_settings`, déplace les motifs d’URL de `permissions` vers `host_permissions` et ajoute-leur les `matches` des content scripts, ajoute l’autorisation `scripting`, transforme les scripts d’arrière-plan en un service worker d’une ligne qui appelle `importScripts()` avec eux, place un fichier qui fait `self.browser = self.chrome` en premier dans chaque groupe de content scripts, et convertis `web_accessible_resources` à la forme objet de V3. Exporte la conversion du manifeste comme fonction et teste-la avec `node --test`. Ensuite, dans l’arrière-plan, au démarrage, envoie un ping à chaque onglet correspondant avec `tabs.sendMessage` ; là où rien ne répond, insère de nouveau le CSS et le JS des content scripts du manifeste avec `scripting.insertCSS` et `scripting.executeScript`. N’utilise que des API documentées sur MDN et developer.chrome.com.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le manifeste dérivé retire `browser_specific_settings`, déplace les motifs d’URL de `permissions` vers `host_permissions`, leur ajoute les `matches` des content scripts, et ajoute `scripting`.
+2. L’arrière-plan devient un service worker d’une ligne qui charge les mêmes scripts d’arrière-plan avec `importScripts()`, et un fichier qui fait `self.browser = self.chrome` vient en premier dans chaque groupe de content scripts.
+3. La restauration envoie un ping à chaque onglet correspondant avec `tabs.sendMessage` et n’insère de nouveau le CSS et le JS que là où rien ne répond, et uniquement des fichiers du manifeste de l’extension elle-même.
+4. La conversion du manifeste est exportée comme fonction et testée avec `node --test` sur un petit objet Manifest V2.
+5. Si vous demandez aussi la signature à Claude, le canal est `unlisted`, et les identifiants AMO sont saisis au moment de signer, jamais écrits dans le dépôt ni dans une ligne de commande.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après avoir touché Update dans Vivaldi, la bande revient sans ses couleurs ».
+
+### Comment l’auteur l’a demandé
 
 Aucune demande pour l’empaquetage n’a été consignée. Les mots de l’auteur ou de l’autrice consignés pour ce parcours portent sur le site (le [guide 1](/fr/mods/claude/what-it-is/) les cite). Ce qui suit est reconstitué à partir de l’historique des commits de l’extension :
 
@@ -129,13 +149,9 @@ Aucune demande pour l’empaquetage n’a été consignée. Les mots de l’aute
 
 Le second navigateur a pris un jour à ajouter et une semaine à stabiliser : chaque correction après `11dadb3` répond à une façon dont Vivaldi sur Android ne chargeait l’extension qu’en partie, découverte à l’usage.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Mon extension Firefox vit dans `extension/` avec un `manifest.json` en Manifest V2. Écris un script Node, sans dépendances, qui copie le dossier dans `dist/chromium` et y écrit un `manifest.json` en Manifest V3 : retire `browser_specific_settings`, déplace les motifs d’URL de `permissions` vers `host_permissions` et ajoute-leur les `matches` des content scripts, ajoute l’autorisation `scripting`, transforme les scripts d’arrière-plan en un service worker d’une ligne qui appelle `importScripts()` avec eux, place un fichier qui fait `self.browser = self.chrome` en premier dans chaque groupe de content scripts, et convertis `web_accessible_resources` à la forme objet de V3. Exporte la conversion du manifeste comme fonction et teste-la avec `node --test`. Ensuite, dans l’arrière-plan, au démarrage, envoie un ping à chaque onglet correspondant avec `tabs.sendMessage` ; là où rien ne répond, insère de nouveau le CSS et le JS des content scripts du manifeste avec `scripting.insertCSS` et `scripting.executeScript`. N’utilise que des API documentées sur MDN et developer.chrome.com.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Trois morceaux, écrits pour ce guide (MIT) : la conversion, la restauration au démarrage et la signature.
 

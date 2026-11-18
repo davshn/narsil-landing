@@ -106,7 +106,27 @@ That has two consequences the README spells out:
 
 The icon was tested in Firefox for Android, where the extension adds it from the menu with **Install** or **Add to Home screen**. In Vivaldi it has not been tested.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a content script group that runs at `document_start`, with one stylesheet and two small scripts. The one idea it must get right is to change only what the page already reads, its design variables and its `data-mode` attribute, instead of restyling the page part by part.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Firefox extension for `https://claude.ai/*`, add a content script group at `document_start` with one stylesheet and two scripts. The stylesheet overrides only the page's own CSS custom properties, one block for `[data-mode="dark"]` and one for `[data-mode="light"]`, with `!important`; no backgrounds, images or animations. The first script sets every element whose `data-mode` is `light`, `dark` or `system` to `light` from 6:00 to 17:59 local time and `dark` otherwise, writing only when the value differs; it runs from one `MutationObserver` throttled with `requestAnimationFrame`, every 60 seconds and on `visibilitychange`. The second script replaces the `href` of the page's `<link rel="manifest">` with a `data:application/manifest+json` URL holding a manifest with absolute icon URLs on `https://example.com`. Keep the hour rule in its own module and test it with `node --test`.
+
+### What to check in Claude's answer
+
+1. The stylesheet loads at `document_start` and overrides only the page's CSS custom properties, one block for dark and one for light, with `!important`, and no backgrounds, images or animations.
+2. The mode script touches only elements whose `data-mode` is `light`, `dark` or `system`, never `data-mode="code"`, and writes only when the value differs.
+3. The hour rule lives in its own module: 5, 6, 17 and 18 give `dark`, `light`, `light` and `dark`.
+4. The mode runs again from one observer throttled with `requestAnimationFrame`, every 60 seconds, and on `visibilitychange`.
+5. The manifest is a `data:application/manifest+json` URL with full icon addresses, not relative paths, so the browser downloads the icons only when you install the app, and the link's `href` changes only when it differs.
+
+If a check fails, tell Claude what you see: "after 18:00 the page stays light until I reload it".
+
+### How the author asked for it
 
 No request for the colors or the icon was recorded. The owner's words recorded for this path are about the site ([guide 1](/en/mods/claude/what-it-is/) quotes them). The following is reconstructed from the extension's commit history:
 
@@ -119,13 +139,9 @@ No request for the colors or the icon was recorded. The owner's words recorded f
 
 The history reads as a first day that got the look right, followed by work on what the look cost: speed on a long page, legibility in one corner, and Vivaldi's habit of loading only part of the extension.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Firefox extension for `https://claude.ai/*`, add a content script group at `document_start` with one stylesheet and two scripts. The stylesheet overrides only the page's own CSS custom properties, one block for `[data-mode="dark"]` and one for `[data-mode="light"]`, with `!important`; no backgrounds, images or animations. The first script sets every element whose `data-mode` is `light`, `dark` or `system` to `light` from 6:00 to 17:59 local time and `dark` otherwise, writing only when the value differs; it runs from one `MutationObserver` throttled with `requestAnimationFrame`, every 60 seconds and on `visibilitychange`. The second script replaces the `href` of the page's `<link rel="manifest">` with a `data:application/manifest+json` URL holding a manifest with absolute icon URLs on `https://example.com`. Keep the hour rule in its own module and test it with `node --test`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The same three pieces, written for this guide (MIT). The variable names are the ones the `claude.ai` page declares today; the colors are two from the night sea palette; the icon address is a placeholder for your own.
 

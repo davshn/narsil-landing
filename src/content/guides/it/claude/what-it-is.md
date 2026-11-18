@@ -112,9 +112,29 @@ In Firefox, apri il menu, vai su **Extensions**, scegli **Narsil en Claude** e r
 
 Per fermare il livello e il conteggio senza rimuovere niente, svuota il topic nelle opzioni. Per impedire del tutto alla mod di inviare lo stato, esegui `/narsil movil off` sul tuo computer.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
 
-### Registrato: su questo percorso, non sull'estensione
+Chiedi a Claude lo scheletro di un'estensione di Firefox per `claude.ai`: un manifest, un content script, uno script di background e una pagina delle opzioni. L'unica idea che deve fare bene è che la pagina non vede niente di segreto: solo lo script di background tiene il topic e parla con ntfy.sh.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
+
+> Costruisci un'estensione di Firefox (Manifest V2, JavaScript semplice, senza passaggio di build) per Firefox per Android che aggiunga una piccola banda di stato a `https://claude.ai/*`. Usa due gruppi di content script: uno a `document_start` per gli stili, uno a `document_idle` che disegna la banda. Aggiungi una pagina delle opzioni (`options_ui`) con un campo "topic", validato come `[-_A-Za-z0-9]{1,64}`, salvato con `browser.storage.local`. Solo lo script di background può leggere il topic e parlare con `https://ntfy.sh`; il content script riceve lo stato tramite `runtime.connect` e non vede mai il topic. Non chiedere permessi oltre a `storage` e `https://ntfy.sh/*`. Inserisci ogni pezzo di testo con `textContent`, mai come HTML. Usa solo API documentate su MDN, ed elenca ciascuna di quelle che hai usato con la sua pagina MDN.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il manifest chiede solo due permessi, `storage` e `https://ntfy.sh/*`, e dichiara `data_collection_permissions` come `none`.
+2. I content script corrispondono a `https://claude.ai/*`, con gli stili a `document_start` e la banda a `document_idle`.
+3. Solo lo script di background legge il topic e parla con ntfy.sh. Il content script riceve lo stato tramite `runtime.connect` e non vede mai il topic.
+4. La pagina delle opzioni accetta solo lettere, numeri, `-` e `_`, fino a 64 caratteri, e salva il topic con `storage.local`, mai nel codice dell'estensione.
+5. Ogni pezzo di testo entra con `textContent`, mai come HTML, e ogni API usata da Claude viene con la sua pagina MDN.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "il content script legge il topic da `storage.local` e interroga ntfy.sh da solo".
+
+### Come l'ha chiesta l'autore
+
+#### Registrato: su questo percorso, non sull'estensione
 
 Le richieste fatte all'IA per l'estensione stessa non sono state registrate. È registrato come chi ha creato Narsil ha chiesto che comparisse su questo sito. Nella fase 2 del log dei task del sito:
 
@@ -128,7 +148,7 @@ E per questo percorso, il 2026-11-18:
 
 In italiano: c'è un'altra cosa, non abbiamo messo la guida di narsil claude sul cellulare; abbiamo scritto che era sperimentale ma che avremmo spiegato come farla; manca quella guida; il repository è narsil-claude. Chi ha creato Narsil ha chiesto una "Ruta corta", un percorso breve, che è questo.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Il resto è ricostruito dalla cronologia dei commit dell'estensione; le richieste stesse non sono state conservate. Il primo giorno ne ha costruito la maggior parte:
 
@@ -142,13 +162,9 @@ Il resto è ricostruito dalla cronologia dei commit dell'estensione; le richiest
 
 L'ordine mostra un design che si è ristretto: è nato come un unico pannello nel menu laterale alimentato da ntfy.sh, ed è finito diviso in due, con ntfy.sh usato solo per ciò che la pagina non può sapere.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
-
-> Costruisci un'estensione di Firefox (Manifest V2, JavaScript semplice, senza passaggio di build) per Firefox per Android che aggiunga una piccola banda di stato a `https://claude.ai/*`. Usa due gruppi di content script: uno a `document_start` per gli stili, uno a `document_idle` che disegna la banda. Aggiungi una pagina delle opzioni (`options_ui`) con un campo "topic", validato come `[-_A-Za-z0-9]{1,64}`, salvato con `browser.storage.local`. Solo lo script di background può leggere il topic e parlare con `https://ntfy.sh`; il content script riceve lo stato tramite `runtime.connect` e non vede mai il topic. Non chiedere permessi oltre a `storage` e `https://ntfy.sh/*`. Inserisci ogni pezzo di testo con `textContent`, mai come HTML. Usa solo API documentate su MDN, ed elenca ciascuna di quelle che hai usato con la sua pagina MDN.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Uno scheletro della stessa forma, scritto per questa guida (MIT). È un'estensione Manifest V2 per Firefox con un content script, uno script di background e una pagina delle opzioni; le [guide 2](/it/mods/claude/conversation-band/) e [3](/it/mods/claude/sidebar/) li riempiono.
 

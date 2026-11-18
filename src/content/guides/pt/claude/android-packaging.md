@@ -116,7 +116,27 @@ Para desinstalar do Firefox, abra o menu, vá a **Extensões**, escolha **Narsil
 
 Se você não assina mais nada, revogue as credenciais de API na mesma página do addons.mozilla.org onde as criou.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um script Node que derive um pacote Manifest V3 para o Vivaldi a partir da sua extensão do Firefox, e uma etapa de restauração no script de fundo. A única ideia que ele precisa acertar é que existe uma só fonte: o pacote Chromium é uma cópia com um manifesto derivado, não uma segunda versão do código.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> A minha extensão do Firefox fica em `extension/` com um `manifest.json` Manifest V2. Escreva um script Node, sem dependências, que copie a pasta para `dist/chromium` e escreva ali um `manifest.json` Manifest V3: remova `browser_specific_settings`, mova os padrões de URL de `permissions` para `host_permissions` e acrescente a eles os `matches` dos content scripts, acrescente a permissão `scripting`, transforme os scripts de fundo num service worker de uma linha que chame `importScripts()` com eles, coloque um arquivo que define `self.browser = self.chrome` primeiro em cada grupo de content scripts e converta `web_accessible_resources` para a forma de objetos do V3. Exporte a conversão do manifesto como uma função e teste-a com `node --test`. Depois, no script de fundo, ao iniciar, envie um ping a cada aba correspondente com `tabs.sendMessage`; onde nada responder, insira de novo o CSS e o JS dos content scripts do manifesto com `scripting.insertCSS` e `scripting.executeScript`. Use só APIs documentadas no MDN e em developer.chrome.com.
+
+### O que conferir na resposta do Claude
+
+1. O manifesto derivado remove `browser_specific_settings`, move os padrões de URL de `permissions` para `host_permissions`, acrescenta a eles os `matches` dos content scripts e acrescenta `scripting`.
+2. O script de fundo vira um service worker de uma linha que carrega os mesmos scripts de fundo com `importScripts()`, e um arquivo que define `self.browser = self.chrome` vem primeiro em cada grupo de content scripts.
+3. A restauração envia um ping a cada aba correspondente com `tabs.sendMessage` e insere de novo o CSS e o JS só onde nada responde, e só arquivos do próprio manifesto da extensão.
+4. A conversão do manifesto é exportada como uma função e testada com `node --test` em um pequeno objeto Manifest V2.
+5. Se você também pedir a assinatura ao Claude, o canal é `unlisted`, e as credenciais do AMO são digitadas na hora de assinar, nunca escritas no repositório nem em uma linha de comando.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "depois que eu toco em Atualizar no Vivaldi, a faixa volta sem as suas cores".
+
+### Como a pessoa autora pediu
 
 Nenhum pedido para o empacotamento foi registrado. As palavras da pessoa autora registradas para este caminho são sobre o site (o [guia 1](/pt/mods/claude/what-it-is/) as cita). O que segue é reconstruído a partir do histórico de commits da extensão:
 
@@ -129,13 +149,9 @@ Nenhum pedido para o empacotamento foi registrado. As palavras da pessoa autora 
 
 O segundo navegador levou um dia para ser acrescentado e uma semana para se assentar: cada correção depois do `11dadb3` responde a um jeito como o Vivaldi para Android carregava a extensão só em parte, descoberto ao usá-la.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> A minha extensão do Firefox fica em `extension/` com um `manifest.json` Manifest V2. Escreva um script Node, sem dependências, que copie a pasta para `dist/chromium` e escreva ali um `manifest.json` Manifest V3: remova `browser_specific_settings`, mova os padrões de URL de `permissions` para `host_permissions` e acrescente a eles os `matches` dos content scripts, acrescente a permissão `scripting`, transforme os scripts de fundo num service worker de uma linha que chame `importScripts()` com eles, coloque um arquivo que define `self.browser = self.chrome` primeiro em cada grupo de content scripts e converta `web_accessible_resources` para a forma de objetos do V3. Exporte a conversão do manifesto como uma função e teste-a com `node --test`. Depois, no script de fundo, ao iniciar, envie um ping a cada aba correspondente com `tabs.sendMessage`; onde nada responder, insira de novo o CSS e o JS dos content scripts do manifesto com `scripting.insertCSS` e `scripting.executeScript`. Use só APIs documentadas no MDN e em developer.chrome.com.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Três peças, escritas para este guia (MIT): a conversão, a restauração ao iniciar e a assinatura.
 

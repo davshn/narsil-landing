@@ -89,7 +89,27 @@ Il testo è limitato a due righe con CSS ([`line-clamp`](https://developer.mozil
 
 La banda scrive un valore solo quando è cambiato, dato che ogni sua scrittura è un cambiamento in più per l'osservatore. E l'osservatore si ferma, con tutto ciò che lo usava, quando l'estensione viene rimossa o ricaricata, così una copia orfana non continua a disegnare.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un content script che disegni una banda appena sopra la casella dei messaggi di `claude.ai` e legga i dati della conversazione con la sessione della pagina stessa. L'unica idea che deve fare bene è che la banda legge soltanto, e solo mentre guardi: richieste `GET` ogni 10 secondi, e nessuna mentre la pagina è nascosta.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
+
+> Nella mia estensione di Firefox per `https://claude.ai/*`, aggiungi un content script che disegni una banda di stato appena prima della casella dei messaggi della pagina, come suo fratello precedente, così spinge la conversazione in su invece di coprirla. Trova l'id della conversazione in `location.pathname`. Ogni 10 secondi, e solo mentre `document.hidden` è false, leggi i dati della conversazione con la sessione della pagina stessa (`content.fetch` quando esiste, altrimenti `fetch`, con `credentials: 'include'`), solo `GET`. Mostra lo stato, la percentuale di contesto, l'ultimo testo scritto da Claude e quanto tempo fa, e un conto alla rovescia della cache stimato dall'ora dell'ultimo messaggio di Claude più 60 minuti. Usa un solo `MutationObserver` sul documento, limitato con `requestAnimationFrame`, per rimettere a posto la banda quando la pagina si ricostruisce e per azzerarla quando cambia la conversazione. Scrivi il testo solo con `textContent`. Limita il testo a due righe e lascia che un tocco lo espanda. Tieni le regole in un modulo senza codice DOM, e testale con `node --test`.
+
+### Cosa controllare nella risposta di Claude
+
+1. La banda è inserita appena prima della casella dei messaggi, come suo fratello precedente, non come un livello `position: fixed`, così non copre niente.
+2. Le richieste usano `content.fetch` quando esiste, altrimenti `fetch`, con `credentials: 'include'`, e sono solo `GET`.
+3. Chiede ogni 10 secondi, mai mentre `document.hidden` è true, e subito quando `visibilitychange` mostra di nuovo la pagina.
+4. Il conto alla rovescia della cache parte dall'ultimo messaggio di Claude, non dall'ultimo evento della conversazione, e i dati vecchi vengono scartati quando cambia l'id nell'indirizzo.
+5. C'è un solo `MutationObserver`, eseguito al massimo una volta per frame con `requestAnimationFrame`, e la banda scrive il suo testo con `textContent` e si sposta solo quando qualcosa è cambiato.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "il conto alla rovescia della cache ricomincia ogni volta che apro la pagina".
+
+### Come l'ha chiesta l'autore
 
 Nessuna richiesta per la banda è stata registrata. Le parole di chi ha creato Narsil registrate per questo percorso riguardano il sito (la [guida 1](/it/mods/claude/what-it-is/) le cita). Quanto segue è ricostruito dalla cronologia dei commit dell'estensione:
 
@@ -101,13 +121,9 @@ Nessuna richiesta per la banda è stata registrata. Le parole di chi ha creato N
 
 La cronologia mostra un passaggio dai dati inviati dal computer ai dati che la pagina aveva già: la banda funziona nel momento in cui apri una conversazione, anche con il computer spento.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt di chi ha creato Narsil.
-
-> Nella mia estensione di Firefox per `https://claude.ai/*`, aggiungi un content script che disegni una banda di stato appena prima della casella dei messaggi della pagina, come suo fratello precedente, così spinge la conversazione in su invece di coprirla. Trova l'id della conversazione in `location.pathname`. Ogni 10 secondi, e solo mentre `document.hidden` è false, leggi i dati della conversazione con la sessione della pagina stessa (`content.fetch` quando esiste, altrimenti `fetch`, con `credentials: 'include'`), solo `GET`. Mostra lo stato, la percentuale di contesto, l'ultimo testo scritto da Claude e quanto tempo fa, e un conto alla rovescia della cache stimato dall'ora dell'ultimo messaggio di Claude più 60 minuti. Usa un solo `MutationObserver` sul documento, limitato con `requestAnimationFrame`, per rimettere a posto la banda quando la pagina si ricostruisce e per azzerarla quando cambia la conversazione. Scrivi il testo solo con `textContent`. Limita il testo a due righe e lascia che un tocco lo espanda. Tieni le regole in un modulo senza codice DOM, e testale con `node --test`.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Un piccolo content script della stessa forma, scritto per questa guida (MIT). `readConversation` sta per qualunque cosa legga i tuoi dati; qui restituisce l'ora dell'ultimo messaggio di Claude, in secondi. Il resto è la meccanica della banda: posizionarla, seguire la pagina, aggiornarla mentre è visibile e stimare la cache.
 

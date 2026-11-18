@@ -106,7 +106,27 @@ Isso tem duas consequências que o README explicita:
 
 O ícone foi testado no Firefox para Android, onde a extensão o adiciona a partir do menu com **Instalar** ou **Adicionar à tela inicial**. No Vivaldi ele não foi testado.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um grupo de content scripts que rode em `document_start`, com uma folha de estilo e dois scripts pequenos. A única ideia que ele precisa acertar é mudar só o que a página já lê, as suas variáveis de design e o seu atributo `data-mode`, em vez de reestilizar a página parte por parte.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> Na minha extensão do Firefox para `https://claude.ai/*`, acrescente um grupo de content scripts em `document_start` com uma folha de estilos e dois scripts. A folha de estilos sobrescreve só as próprias propriedades personalizadas de CSS da página, um bloco para `[data-mode="dark"]` e um para `[data-mode="light"]`, com `!important`; sem fundos, imagens nem animações. O primeiro script define cada elemento cujo `data-mode` é `light`, `dark` ou `system` como `light` das 6:00 às 17:59 no horário local e `dark` no resto, escrevendo só quando o valor for diferente; ele roda a partir de um único `MutationObserver` limitado com `requestAnimationFrame`, a cada 60 segundos e no `visibilitychange`. O segundo script substitui o `href` do `<link rel="manifest">` da página por uma URL `data:application/manifest+json` com um manifesto que tem URLs absolutas de ícones em `https://example.com`. Mantenha a regra da hora num módulo próprio e teste-a com `node --test`.
+
+### O que conferir na resposta do Claude
+
+1. A folha de estilo carrega em `document_start` e sobrescreve só as propriedades personalizadas de CSS da página, um bloco para o escuro e um para o claro, com `!important`, e sem fundos, imagens nem animações.
+2. O script do modo mexe só nos elementos cujo `data-mode` é `light`, `dark` ou `system`, nunca em `data-mode="code"`, e escreve só quando o valor é diferente.
+3. A regra da hora fica no seu próprio módulo: 5, 6, 17 e 18 dão `dark`, `light`, `light` e `dark`.
+4. O modo roda de novo a partir de um único observador limitado com `requestAnimationFrame`, a cada 60 segundos e em `visibilitychange`.
+5. O manifesto é uma URL `data:application/manifest+json` com endereços completos para os ícones, não caminhos relativos, então o navegador baixa os ícones só quando você instala o app, e o `href` do link muda só quando é diferente.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "depois das 18:00 a página continua clara até eu recarregá-la".
+
+### Como a pessoa autora pediu
 
 Nenhum pedido para as cores ou para o ícone foi registrado. As palavras da pessoa autora registradas para este caminho são sobre o site (o [guia 1](/pt/mods/claude/what-it-is/) as cita). O que segue é reconstruído a partir do histórico de commits da extensão:
 
@@ -119,13 +139,9 @@ Nenhum pedido para as cores ou para o ícone foi registrado. As palavras da pess
 
 O histórico se lê como um primeiro dia que acertou a aparência, seguido de trabalho sobre o que a aparência custava: velocidade numa página longa, legibilidade num canto, e o hábito do Vivaldi de carregar só parte da extensão.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> Na minha extensão do Firefox para `https://claude.ai/*`, acrescente um grupo de content scripts em `document_start` com uma folha de estilos e dois scripts. A folha de estilos sobrescreve só as próprias propriedades personalizadas de CSS da página, um bloco para `[data-mode="dark"]` e um para `[data-mode="light"]`, com `!important`; sem fundos, imagens nem animações. O primeiro script define cada elemento cujo `data-mode` é `light`, `dark` ou `system` como `light` das 6:00 às 17:59 no horário local e `dark` no resto, escrevendo só quando o valor for diferente; ele roda a partir de um único `MutationObserver` limitado com `requestAnimationFrame`, a cada 60 segundos e no `visibilitychange`. O segundo script substitui o `href` do `<link rel="manifest">` da página por uma URL `data:application/manifest+json` com um manifesto que tem URLs absolutas de ícones em `https://example.com`. Mantenha a regra da hora num módulo próprio e teste-a com `node --test`.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 As mesmas três peças, escritas para este guia (MIT). Os nomes das variáveis são os que a página do `claude.ai` declara hoje; as cores são duas da paleta de mar noturno; o endereço do ícone é um marcador para o seu.
 

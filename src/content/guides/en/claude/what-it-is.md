@@ -112,9 +112,29 @@ In Firefox, open the menu, go to **Extensions**, choose **Narsil en Claude** and
 
 To stop the level and the count without removing anything, clear the topic in the options. To stop the mod from sending the status at all, run `/narsil movil off` on your computer.
 
-## How it was asked of the AI
+## Build it with Claude
 
-### Recorded: about this path, not about the extension
+Ask Claude for the skeleton of a Firefox extension for `claude.ai`: a manifest, a content script, a background script and an options page. The one idea it must get right is that the page sees nothing secret: only the background script holds the topic and talks to ntfy.sh.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> Build a Firefox extension (Manifest V2, plain JavaScript, no build step) for Firefox for Android that adds a small status band to `https://claude.ai/*`. Use two content script groups: one at `document_start` for styles, one at `document_idle` that draws the band. Add an options page (`options_ui`) with a "topic" field, validated as `[-_A-Za-z0-9]{1,64}`, saved with `browser.storage.local`. Only the background script may read the topic and talk to `https://ntfy.sh`; the content script receives the status over `runtime.connect` and never sees the topic. Ask for no permission beyond `storage` and `https://ntfy.sh/*`. Insert every piece of text with `textContent`, never as HTML. Use only APIs documented on MDN, and list each one you used with its MDN page.
+
+### What to check in Claude's answer
+
+1. The manifest asks for two permissions only, `storage` and `https://ntfy.sh/*`, and declares `data_collection_permissions` as `none`.
+2. The content scripts match `https://claude.ai/*`, with the styles at `document_start` and the band at `document_idle`.
+3. Only the background script reads the topic and talks to ntfy.sh. The content script gets the status over `runtime.connect` and never sees the topic.
+4. The options page accepts only letters, numbers, `-` and `_`, up to 64 characters, and saves the topic with `storage.local`, never in the extension's code.
+5. Every piece of text goes in with `textContent`, never as HTML, and each API Claude used comes with its MDN page.
+
+If a check fails, tell Claude what you see: "the content script reads the topic from `storage.local` and asks ntfy.sh itself".
+
+### How the author asked for it
+
+#### Recorded: about this path, not about the extension
 
 The extension's own requests to the AI were not recorded. What is recorded is how the author asked for it to appear on this site. In phase 2 of the site's task log:
 
@@ -128,7 +148,7 @@ And for this path, on 2026-11-18:
 
 In English: there is one more thing, we did not add the guide for narsil claude on the phone; we said it was experimental but that we would explain how to make it; that guide is missing; the repository is narsil-claude. The author asked for a "Ruta corta", a short path, which is this one.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 The rest is reconstructed from the extension's commit history; the requests themselves were not kept. The first day built most of it:
 
@@ -142,13 +162,9 @@ The rest is reconstructed from the extension's commit history; the requests them
 
 The order shows a design that narrowed: it began as one panel in the side menu fed by ntfy.sh, and ended split in two, with ntfy.sh used only for what the page cannot know.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> Build a Firefox extension (Manifest V2, plain JavaScript, no build step) for Firefox for Android that adds a small status band to `https://claude.ai/*`. Use two content script groups: one at `document_start` for styles, one at `document_idle` that draws the band. Add an options page (`options_ui`) with a "topic" field, validated as `[-_A-Za-z0-9]{1,64}`, saved with `browser.storage.local`. Only the background script may read the topic and talk to `https://ntfy.sh`; the content script receives the status over `runtime.connect` and never sees the topic. Ask for no permission beyond `storage` and `https://ntfy.sh/*`. Insert every piece of text with `textContent`, never as HTML. Use only APIs documented on MDN, and list each one you used with its MDN page.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A skeleton of the same shape, written for this guide (MIT). It is a Manifest V2 extension for Firefox with one content script, a background script and an options page; [guides 2](/en/mods/claude/conversation-band/) and [3](/en/mods/claude/sidebar/) fill them in.
 

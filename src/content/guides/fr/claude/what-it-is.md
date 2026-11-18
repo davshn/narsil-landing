@@ -112,9 +112,29 @@ Dans Firefox, ouvrez le menu, allez dans **Extensions**, choisissez **Narsil en 
 
 Pour arrêter le niveau et le décompte sans rien supprimer, videz le sujet dans les options. Pour que le mod n’envoie plus du tout l’état, lancez `/narsil movil off` sur votre ordinateur.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
 
-### Consigné : à propos de ce parcours, pas de l’extension
+Demandez à Claude le squelette d’une extension Firefox pour `claude.ai` : un manifeste, un content script, un script d’arrière-plan et une page d’options. L’idée que Claude doit bien saisir : la page ne voit rien de secret ; seul le script d’arrière-plan garde le sujet et parle à ntfy.sh.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Construis une extension Firefox (Manifest V2, JavaScript simple, sans étape de build) pour Firefox pour Android qui ajoute une petite bande d’état à `https://claude.ai/*`. Utilise deux groupes de content scripts : un à `document_start` pour les styles, un à `document_idle` qui dessine la bande. Ajoute une page d’options (`options_ui`) avec un champ « topic », validé par `[-_A-Za-z0-9]{1,64}`, enregistré avec `browser.storage.local`. Seul le script d’arrière-plan peut lire le sujet et parler à `https://ntfy.sh` ; le content script reçoit l’état par `runtime.connect` et ne voit jamais le sujet. Ne demande aucune autorisation au-delà de `storage` et `https://ntfy.sh/*`. Insère chaque morceau de texte avec `textContent`, jamais en HTML. N’utilise que des API documentées sur MDN, et liste chacune de celles que tu as utilisées avec sa page MDN.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le manifeste ne demande que deux autorisations, `storage` et `https://ntfy.sh/*`, et déclare `data_collection_permissions` à `none`.
+2. Les content scripts correspondent à `https://claude.ai/*`, avec les styles à `document_start` et la bande à `document_idle`.
+3. Seul le script d’arrière-plan lit le sujet et parle à ntfy.sh. Le content script reçoit l’état par `runtime.connect` et ne voit jamais le sujet.
+4. La page d’options n’accepte que des lettres, des chiffres, `-` et `_`, jusqu’à 64 caractères, et enregistre le sujet avec `storage.local`, jamais dans le code de l’extension.
+5. Chaque morceau de texte est inséré avec `textContent`, jamais en HTML, et chaque API utilisée par Claude est accompagnée de sa page MDN.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le content script lit le sujet dans `storage.local` et interroge ntfy.sh lui-même ».
+
+### Comment l’auteur l’a demandé
+
+#### Consigné : à propos de ce parcours, pas de l’extension
 
 Les demandes faites à l’IA pour l’extension elle-même n’ont pas été consignées. Ce qui l’est, c’est la façon dont l’auteur ou l’autrice a demandé qu’elle apparaisse sur ce site. Dans la phase 2 du journal de tâches du site :
 
@@ -128,7 +148,7 @@ Et pour ce parcours, le 2026-11-18 :
 
 Traduction en français : il y a autre chose, nous n’avons pas mis le guide de narsil claude sur le téléphone ; nous avons dit qu’elle était expérimentale mais que nous expliquerions comment la faire ; ce guide manque ; le dépôt est narsil-claude. L’auteur ou l’autrice a demandé une « Ruta corta », un parcours court, qui est celui-ci.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 Le reste est reconstitué à partir de l’historique des commits de l’extension ; les demandes elles-mêmes n’ont pas été gardées. Le premier jour en a construit l’essentiel :
 
@@ -142,13 +162,9 @@ Le reste est reconstitué à partir de l’historique des commits de l’extensi
 
 L’ordre montre une conception qui s’est resserrée : elle a commencé comme un seul panneau dans le menu latéral alimenté par ntfy.sh, et a fini coupée en deux, ntfy.sh ne servant qu’à ce que la page ne peut pas savoir.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Construis une extension Firefox (Manifest V2, JavaScript simple, sans étape de build) pour Firefox pour Android qui ajoute une petite bande d’état à `https://claude.ai/*`. Utilise deux groupes de content scripts : un à `document_start` pour les styles, un à `document_idle` qui dessine la bande. Ajoute une page d’options (`options_ui`) avec un champ « topic », validé par `[-_A-Za-z0-9]{1,64}`, enregistré avec `browser.storage.local`. Seul le script d’arrière-plan peut lire le sujet et parler à `https://ntfy.sh` ; le content script reçoit l’état par `runtime.connect` et ne voit jamais le sujet. Ne demande aucune autorisation au-delà de `storage` et `https://ntfy.sh/*`. Insère chaque morceau de texte avec `textContent`, jamais en HTML. N’utilise que des API documentées sur MDN, et liste chacune de celles que tu as utilisées avec sa page MDN.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Un squelette de la même forme, écrit pour ce guide (MIT). C’est une extension Manifest V2 pour Firefox avec un content script, un script d’arrière-plan et une page d’options ; les [guides 2](/fr/mods/claude/conversation-band/) et [3](/fr/mods/claude/sidebar/) les remplissent.
 

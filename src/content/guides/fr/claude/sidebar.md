@@ -100,7 +100,27 @@ Le mod n’envoie un état que pendant que vous écrivez à distance. Quand vous
 
 Le décompte lui-même doit venir de l’ordinateur, parce que ntfy.sh compte les messages par adresse IP. Le mod demande à ntfy.sh, depuis le réseau de l’ordinateur, combien de messages ce réseau a envoyés aujourd’hui, et met la réponse dans son état. Si le téléphone demandait, ntfy.sh répondrait au sujet du réseau du téléphone, qui n’envoie rien. Comme l’explique le guide du téléphone, cette journée commence aussi à une heure propre à ntfy.sh, et non à minuit, ce qui explique pourquoi la ligne affiche sa propre heure de réinitialisation.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un bloc après le bouton Search du menu latéral, alimenté par un script d’arrière-plan qui suit le sujet d’état du mod sur ntfy.sh. L’idée que Claude doit bien saisir : le sujet reste dans l’arrière-plan, et rien de ce qui vient de ntfy.sh n’est digne de confiance ; cela n’arrive à la page que sous forme de texte.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon extension pour `https://claude.ai/*`, ajoute un bloc juste après le bouton Search du menu latéral, trouvé par sa position, pas par son texte. Le content script ouvre un port `runtime.connect` vers l’arrière-plan tant que la page est visible et le ferme quand elle est cachée. L’arrière-plan lit le sujet dans `storage.local`, interroge `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, puis suit le même flux JSON avec `fetch` et un lecteur de flux à partir de l’identifiant du dernier message, en réessayant avec une attente qui double jusqu’à 60 s. Il envoie à chaque port le dernier état analysé, jamais le sujet. Dans le bloc, affiche le champ `xp` comme texte avec `textContent`, n’accepte une URL d’image que depuis un préfixe fixe, et ajoute « donnée d’il y a N h » quand le `at` de l’état a plus d’une heure. Teste l’analyse et le flux avec `node --test`, en passant un faux `fetch`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Search est trouvé par sa position, pas par son texte, si bien que le bloc apparaît encore quand la page est dans une autre langue.
+2. Seul l’arrière-plan lit le sujet dans `storage.local` et parle à ntfy.sh. Il envoie l’état aux ports, jamais le sujet.
+3. Il interroge d’abord `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, puis suit le flux à partir de l’identifiant du dernier message, et attend deux fois plus longtemps après chaque échec, jusqu’à 60 secondes.
+4. Le port est ouvert tant que la page est visible et fermé tant qu’elle est cachée, si bien que rien n’est lu pendant que vous ne regardez pas.
+5. Chaque valeur est insérée avec `textContent`, une image n’est affichée que depuis une adresse fixe, et un état dont le `at` a plus d’une heure reçoit la note « donnée d’il y a N h ».
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après avoir coupé puis rétabli le réseau, le niveau ne change plus jamais ».
+
+### Comment l’auteur l’a demandé
 
 Aucune demande pour le bloc n’a été consignée. Les mots de l’auteur ou de l’autrice consignés pour ce parcours portent sur le site (le [guide 1](/fr/mods/claude/what-it-is/) les cite). Ce qui suit est reconstitué à partir de l’historique des commits de l’extension :
 
@@ -110,13 +130,9 @@ Aucune demande pour le bloc n’a été consignée. Les mots de l’auteur ou de
 
 Du côté du mod, `544ef89` de narsil-pet (2026-11-09) « feat: send only what the Firefox extension reads through ntfy » (n’envoyer par ntfy que ce que lit l’extension Firefox) a réduit son état aux cinq champs ci-dessus, le même jour.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon extension pour `https://claude.ai/*`, ajoute un bloc juste après le bouton Search du menu latéral, trouvé par sa position, pas par son texte. Le content script ouvre un port `runtime.connect` vers l’arrière-plan tant que la page est visible et le ferme quand elle est cachée. L’arrière-plan lit le sujet dans `storage.local`, interroge `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, puis suit le même flux JSON avec `fetch` et un lecteur de flux à partir de l’identifiant du dernier message, en réessayant avec une attente qui double jusqu’à 60 s. Il envoie à chaque port le dernier état analysé, jamais le sujet. Dans le bloc, affiche le champ `xp` comme texte avec `textContent`, n’accepte une URL d’image que depuis un préfixe fixe, et ajoute « donnée d’il y a N h » quand le `at` de l’état a plus d’une heure. Teste l’analyse et le flux avec `node --test`, en passant un faux `fetch`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Les deux moitiés, écrites pour ce guide (MIT). L’arrière-plan suit le sujet d’état et envoie ce qu’il lit au bloc ; le content script l’affiche. Essayez-le avec un sujet inventé comme `narsil-0123456789abcdef0123`, sur un sujet à vous.
 
