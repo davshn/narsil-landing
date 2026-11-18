@@ -199,3 +199,50 @@ test.describe('Review panel path', () => {
     })
   }
 })
+
+test.describe('Guide workshop layout', () => {
+  const GUIDE = '/en/mods/pet/art-and-animations/'
+  const t = useTranslations('en')
+
+  test('shows the path and the table of contents beside the text on a wide screen', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto(GUIDE)
+    const path = page.getByRole('navigation', { name: t.guide.pathNavLabel })
+    await expect(path).toBeVisible()
+    await expect(path.locator('[aria-current="page"]')).toHaveAttribute('href', GUIDE)
+    await expect(path.locator('.guide-path-link')).toHaveCount(PET_GUIDES.length)
+    const toc = page.getByRole('navigation', { name: t.guide.tocTitle })
+    await expect(toc).toBeVisible()
+    await expect(toc.locator('a').first()).toHaveAttribute('href', '#what-it-does')
+    await expect(page.locator('.guide-disclosures')).toBeHidden()
+  })
+
+  test('marks the section the reader scrolled to', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 })
+    await page.goto(GUIDE)
+    await page.evaluate(() => {
+      document.querySelectorAll('[data-guide-body] > h2')[3]?.scrollIntoView({ block: 'start' })
+    })
+    const toc = page.getByRole('navigation', { name: t.guide.tocTitle })
+    await expect(toc.locator('[aria-current="location"]')).toHaveText('The minimal code')
+  })
+
+  test('folds the path and the table of contents above the text on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 })
+    await page.goto(GUIDE)
+    await expect(page.getByRole('navigation', { name: t.guide.pathNavLabel })).toBeHidden()
+    const path = page.locator('.guide-disclosure-path')
+    await expect(path).toBeVisible()
+    await path.locator('summary').click()
+    await expect(path.locator('[aria-current="page"]')).toBeVisible()
+    await page.locator('.guide-disclosure-toc summary').click()
+    await page.locator('.guide-disclosure-toc a', { hasText: 'Going further' }).click()
+    await expect(page).toHaveURL(/#going-further$/v)
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    )
+    expect(overflow).toBe(0)
+  })
+})

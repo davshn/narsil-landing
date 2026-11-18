@@ -151,6 +151,8 @@ export const fr: TranslationShape = {
     sourcesIntro:
       'Ces fichiers font partie des mods originaux, publiés sous GPL v3. Le code cité sur cette page en provient et conserve cette licence.',
     pathNavLabel: 'Guides de ce parcours',
+    tocTitle: 'Sur cette page',
+    pagerLabel: 'Guide précédent et suivant',
     previous: 'Précédent',
     next: 'Suivant',
     backToPath: 'Tous les guides de ce parcours',

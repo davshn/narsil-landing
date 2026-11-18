@@ -1,0 +1,62 @@
+@reference '../../../styles/global.css';
+
+.guide-path {
+  @apply flex flex-col gap-4;
+}
+
+.guide-path-title {
+  @apply inline-flex min-h-11 items-center font-semibold text-foreground no-underline;
+}
+
+.guide-path-title:hover {
+  @apply text-primary;
+}
+
+.guide-path-progress {
+  @apply flex flex-col gap-2 text-xs text-muted-foreground;
+}
+
+.guide-path-track {
+  @apply block h-1.5 w-full overflow-hidden rounded-full;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.guide-path-fill {
+  @apply block h-full rounded-full bg-primary;
+}
+
+.guide-path-list {
+  @apply m-0 flex list-none flex-col gap-1 p-0;
+}
+
+.guide-path-link {
+  @apply flex min-h-11 items-start gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground no-underline;
+  line-height: var(--leading-snug);
+  transition:
+    color var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.guide-path-link:hover {
+  @apply text-foreground;
+}
+
+.guide-path-link[aria-current='page'] {
+  @apply font-semibold text-primary;
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.guide-path-number {
+  @apply mt-px inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold;
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.guide-path-link[data-done] .guide-path-number {
+  @apply bg-primary text-primary-foreground;
+  box-shadow: none;
+}
+
+.guide-path-link[aria-current='page'] .guide-path-number {
+  @apply text-primary;
+  box-shadow: var(--shadow-neu-inset-sm);
+}

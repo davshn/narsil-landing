@@ -1,11 +1,91 @@
 @reference '../styles/global.css';
 
+.guide-shell {
+  --guide-rail-top: 6rem;
+  @apply mx-auto grid w-full gap-10 px-4 py-10 sm:px-6 lg:py-14;
+  max-width: 88rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .guide-shell[data-has-path] {
+    grid-template-columns: 15rem minmax(0, 46rem);
+    justify-content: center;
+    gap: var(--spacing-12);
+  }
+}
+
+@media (min-width: 1280px) {
+  .guide-shell[data-has-path][data-has-toc] {
+    grid-template-columns: 15rem minmax(0, 46rem) 13rem;
+  }
+
+  .guide-shell[data-has-toc]:not([data-has-path]) {
+    grid-template-columns: minmax(0, 46rem) 13rem;
+    justify-content: center;
+    gap: var(--spacing-12);
+  }
+}
+
+.guide-rail {
+  @apply hidden;
+}
+
+.guide-rail > nav {
+  @apply sticky overflow-y-auto pb-6;
+  top: var(--guide-rail-top);
+  max-height: calc(100vh - var(--guide-rail-top) - var(--spacing-4));
+}
+
+@media (min-width: 1024px) {
+  .guide-rail-path {
+    @apply block;
+  }
+
+  .guide-disclosure-path {
+    @apply hidden;
+  }
+}
+
+@media (min-width: 1280px) {
+  .guide-rail-toc {
+    @apply block;
+  }
+
+  .guide-disclosure-toc {
+    @apply hidden;
+  }
+}
+
+.guide-rail-title {
+  @apply mb-3 text-xs font-semibold uppercase text-muted-foreground;
+  letter-spacing: var(--tracking-wide);
+}
+
+.guide-main {
+  @apply flex min-w-0 flex-col gap-10;
+}
+
+.guide-header {
+  @apply flex flex-col gap-4;
+}
+
+.guide-title {
+  @apply text-3xl font-bold tracking-tight sm:text-4xl;
+  line-height: var(--leading-tight);
+  overflow-wrap: break-word;
+}
+
+.guide-lead {
+  @apply text-lg;
+}
+
 .guide-meta {
-  @apply flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground;
+  @apply flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground;
 }
 
 .guide-breadcrumb ol {
-  @apply flex flex-wrap items-center gap-2 text-sm text-muted-foreground;
+  @apply m-0 flex list-none flex-wrap items-center gap-x-2 p-0 text-sm text-muted-foreground;
 }
 
 .guide-breadcrumb li + li::before {
@@ -14,41 +94,108 @@
 }
 
 .guide-breadcrumb a {
-  @apply text-primary underline underline-offset-4;
+  @apply inline-flex min-h-8 items-center text-primary underline underline-offset-4;
+}
+
+.guide-disclosures {
+  @apply flex flex-col gap-3;
+}
+
+@media (min-width: 1024px) {
+  .guide-shell[data-has-path]:not([data-has-toc]) .guide-disclosures {
+    @apply hidden;
+  }
+}
+
+@media (min-width: 1280px) {
+  .guide-shell[data-has-toc] .guide-disclosures {
+    @apply hidden;
+  }
+}
+
+.guide-disclosure {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-sm);
+}
+
+.guide-disclosure > summary {
+  @apply flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 font-semibold;
+}
+
+.guide-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.guide-disclosure > summary::after {
+  content: '';
+  @apply h-2 w-2 shrink-0 border-b-2 border-r-2 border-current;
+  transform: rotate(45deg);
+  transition: transform var(--duration-fast) var(--ease-default);
+}
+
+.guide-disclosure[open] > summary::after {
+  transform: rotate(-135deg);
+}
+
+.guide-disclosure > summary:focus-visible {
+  @apply rounded-lg outline-2 outline-offset-2 outline-ring;
+}
+
+.guide-disclosure-hint {
+  @apply ml-auto text-sm font-normal text-muted-foreground;
+}
+
+.guide-disclosure > :not(summary) {
+  @apply px-4 pb-4;
 }
 
 .guide-prose {
-  @apply flex flex-col gap-4 text-foreground leading-relaxed;
+  @apply flex flex-col gap-5 text-foreground;
+  line-height: var(--leading-relaxed);
+}
+
+.guide-prose > p,
+.guide-prose > ul,
+.guide-prose > ol,
+.guide-prose > blockquote {
+  max-width: 70ch;
 }
 
 .guide-prose h2 {
-  @apply mt-8 text-2xl font-bold tracking-tight;
+  @apply mt-10 text-2xl font-bold tracking-tight;
+  line-height: var(--leading-snug);
+  scroll-margin-top: var(--guide-rail-top);
 }
 
 .guide-prose h3 {
   @apply mt-4 text-xl font-semibold;
+  line-height: var(--leading-snug);
+  scroll-margin-top: var(--guide-rail-top);
 }
 
 .guide-prose a {
   @apply text-primary underline underline-offset-4;
+  overflow-wrap: anywhere;
 }
 
 .guide-prose ul {
-  @apply list-disc pl-6 flex flex-col gap-1;
+  @apply flex list-disc flex-col gap-2 pl-6;
 }
 
 .guide-prose ol {
-  @apply list-decimal pl-6 flex flex-col gap-1;
+  @apply flex list-decimal flex-col gap-2 pl-6;
 }
 
 .guide-prose :not(pre) > code {
   @apply rounded-sm bg-muted px-1 py-0.5 text-sm;
   font-family: var(--font-mono);
+  overflow-wrap: anywhere;
 }
 
 .guide-prose pre {
-  @apply overflow-x-auto rounded-lg p-4 text-sm;
+  @apply max-w-full overflow-x-auto rounded-lg p-4 text-sm;
   font-family: var(--font-mono);
+  line-height: var(--leading-normal);
 }
 
 .guide-prose pre:focus-visible {
@@ -60,12 +207,13 @@
 }
 
 .guide-prose table {
-  @apply w-full border-collapse text-sm;
+  @apply block w-full max-w-full overflow-x-auto border-collapse text-sm;
 }
 
 .guide-prose th,
 .guide-prose td {
   @apply border border-border px-3 py-2 text-left align-top;
+  min-width: 8rem;
 }
 
 .dark .guide-prose .astro-code,
@@ -74,12 +222,33 @@
   background-color: var(--shiki-dark-bg) !important;
 }
 
+.guide-sources {
+  @apply flex flex-col gap-3;
+}
+
+.guide-section-title {
+  @apply text-2xl font-bold tracking-tight;
+}
+
+.guide-sources-list {
+  @apply m-0 flex list-none flex-col gap-1 p-0;
+}
+
+.guide-sources-list a {
+  @apply inline-flex min-h-8 items-center text-primary underline underline-offset-4;
+  overflow-wrap: anywhere;
+}
+
+.guide-pager-nav {
+  @apply flex flex-col gap-4;
+}
+
 .guide-pager {
   @apply grid gap-4 sm:grid-cols-2;
 }
 
 .guide-pager .card {
-  @apply no-underline;
+  @apply h-full no-underline;
 }
 
 .guide-pager .card:focus-visible {
@@ -91,5 +260,18 @@
 }
 
 .guide-pager-label {
-  @apply text-sm text-muted-foreground;
+  @apply block text-sm text-muted-foreground;
+}
+
+.guide-pager-title {
+  @apply mt-1 block text-lg font-semibold;
+  line-height: var(--leading-snug);
+}
+
+.guide-back-link {
+  @apply inline-flex min-h-11 items-center self-start text-primary underline underline-offset-4;
+}
+
+.guide-prose > :first-child {
+  margin-top: 0;
 }
