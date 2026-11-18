@@ -7,7 +7,13 @@
         "http://localhost/es/",
         "http://localhost/en/support/",
         "http://localhost/en/mods/",
-        "http://localhost/en/mods/what-is-a-mod/"
+        "http://localhost/en/mods/what-is-a-mod/",
+        "http://localhost/en/mods/pet/states/",
+        "http://localhost/en/mods/check/side-panel/",
+        "http://localhost/en/bot/",
+        "http://localhost/en/bot/claude-brain/",
+        "http://localhost/en/tools/",
+        "http://localhost/en/tools/priority/"
       ],
       "numberOfRuns": 5,
       "settings": {
