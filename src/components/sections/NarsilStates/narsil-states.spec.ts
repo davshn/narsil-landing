@@ -38,8 +38,36 @@ describe('NarsilStates', () => {
       props: { title: 'States', subtitle: 'At a glance', states },
     })
 
-    expect(without.querySelector('.section-description')).toBeNull()
-    expect(withIt.querySelector('.section-description')?.textContent).toBe('At a glance')
-    expect(withIt.querySelector('h2')?.textContent).toBe('States')
+    expect(without.querySelector('.narsil-states-subtitle')).toBeNull()
+    expect(withIt.querySelector('.narsil-states-subtitle')?.textContent).toBe('At a glance')
+    expect(withIt.querySelector('h2')?.textContent.trim()).toBe('States')
+  })
+
+  it('renders the intro beside the states only when it has paragraphs', async () => {
+    const without = await render(NarsilStates, { props: { title: 'States', states } })
+    const withIt = await render(NarsilStates, {
+      props: {
+        title: 'States',
+        introTitle: 'What is Narsil?',
+        intro: ['A pet above the prompt.', 'Built step by step.'],
+        states,
+      },
+    })
+
+    expect(without.querySelector('.narsil-states-intro')).toBeNull()
+    expect(withIt.querySelector('.narsil-states-intro h2')?.textContent).toBe('What is Narsil?')
+    expect(
+      [...withIt.querySelectorAll('.narsil-states-paragraph')].map((p) => p.textContent),
+    ).toEqual(['A pet above the prompt.', 'Built step by step.'])
+  })
+
+  it('makes the row of poses a named, focusable region so it scrolls by keyboard', async () => {
+    const host = await render(NarsilStates, { props: { title: 'States', states } })
+    const region = host.querySelector('.narsil-states-scroller')
+
+    expect(region?.getAttribute('role')).toBe('region')
+    expect(region?.getAttribute('tabindex')).toBe('0')
+    expect(region?.getAttribute('aria-labelledby')).toBe('narsil-states-title')
+    expect(host.querySelector('#narsil-states-title')?.textContent.trim()).toBe('States')
   })
 })

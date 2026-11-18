@@ -16,24 +16,51 @@ interface NarsilState {
 interface Props {
   title: string
   subtitle?: string
+  intro?: string[]
+  introTitle?: string
   states: NarsilState[]
 }
 
-const { title, subtitle, states } = Astro.props
+const { title, subtitle, intro = [], introTitle, states } = Astro.props
 ---
 
 <section class="narsil-states section-shell">
-  <div class="narsil-states-header">
-    <h2 class="section-title">{title}</h2>
-    {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+  <div class="narsil-states-layout">
+    {intro.length > 0 && (
+      <div class="narsil-states-intro">
+        {introTitle !== undefined && introTitle !== '' && (
+          <h2 class="section-title">{introTitle}</h2>
+        )}
+        {intro.map((paragraph) => (
+          <p class="narsil-states-paragraph">{paragraph}</p>
+        ))}
+      </div>
+    )}
+    <div class="narsil-states-main">
+      <div class="narsil-states-header">
+        <h2 id="narsil-states-title" class="narsil-states-title">
+          {title}
+        </h2>
+        {subtitle !== undefined && subtitle !== '' && (
+          <p class="narsil-states-subtitle">{subtitle}</p>
+        )}
+      </div>
+      <div
+        class="narsil-states-scroller"
+        role="region"
+        aria-labelledby="narsil-states-title"
+        tabindex="0"
+      >
+        <ul class="narsil-states-grid">
+          {states.map((state) => (
+            <li class={`narsil-state narsil-state-${state.tone}`}>
+              <NarsilSprite pose={state.pose} alt="" />
+              <p class="narsil-state-label">{state.label}</p>
+              <p class="narsil-state-text">{state.text}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
   </div>
-  <ul class="narsil-states-grid">
-    {states.map((state) => (
-      <li class={`narsil-state narsil-state-${state.tone}`}>
-        <NarsilSprite pose={state.pose} alt="" />
-        <p class="narsil-state-label">{state.label}</p>
-        <p class="narsil-state-text">{state.text}</p>
-      </li>
-    ))}
-  </ul>
 </section>

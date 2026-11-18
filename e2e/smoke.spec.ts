@@ -17,7 +17,7 @@ test.describe('Landing page smoke tests', () => {
       await expect(page).toHaveTitle(t.meta.title)
       await expect(page.locator('html')).toHaveAttribute('lang', languageTags[locale])
       await expect(page.getByRole('heading', { level: 1, name: t.home.headline })).toBeVisible()
-      await expect(page.locator('#routes .features-title')).toHaveText(t.home.routesTitle)
+      await expect(page.locator('#routes h2')).toHaveText(t.home.routesTitle)
       const extension = page.locator('[data-extension]')
       await expect(extension).toContainText(t.home.extension.badge)
       await expect(extension.getByRole('heading', { name: t.home.extension.title })).toBeVisible()

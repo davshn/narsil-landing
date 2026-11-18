@@ -1,7 +1,7 @@
 ---
-import Features from '@components/sections/Features/Features.astro'
 import Hero from '@components/sections/Hero/Hero.astro'
 import NarsilStates from '@components/sections/NarsilStates/NarsilStates.astro'
+import PathCards from '@components/sections/PathCards/PathCards.astro'
 import Showcase from '@components/sections/Showcase/Showcase.astro'
 import Badge from '@components/ui/Badge/Badge.astro'
 import Button from '@components/ui/Button/Button.astro'
@@ -15,7 +15,9 @@ import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
-import { routeHref } from '@utils/guides'
+import { guideRefs } from '@content/guide-pages'
+import { guidesFor, routeHref } from '@utils/guides'
+import { fillTemplate } from '@utils/template'
 
 import checkDark from '../../assets/screens/check-oscuro.png'
 import checkLight from '../../assets/screens/check-claro.png'
@@ -34,6 +36,17 @@ const t = useTranslations(locale)
 const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
 
 const [working, waiting, done, failed] = t.home.states.items
+const refs = await guideRefs()
+const pathKeys = ['pet', 'check', 'bot'] as const
+const paths = t.home.routes.map((route, index) => {
+  const key = pathKeys[index]
+  const count = guidesFor(refs, locale, key).length
+  return {
+    ...route,
+    href: routeHref(locale, key),
+    meta: count > 0 ? fillTemplate(t.guide.guideCount, { count }) : undefined,
+  }
+})
 const [overlayCopy, checkCopy, claudeCopy] = t.home.showcase.items
 const { detailAlt: claudeBandAlt = '', ...claudeMenuCopy } = claudeCopy
 
@@ -69,16 +82,16 @@ const jsonLd = [
     <NarsilSprite slot="media" pose="hola" size="lg" alt={t.home.heroAlt} framed />
   </Hero>
 
-  <Container as="section" maxWidth="md" padding="section">
-    <h2 class="section-title mb-6">{t.home.aboutTitle}</h2>
-    <div class="flex flex-col gap-4">
-      {t.home.about.map((paragraph) => (
-        <Text as="p">{paragraph}</Text>
-      ))}
-    </div>
-  </Container>
+  <PathCards
+    id="routes"
+    title={t.home.routesTitle}
+    subtitle={t.home.routesSubtitle}
+    paths={paths}
+  />
 
   <NarsilStates
+    introTitle={t.home.aboutTitle}
+    intro={t.home.about}
     title={t.home.states.title}
     subtitle={t.home.states.subtitle}
     states={[
@@ -121,49 +134,34 @@ const jsonLd = [
     ]}
   />
 
-  <div id="routes">
-    <Features
-      title={t.home.routesTitle}
-      subtitle={t.home.routesSubtitle}
-      features={t.home.routes.map((route, index) =>
-        index === 0
-          ? { ...route, href: routeHref(locale, 'pet') }
-          : index === 1
-            ? { ...route, href: routeHref(locale, 'check') }
-            : index === 2
-              ? { ...route, href: routeHref(locale, 'bot') }
-              : route,
-      )}
-      columns={3}
-    />
-  </div>
-
-  <Container as="section" maxWidth="md" padding="section">
-    <Card variant="outlined">
-      <CardBody class="flex flex-col items-start gap-3">
-        <div data-extension class="contents">
-          <Badge color="warning">{t.home.extension.badge}</Badge>
-          <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
-          <Text as="p">{t.home.extension.text}</Text>
-          <Text as="p" size="sm" tone="muted">
-            {t.home.extension.note}
-          </Text>
-        </div>
-      </CardBody>
-    </Card>
-  </Container>
-
-  {donation !== undefined && (
-    <Container as="section" maxWidth="md" padding="section">
-      <Card>
-        <CardBody class="flex flex-col items-start gap-4">
-          <h2 class="section-title">{t.home.coffeeTitle}</h2>
-          <Text as="p">{t.home.coffeeText}</Text>
-          <Button href={donation.url} target="_blank" rel="noopener" data-donate>
-            {t.home.coffeeCta}
-          </Button>
+  <div class="home-extras">
+    <section class="home-extras-item">
+      <Card variant="outlined">
+        <CardBody class="flex flex-col items-start gap-3">
+          <div data-extension class="contents">
+            <Badge color="warning">{t.home.extension.badge}</Badge>
+            <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
+            <Text as="p">{t.home.extension.text}</Text>
+            <Text as="p" size="sm" tone="muted">
+              {t.home.extension.note}
+            </Text>
+          </div>
         </CardBody>
       </Card>
-    </Container>
-  )}
+    </section>
+
+    {donation !== undefined && (
+      <section class="home-extras-item">
+        <Card>
+          <CardBody class="flex flex-col items-start gap-4">
+            <h2 class="text-2xl font-bold tracking-tight">{t.home.coffeeTitle}</h2>
+            <Text as="p">{t.home.coffeeText}</Text>
+            <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+              {t.home.coffeeCta}
+            </Button>
+          </CardBody>
+        </Card>
+      </section>
+    )}
+  </div>
 </SiteLayout>

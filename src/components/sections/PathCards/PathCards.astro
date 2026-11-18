@@ -1,0 +1,52 @@
+---
+import { Icon } from 'astro-icon/components'
+
+import './path-cards.css'
+
+interface PathCard {
+  title: string
+  description: string
+  icon: string
+  href: string
+  meta?: string
+}
+
+interface Props {
+  id?: string
+  title: string
+  subtitle?: string
+  paths: PathCard[]
+}
+
+const { id, title, subtitle, paths } = Astro.props
+---
+
+<section class="path-cards section-shell" id={id} aria-labelledby="path-cards-title">
+  <div class="path-cards-header">
+    <h2 id="path-cards-title" class="section-title">
+      {title}
+    </h2>
+    {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+  </div>
+  <ol class="path-cards-grid">
+    {paths.map((path, index) => (
+      <li class="path-card">
+        <div class="path-card-top">
+          <span class="path-card-icon">
+            <Icon name={path.icon} class="size-6" aria-hidden="true" />
+          </span>
+          <span class="path-card-index" aria-hidden="true">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        </div>
+        <h3 class="path-card-title">
+          <a class="path-card-link" href={path.href}>
+            {path.title}
+          </a>
+        </h3>
+        <p class="path-card-description">{path.description}</p>
+        {path.meta !== undefined && path.meta !== '' && <p class="path-card-meta">{path.meta}</p>}
+      </li>
+    ))}
+  </ol>
+</section>

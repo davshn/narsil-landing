@@ -76,7 +76,8 @@ export const en: TranslationShape = {
       'Here you will not just install them. Each guide explains which hooks a feature listens to, what state it keeps, and what it draws, and then builds a minimal version that works, with its tests.',
     ],
     routesTitle: 'Three learning paths',
-    routesSubtitle: 'The guides are on their way. Each path starts with the basics of a mod.',
+    routesSubtitle:
+      'Pick a path and follow its guides in order. If you have never built a mod, start with the mod fundamentals.',
     routes: [
       {
         title: 'Your own status pet',
