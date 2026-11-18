@@ -66,7 +66,11 @@ const jsonLd = [
       title={t.home.routesTitle}
       subtitle={t.home.routesSubtitle}
       features={t.home.routes.map((route, index) =>
-        index === 0 ? { ...route, href: routeHref(locale, 'pet') } : route,
+        index === 0
+          ? { ...route, href: routeHref(locale, 'pet') }
+          : index === 1
+            ? { ...route, href: routeHref(locale, 'check') }
+            : route,
       )}
       columns={3}
     />

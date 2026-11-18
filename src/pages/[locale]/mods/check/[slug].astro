@@ -1,0 +1,12 @@
+---
+import { guideStaticPaths, type GuidePageProps, type GuideStaticPath } from '@content/guide-pages'
+import GuidePage from '@layouts/GuidePage.astro'
+
+type Props = GuidePageProps
+
+export async function getStaticPaths(): Promise<GuideStaticPath[]> {
+  return guideStaticPaths('check')
+}
+---
+
+<GuidePage {...Astro.props} />

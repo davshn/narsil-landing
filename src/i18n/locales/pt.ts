@@ -91,6 +91,17 @@ export const pt: TranslationShape = {
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
   },
+  check: {
+    title: 'Seu próprio painel de revisão',
+    description:
+      'Crie um mod como o Narsil Check, funcionalidade por funcionalidade: o que cada uma faz, como funciona por dentro, como foi pedida à IA e o código mínimo para torná-la sua.',
+    intro: [
+      'O Narsil Check é um painel lateral que revisa sua sessão antes de entregar: ambiente, conectores, CI, branch atrás da remota, atualizações agrupadas por risco, vulnerabilidades e uma lista de pendências que o Claude pode usar. Cada guia explica uma de suas funcionalidades, as decisões de design por trás dela e o pedido que deu início a ela.',
+      'Quando o pedido original ficou registrado, o guia o cita palavra por palavra. Quando não, o guia avisa e o reconstrói a partir do histórico de commits.',
+    ],
+    listTitle: 'Os guias',
+    startCta: 'Comece o primeiro guia',
+  },
   guide: {
     breadcrumbLabel: 'Trilha de navegação',
     stepOf: 'Guia {current} de {total}',

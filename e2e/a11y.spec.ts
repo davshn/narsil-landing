@@ -21,6 +21,8 @@ const PATHS = [
   '/en/mods/pet/tips-with-haiku/',
   '/en/mods/pet/phone-and-watch/',
   '/en/mods/pet/your-commands/',
+  '/en/mods/check/',
+  '/en/mods/check/side-panel/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

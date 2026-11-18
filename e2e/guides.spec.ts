@@ -136,3 +136,48 @@ test.describe('Status pet path', () => {
     })
   }
 })
+
+const CHECK_GUIDES = ['side-panel', 'session-environment', 'connectors', 'pr-ci']
+
+test.describe('Review panel path', () => {
+  for (const locale of locales) {
+    const t = useTranslations(locale)
+
+    test(`/${locale}/mods/check/ lists the check guides in order`, async ({ page }) => {
+      await page.goto(`/${locale}/mods/check/`)
+      await expect(page.getByRole('heading', { level: 1, name: t.check.title })).toBeVisible()
+      const hrefs = await page
+        .locator('[data-guide-list] a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+      expect(hrefs).toEqual(CHECK_GUIDES.map((slug) => `/${locale}/mods/check/${slug}/`))
+    })
+
+    test(`/${locale}/ links the second learning path to the check path`, async ({ page }) => {
+      await page.goto(`/${locale}/`)
+      await page.locator('#routes .features-item-link').nth(1).click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/mods/check/$`, 'v'))
+    })
+  }
+
+  for (const slug of CHECK_GUIDES) {
+    test(`/en/mods/check/${slug}/ follows the path template`, async ({ page }) => {
+      await page.goto(`/en/mods/check/${slug}/`)
+      await expect(page.locator('[data-guide-body] > h2')).toHaveText([
+        'What it does',
+        'How it works inside',
+        'How it was asked of the AI',
+        'The minimal code',
+        'Common mistakes and how to test it',
+        'Going further',
+      ])
+      await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute(
+        'href',
+        '/en/mods/check/',
+      )
+      await expect(page.locator('[data-guide-sources] a').first()).toHaveAttribute(
+        'href',
+        /^https:\/\/github\.com\/davshn\/narsil-check\/blob\/main\//v,
+      )
+    })
+  }
+})
