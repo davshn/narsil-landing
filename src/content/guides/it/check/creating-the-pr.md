@@ -3,7 +3,7 @@ title: Creare la PR
 description: 'Come Narsil Check trasforma i manifest aggiornati in un commit, un branch chore/upgrade-deps e una pull request aperta con gh, e poi ti riporta al branch principale.'
 route: check
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -101,11 +101,31 @@ I tipi della 2.1.325 dicono di `$.process.run`: "Git runs with repo hooks off" (
 
 Il commento sopra `publish` dice ancora "A commit of package.json and its lockfile alone" (un commit solo di package.json e del suo lockfile), dai tempi in cui la mod conosceva solo npm. Il codice fa il commit dei manifest e dei lockfile di ogni ecosistema con modifiche, come dice il README.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un pulsante che trasformi le modifiche alle dipendenze sul disco in un commit e, sul branch predefinito, in una pull request. L'unica idea che deve fare bene è che il commit contiene solo i file delle dipendenze: sono indicati dopo `--`, così il resto del tuo lavoro in corso resta fuori.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, aggiungi un pulsante che trasforma le modifiche alle dipendenze di `package.json` in una pull request. Prima confronta gli intervalli delle dipendenze di `git show HEAD:package.json` con il file sul disco, ed elenca quelli cambiati; mostra il pulsante solo quando ce ne sono. Alla pressione, con `$.process.run` e senza shell: fermati con un messaggio chiaro su un HEAD staccato; se il branch corrente non è quello predefinito (da `git symbolic-ref --short refs/remotes/origin/HEAD`, altrimenti `main` o `master`), fai commit e push su di esso e fermati lì. Sul branch predefinito, crea `chore/upgrade-deps-YYYY-MM-DD` (aggiungi `-HHMM` se quel branch esiste), esegui `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>`, e `gh pr create --base <default> --head <branch> --title … --body …` con una tabella delle modifiche e un piano di test. Poi torna indietro con `git switch` e dillo; se il cambio fallisce, resta e mostra l'errore di git. Nomina il passo che fallisce in ogni errore. Ignora una seconda pressione mentre è in esecuzione. Testalo rispondendo a `process.run` nei test e controllando l'argv esatto di ogni comando, in ordine.
+
+### Cosa controllare nella risposta di Claude
+
+1. Le modifiche in sospeso vengono dal confronto tra gli intervalli delle dipendenze di `git show HEAD:package.json` e il file sul disco, così una modifica a `scripts` non propone una PR.
+2. Il branch predefinito viene da `git symbolic-ref --short refs/remotes/origin/HEAD`, con `main` o `master` solo quando origin non ne indica nessuno. Su qualsiasi altro branch il pulsante fa commit e push lì, e si ferma.
+3. Il commit indica i suoi file, come in `git commit -m … -m … -- package.json package-lock.json`, mai con `git commit -a` o con un `git commit` senza file.
+4. Dopo `gh pr create`, il pulsante esegue `git switch` per tornare al branch predefinito. Quando il cambio fallisce, resta sul nuovo branch e mostra l'errore di git.
+5. Ogni errore indica il passo che è fallito, e una seconda pressione mentre il lavoro è in corso non fa nulla.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la PR include un file che stavo ancora modificando, non solo package.json e il suo lockfile".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per questa funzionalità non è stata registrata. Il pulsante è già nel primo commit, e nessun log di task pubblico ne copre la creazione. Un log di task successivo lo nomina, con le parole dell'agente.
 
-### Registrato in un log di task
+#### Registrato in un log di task
 
 `odd/tasks/ecosystems-wave-4.md`, che aggiunge i pacchetti Swift, elenca come spec S2 cosa doveva continuare a funzionare. Questa è la spec dell'agente, non le parole dell'autore:
 
@@ -113,7 +133,7 @@ La richiesta originale per questa funzionalità non è stata registrata. Il puls
 
 In italiano: "Tutto ciò che hanno costruito le ondate precedenti continua a funzionare per SwiftPM: il raggruppamento, il pulsante di aggiornamento, i motivi di Haiku, i pulsanti di copia, il pulsante commit/push/PR e la regola di apertura automatica."
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/git.ts` e `git log -S` su `hooks/register.tsx` in narsil-check:
 
@@ -123,13 +143,9 @@ Da `git log -- hooks/git.ts` e `git log -S` su `hooks/register.tsx` in narsil-ch
 
 Il design non è cambiato molto. Ciò che è cambiato è dove ti ritrovi dopo.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, aggiungi un pulsante che trasforma le modifiche alle dipendenze di `package.json` in una pull request. Prima confronta gli intervalli delle dipendenze di `git show HEAD:package.json` con il file sul disco, ed elenca quelli cambiati; mostra il pulsante solo quando ce ne sono. Alla pressione, con `$.process.run` e senza shell: fermati con un messaggio chiaro su un HEAD staccato; se il branch corrente non è quello predefinito (da `git symbolic-ref --short refs/remotes/origin/HEAD`, altrimenti `main` o `master`), fai commit e push su di esso e fermati lì. Sul branch predefinito, crea `chore/upgrade-deps-YYYY-MM-DD` (aggiungi `-HHMM` se quel branch esiste), esegui `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>`, e `gh pr create --base <default> --head <branch> --title … --body …` con una tabella delle modifiche e un piano di test. Poi torna indietro con `git switch` e dillo; se il cambio fallisce, resta e mostra l'errore di git. Nomina il passo che fallisce in ogni errore. Ignora una seconda pressione mentre è in esecuzione. Testalo rispondendo a `process.run` nei test e controllando l'argv esatto di ogni comando, in ordine.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325 (`$.process.run`, `$.ui.toast`). È adattata da `hooks/git.ts` e da `publish` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Gestisce solo il branch predefinito, e riceve i file e le modifiche come già trovati.
 

@@ -3,7 +3,7 @@ title: Versioni fissate apposta
 description: 'Come Narsil Check legge un commento come "# pinned: 3.7 breaks auth" in un manifest e tiene quella libreria fuori dal pulsante di aggiornamento, con il commento come motivo.'
 route: check
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -105,11 +105,31 @@ Due ecosistemi hanno un loro modo di dire "questa versione esatta", e la mod tra
 
 Il codice e i commit non registrano perché il blocco stia nei commenti del manifest invece che in un elenco proprio della mod. Leggendo il design: il commento è già dove le persone scrivono decisioni del genere, viaggia con il repository verso chiunque nel team, e porta il suo motivo, che è esattamente ciò che la riga bloccata deve mostrare. Un elenco salvato dalla mod vivrebbe su una sola macchina e non direbbe niente sul perché. Questo ragionamento è un'interpretazione, non una decisione registrata.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude una funzione pura che trovi un commento di blocco accanto alla versione di una dipendenza e blocchi quell'aggiornamento con il commento come motivo. L'unica idea che deve fare bene è quale commento appartiene a quale dipendenza.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, che elenca le dipendenze non aggiornate da `Cargo.toml` e `pyproject.toml`, blocca qualsiasi dipendenza la cui versione sia tenuta apposta da un commento. Scrivi una funzione pura `holdNote(files, keys, spec)`: per ogni riga che contiene la versione `spec` e nomina una delle `keys` come nome intero, leggi il commento dopo `#`, `//` o `<!--` su quella riga, o sulla riga sopra solo quando quella riga è un commento da sola, e restituiscilo quando contiene una parola di blocco (pin, pinned, hold, keep, freeze, "do not upgrade", e gli spagnoli fijar, fijado, congelado, "no actualizar"), riconoscendo parole intere e ignorando le maiuscole. Metti una dipendenza bloccata nel gruppo `blocked` con il motivo "Fissata apposta: «commento»", e tienila fuori dal pulsante "Aggiorna tutto". Salta `package.json`, che non ha commenti. Testa che un commento in coda sulla riga sopra non conti, che la riga di un'altra dipendenza con la stessa versione non conti, e che un commento senza parola di blocco non blocchi.
+
+### Cosa controllare nella risposta di Claude
+
+1. La riga deve contenere la versione così come è scritta e nominare la dipendenza come nome intero, così un'altra libreria con la stessa versione, o `kotlin` dentro `kotlinx`, non conta.
+2. Un commento sulla riga sopra conta solo quando quella riga è soltanto un commento. Un commento in fondo alla riga sopra appartiene a un'altra dichiarazione.
+3. Le parole di blocco valgono solo come parole intere e ignorano maiuscole e minuscole, e un commento senza una parola di blocco, come `# the DI library`, non blocca.
+4. Una dipendenza trattenuta finisce nel gruppo bloccato con il commento come motivo, e il pulsante "Aggiorna tutto" non la prende mai.
+5. `package.json` viene saltato, perché JSON non ha commenti.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "Kotlin è bloccato da un commento "pin" scritto sulla riga di kotlinx-coroutines".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per questa funzionalità non è stata registrata: nessun log di task pubblico in narsil-check la copre. Quella che segue è una ricostruzione.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -S holdNote` e `git log -S lockConflicts` in narsil-check:
 
@@ -118,13 +138,9 @@ Da `git log -S holdNote` e `git log -S lockConflicts` in narsil-check:
 
 Il commit abbina il controllo dei commenti alla regola dei plugin del compilatore di Kotlin, e il file di test che copre entrambi è `tests/holds.test.tsx`. I due condividono un'idea: alcuni aggiornamenti sembrano banali dal numero e non lo sono, e il motivo va mostrato a parole.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, che elenca le dipendenze non aggiornate da `Cargo.toml` e `pyproject.toml`, blocca qualsiasi dipendenza la cui versione sia tenuta apposta da un commento. Scrivi una funzione pura `holdNote(files, keys, spec)`: per ogni riga che contiene la versione `spec` e nomina una delle `keys` come nome intero, leggi il commento dopo `#`, `//` o `<!--` su quella riga, o sulla riga sopra solo quando quella riga è un commento da sola, e restituiscilo quando contiene una parola di blocco (pin, pinned, hold, keep, freeze, "do not upgrade", e gli spagnoli fijar, fijado, congelado, "no actualizar"), riconoscendo parole intere e ignorando le maiuscole. Metti una dipendenza bloccata nel gruppo `blocked` con il motivo "Fissata apposta: «commento»", e tienila fuori dal pulsante "Aggiorna tutto". Salta `package.json`, che non ha commenti. Testa che un commento in coda sulla riga sopra non conti, che la riga di un'altra dipendenza con la stessa versione non conti, e che un commento senza parola di blocco non blocchi.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida. È TypeScript semplice senza API della mod, adattato da `hooks/adapter.ts` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

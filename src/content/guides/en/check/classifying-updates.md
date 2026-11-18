@@ -3,7 +3,7 @@ title: Classifying updates
 description: 'How Narsil Check sorts every outdated library into Blocked, Major version, Version bump only or Outside the Expo SDK, and why registry answers are kept six hours.'
 route: check
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -135,11 +135,31 @@ Both are quoted from [narsil-check](https://github.com/davshn/narsil-check) (GPL
 
 **What is kept for good instead.** Some answers never change once a version is published, so the mod keeps them without a timer: a version's peer dependencies (`peers:<name>@<version>`), its publication date (`published:…`, only when it is a valid date) and Haiku's reading of a major (`why:…`).
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to sort every outdated library into a group that says what you should do with it. The one idea it must get right is that the jump and the decision are separate: `bump` says how far apart the versions are, `group` says what to do, and `blocked` is decided last.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, I have a list of outdated npm libraries, each with its installed and latest version. Sort them into groups: `blocked` (a list of reasons in words is not empty), `review` (a major jump), `bump` (a patch or minor). Write `bumpOf(from, to)` as a pure function: none, patch, minor or major, where below 1.0.0 a minor counts as major and below 0.1.0 a patch does too, as npm's caret ranges read them. Decide `blocked` last so it overrides the others. Draw the groups in the order blocked, review, bump, each with a foldable head `▾ Label (N)` and a hint line, and the reasons under a blocked row in red. Only the bump group gets an "Update all" button. Cache each registry answer in `$.store` under `npm:<name>` with the time, reuse it for six hours, and skip the cache when the person presses "Check again". Test `bumpOf` with 0.x cases and the cache with `mock.clock`.
+
+### What to check in Claude's answer
+
+1. `bumpOf` is a pure function that returns none, patch, minor or major, and a library with none is left out of the list.
+2. Below 1.0.0 a minor counts as major (`0.3.1 → 0.4.0`), and below 0.1.0 a patch does too (`0.0.3 → 0.0.4`).
+3. `blocked` is decided last, so an upgrade with any reason is blocked whatever its jump, and its reasons are printed under it in red.
+4. Only the `bump` group has the "Update all" button, and it never takes a library from another group.
+5. Each registry answer is kept in `$.store` under `npm:<name>` with the time, reused for six hours, and skipped when you press "Check again".
+
+If a check fails, tell Claude what you see: "a patch that a plugin refuses still shows in the bump group, and the button would install it".
+
+### How the author asked for it
 
 The original request for the four groups was not recorded: they are already in the first commit, and no public task log covers them. The reasons for **Bloqueada** grew later, and one of them is recorded in the author's words.
 
-### Recorded: the 24-hour wait in every ecosystem
+#### Recorded: the 24-hour wait in every ecosystem
 
 `odd/tasks/release-age-all-ecosystems.md`, log entry L1 (2026-11-06), quotes the author. The first message asked about frameworks other than Expo:
 
@@ -163,7 +183,7 @@ A correction came the same day. L7 quotes the author's question:
 
 In English: "what happens if a version always comes with an unreadable date? are we never going to update it?" The task log records the accepted proposal ("si hazlo asi", "yes, do it that way"): such a version waits 24 hours from when the mod first saw it. That fallback and the rest of the design are the agent's proposal, written in the log; the author's words are the question and the "si".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/semver.ts hooks/words.ts` and `git log -S` on the group labels, in narsil-check:
 
@@ -175,13 +195,9 @@ From `git log -- hooks/semver.ts hooks/words.ts` and `git log -S` on the group l
 
 The pattern: the groups were right from the start, and what changed was the meaning of **Bloqueada**, from "another dependency refuses it" to "anything we know makes it unsafe to raise alone".
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, I have a list of outdated npm libraries, each with its installed and latest version. Sort them into groups: `blocked` (a list of reasons in words is not empty), `review` (a major jump), `bump` (a patch or minor). Write `bumpOf(from, to)` as a pure function: none, patch, minor or major, where below 1.0.0 a minor counts as major and below 0.1.0 a patch does too, as npm's caret ranges read them. Decide `blocked` last so it overrides the others. Draw the groups in the order blocked, review, bump, each with a foldable head `▾ Label (N)` and a hint line, and the reasons under a blocked row in red. Only the bump group gets an "Update all" button. Cache each registry answer in `$.store` under `npm:<name>` with the time, reuse it for six hours, and skip the cache when the person presses "Check again". Test `bumpOf` with 0.x cases and the cache with `mock.clock`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/semver.ts`, `hooks/npm.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It leaves out Expo and the reasons themselves; `reasons` is whatever your checks found.
 

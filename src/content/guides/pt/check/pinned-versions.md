@@ -3,7 +3,7 @@ title: Versões fixadas de propósito
 description: 'Como o Narsil Check lê um comentário como "# pinned: 3.7 breaks auth" num manifest e deixa essa biblioteca fora do botão de atualização, com o comentário como motivo.'
 route: check
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -105,11 +105,31 @@ Dois ecossistemas têm a sua própria forma de dizer "esta versão exata", e o m
 
 O código e os commits não registram por que a retenção fica nos comentários do manifest e não numa lista própria do mod. Lendo o design: o comentário já é onde as pessoas escrevem esse tipo de decisão, ele viaja com o repositório para todos da equipe e carrega o seu motivo, que é exatamente o que a linha bloqueada precisa mostrar. Uma lista guardada pelo mod ficaria numa única máquina e não diria nada sobre o porquê. Esse raciocínio é uma interpretação, não uma decisão registrada.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude uma função pura que encontre um comentário de retenção ao lado da versão de uma dependência e bloqueie essa atualização com o comentário como motivo. A única ideia que ele precisa acertar é qual comentário pertence a qual dependência.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, que lista dependências desatualizadas de `Cargo.toml` e `pyproject.toml`, bloqueie qualquer dependência cuja versão seja mantida de propósito por um comentário. Escreva uma função pura `holdNote(files, keys, spec)`: para cada linha que contém a versão `spec` e menciona uma das `keys` como nome inteiro, leia o comentário depois de `#`, `//` ou `<!--` nessa linha, ou na linha de cima só quando essa linha for um comentário sozinho, e devolva-o quando ele contiver uma palavra de retenção (pin, pinned, hold, keep, freeze, "do not upgrade" e as espanholas fijar, fijado, congelado, "no actualizar"), reconhecendo palavras inteiras e ignorando maiúsculas e minúsculas. Coloque uma dependência retida no grupo `blocked` com o motivo "Fixada de propósito: «comentário»", e deixe-a fora do botão "Atualizar tudo". Pule `package.json`, que não tem comentários. Teste que um comentário no fim da linha de cima não conta, que a linha de outra dependência com a mesma versão não conta e que um comentário sem palavra de retenção não bloqueia.
+
+### O que conferir na resposta do Claude
+
+1. A linha precisa conter a versão como está escrita e nomear a dependência como nome inteiro, então outra biblioteca com a mesma versão, ou `kotlin` dentro de `kotlinx`, não conta.
+2. Um comentário na linha de cima só conta quando essa linha é um comentário sozinho. Um comentário no fim da linha de cima pertence a outra declaração.
+3. As palavras de retenção são reconhecidas como palavras inteiras, ignorando maiúsculas e minúsculas, e um comentário sem palavra de retenção, como `# the DI library`, não bloqueia.
+4. Uma dependência retida vai para o grupo bloqueado com o comentário como motivo, e o botão "Atualizar tudo" nunca a pega.
+5. `package.json` é pulado, já que JSON não tem comentários.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o Kotlin está bloqueado por um comentário "pin" escrito na linha do kotlinx-coroutines".
+
+### Como a pessoa autora pediu
 
 O pedido original deste recurso não foi registrado: nenhum registro de tarefas público do narsil-check o cobre. O que segue é uma reconstrução.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -S holdNote` e `git log -S lockConflicts` no narsil-check:
 
@@ -118,13 +138,9 @@ A partir de `git log -S holdNote` e `git log -S lockConflicts` no narsil-check:
 
 O commit junta a verificação de comentários com a regra dos plugins de compilador do Kotlin, e o arquivo de testes que cobre as duas é `tests/holds.test.tsx`. As duas compartilham uma ideia: algumas atualizações parecem triviais pelo número e não são, e o motivo deve ser mostrado em palavras.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, que lista dependências desatualizadas de `Cargo.toml` e `pyproject.toml`, bloqueie qualquer dependência cuja versão seja mantida de propósito por um comentário. Escreva uma função pura `holdNote(files, keys, spec)`: para cada linha que contém a versão `spec` e menciona uma das `keys` como nome inteiro, leia o comentário depois de `#`, `//` ou `<!--` nessa linha, ou na linha de cima só quando essa linha for um comentário sozinho, e devolva-o quando ele contiver uma palavra de retenção (pin, pinned, hold, keep, freeze, "do not upgrade" e as espanholas fijar, fijado, congelado, "no actualizar"), reconhecendo palavras inteiras e ignorando maiúsculas e minúsculas. Coloque uma dependência retida no grupo `blocked` com o motivo "Fixada de propósito: «comentário»", e deixe-a fora do botão "Atualizar tudo". Pule `package.json`, que não tem comentários. Teste que um comentário no fim da linha de cima não conta, que a linha de outra dependência com a mesma versão não conta e que um comentário sem palavra de retenção não bloqueia.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia. É TypeScript puro, sem API de mod, adaptado de `hooks/adapter.ts` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

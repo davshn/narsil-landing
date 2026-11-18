@@ -3,7 +3,7 @@ title: Les versions fixées exprès
 description: 'Comment Narsil Check lit un commentaire comme "# pinned: 3.7 breaks auth" dans un manifest et garde cette bibliothèque hors du bouton de mise à jour, avec le commentaire pour raison.'
 route: check
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -105,11 +105,31 @@ Deux écosystèmes ont leur propre façon de dire « cette version exacte », et
 
 Le code et les commits ne consignent pas pourquoi la retenue vit dans les commentaires du manifest plutôt que dans une liste propre au mod. En lisant la conception : le commentaire est déjà l’endroit où l’on écrit ce genre de décision, il voyage avec le dépôt jusqu’à chaque membre de l’équipe, et il porte sa raison, ce qui est exactement ce que la ligne bloquée doit montrer. Une liste stockée par le mod vivrait sur une seule machine et ne dirait rien du pourquoi. Ce raisonnement est une interprétation, pas une décision consignée.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une fonction pure qui trouve un commentaire de maintien à côté de la version d’une dépendance et bloque cette mise à jour avec le commentaire comme raison. L’idée que Claude doit bien saisir : quel commentaire appartient à quelle dépendance.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, qui liste les dépendances obsolètes de `Cargo.toml` et `pyproject.toml`, bloque toute dépendance dont la version est gardée exprès par un commentaire. Écris une fonction pure `holdNote(files, keys, spec)` : pour chaque ligne qui contient la version `spec` et mentionne l’une des `keys` comme nom entier, lis le commentaire après `#`, `//` ou `<!--` sur cette ligne, ou sur la ligne du dessus seulement quand cette ligne est un commentaire seul, et renvoie-le quand il contient un mot de retenue (pin, pinned, hold, keep, freeze, « do not upgrade », et les mots espagnols fijar, fijado, congelado, « no actualizar »), en reconnaissant des mots entiers et en ignorant la casse. Mets une dépendance retenue dans le groupe `blocked` avec la raison « Pinned on purpose: «comment» », et garde-la hors du bouton « Update all ». Ignore `package.json`, qui n’a pas de commentaires. Teste qu’un commentaire en fin de ligne sur la ligne du dessus ne compte pas, que la ligne d’une autre dépendance avec la même version ne compte pas, et qu’un commentaire sans mot de retenue ne bloque pas.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La ligne doit contenir la version telle qu’elle est écrite et nommer la dépendance comme un nom entier, si bien qu’une autre bibliothèque avec la même version, ou `kotlin` à l’intérieur de `kotlinx`, ne compte pas.
+2. Un commentaire sur la ligne du dessus ne compte que si cette ligne est un commentaire à elle seule. Un commentaire en fin de ligne sur la ligne du dessus appartient à une autre déclaration.
+3. Les mots de maintien correspondent à des mots entiers et ignorent la casse, et un commentaire sans mot de maintien, comme `# the DI library`, ne bloque pas.
+4. Une dépendance maintenue arrive dans le groupe bloqué avec le commentaire comme raison, et le bouton « Update all » ne la prend jamais.
+5. `package.json` est ignoré, puisque JSON n’a pas de commentaires.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « Kotlin est bloqué par un commentaire “pin” écrit sur la ligne de kotlinx-coroutines ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour cette fonctionnalité n’a pas été consignée : aucun journal de tâches public de narsil-check ne la couvre. Ce qui suit est une reconstitution.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -S holdNote` et de `git log -S lockConflicts` dans narsil-check :
 
@@ -118,13 +138,9 @@ La demande d’origine pour cette fonctionnalité n’a pas été consignée : a
 
 Le commit associe la vérification des commentaires à la règle des plugins de compilateur Kotlin, et le fichier de tests qui couvre les deux est `tests/holds.test.tsx`. Les deux partagent une idée : certaines mises à jour paraissent triviales par leur numéro et ne le sont pas, et la raison doit être montrée en mots.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, qui liste les dépendances obsolètes de `Cargo.toml` et `pyproject.toml`, bloque toute dépendance dont la version est gardée exprès par un commentaire. Écris une fonction pure `holdNote(files, keys, spec)` : pour chaque ligne qui contient la version `spec` et mentionne l’une des `keys` comme nom entier, lis le commentaire après `#`, `//` ou `<!--` sur cette ligne, ou sur la ligne du dessus seulement quand cette ligne est un commentaire seul, et renvoie-le quand il contient un mot de retenue (pin, pinned, hold, keep, freeze, « do not upgrade », et les mots espagnols fijar, fijado, congelado, « no actualizar »), en reconnaissant des mots entiers et en ignorant la casse. Mets une dépendance retenue dans le groupe `blocked` avec la raison « Pinned on purpose: «comment» », et garde-la hors du bouton « Update all ». Ignore `package.json`, qui n’a pas de commentaires. Teste qu’un commentaire en fin de ligne sur la ligne du dessus ne compte pas, que la ligne d’une autre dépendance avec la même version ne compte pas, et qu’un commentaire sans mot de retenue ne bloque pas.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide. C’est du TypeScript simple sans API de mod, adapté de `hooks/adapter.ts` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

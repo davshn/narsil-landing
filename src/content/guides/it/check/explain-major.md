@@ -3,7 +3,7 @@ title: Spiegare una versione major con Haiku
 description: 'Come Narsil Check chiede a Haiku quanto è difficile un aggiornamento major per questo progetto, dalle note di release e dalle righe che importano la libreria, e come evita che il modello inventi.'
 route: check
 order: 11
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -149,11 +149,31 @@ Le righe di import di solito sono innocue, ma sono il tuo codice. Una mod che le
 
 Il README dice "Si no hay release, se usa el `CHANGELOG.md` del paquete" ("Se non c'è una release, si usa il `CHANGELOG.md` del pacchetto"), senza limiti. Nel codice, quel ripiego è solo per npm, perché passa per unpkg.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di mandare a Haiku le note di rilascio di un aggiornamento major e le righe di import del progetto, e di mostrare quanto è difficile il salto. L'unica idea che deve fare bene è che Haiku risponde solo dalle prove che riceve, in una forma fissa che la mod può verificare.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, sotto ogni libreria npm con un aggiornamento major, mostra quanto è difficile il salto per questo progetto. Per ciascuna, trova il suo repository GitHub dal campo `repository` di `node_modules/<name>/package.json`, scarica con `$.http.fetch` le note di release dell'`x.0.0` di ogni nuova major (al massimo tre, tag `v<version>`, `<name>@<version>` o `<version>`), e tagliale a 12.000 caratteri. Trova le righe di import con `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, al massimo 40. Chiama `$.model.complete` con `model: 'haiku'`, `maxTokens: 400`, un `timeoutMs` di 60 secondi, e un system prompt che chieda esattamente `DIFFICULTY: low|medium|high` e `REASON:` in al massimo 280 caratteri, basandosi solo su ciò che riceve, senza mai inventare API, e dicendolo quando mancano le note. Accetta la risposta solo se entrambe le righe si leggono. Mettila in cache per sempre in `$.store` sotto `why:<name>@<from>-><to>`. Mostra "Analisi in corso…" mentre gira. Testa con `on('model.complete', ...)` che il prompt contenga le note e una riga di import, e che una risposta senza la forma mostri una riga di ripiego.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il messaggio inviato a `$.model.complete` contiene le note di rilascio delle versioni con modifiche incompatibili e le righe di import, tagliate ai loro limiti: 12.000 caratteri di note e al massimo 40 righe.
+2. Il system prompt dice al modello di basare la risposta solo su ciò che riceve, di non inventare mai API e di dirlo quando mancano le note.
+3. Una risposta viene accettata solo quando si possono analizzare sia la riga della difficoltà sia quella del motivo. Qualsiasi altra cosa mostra una riga di riserva e non viene salvata.
+4. Un motivo valido viene conservato in `$.store` sotto una chiave con il nome ed entrambe le versioni, così lo stesso salto non viene mai chiesto di nuovo. Uno fallito viene chiesto di nuovo alla scansione successiva.
+5. La scansione non aspetta i motivi: l'elenco compare subito, con "Analisi in corso…" sotto ogni major finché non arriva il suo motivo.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "Haiku nomina un'API che il mio progetto non importa mai, e il prompt non contiene righe di import".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per questa funzionalità non è stata registrata: è già nel primo commit, e nessun log di task pubblico ne copre la creazione. Un log di task successivo registra come è stata portata agli altri ecosistemi, con le parole dell'agente.
 
-### Registrato in un log di task
+#### Registrato in un log di task
 
 `odd/tasks/ecosystems-wave-2.md` elenca, come spec S5, cosa doveva continuare a funzionare quando è stato aggiunto il secondo gruppo di ecosistemi. Questa è la spec dell'agente, non le parole dell'autore:
 
@@ -163,7 +183,7 @@ In italiano: "Il motivo di Haiku per un aggiornamento major funziona per ogni ec
 
 La S3 dello stesso file elenca "Haiku reasons" (i motivi di Haiku) tra i comportamenti che dovevano restare invariati.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/explain.ts` e `git log -S SYSTEM` in narsil-check:
 
@@ -174,13 +194,9 @@ Da `git log -- hooks/explain.ts` e `git log -S SYSTEM` in narsil-check:
 
 Il prompt stesso non è mai cambiato. Ciò che è cresciuto è da dove vengono le note e l'uso.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, sotto ogni libreria npm con un aggiornamento major, mostra quanto è difficile il salto per questo progetto. Per ciascuna, trova il suo repository GitHub dal campo `repository` di `node_modules/<name>/package.json`, scarica con `$.http.fetch` le note di release dell'`x.0.0` di ogni nuova major (al massimo tre, tag `v<version>`, `<name>@<version>` o `<version>`), e tagliale a 12.000 caratteri. Trova le righe di import con `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, al massimo 40. Chiama `$.model.complete` con `model: 'haiku'`, `maxTokens: 400`, un `timeoutMs` di 60 secondi, e un system prompt che chieda esattamente `DIFFICULTY: low|medium|high` e `REASON:` in al massimo 280 caratteri, basandosi solo su ciò che riceve, senza mai inventare API, e dicendolo quando mancano le note. Accetta la risposta solo se entrambe le righe si leggono. Mettila in cache per sempre in `$.store` sotto `why:<name>@<from>-><to>`. Mostra "Analisi in corso…" mentre gira. Testa con `on('model.complete', ...)` che il prompt contenga le note e una riga di import, e che una risposta senza la forma mostri una riga di ripiego.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325 (`$.model.complete`, `$.store.get`, `$.store.set`). È adattata da `hooks/explain.ts` e `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Le note e le righe di import vengono passate come argomenti; come scaricarle è mostrato sopra.
 

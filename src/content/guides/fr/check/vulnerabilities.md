@@ -3,7 +3,7 @@ title: Les vulnérabilités avec OSV.dev
 description: 'Comment Narsil Check interroge OSV.dev sur chaque paquet installé en une requête groupée, classe chaque avis par sa propre note ou son vecteur CVSS, et compte une seule fois les avis jumeaux.'
 route: check
 order: 14
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -128,11 +128,31 @@ Pour la plupart des projets, c’est un échange acceptable contre une source gr
 
 Le README et le journal de tâches disent « nueve ecosistemas » (« neuf écosystèmes »). Le code interroge dix noms, chaque adaptateur sauf le wrapper Gradle. Le commit qui a ajouté l’audit (`912478b`) dit « Each severity copies its own list » (chaque sévérité copie sa propre liste) ; cela a été remplacé dans `b3ad055` par la copie d’un résultat par appui, ce que fait le code aujourd’hui.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une section qui envoie les paquets installés à OSV.dev et regroupe par sévérité ce qui revient. L’idée que Claude doit bien saisir : le travail se fait en quelques requêtes groupées, et la sévérité comme la version qui corrige viennent de chaque avis lui-même.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute une section Vulnérabilités pour les projets npm. Lis chaque paquet installé et sa version depuis `package-lock.json` (ses entrées `packages`), marque comme indirects ceux qui ne sont pas dans `package.json`, et envoie-les à `https://api.osv.dev/v1/querybatch` avec `$.http.fetch`, sous la forme `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, par tranches de 500. Pour chaque id que renvoie le lot, récupère `/v1/vulns/<id>` et mets-le en cache dans `$.store` sous `osv:<id>` avec sa date `modified`, en ne le récupérant de nouveau que quand celle-ci change. Classe chaque avis d’abord d’après `database_specific.severity` ; s’il est absent, calcule le score de base CVSS v3.1 à partir de son vecteur et utilise les tranches 9, 7, 4. Fusionne les avis qui sont des alias l’un de l’autre, en gardant celui de GHSA. Affiche la plus basse version `fixed` au-dessus de celle qui est installée. Groupe par sévérité, la pire d’abord. Teste la fonction CVSS sur quelques vecteurs connus et leurs scores publiés, et le lot avec un `http.fetch` simulé.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Les paquets viennent du lockfile, c’est-à-dire de tout l’arbre installé, et ceux que vous ne déclarez pas sont marqués comme indirects.
+2. Ils partent vers `https://api.osv.dev/v1/querybatch` par tranches de 500, jamais une requête par paquet.
+3. Chaque détail est récupéré depuis `/v1/vulns/<id>` et mis en cache dans `$.store` sous `osv:<id>` avec sa date `modified`, et n’est récupéré de nouveau que quand cette date change.
+4. La sévérité est d’abord le mot de l’avis lui-même. Seulement en son absence, le score de base CVSS v3 est calculé et rapporté aux seuils 9, 7 et 4.
+5. Les avis qui sont des alias les uns des autres (GHSA et PYSEC) comptent une seule fois, en gardant celui de GHSA, et la correction affichée est la plus basse version `fixed` au-dessus de celle qui est installée.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le même problème Python apparaît deux fois, une fois avec un identifiant GHSA et une fois avec un identifiant PYSEC ».
+
+### Comment l’auteur l’a demandé
 
 Celle-ci est consignée. `odd/tasks/vulnerabilities.md` dans narsil-check cite les mots de l’auteur ou de l’autrice dans sa spec S1 et dans son entrée de journal L1 (2026-11-05). Le guide 1 de ce parcours cite les deux mêmes messages pour la conception du panneau ; ici, ils comptent pour l’origine des données.
 
-### Consigné : la demande
+#### Consigné : la demande
 
 S1 cite le premier message :
 
@@ -142,7 +162,7 @@ Traduction en français : peut-on vérifier les vulnérabilités de la même fa�
 
 L’auteur ou l’autrice a demandé « pnpm audit o similar » (pnpm audit ou quelque chose de similaire). Le journal de tâches consigne que l’agent a proposé autre chose, et que l’auteur ou l’autrice l’a accepté avec « si » (« oui »). Avec les mots de l’agent, dans la même spec : « OSV.dev instead of each ecosystem's audit tool; the full tree from the lockfile where one is read, direct dependencies elsewhere » (OSV.dev au lieu de l’outil d’audit de chaque écosystème ; l’arbre complet depuis le lockfile là où il y en a un à lire, les dépendances directes ailleurs). C’est la décision qu’explique ce guide : une seule base au lieu de neuf outils, dont la plupart n’étaient pas installés sur la machine.
 
-### Consigné dans le journal de tâches : l’hypothèse et les essais
+#### Consigné dans le journal de tâches : l’hypothèse et les essais
 
 Ce sont les notes de l’agent, pas les mots de l’auteur ou de l’autrice. L’hypothèse de la spec :
 
@@ -152,7 +172,7 @@ Traduction en français : « Hypothèse : la sévérité vient de la note propre
 
 L’entrée de journal L2 consigne les essais qui ont façonné le code : un seul lot a répondu à la fois pour npm, PyPI, Go, Maven, NuGet et crates.io ; le lot ne renvoie que des ids ; les paquets Swift sont `SwiftURL` nommés `github.com/owner/repo` ; et sur la machine, seuls npm et pnpm avaient des outils d’audit, « no pip-audit, cargo-audit or govulncheck » (pas de pip-audit, cargo-audit ni govulncheck). L3 consigne que sur un vrai projet, OSV a trouvé les mêmes avis que signale `npm audit`, que `npm audit` répartit sur davantage de paquets « because it also names the packages that only depend on them » (parce qu’il nomme aussi les paquets qui ne font que dépendre d’eux).
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/osv.ts` dans narsil-check :
 
@@ -160,13 +180,9 @@ L’entrée de journal L2 consigne les essais qui ont façonné le code : un seu
 - `b3ad055` (2026-11-06) « feat: fold upgrade and vulnerability groups, copy a row on click, … » (replier les groupes de mises à jour et de vulnérabilités, copier une ligne au clic, …). Les groupes de sévérité se replient seuls ; un appui copie un résultat.
 - `7048580` (2026-11-09) « feat: check the Gradle wrapper and GitHub Actions for upgrades » (vérifier les mises à jour du wrapper Gradle et des GitHub Actions). Son message, à propos du wrapper : « OSV is not asked about it » (OSV n’est pas interrogé à son sujet).
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute une section Vulnérabilités pour les projets npm. Lis chaque paquet installé et sa version depuis `package-lock.json` (ses entrées `packages`), marque comme indirects ceux qui ne sont pas dans `package.json`, et envoie-les à `https://api.osv.dev/v1/querybatch` avec `$.http.fetch`, sous la forme `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, par tranches de 500. Pour chaque id que renvoie le lot, récupère `/v1/vulns/<id>` et mets-le en cache dans `$.store` sous `osv:<id>` avec sa date `modified`, en ne le récupérant de nouveau que quand celle-ci change. Classe chaque avis d’abord d’après `database_specific.severity` ; s’il est absent, calcule le score de base CVSS v3.1 à partir de son vecteur et utilise les tranches 9, 7, 4. Fusionne les avis qui sont des alias l’un de l’autre, en gardant celui de GHSA. Affiche la plus basse version `fixed` au-dessus de celle qui est installée. Groupe par sévérité, la pire d’abord. Teste la fonction CVSS sur quelques vecteurs connus et leurs scores publiés, et le lot avec un `http.fetch` simulé.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.http.fetch`). Elle est adaptée de `hooks/osv.ts` et de `auditProject` dans `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle laisse de côté le calcul CVSS et le cache.
 

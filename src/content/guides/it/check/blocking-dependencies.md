@@ -3,7 +3,7 @@ title: Dipendenze che si bloccano a vicenda
 description: 'Come Narsil Check trova gli aggiornamenti npm che non possono salire da soli: peer chieste dalla nuova versione, peer chieste dai pacchetti installati e pin esatti nell’albero.'
 route: check
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -148,11 +148,31 @@ for (let changed = true; changed;) {
 
 I controlli confrontano con ciò che è installato adesso. Il README è onesto sul limite: "si subes varias juntas, puede que el bloqueo se resuelva entre ellas" ("se ne alzi diverse insieme, può darsi che il blocco si risolva tra di loro"). Solo il controllo dei pin conosce il batch; un conflitto di peer tra due aggiornamenti che salirebbero entrambi viene comunque mostrato. È il lato sicuro: il pannello può fermarti quando avresti potuto proseguire, ma non lascia passare un aggiornamento che rompe.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude dei controlli che ti dicano quando un aggiornamento npm non può salire da solo, prima che l'aggiornamento venga proposto. L'unica idea che deve fare bene è che contano entrambe le direzioni: ciò che chiede la nuova versione e ciò che chiedono i pacchetti che hai installato.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, prima di segnare un aggiornamento npm come sicuro, controlla se può salire da solo. Scrivi funzioni pure in `hooks/npm.ts`. `peerConflicts(name, target, installed)`: per ogni voce `peerDependencies` della nuova versione, se il progetto ha quella peer installata a una versione fuori dall'intervallo, di' "<name> <version> ha bisogno di <peer> <range> (hai <version>)"; per ogni pacchetto installato le cui `peerDependencies` nominano questo pacchetto con un intervallo che la nuova versione lascia fuori, di' "<other> richiede <name> <range>". Una peer che il progetto non ha non è un conflitto. `pinConflicts(name, target, lock)`: per ogni pacchetto in `packages` di `package-lock.json` che dipende da questo a una versione esatta (`1.2.3` o `=1.2.3`) che la nuova non è, di' "<owner> <version> fissa <name> <range>: resterebbero due copie". Leggi gli intervalli di versione con un `satisfies` che gestisca `||`, `^`, `~` e gli intervalli con trattino e consideri soddisfatto ciò che non sa leggere. Nel modulo degli hook, scarica il manifest della nuova versione da `https://registry.npmjs.org/<name>/<version>` con `$.http.fetch` e tienilo per sempre in `$.store`. Metti qualsiasi aggiornamento con un motivo in un gruppo "bloccato" e stampa i motivi sotto. Testa con manifest e lockfile sintetici.
+
+### Cosa controllare nella risposta di Claude
+
+1. `peerConflicts` confronta entrambe le direzioni: le `peerDependencies` della nuova versione con ciò che hai installato, e le `peerDependencies` di ogni pacchetto installato su questo pacchetto con la nuova versione.
+2. Una peer che il progetto non ha non è un conflitto, quindi per lei non viene segnalato nulla.
+3. `pinConflicts` segnala solo i pin esatti (`1.2.3` o `=1.2.3`) che la nuova versione non soddisfa. Un intervallo come `^8.53.0` viene lasciato stare.
+4. `satisfies` legge gli intervalli con `||`, `^`, `~` e trattino, e considera soddisfatto un intervallo che non sa leggere, così `^8.57.0 || ^9.0.0 || ^10.0.0` non blocca ogni plugin.
+5. Ogni aggiornamento con un motivo va nel gruppo bloccato con i suoi motivi stampati sotto, e il manifest della nuova versione viene scaricato da `https://registry.npmjs.org/<name>/<version>` una volta sola e conservato per sempre in `$.store`.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "eslint 10 compare come aggiornamento sicuro, ma la mia configurazione di ESLint accetta solo eslint 9".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per questi controlli non è stata registrata. Sono già nel primo commit, e nessun log di task pubblico li copre.
 
-### Registrato in un log di task, non con le parole dell'autore
+#### Registrato in un log di task, non con le parole dell'autore
 
 `odd/tasks/ecosystems-wave-2.md` registra una decisione su di essi quando sono arrivati gli altri ecosistemi. È un'assunzione scritta nel log del task dall'agente, non le parole dell'autore:
 
@@ -162,7 +182,7 @@ In italiano: assunzione: i controlli delle peer dependency e dei pin esatti rest
 
 Ecco perché la sezione del README inizia ancora con "Solo en npm".
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/npm.ts` e `git log -S` su `peerConflicts`, `pinConflicts` e `lockedPackage` in narsil-check:
 
@@ -173,13 +193,9 @@ Da `git log -- hooks/npm.ts` e `git log -S` su `peerConflicts`, `pinConflicts` e
 
 Lo schema: i controlli sono stati progettati completi fin dall'inizio, e l'unica correzione ha riguardato da dove vengono i dati, non la regola.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, prima di segnare un aggiornamento npm come sicuro, controlla se può salire da solo. Scrivi funzioni pure in `hooks/npm.ts`. `peerConflicts(name, target, installed)`: per ogni voce `peerDependencies` della nuova versione, se il progetto ha quella peer installata a una versione fuori dall'intervallo, di' "<name> <version> ha bisogno di <peer> <range> (hai <version>)"; per ogni pacchetto installato le cui `peerDependencies` nominano questo pacchetto con un intervallo che la nuova versione lascia fuori, di' "<other> richiede <name> <range>". Una peer che il progetto non ha non è un conflitto. `pinConflicts(name, target, lock)`: per ogni pacchetto in `packages` di `package-lock.json` che dipende da questo a una versione esatta (`1.2.3` o `=1.2.3`) che la nuova non è, di' "<owner> <version> fissa <name> <range>: resterebbero due copie". Leggi gli intervalli di versione con un `satisfies` che gestisca `||`, `^`, `~` e gli intervalli con trattino e consideri soddisfatto ciò che non sa leggere. Nel modulo degli hook, scarica il manifest della nuova versione da `https://registry.npmjs.org/<name>/<version>` con `$.http.fetch` e tienilo per sempre in `$.store`. Metti qualsiasi aggiornamento con un motivo in un gruppo "bloccato" e stampa i motivi sotto. Testa con manifest e lockfile sintetici.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325. È adattata da `hooks/npm.ts` e `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Gestisce solo intervalli con accento circonflesso, tilde, esatti e `>=`, e lascia fuori le famiglie che si muovono insieme.
 

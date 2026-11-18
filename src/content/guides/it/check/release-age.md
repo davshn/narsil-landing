@@ -3,7 +3,7 @@ title: L'attesa di 24 ore
 description: 'Perché Narsil Check non alza mai una versione pubblicata meno di un giorno fa, dove ogni registry dice quando è uscita una versione e cosa succede quando nessuno sa dirlo.'
 route: check
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ Bloccare la riga copre solo la libreria che alzi. Le sue dipendenze possono port
 
 Quando uno dei due rifiuta, `ageRefusal` riconosce il messaggio dello strumento e il pannello lo dice ("Bloqueada por minimumReleaseAge…", "Bloqueada por la espera de 24 h…", cioè "Bloccata da minimumReleaseAge…", "Bloccata dall'attesa di 24 h…"), senza aggiornare niente. Il README è onesto sul resto: yarn, bun e ogni altro ecosistema non hanno un interruttore del genere, quindi lì l'attesa vale per la libreria che sale, non per ciò che porta con sé.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di bloccare ogni aggiornamento la cui nuova versione è stata pubblicata meno di 24 ore fa. L'unica idea che deve fare bene è cosa conta come prova dell'età: una data valida dal registro, o il momento in cui la mod ha visto la versione per la prima volta, e mai niente.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, blocca qualsiasi aggiornamento la cui nuova versione sia stata pubblicata meno di 24 ore fa. Scrivi una funzione pura `ageReason(published, now, minutes, seen)` che restituisca un motivo a parole o `undefined`: con una data valida, blocca finché è più giovane di `minutes`; senza, usa `seen` (quando la mod ha visto la versione per la prima volta) come prova, e blocca quando non c'è né l'una né l'altro. Per PyPI, leggi la data da `https://pypi.org/pypi/<name>/<version>/json` come il `upload_time_iso_8601` più vecchio in `urls`, con `$.http.fetch`. Tieni per sempre una data valida in `$.store` sotto `published:pypi:<name>@<version>` e non salvare mai niente che non sia una data. Tieni l'ora della prima vista sotto `seen:pypi:<name>@<version>`. Metti un aggiornamento bloccato in un gruppo `blocked` con il motivo sotto la sua riga, e tienilo fuori dal pulsante "Aggiorna tutto". Testa la funzione con un `now` fisso: un'ora, due giorni, nessuna data e nessun `seen`, nessuna data e `seen` di un giorno fa.
+
+### Cosa controllare nella risposta di Claude
+
+1. Con una data valida, l'aggiornamento è bloccato finché la versione è più giovane dell'attesa, e il motivo sotto la riga lo dice a parole.
+2. Senza data, la prova è il momento della prima vista. Senza nessuna delle due, l'aggiornamento è bloccato: "nessuna data" non significa mai "abbastanza vecchia".
+3. Sotto `published:…` viene salvato solo un valore che si può leggere come data, così una pagina di errore non viene mai conservata. Il momento della prima vista viene conservato sotto `seen:…`.
+4. Per PyPI, la data è il `upload_time_iso_8601` più antico tra i file del rilascio, cioè quando è diventato installabile.
+5. Un aggiornamento bloccato sta nel gruppo bloccato, il pulsante "Aggiorna tutto" lo lascia fuori, e i test usano un `now` fisso per i quattro casi che il prompt nomina.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "una versione senza una data leggibile è bloccata da tre giorni".
+
+### Come l'ha chiesta l'autore
 
 Questa funzionalità è registrata con le parole dell'autore, nel log di task pubblico di narsil-check `odd/tasks/release-age-all-ecosystems.md`. La guida precedente cita le stesse voci per i gruppi; qui vengono lette per ciò che dicono sull'attesa.
 
-### Registrato: da pnpm a ogni ecosistema
+#### Registrato: da pnpm a ogni ecosistema
 
 Prima di questo task c'era già un blocco per il `minimumReleaseAge` di pnpm, e l'autore ne aveva fissato la regola correggendolo. Il log del task la tiene come S4, con le parole dell'autore:
 
@@ -157,11 +177,11 @@ La voce di log L1 (2026-11-06) registra la richiesta che l'ha estesa. L'autore h
 
 In italiano: "Il primo mi interessa; dovremmo implementare qualcosa di simile per gli altri linguaggi, è più sicuro." Alla domanda su quanto aspettare, la risposta è stata "24 horas está perfecto" ("24 ore va benissimo").
 
-### Cosa ne ha fatto l'agente
+#### Cosa ne ha fatto l'agente
 
 Il resto del log sono le note dell'agente, non le parole dell'autore. La voce L2 registra come è stata trovata la data di ogni registry: una prova per registry, con un pacchetto reale, prima di qualsiasi codice. La voce L3 registra il controllo dell'installazione npm: con `npm_config_before` a un giorno fa, npm ha rifiutato una release di tailwindcss di un'ora prima e ha risolto l'intervallo alla precedente. La voce L6 registra le osservazioni del verificatore indipendente, tra cui che una data del committer di SwiftPM "can be forged" (si può falsificare).
 
-### Registrato: la correzione sulle date mancanti
+#### Registrato: la correzione sulle date mancanti
 
 Lo stesso giorno, l'autore ha notato il costo di "una data illeggibile blocca". L7 cita la domanda:
 
@@ -169,7 +189,7 @@ Lo stesso giorno, l'autore ha notato il costo di "una data illeggibile blocca". 
 
 In italiano: "cosa succede se una versione arriva sempre con una data illeggibile? non la aggiorneremo mai?" Il log registra la proposta dell'agente (aspettare 24 ore da quando la mod ha visto la versione per la prima volta, tenere solo date valide, leggere la data della release di SwiftPM invece di quella del commit) e la risposta dell'autore, "si hazlo asi" ("sì, fallo così"). Il design è dell'agente; la domanda e l'approvazione sono dell'autore.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -S releasedUrls` e `git log -S ageConflict` in narsil-check:
 
@@ -184,13 +204,9 @@ Da `git log -S releasedUrls` e `git log -S ageConflict` in narsil-check:
 
 Lo schema: la regola rigida è venuta per prima ed era giusta, e l'unica correzione l'ha resa rigida senza restare bloccata.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, blocca qualsiasi aggiornamento la cui nuova versione sia stata pubblicata meno di 24 ore fa. Scrivi una funzione pura `ageReason(published, now, minutes, seen)` che restituisca un motivo a parole o `undefined`: con una data valida, blocca finché è più giovane di `minutes`; senza, usa `seen` (quando la mod ha visto la versione per la prima volta) come prova, e blocca quando non c'è né l'una né l'altro. Per PyPI, leggi la data da `https://pypi.org/pypi/<name>/<version>/json` come il `upload_time_iso_8601` più vecchio in `urls`, con `$.http.fetch`. Tieni per sempre una data valida in `$.store` sotto `published:pypi:<name>@<version>` e non salvare mai niente che non sia una data. Tieni l'ora della prima vista sotto `seen:pypi:<name>@<version>`. Metti un aggiornamento bloccato in un gruppo `blocked` con il motivo sotto la sua riga, e tienilo fuori dal pulsante "Aggiorna tutto". Testa la funzione con un `now` fisso: un'ora, due giorni, nessuna data e nessun `seen`, nessuna data e `seen` di un giorno fa.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325 (`$.http.fetch`, `$.store.get`, `$.store.set`). È adattata da `hooks/npm.ts` e `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Gestisce solo PyPI; un altro registry è un URL in più e un lettore in più.
 

@@ -3,7 +3,7 @@ title: Dependencies that block each other
 description: 'How Narsil Check finds npm upgrades that cannot go up alone: peers the new version asks for, peers installed packages ask for, and exact pins in the tree.'
 route: check
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -148,11 +148,31 @@ It is quoted from [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.
 
 The checks compare with what is installed now. The README is honest about the limit: "si subes varias juntas, puede que el bloqueo se resuelva entre ellas" ("if you raise several together, the block may resolve between them"). Only the pin check knows about the batch; a peer conflict between two upgrades that would both go up is still shown. That is the safe side: the pane may stop you when you could have gone on, but it does not wave through an upgrade that breaks.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for checks that tell you when an npm upgrade cannot go up alone, before the upgrade is offered. The one idea it must get right is that both directions count: what the new version asks for, and what your installed packages ask for.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, before I mark an npm upgrade as safe, check whether it can go up alone. Write pure functions in `hooks/npm.ts`. `peerConflicts(name, target, installed)`: for each `peerDependencies` entry of the new version, if the project has that peer installed at a version outside the range, say "<name> <version> needs <peer> <range> (you have <version>)"; for each installed package whose `peerDependencies` names this package with a range the new version leaves, say "<other> requires <name> <range>". A peer the project does not have is not a conflict. `pinConflicts(name, target, lock)`: for every package in `package-lock.json`'s `packages` that depends on this one at an exact version (`1.2.3` or `=1.2.3`) the new one is not, say "<owner> <version> pins <name> <range>: two copies would remain". Read version ranges with a `satisfies` that handles `||`, `^`, `~` and hyphen ranges and treats what it cannot read as met. In the hooks module, fetch the new version's manifest from `https://registry.npmjs.org/<name>/<version>` with `$.http.fetch` and keep it in `$.store` for good. Put any upgrade with a reason in a "blocked" group and print the reasons under it. Test with synthetic manifests and lockfiles.
+
+### What to check in Claude's answer
+
+1. `peerConflicts` compares both directions: the new version's `peerDependencies` with what you have installed, and each installed package's `peerDependencies` on this package with the new version.
+2. A peer the project does not have is not a conflict, so nothing is reported for it.
+3. `pinConflicts` reports only exact pins (`1.2.3` or `=1.2.3`) that the new version does not satisfy. A range such as `^8.53.0` is left alone.
+4. `satisfies` reads `||`, `^`, `~` and hyphen ranges, and treats a range it cannot read as met, so `^8.57.0 || ^9.0.0 || ^10.0.0` does not block every plugin.
+5. Any upgrade with a reason goes to the blocked group with its reasons printed under it, and the new version's manifest is fetched from `https://registry.npmjs.org/<name>/<version>` once and kept in `$.store` for good.
+
+If a check fails, tell Claude what you see: "eslint 10 shows as a safe upgrade, but my ESLint config only accepts eslint 9".
+
+### How the author asked for it
 
 The original request for these checks was not recorded. They are already in the first commit, and no public task log covers them.
 
-### Recorded in a task log, not in the author's words
+#### Recorded in a task log, not in the author's words
 
 `odd/tasks/ecosystems-wave-2.md` records a decision about them when the other ecosystems arrived. It is an assumption written in the task log by the agent, not the author's words:
 
@@ -160,7 +180,7 @@ The original request for these checks was not recorded. They are already in the 
 
 That is why the README section still begins with "Solo en npm".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/npm.ts` and `git log -S` on `peerConflicts`, `pinConflicts` and `lockedPackage` in narsil-check:
 
@@ -171,13 +191,9 @@ From `git log -- hooks/npm.ts` and `git log -S` on `peerConflicts`, `pinConflict
 
 The pattern: the checks were designed whole from the start, and the one correction was about where the data comes from, not about the rule.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, before I mark an npm upgrade as safe, check whether it can go up alone. Write pure functions in `hooks/npm.ts`. `peerConflicts(name, target, installed)`: for each `peerDependencies` entry of the new version, if the project has that peer installed at a version outside the range, say "<name> <version> needs <peer> <range> (you have <version>)"; for each installed package whose `peerDependencies` names this package with a range the new version leaves, say "<other> requires <name> <range>". A peer the project does not have is not a conflict. `pinConflicts(name, target, lock)`: for every package in `package-lock.json`'s `packages` that depends on this one at an exact version (`1.2.3` or `=1.2.3`) the new one is not, say "<owner> <version> pins <name> <range>: two copies would remain". Read version ranges with a `satisfies` that handles `||`, `^`, `~` and hyphen ranges and treats what it cannot read as met. In the hooks module, fetch the new version's manifest from `https://registry.npmjs.org/<name>/<version>` with `$.http.fetch` and keep it in `$.store` for good. Put any upgrade with a reason in a "blocked" group and print the reasons under it. Test with synthetic manifests and lockfiles.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/npm.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It handles caret, tilde, exact and `>=` ranges only, and leaves out families that move together.
 

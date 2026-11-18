@@ -3,7 +3,7 @@ title: Crear el PR
 description: 'Cómo Narsil Check convierte los manifests actualizados en un commit, una rama chore/upgrade-deps y un pull request abierto con gh, y después te devuelve a la rama principal.'
 route: check
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -101,11 +101,31 @@ Los tipos de 2.1.325 dicen de `$.process.run`: "Git runs with repo hooks off" (g
 
 El comentario sobre `publish` todavía dice "A commit of package.json and its lockfile alone" (un commit solo de package.json y su lockfile), de cuando el mod solo conocía npm. El código hace el commit de los manifests y los lockfiles de cada ecosistema con cambios, como dice el README.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un botón que convierta los cambios de dependencias que hay en disco en un commit y, en la rama por defecto, en un pull request. La única idea que debe entender bien es que el commit contiene solo los archivos de dependencias: se nombran después de `--`, así que el resto de tu trabajo en curso queda fuera.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade un botón que convierta los cambios de dependencias de `package.json` en un pull request. Primero compara los rangos de dependencias de `git show HEAD:package.json` con el archivo del disco y enumera los que cambiaron; muestra el botón solo cuando haya alguno. Al pulsarlo, con `$.process.run` y sin shell: detente con un mensaje claro si el HEAD está separado; si la rama actual no es la rama por defecto (según `git symbolic-ref --short refs/remotes/origin/HEAD`, y si no `main` o `master`), haz commit y push a ella y detente ahí. En la rama por defecto, crea `chore/upgrade-deps-YYYY-MM-DD` (añade `-HHMM` si esa rama existe), ejecuta `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>` y `gh pr create --base <default> --head <branch> --title … --body …` con una tabla de cambios y un plan de pruebas. Después vuelve con `git switch` y dilo; si el cambio de rama falla, quédate y muestra el error de git. Nombra el paso que falla en cada error. Ignora una segunda pulsación mientras se ejecuta. Pruébalo respondiendo a `process.run` en los tests y comprobando el argv exacto de cada comando, en orden.
+
+### Qué revisar en la respuesta de Claude
+
+1. Los cambios pendientes salen de comparar los rangos de dependencias de `git show HEAD:package.json` con el archivo en disco, así que un cambio en `scripts` no ofrece un PR.
+2. La rama por defecto sale de `git symbolic-ref --short refs/remotes/origin/HEAD`, y `main` o `master` solo se usan cuando origin no nombra ninguna. En cualquier otra rama, el botón hace commit y push ahí, y se detiene.
+3. El commit nombra sus archivos, como en `git commit -m … -m … -- package.json package-lock.json`, nunca con `git commit -a` ni con un `git commit` sin más.
+4. Después de `gh pr create`, el botón ejecuta `git switch` para volver a la rama por defecto. Si el cambio de rama falla, se queda en la rama nueva y muestra el error de git.
+5. Cada error nombra el paso que falló, y una segunda pulsación mientras se ejecuta el trabajo no hace nada.
+
+Si una comprobación falla, dile a Claude lo que ves: "el PR incluye un archivo que todavía estaba editando, no solo package.json y su lockfile".
+
+### Cómo lo pidió el autor
 
 La petición original de esta funcionalidad no quedó registrada. El botón ya está en el primer commit, y ningún registro de tareas público cubre su creación. Un registro de tareas posterior lo menciona, con las palabras del agente.
 
-### Registrado en un registro de tareas
+#### Registrado en un registro de tareas
 
 `odd/tasks/ecosystems-wave-4.md`, que añade los paquetes de Swift, enumera como spec S2 lo que tenía que seguir funcionando. Esta es la spec del agente, no las palabras de quien creó Narsil Check:
 
@@ -113,7 +133,7 @@ La petición original de esta funcionalidad no quedó registrada. El botón ya e
 
 En español: todo lo que construyeron las oleadas anteriores sigue funcionando para SwiftPM: la agrupación, el botón de actualizar, las razones de Haiku, los botones de copia, el botón de commit/push/PR y la regla de apertura automática.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/git.ts` y `git log -S` sobre `hooks/register.tsx` en narsil-check:
 
@@ -123,13 +143,9 @@ A partir de `git log -- hooks/git.ts` y `git log -S` sobre `hooks/register.tsx` 
 
 El diseño no cambió mucho. Lo que cambió fue dónde acabas después.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade un botón que convierta los cambios de dependencias de `package.json` en un pull request. Primero compara los rangos de dependencias de `git show HEAD:package.json` con el archivo del disco y enumera los que cambiaron; muestra el botón solo cuando haya alguno. Al pulsarlo, con `$.process.run` y sin shell: detente con un mensaje claro si el HEAD está separado; si la rama actual no es la rama por defecto (según `git symbolic-ref --short refs/remotes/origin/HEAD`, y si no `main` o `master`), haz commit y push a ella y detente ahí. En la rama por defecto, crea `chore/upgrade-deps-YYYY-MM-DD` (añade `-HHMM` si esa rama existe), ejecuta `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>` y `gh pr create --base <default> --head <branch> --title … --body …` con una tabla de cambios y un plan de pruebas. Después vuelve con `git switch` y dilo; si el cambio de rama falla, quédate y muestra el error de git. Nombra el paso que falla en cada error. Ignora una segunda pulsación mientras se ejecuta. Pruébalo respondiendo a `process.run` en los tests y comprobando el argv exacto de cada comando, en orden.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325 (`$.process.run`, `$.ui.toast`). Está adaptada de `hooks/git.ts` y de `publish` en `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Solo trata la rama por defecto, y recibe los archivos y los cambios ya encontrados.
 

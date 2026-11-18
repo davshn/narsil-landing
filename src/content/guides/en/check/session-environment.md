@@ -3,7 +3,7 @@ title: "The session's environment"
 description: "How Narsil Check shows the repository, folder, branch, Remote Control and Auto-fix, read from git and the desktop app's servers, and why it asks them so rarely."
 route: check
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -111,11 +111,31 @@ What you see follows from the schedule above. The read at ten seconds fails and 
 
 The README's table of surfaces says Entorno does not work outside the desktop app and that "la sección dice por qué no pudo leerlos" ("the section says why it could not read them"). The code is a little kinder than that: the git rows still show. The clicks on folder and branch need the app's servers, so outside the desktop they answer with a toast saying they could not.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for an environment section read from git and from the desktop app's servers. The one idea it must get right is how rarely to ask those servers: every call is seen by other mods, and an early one may raise a permission prompt.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add an "Environment" section to the pane. Read the folder with `$.session.cwd()`, the branch with `$.process.run(['git', 'branch', '--show-current'])` and the remote with `git remote get-url origin`, turned into an https link for SSH and HTTPS remotes. Read Remote Control from the desktop app with `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, preferring `structuredContent` and falling back to JSON in the text content. Each call to the app's servers is seen by other mods, and an early one may raise a permission prompt, so read once, ten seconds after `session.start` with `$.clock.sleep`, without awaiting it in the hook; if it fails, show "Reading…" and try once more at the first main `turn.start`. After each main turn re-read only git. Keep each part's error separately and show it in red. Test with `mock.clock` that no server is called before ten seconds and only once after.
+
+### What to check in Claude's answer
+
+1. No call to the app's servers happens in the first ten seconds after `session.start`, and the delayed read runs with `void`, so the hook returns at once.
+2. If that first read fails, it writes nothing, the section says it is reading, and it tries once more at the first main `turn.start`, with no retry loop.
+3. After each main turn, only git is read again (folder, branch and remote), not the app's servers.
+4. Each answer is read from `structuredContent` first and from the JSON in the text blocks as a fallback, and each part keeps its own error, shown in red.
+5. The remote becomes an https link for both SSH and HTTPS remotes, and anything else gives no link.
+
+If a check fails, tell Claude what you see: "outside the desktop app the section says "Reading…" forever and the branch never shows".
+
+### How the author asked for it
 
 The original request for this section was not recorded. None of narsil-check's public task logs (`odd/tasks/*.md`) covers it; they are about ecosystems, release age and vulnerabilities.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/session.ts`, with the related commits to `hooks/register.tsx`:
 
@@ -131,13 +151,9 @@ From `git log -- hooks/session.ts`, with the related commits to `hooks/register.
 
 The pattern is worth noticing: three fixes in a row (`d8c664e`, `55fe118`, `4770a49`) each asked the servers less. The first version tried harder when the servers were not ready; the last one waits, asks once, and asks again only for a reason.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add an "Environment" section to the pane. Read the folder with `$.session.cwd()`, the branch with `$.process.run(['git', 'branch', '--show-current'])` and the remote with `git remote get-url origin`, turned into an https link for SSH and HTTPS remotes. Read Remote Control from the desktop app with `$.mcp.call('ccd_session_mgmt', 'get_session', { session_id: 'self' })`, preferring `structuredContent` and falling back to JSON in the text content. Each call to the app's servers is seen by other mods, and an early one may raise a permission prompt, so read once, ten seconds after `session.start` with `$.clock.sleep`, without awaiting it in the hook; if it fails, show "Reading…" and try once more at the first main `turn.start`. After each main turn re-read only git. Keep each part's error separately and show it in red. Test with `mock.clock` that no server is called before ten seconds and only once after.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/register.tsx` and `hooks/session.ts` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

@@ -3,7 +3,7 @@ title: Classificare gli aggiornamenti
 description: 'Come Narsil Check ordina ogni libreria non aggiornata in Bloccata, Versione major, Solo alzare la versione o Fuori dall’SDK di Expo, e perché le risposte dei registry si tengono sei ore.'
 route: check
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -135,11 +135,31 @@ Entrambi sono citati da [narsil-check](https://github.com/davshn/narsil-check) (
 
 **Cosa si tiene invece per sempre.** Alcune risposte non cambiano mai una volta pubblicata una versione, quindi la mod le tiene senza timer: le peer dependency di una versione (`peers:<name>@<version>`), la sua data di pubblicazione (`published:…`, solo quando è una data valida) e la lettura di una major da parte di Haiku (`why:…`).
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di mettere ogni libreria non aggiornata in un gruppo che dica cosa dovresti farne. L'unica idea che deve fare bene è che il salto e la decisione sono separati: `bump` dice quanto distano le versioni, `group` dice cosa fare, e `blocked` viene deciso per ultimo.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, ho un elenco di librerie npm non aggiornate, ciascuna con la versione installata e la più recente. Ordinale in gruppi: `blocked` (un elenco di motivi a parole non è vuoto), `review` (un salto major), `bump` (una patch o una minor). Scrivi `bumpOf(from, to)` come funzione pura: none, patch, minor o major, dove sotto 1.0.0 una minor conta come major e sotto 0.1.0 anche una patch, come le leggono gli intervalli con accento circonflesso di npm. Decidi `blocked` per ultimo così prevale sugli altri. Disegna i gruppi nell'ordine blocked, review, bump, ciascuno con un'intestazione comprimibile `▾ Label (N)` e una riga di suggerimento, e i motivi sotto una riga bloccata in rosso. Solo il gruppo bump riceve un pulsante "Aggiorna tutto". Metti in cache ogni risposta del registry in `$.store` sotto `npm:<name>` con l'ora, riusala per sei ore e salta la cache quando la persona preme "Controlla di nuovo". Testa `bumpOf` con casi 0.x e la cache con `mock.clock`.
+
+### Cosa controllare nella risposta di Claude
+
+1. `bumpOf` è una funzione pura che restituisce none, patch, minor o major, e una libreria con none resta fuori dall'elenco.
+2. Sotto la 1.0.0 una minor conta come major (`0.3.1 → 0.4.0`), e sotto la 0.1.0 anche una patch (`0.0.3 → 0.0.4`).
+3. `blocked` viene deciso per ultimo, quindi un aggiornamento con un qualsiasi motivo è bloccato qualunque sia il suo salto, e i suoi motivi sono stampati sotto in rosso.
+4. Solo il gruppo `bump` ha il pulsante "Aggiorna tutto", e non prende mai una libreria da un altro gruppo.
+5. Ogni risposta del registro viene conservata in `$.store` sotto `npm:<name>` con l'ora, riusata per sei ore e saltata quando premi "Controlla di nuovo".
+
+Se un controllo fallisce, di' a Claude cosa vedi: "una patch che un plugin rifiuta compare ancora nel gruppo bump, e il pulsante la installerebbe".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per i quattro gruppi non è stata registrata: sono già nel primo commit, e nessun log di task pubblico li copre. I motivi di **Bloqueada** sono cresciuti dopo, e uno di essi è registrato con le parole dell'autore.
 
-### Registrato: l'attesa di 24 ore in ogni ecosistema
+#### Registrato: l'attesa di 24 ore in ogni ecosistema
 
 `odd/tasks/release-age-all-ecosystems.md`, voce di log L1 (2026-11-06), cita l'autore. Il primo messaggio chiedeva di framework diversi da Expo:
 
@@ -163,7 +183,7 @@ Una correzione è arrivata lo stesso giorno. L7 cita la domanda dell'autore:
 
 In italiano: "cosa succede se una versione arriva sempre con una data illeggibile? non la aggiorneremo mai?" Il log del task registra la proposta accettata ("si hazlo asi", "sì, fallo così"): una versione del genere aspetta 24 ore da quando la mod l'ha vista per la prima volta. Quel ripiego e il resto del design sono la proposta dell'agente, scritta nel log; le parole dell'autore sono la domanda e il "si".
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/semver.ts hooks/words.ts` e `git log -S` sulle etichette dei gruppi, in narsil-check:
 
@@ -175,13 +195,9 @@ Da `git log -- hooks/semver.ts hooks/words.ts` e `git log -S` sulle etichette de
 
 Lo schema: i gruppi erano giusti fin dall'inizio, e ciò che è cambiato è il significato di **Bloqueada**, da "un'altra dipendenza la rifiuta" a "qualsiasi cosa sappiamo che renda insicuro alzarla da sola".
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, ho un elenco di librerie npm non aggiornate, ciascuna con la versione installata e la più recente. Ordinale in gruppi: `blocked` (un elenco di motivi a parole non è vuoto), `review` (un salto major), `bump` (una patch o una minor). Scrivi `bumpOf(from, to)` come funzione pura: none, patch, minor o major, dove sotto 1.0.0 una minor conta come major e sotto 0.1.0 anche una patch, come le leggono gli intervalli con accento circonflesso di npm. Decidi `blocked` per ultimo così prevale sugli altri. Disegna i gruppi nell'ordine blocked, review, bump, ciascuno con un'intestazione comprimibile `▾ Label (N)` e una riga di suggerimento, e i motivi sotto una riga bloccata in rosso. Solo il gruppo bump riceve un pulsante "Aggiorna tutto". Metti in cache ogni risposta del registry in `$.store` sotto `npm:<name>` con l'ora, riusala per sei ore e salta la cache quando la persona preme "Controlla di nuovo". Testa `bumpOf` con casi 0.x e la cache con `mock.clock`.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325. È adattata da `hooks/semver.ts`, `hooks/npm.ts` e `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Lascia fuori Expo e i motivi stessi; `reasons` è qualsiasi cosa abbiano trovato i tuoi controlli.
 

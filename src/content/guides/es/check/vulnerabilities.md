@@ -3,7 +3,7 @@ title: Vulnerabilidades con OSV.dev
 description: 'Cómo Narsil Check consulta a OSV.dev por cada paquete instalado en una sola petición por lotes, clasifica cada aviso por su propia valoración o su vector CVSS y cuenta una vez los avisos gemelos.'
 route: check
 order: 14
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -128,11 +128,31 @@ Para la mayoría de los proyectos es un intercambio aceptable a cambio de una fu
 
 El README y el registro de tareas dicen "nueve ecosistemas". El código pregunta por diez nombres, todos los adaptadores menos el wrapper de Gradle. El commit que añadió la auditoría (`912478b`) dice "Each severity copies its own list" (cada gravedad copia su propia lista); eso se sustituyó en `b3ad055` por copiar un hallazgo por pulsación, que es lo que hace ahora el código.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude una sección que envíe los paquetes instalados a OSV.dev y agrupe lo que vuelve por gravedad. La única idea que debe entender bien es que el trabajo se hace en unas pocas peticiones por lotes, y que la gravedad y la versión que corrige salen de cada aviso.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade una sección de Vulnerabilidades para proyectos npm. Lee cada paquete instalado y su versión de `package-lock.json` (sus entradas `packages`), marca como indirectos los que no están en `package.json` y envíalos a `https://api.osv.dev/v1/querybatch` con `$.http.fetch`, como `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, en trozos de 500. Para cada id que devuelva el lote, descarga `/v1/vulns/<id>` y guárdalo en caché en `$.store` bajo `osv:<id>` con su fecha `modified`, y vuelve a descargarlo solo cuando esta cambie. Clasifica cada aviso primero por `database_specific.severity`; si falta, calcula la puntuación base CVSS v3.1 a partir de su vector y usa las bandas 9, 7, 4. Fusiona los avisos que son alias entre sí y conserva el GHSA. Muestra la versión `fixed` más baja por encima de la instalada. Agrupa por gravedad, la peor primero. Prueba la función CVSS con algunos vectores conocidos y sus puntuaciones publicadas, y el lote con un `http.fetch` simulado.
+
+### Qué revisar en la respuesta de Claude
+
+1. Los paquetes salen del lockfile, todo el árbol instalado, y los que no declaras se marcan como indirectos.
+2. Se envían a `https://api.osv.dev/v1/querybatch` en trozos de 500, nunca con una petición por paquete.
+3. Cada detalle se descarga de `/v1/vulns/<id>` y se guarda en caché en `$.store` bajo `osv:<id>` con su fecha `modified`, y se vuelve a descargar solo cuando esa fecha cambia.
+4. La gravedad es primero la palabra del propio aviso. Solo si no la hay se calcula la puntuación base CVSS v3 y se asigna a las bandas 9, 7 y 4.
+5. Los avisos que son alias entre sí (GHSA y PYSEC) cuentan una vez, conservando el GHSA, y la corrección que se muestra es la versión `fixed` más baja por encima de la instalada.
+
+Si una comprobación falla, dile a Claude lo que ves: "el mismo problema de Python aparece dos veces, una con un id GHSA y otra con un id PYSEC".
+
+### Cómo lo pidió el autor
 
 Esta sí quedó registrada. `odd/tasks/vulnerabilities.md` en narsil-check cita las palabras de quien creó Narsil Check en su spec S1 y en su entrada de registro L1 (2026-11-05). La guía 1 de esta ruta cita los mismos dos mensajes para el diseño del panel; aquí importan por el origen de los datos.
 
-### Registrado: la petición
+#### Registrado: la petición
 
 S1 cita el primer mensaje:
 
@@ -140,7 +160,7 @@ S1 cita el primer mensaje:
 
 Quien creó Narsil Check pidió "pnpm audit o similar". El registro de tareas recoge que el agente propuso otra cosa, y que quien creó Narsil Check lo aceptó con "si". Con las palabras del agente en la misma spec: "OSV.dev instead of each ecosystem's audit tool; the full tree from the lockfile where one is read, direct dependencies elsewhere" (OSV.dev en lugar de la herramienta de auditoría de cada ecosistema; el árbol completo del lockfile donde se lee uno, las dependencias directas en los demás casos). Esa es la decisión que explica esta guía: una base de datos en lugar de nueve herramientas, la mayoría de las cuales no estaban instaladas en la máquina.
 
-### Registrado en el registro de tareas: la suposición y las pruebas
+#### Registrado en el registro de tareas: la suposición y las pruebas
 
 Estas son notas del agente, no palabras de quien creó Narsil Check. La suposición de la spec:
 
@@ -150,7 +170,7 @@ En español: suposición: la gravedad sale de la propia valoración del aviso (C
 
 La entrada de registro L2 recoge las pruebas que dieron forma al código: un solo lote respondió a la vez npm, PyPI, Go, Maven, NuGet y crates.io; el lote devuelve solo ids; los paquetes de Swift son `SwiftURL` con nombre `github.com/owner/repo`; y en la máquina solo npm y pnpm tenían herramientas de auditoría, "no pip-audit, cargo-audit or govulncheck" (ni pip-audit, ni cargo-audit, ni govulncheck). L3 recoge que en un proyecto real OSV encontró los mismos avisos que informa `npm audit`, que `npm audit` reparte entre más paquetes "because it also names the packages that only depend on them" (porque también nombra los paquetes que solo dependen de ellos).
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/osv.ts` en narsil-check:
 
@@ -158,13 +178,9 @@ A partir de `git log -- hooks/osv.ts` en narsil-check:
 - `b3ad055` (2026-11-06) "feat: fold upgrade and vulnerability groups, copy a row on click, …" (plegar los grupos de actualizaciones y vulnerabilidades, copiar una fila al hacer clic, …). Los grupos de gravedad se pliegan por su cuenta; una pulsación copia un hallazgo.
 - `7048580` (2026-11-09) "feat: check the Gradle wrapper and GitHub Actions for upgrades" (buscar actualizaciones del wrapper de Gradle y de GitHub Actions). Su mensaje, sobre el wrapper: "OSV is not asked about it" (no se pregunta a OSV por él).
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade una sección de Vulnerabilidades para proyectos npm. Lee cada paquete instalado y su versión de `package-lock.json` (sus entradas `packages`), marca como indirectos los que no están en `package.json` y envíalos a `https://api.osv.dev/v1/querybatch` con `$.http.fetch`, como `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, en trozos de 500. Para cada id que devuelva el lote, descarga `/v1/vulns/<id>` y guárdalo en caché en `$.store` bajo `osv:<id>` con su fecha `modified`, y vuelve a descargarlo solo cuando esta cambie. Clasifica cada aviso primero por `database_specific.severity`; si falta, calcula la puntuación base CVSS v3.1 a partir de su vector y usa las bandas 9, 7, 4. Fusiona los avisos que son alias entre sí y conserva el GHSA. Muestra la versión `fixed` más baja por encima de la instalada. Agrupa por gravedad, la peor primero. Prueba la función CVSS con algunos vectores conocidos y sus puntuaciones publicadas, y el lote con un `http.fetch` simulado.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325 (`$.http.fetch`). Está adaptada de `hooks/osv.ts` y de `auditProject` en `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Deja fuera el cálculo CVSS y la caché.
 

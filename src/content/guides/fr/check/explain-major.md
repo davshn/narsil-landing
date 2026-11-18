@@ -3,7 +3,7 @@ title: Expliquer une version majeure avec Haiku
 description: 'Comment Narsil Check demande à Haiku la difficulté d’une mise à jour majeure pour ce projet, à partir des notes de version et des lignes qui importent la bibliothèque, sans rien inventer.'
 route: check
 order: 11
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -149,11 +149,31 @@ Les lignes d’import sont en général inoffensives, mais elles sont votre code
 
 Le README dit « Si no hay release, se usa el `CHANGELOG.md` del paquete » (« s’il n’y a pas de release, le `CHANGELOG.md` du paquet est utilisé »), sans limite. Dans le code, ce repli ne vaut que pour npm, parce qu’il passe par unpkg.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude d’envoyer à Haiku les notes de version d’une mise à jour majeure et les lignes d’import du projet, et de montrer à quel point le saut est difficile. L’idée que Claude doit bien saisir : Haiku ne répond qu’à partir des éléments qu’on lui donne, sous une forme fixe que le mod peut vérifier.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, sous chaque bibliothèque npm avec une mise à jour majeure, montre la difficulté du saut pour ce projet. Pour chacune, trouve son dépôt GitHub depuis le champ `repository` de `node_modules/<name>/package.json`, récupère avec `$.http.fetch` les notes de version du `x.0.0` de chaque nouvelle majeure (trois au plus, tags `v<version>`, `<name>@<version>` ou `<version>`), et coupe-les à 12 000 caractères. Trouve les lignes d’import avec `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, 40 au plus. Appelle `$.model.complete` avec `model: 'haiku'`, `maxTokens: 400`, un `timeoutMs` de 60 secondes, et un prompt système qui demande exactement `DIFFICULTY: low|medium|high` et `REASON:` en 280 caractères au plus, fondé uniquement sur ce qu’on lui donne, sans jamais inventer d’API, et qui le dit quand les notes manquent. N’accepte la réponse que si les deux lignes s’analysent. Mets-la en cache dans `$.store` sous `why:<name>@<from>-><to>` pour de bon. Affiche « Analyzing… » pendant l’exécution. Teste avec `on('model.complete', ...)` que le prompt contient les notes et une ligne d’import, et qu’une réponse sans la forme affiche une ligne de repli.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le message envoyé à `$.model.complete` contient les notes des versions qui cassent et les lignes d’import, coupées à leurs limites : 12 000 caractères de notes et au plus 40 lignes.
+2. Le prompt système demande au modèle de fonder sa réponse uniquement sur ce qu’on lui donne, de ne jamais inventer d’API, et de le dire quand les notes manquent.
+3. Une réponse n’est acceptée que quand la ligne de difficulté et la ligne de raison sont toutes deux lues correctement. Tout le reste affiche une ligne de repli et n’est pas stocké.
+4. Une bonne raison est gardée dans `$.store` sous une clé contenant le nom et les deux versions, si bien que le même saut n’est jamais redemandé. Une raison qui a échoué est redemandée à l’analyse suivante.
+5. L’analyse n’attend pas les raisons : la liste s’affiche tout de suite, avec « Analyzing… » sous chaque majeure jusqu’à l’arrivée de sa raison.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « Haiku cite une API que mon projet n’importe jamais, et le prompt ne contient aucune ligne d’import ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour cette fonctionnalité n’a pas été consignée : elle est déjà dans le premier commit, et aucun journal de tâches public ne couvre sa création. Un journal de tâches ultérieur consigne, avec les mots de l’agent, comment elle a été étendue aux autres écosystèmes.
 
-### Consigné dans un journal de tâches
+#### Consigné dans un journal de tâches
 
 `odd/tasks/ecosystems-wave-2.md` liste, comme spec S5, ce qui devait continuer à fonctionner quand le second groupe d’écosystèmes a été ajouté. C’est la spec de l’agent, pas les mots de l’auteur ou de l’autrice :
 
@@ -163,7 +183,7 @@ Traduction en français : « La raison de Haiku pour une mise à jour majeure fo
 
 Le S3 du même fichier liste « Haiku reasons » (les raisons de Haiku) parmi les comportements qui devaient rester inchangés.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/explain.ts` et de `git log -S SYSTEM` dans narsil-check :
 
@@ -174,13 +194,9 @@ Le S3 du même fichier liste « Haiku reasons » (les raisons de Haiku) parmi le
 
 Le prompt lui-même n’a jamais changé. Ce qui a grandi, c’est l’origine des notes et de l’usage.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, sous chaque bibliothèque npm avec une mise à jour majeure, montre la difficulté du saut pour ce projet. Pour chacune, trouve son dépôt GitHub depuis le champ `repository` de `node_modules/<name>/package.json`, récupère avec `$.http.fetch` les notes de version du `x.0.0` de chaque nouvelle majeure (trois au plus, tags `v<version>`, `<name>@<version>` ou `<version>`), et coupe-les à 12 000 caractères. Trouve les lignes d’import avec `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, 40 au plus. Appelle `$.model.complete` avec `model: 'haiku'`, `maxTokens: 400`, un `timeoutMs` de 60 secondes, et un prompt système qui demande exactement `DIFFICULTY: low|medium|high` et `REASON:` en 280 caractères au plus, fondé uniquement sur ce qu’on lui donne, sans jamais inventer d’API, et qui le dit quand les notes manquent. N’accepte la réponse que si les deux lignes s’analysent. Mets-la en cache dans `$.store` sous `why:<name>@<from>-><to>` pour de bon. Affiche « Analyzing… » pendant l’exécution. Teste avec `on('model.complete', ...)` que le prompt contient les notes et une ligne d’import, et qu’une réponse sans la forme affiche une ligne de repli.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.model.complete`, `$.store.get`, `$.store.set`). Elle est adaptée de `hooks/explain.ts` et `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Les notes et les lignes d’import sont passées en paramètre ; leur récupération est montrée plus haut.
 

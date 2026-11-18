@@ -3,7 +3,7 @@ title: Tools for Claude
 description: 'How Narsil Check gives Claude four tools over the to-do list with $.tool.register, serves them from tool.call hooks, and how the model decides when to use them.'
 route: check
 order: 16
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -126,16 +126,9 @@ The model chooses a tool from what it reads about it. Three things shape that ch
 
 None of this forces a call. The model may still answer without the tool, or ask first. The descriptions make the right call the obvious one.
 
-## How it was asked of the AI
+## Build it with Claude
 
-The original request for these tools was not recorded. No public task log in narsil-check covers the to-do list or its tools. What follows is a reconstruction.
-
-### Reconstruction from the commit history
-
-From `git log -S tool.register` over `hooks/register.tsx` and `git log -- hooks/todos.ts` in narsil-check:
-
-- `5439638` (2026-11-05) "feat: Pendientes, a per-project task list Claude can read and finish". The only commit that adds `$.tool.register`. Its message: "Claude gets todo_list, todo_add and todo_done, and /narsil-check template "…" asks Claude to add a task, with how the work was done, to a template's list through todo_add_to_template." The list and the tools were built together, so the pane and Claude shared a writer from the start.
-- `8dc7904` (2026-11-05) "fix: keep a damaged Pendientes list and never let side steps block a save". For the tools: "Claude's tools return a readable error on any file failure". This is where `answered` comes from.
+Ask Claude to give the model tools over the list the pane already keeps. The one idea it must get right is that each tool is both declared and served, and that every tool goes through the same change function the pane uses.
 
 ### A prompt you can use
 
@@ -143,7 +136,30 @@ The following prompt was written for this guide as a suggestion. It is not the a
 
 > In my Claude Code mod `my-panel`, give Claude tools over the to-do list I already keep in `.atl/my-panel/todos.json`. In `session.start`, without awaiting it and catching its failure, call `$.tool.register` three times: `todo_list` (no input), `todo_add` (`name` required, `content` optional) and `todo_done` (`task`, an id or exact name). Write each description to say when to use it: "Use it when the user asks to note something to do later", "Call it when you complete a task that is on the list". Leave `isDeferred` out. Serve each with `on('tool.call', { tool: 'mcp__my-panel__todo_add' }, …)`, reading the arguments from the event, and go through the same change function the pane uses. Answer `{ result: text }` with a short sentence that includes the task id, or `{ deny: text }` for a bad input or any thrown error, never an MCP-style `{ content, isError }`. Test each tool by calling it with `$.tool.call` and checking the file and the text.
 
-## The minimal code
+### What to check in Claude's answer
+
+1. The tools are registered with `$.tool.register` from `session.start`, without awaiting it, and a failure is caught so the pane still works.
+2. Every declared name has its own `tool.call` hook, matched on the full `mcp__<plugin>__<name>`.
+3. Each hook answers `{ result: text }` or `{ deny: text }`, never an MCP-style `{ content, isError }`, and any thrown error becomes a `deny` with its cause.
+4. Each description says when to use the tool, not only what it does.
+5. The hooks add, finish and read tasks through the same functions the pane uses. No tool writes the file its own way.
+
+If a check fails, tell Claude what you see: "I asked Claude to note a task and the tool call failed with no reason".
+
+### How the author asked for it
+
+The original request for these tools was not recorded. No public task log in narsil-check covers the to-do list or its tools. What follows is a reconstruction.
+
+#### Reconstruction from the commit history
+
+From `git log -S tool.register` over `hooks/register.tsx` and `git log -- hooks/todos.ts` in narsil-check:
+
+- `5439638` (2026-11-05) "feat: Pendientes, a per-project task list Claude can read and finish". The only commit that adds `$.tool.register`. Its message: "Claude gets todo_list, todo_add and todo_done, and /narsil-check template "…" asks Claude to add a task, with how the work was done, to a template's list through todo_add_to_template." The list and the tools were built together, so the pane and Claude shared a writer from the start.
+- `8dc7904` (2026-11-05) "fix: keep a damaged Pendientes list and never let side steps block a save". For the tools: "Claude's tools return a readable error on any file failure". This is where `answered` comes from.
+
+## Reference code
+
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.tool.register`, `on('tool.call', { tool }, …)`, the `result` and `deny` answers). It is adapted from `registerTools` and the `tool.call` hooks in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). `change` and `Task` are the ones from the previous guide's code, assumed in `./todos`.
 

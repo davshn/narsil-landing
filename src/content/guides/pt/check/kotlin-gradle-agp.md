@@ -3,7 +3,7 @@ title: Kotlin, Gradle e AGP (avançado)
 description: 'Por que um build Kotlin ou Android não sobe uma ferramenta sozinha, e como o Narsil Check bloqueia o Kotlin além dos plugins do compilador e confere os mínimos entre Gradle, AGP, Kotlin e Compose.'
 route: check
 order: 17
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -164,11 +164,31 @@ Ele lê uma action fixada numa tag inteira (`@v6.1.0`) ou num commit com a sua v
 
 O README, na sua seção sobre essas ferramentas, diz "El wrapper solo se lee: nunca entra en el commit del PR" ("O wrapper só é lido: ele nunca entra no commit do PR"). Isso foi escrito com `1637e94`, quando o wrapper era só contexto para o adaptador Maven, e ainda é verdade para esse adaptador (um teste confere isso). Desde `7048580`, o wrapper também é um ecossistema próprio cujo manifest é `gradle-wrapper.properties`. Lendo `checkPending` (guia 13), um wrapper subido difere do `HEAD` e seria listado e entraria no commit com o resto. Nenhum teste cobre esse caso, em nenhum sentido.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um módulo puro que bloqueie uma atualização do Gradle que o resto do build não aguenta, com o motivo numa frase. A única ideia que ele precisa acertar é que as verificações são mínimos de tabelas publicadas, e uma versão que as tabelas não conhecem bloqueia com "confirme" em vez de passar.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-panel`, que lista atualizações do Gradle a partir de `gradle/libs.versions.toml`, bloqueie as que o resto do build não aguenta, com o motivo numa frase. Leia o Gradle do wrapper a partir do `distributionUrl` em `gradle/wrapper/gradle-wrapper.properties`. Mantenha três tabelas num único módulo puro, cada uma com a URL da documentação de onde vem e a versão até a qual está atualizada: minor do AGP para o Gradle mínimo (notas de versão do AGP do Google), Kotlin para o AGP e o Gradle mínimos (página de configuração do Gradle do kotlinlang.org) e minor do Compose Multiplatform para o Kotlin e o AGP mínimos (o seu CHANGELOG). Confira só os mínimos. Uma versão do AGP ou do Compose mais nova que a sua tabela, ou o AGP sem wrapper, bloqueia com "confirme". Quando o Kotlin subir e o projeto declarar o KSP, bloqueie se o prefixo `x.y.z-` do KSP não for o novo Kotlin; para o SKIE, bloqueie e peça confirmação. Escreva um teste por regra com uma lista de dependências e um texto de wrapper, incluindo uma versão além da tabela.
+
+### O que conferir na resposta do Claude
+
+1. Cada tabela fica ao lado da URL da documentação de onde vem e da versão até a qual está atualizada.
+2. Só os mínimos são verificados: um AGP que precisa de um Gradle mais novo que o do wrapper bloqueia, mas passar de um máximo publicado não bloqueia.
+3. Uma versão do AGP ou do Compose Multiplatform mais nova que a sua tabela, e o AGP sem wrapper para ler, bloqueiam com uma frase que pede que você confirme.
+4. Quando o Kotlin sobe, o KSP só bloqueia se o seu prefixo `x.y.z-` não for o novo Kotlin, e o SKIE bloqueia e pede que você confirme o suporte.
+5. Há um teste por regra, alimentado com uma lista de dependências e um texto de wrapper, e um deles usa uma versão além da tabela.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o AGP 8.13.0 aparece como uma atualização normal enquanto o meu wrapper ainda usa o Gradle 8.11.1".
+
+### Como a pessoa autora pediu
 
 Este foi registrado em parte. A regra dos plugins do compilador é anterior aos registros de tarefas públicos; os mínimos cruzados têm as palavras da pessoa autora.
 
-### Registrado: "antes de subir corrijamos KMP"
+#### Registrado: "antes de subir corrijamos KMP"
 
 `odd/tasks/release-age-all-ecosystems.md` no narsil-check registra, na sua spec S5, o que a pessoa autora disse depois de saber que o Compose Multiplatform e o AGP não estavam cobertos:
 
@@ -178,13 +198,13 @@ Tradução para o português: antes de enviar, vamos corrigir o KMP. O Compose M
 
 A spec S6 cita de novo a segunda metade, "lanza el verificador independiente con todo esto", como um requisito próprio: uma verificação independente do recurso inteiro antes de enviar.
 
-### Registrado no registro de tarefas: como foi descoberto e construído
+#### Registrado no registro de tarefas: como foi descoberto e construído
 
 Estas são as notas do agente, não as palavras da pessoa autora. A entrada de log L4 registra a lacuna que levou ao pedido: "Compose Multiplatform and the Android Gradle Plugin are coupled to Kotlin and Gradle versions like Expo modules to the SDK, and no rule here knows them" (o Compose Multiplatform e o Android Gradle Plugin estão acoplados a versões do Kotlin e do Gradle como os módulos do Expo ao SDK, e nenhuma regra aqui os conhece). A L5 (2026-11-06) registra a pesquisa: a tabela do AGP "matched row by row" (conferida linha por linha) contra a página do Google, os mínimos do Kotlin do kotlinlang.org, que o Compose Multiplatform "has no official per-version table" (não tem uma tabela oficial por versão), então os seus mínimos vêm do seu CHANGELOG, e a decisão de deixar o compilador do Compose de fora.
 
 A L6 registra o que o verificador independente encontrou: dois bloqueios sobre o recurso inteiro, um deles nestas regras. `isCompose` pegava `org.jetbrains.compose.hot-reload` e `material3.adaptive`, "which version on their own" (que têm versões próprias). Os dois foram corrigidos num único lote de correções.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/kmp.ts hooks/wrapper.ts hooks/actions.ts` e `git log -S COMPILER_PLUGINS` no narsil-check:
 
@@ -193,13 +213,9 @@ A partir de `git log -- hooks/kmp.ts hooks/wrapper.ts hooks/actions.ts` e `git l
 - `40e5723` (2026-11-06) "fix: date Go +incompatible versions at the base path and keep Compose rules to its own line" (datar as versões +incompatible do Go pelo caminho base e limitar as regras do Compose à sua própria linha). Os dois bloqueios do verificador.
 - `7048580` (2026-11-09) "feat: check the Gradle wrapper and GitHub Actions for upgrades" (verificar atualizações do wrapper do Gradle e das GitHub Actions). O wrapper como ecossistema próprio, bloqueado com um checksum, e o adaptador das actions.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-panel`, que lista atualizações do Gradle a partir de `gradle/libs.versions.toml`, bloqueie as que o resto do build não aguenta, com o motivo numa frase. Leia o Gradle do wrapper a partir do `distributionUrl` em `gradle/wrapper/gradle-wrapper.properties`. Mantenha três tabelas num único módulo puro, cada uma com a URL da documentação de onde vem e a versão até a qual está atualizada: minor do AGP para o Gradle mínimo (notas de versão do AGP do Google), Kotlin para o AGP e o Gradle mínimos (página de configuração do Gradle do kotlinlang.org) e minor do Compose Multiplatform para o Kotlin e o AGP mínimos (o seu CHANGELOG). Confira só os mínimos. Uma versão do AGP ou do Compose mais nova que a sua tabela, ou o AGP sem wrapper, bloqueia com "confirme". Quando o Kotlin subir e o projeto declarar o KSP, bloqueie se o prefixo `x.y.z-` do KSP não for o novo Kotlin; para o SKIE, bloqueie e peça confirmação. Escreva um teste por regra com uma lista de dependências e um texto de wrapper, incluindo uma versão além da tabela.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia. É TypeScript simples, sem API de mod; ela se encaixa no `conflictsOf` de um adaptador, como no guia 6. Foi adaptada de `hooks/kmp.ts` e de `kotlinConflicts` em `hooks/maven.ts` do [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). As tabelas foram reduzidas a poucas linhas; os valores são os de `hooks/kmp.ts`.
 

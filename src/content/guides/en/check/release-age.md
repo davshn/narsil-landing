@@ -3,7 +3,7 @@ title: The 24-hour wait
 description: 'Why Narsil Check never raises a version published less than a day ago, where each registry says when a version came out, and what happens when nobody can say.'
 route: check
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ Blocking the row only covers the library you raise. Its own dependencies may pul
 
 When either refuses, `ageRefusal` recognizes the tool's message and the pane says so ("Bloqueada por minimumReleaseAge…", "Bloqueada por la espera de 24 h…"), with nothing updated. The README is honest about the rest: yarn, bun and every other ecosystem have no such switch, so there the wait applies to the library that goes up, not to what it brings.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to block any upgrade whose new version was published less than 24 hours ago. The one idea it must get right is what counts as proof of age: a valid date from the registry, or the time the mod first saw the version, and never nothing.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, block any upgrade whose new version was published less than 24 hours ago. Write a pure function `ageReason(published, now, minutes, seen)` that returns a reason in words or `undefined`: with a valid date, block while younger than `minutes`; without one, use `seen` (when the mod first saw the version) as the proof, and block when there is neither. For PyPI, read the date from `https://pypi.org/pypi/<name>/<version>/json` as the earliest `upload_time_iso_8601` in `urls`, with `$.http.fetch`. Keep a valid date in `$.store` under `published:pypi:<name>@<version>` for good and never store anything that is not a date. Keep the first-seen time under `seen:pypi:<name>@<version>`. Put a blocked upgrade in a `blocked` group with the reason under its row, and keep it out of the "Update all" button. Test the function with a fixed `now`: one hour old, two days old, no date and no `seen`, no date and `seen` a day ago.
+
+### What to check in Claude's answer
+
+1. With a valid date, the upgrade is blocked while the version is younger than the wait, and the reason under the row says so in words.
+2. With no date, the first-seen time is the proof. With neither, the upgrade is blocked: "no date" never means "old enough".
+3. Only a value that parses as a date is stored under `published:…`, so an error page is never kept. The first-seen time is kept under `seen:…`.
+4. For PyPI, the date is the earliest `upload_time_iso_8601` of the release's files, when it became installable.
+5. A blocked upgrade sits in the blocked group, the "Update all" button leaves it out, and the tests use a fixed `now` for the four cases the prompt names.
+
+If a check fails, tell Claude what you see: "a version with no readable date has been blocked for three days".
+
+### How the author asked for it
 
 This feature is recorded in the author's words, in narsil-check's public task log `odd/tasks/release-age-all-ecosystems.md`. The previous guide quotes the same entries for the groups; here they are read for what they say about the wait.
 
-### Recorded: from pnpm to every ecosystem
+#### Recorded: from pnpm to every ecosystem
 
 Before this task there was already a block for pnpm's `minimumReleaseAge`, and the author had set its rule when fixing it. The task log keeps it as S4, in the author's words:
 
@@ -157,11 +177,11 @@ Log entry L1 (2026-11-06) records the request that extended it. The author asked
 
 In English: "I'm interested in the first one; we should implement something similar for the other languages, it is safer." Asked how long to wait, the answer was "24 horas está perfecto" ("24 hours is perfect").
 
-### What the agent did with it
+#### What the agent did with it
 
 The rest of the log is the agent's own notes, not the author's words. Entry L2 records how each registry's date was found: one probe per registry, with a real package, before any code. Entry L3 records the check of the npm install: with `npm_config_before` a day back, npm refused an hour-old tailwindcss release and resolved the range to the previous one. Entry L6 records the independent verifier's findings, among them that a SwiftPM committer date "can be forged".
 
-### Recorded: the correction about missing dates
+#### Recorded: the correction about missing dates
 
 The same day, the author noticed the cost of "an unreadable date blocks". L7 quotes the question:
 
@@ -169,7 +189,7 @@ The same day, the author noticed the cost of "an unreadable date blocks". L7 quo
 
 In English: "what happens if a version always comes with an unreadable date? are we never going to update it?" The log records the agent's proposal (wait 24 hours from when the mod first saw the version, keep only valid dates, read SwiftPM's release date instead of the commit's) and the author's answer, "si hazlo asi" ("yes, do it that way"). The design is the agent's; the question and the approval are the author's.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -S releasedUrls` and `git log -S ageConflict` in narsil-check:
 
@@ -184,13 +204,9 @@ From `git log -S releasedUrls` and `git log -S ageConflict` in narsil-check:
 
 The pattern: the strict rule came first and was right, and the one correction made it strict without being stuck.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, block any upgrade whose new version was published less than 24 hours ago. Write a pure function `ageReason(published, now, minutes, seen)` that returns a reason in words or `undefined`: with a valid date, block while younger than `minutes`; without one, use `seen` (when the mod first saw the version) as the proof, and block when there is neither. For PyPI, read the date from `https://pypi.org/pypi/<name>/<version>/json` as the earliest `upload_time_iso_8601` in `urls`, with `$.http.fetch`. Keep a valid date in `$.store` under `published:pypi:<name>@<version>` for good and never store anything that is not a date. Keep the first-seen time under `seen:pypi:<name>@<version>`. Put a blocked upgrade in a `blocked` group with the reason under its row, and keep it out of the "Update all" button. Test the function with a fixed `now`: one hour old, two days old, no date and no `seen`, no date and `seen` a day ago.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.http.fetch`, `$.store.get`, `$.store.set`). It is adapted from `hooks/npm.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It handles PyPI only; another registry is one more URL and one more reader.
 

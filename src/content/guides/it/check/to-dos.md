@@ -3,7 +3,7 @@ title: Cose da fare
 description: 'Come Narsil Check tiene una lista di cose da fare per progetto in un file JSON non tracciato, la tiene fuori da git, e non sovrascrive mai una lista danneggiata senza una copia.'
 route: check
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -104,11 +104,31 @@ La copia sta dentro la stessa cartella esclusa, quindi nemmeno lei arriva a git.
 
 `loadTodos` gira all'inizio della sessione, e di nuovo ogni volta che apri la sezione, così una modifica fatta da un'altra sessione o a mano compare quando guardi. Ogni modifica aggiorna direttamente l'atom del pannello con la lista appena scritta, ma solo quando la modifica riguardava la lista di questo progetto: un'attività scritta nella lista di un altro progetto non sostituisce ciò che mostra questo pannello.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un breve elenco per progetto, tenuto in un file dentro il progetto e fuori da git. L'unica idea che deve fare bene è che il file è la verità: ogni modifica lo rilegge subito prima di scrivere, e un file danneggiato non viene mai letto come vuoto.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-panel`, aggiungi una sezione di cose da fare tenuta per progetto in `.atl/my-panel/todos.json` sotto il livello più alto di git (`git rev-parse --show-toplevel`, altrimenti la cartella della sessione), come `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Disegna ogni attività con un pulsante `○` che la rimuove, un nome che mostra o nasconde il suo contenuto, e un `Input` che aggiunge `name: content`, diviso ai primi due punti; salta l'`Input` sulla superficie mobile. Tieni la cartella fuori da git aggiungendo `/.atl/my-panel/` al file che indica `git rev-parse --git-path info/exclude`, una volta, e non lasciare mai che quel passo fermi un salvataggio. Fai passare ogni modifica per un'unica catena di promise, e rileggi il file prima di ogni scrittura. Se il file non è JSON valido o non ha un array `tasks`, non trattarlo mai come vuoto: mostra un errore, e alla modifica successiva copialo in `todos.damaged-<ISO time>.json` prima di iniziare una lista nuova. Testa un file danneggiato, un file di esclusione che non si può scrivere, e una modifica fatta da un altro scrittore tra due delle tue.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il file sta sotto il livello più alto di git (`git rev-parse --show-toplevel`), altrimenti nella cartella della sessione, così lo stesso elenco si trova da qualsiasi sottocartella.
+2. La cartella resta fuori da git tramite il file che indica `git rev-parse --git-path info/exclude`. La riga viene aggiunta una volta, e un errore lì non ferma il salvataggio.
+3. Ogni modifica passa per un'unica catena di promise, e la catena continua dopo una modifica fallita.
+4. Ogni modifica rilegge il file e applica il suo cambiamento a ciò che c'è adesso, così un'attività aggiunta da un altro scrittore viene conservata.
+5. Un file che non è JSON valido, o non ha un array `tasks`, mostra un errore e non viene scritto. La modifica successiva prima lo copia da parte, poi inizia un elenco nuovo.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "ho lasciato una virgola finale nel file, ho aggiunto un'attività, e le mie vecchie attività sono sparite senza una copia accanto al file".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per questa funzionalità non è stata registrata. Nessun log di task pubblico in narsil-check copre la lista di cose da fare. Ciò che segue è una ricostruzione.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/todos.ts` in narsil-check:
 
@@ -117,13 +137,9 @@ Da `git log -- hooks/todos.ts` in narsil-check:
 
 Il secondo commit è il più istruttivo. La prima versione funzionava nel caso felice. La correzione è un elenco di ciò che può andare storto attorno a un file: può essere rotto, un passo secondario può fallire, una superficie può non avere un elemento, e una promessa nel README può essere troppo forte.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-panel`, aggiungi una sezione di cose da fare tenuta per progetto in `.atl/my-panel/todos.json` sotto il livello più alto di git (`git rev-parse --show-toplevel`, altrimenti la cartella della sessione), come `{ "version": 1, "tasks": [{ "id", "name", "content"? }] }`. Disegna ogni attività con un pulsante `○` che la rimuove, un nome che mostra o nasconde il suo contenuto, e un `Input` che aggiunge `name: content`, diviso ai primi due punti; salta l'`Input` sulla superficie mobile. Tieni la cartella fuori da git aggiungendo `/.atl/my-panel/` al file che indica `git rev-parse --git-path info/exclude`, una volta, e non lasciare mai che quel passo fermi un salvataggio. Fai passare ogni modifica per un'unica catena di promise, e rileggi il file prima di ogni scrittura. Se il file non è JSON valido o non ha un array `tasks`, non trattarlo mai come vuoto: mostra un errore, e alla modifica successiva copialo in `todos.damaged-<ISO time>.json` prima di iniziare una lista nuova. Testa un file danneggiato, un file di esclusione che non si può scrivere, e una modifica fatta da un altro scrittore tra due delle tue.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Questa è una versione ridotta dell'idea, scritta per questa guida e verificata con i tipi di Claude Code 2.1.325 (`$.fs.exists`, `$.fs.read`, `$.fs.write`, `$.process.run`). È adattata da `hooks/todos.ts` e da `changeTodos` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Riceve la radice del progetto come data e lascia fuori il disegno.
 

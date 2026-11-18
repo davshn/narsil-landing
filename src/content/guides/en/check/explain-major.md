@@ -3,7 +3,7 @@ title: Explaining a major version with Haiku
 description: 'How Narsil Check asks Haiku how hard a major upgrade is for this project, from the release notes and the lines that import the library, and how it keeps the model from inventing.'
 route: check
 order: 11
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -147,11 +147,31 @@ Import lines are usually harmless, but they are your code. A mod that reads majo
 
 The README says "Si no hay release, se usa el `CHANGELOG.md` del paquete" ("If there is no release, the package's `CHANGELOG.md` is used"), with no limit. In the code, that fallback is npm only, because it goes through unpkg.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to send a major upgrade's release notes and the project's import lines to Haiku, and to show how hard the jump is. The one idea it must get right is that Haiku answers only from the evidence it is given, in a fixed form the mod can check.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, under each npm library with a major upgrade, show how hard the jump is for this project. For each one, find its GitHub repository from the `repository` field of `node_modules/<name>/package.json`, fetch with `$.http.fetch` the release notes of each new major's `x.0.0` (at most three, tags `v<version>`, `<name>@<version>` or `<version>`), and cut them to 12,000 characters. Find the import lines with `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, at most 40. Call `$.model.complete` with `model: 'haiku'`, `maxTokens: 400`, a 60-second `timeoutMs`, and a system prompt that asks for exactly `DIFFICULTY: low|medium|high` and `REASON:` in at most 280 characters, based only on what it is given, never inventing APIs, and saying so when the notes are missing. Accept the answer only if both lines parse. Cache it in `$.store` under `why:<name>@<from>-><to>` for good. Show "Analyzing…" while it runs. Test with `on('model.complete', ...)` that the prompt contains the notes and an import line, and that a reply without the form shows a fallback line.
+
+### What to check in Claude's answer
+
+1. The message sent to `$.model.complete` contains the release notes of the breaking versions and the import lines, cut to their limits: 12,000 characters of notes and at most 40 lines.
+2. The system prompt tells the model to base the answer only on what it is given, never to invent APIs, and to say so when the notes are missing.
+3. A reply is accepted only when both the difficulty line and the reason line parse. Anything else shows a fallback line and is not stored.
+4. A good reason is kept in `$.store` under a key with the name and both versions, so the same jump is never asked again. A failed one is asked again on the next scan.
+5. The scan does not wait for the reasons: the list shows at once, with "Analyzing…" under each major until its reason arrives.
+
+If a check fails, tell Claude what you see: "Haiku names an API my project never imports, and the prompt has no import lines in it".
+
+### How the author asked for it
 
 The original request for this feature was not recorded: it is already in the first commit, and no public task log covers its creation. One later task log records how it was carried to the other ecosystems, in the agent's words.
 
-### Recorded in a task log
+#### Recorded in a task log
 
 `odd/tasks/ecosystems-wave-2.md` lists, as spec S5, what had to keep working when the second group of ecosystems was added. This is the agent's spec, not the author's words:
 
@@ -159,7 +179,7 @@ The original request for this feature was not recorded: it is already in the fir
 
 The same file's S3 lists "Haiku reasons" among the behaviours that had to stay unchanged.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/explain.ts` and `git log -S SYSTEM` in narsil-check:
 
@@ -170,13 +190,9 @@ From `git log -- hooks/explain.ts` and `git log -S SYSTEM` in narsil-check:
 
 The prompt itself never changed. What grew was where the notes and the usage come from.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, under each npm library with a major upgrade, show how hard the jump is for this project. For each one, find its GitHub repository from the `repository` field of `node_modules/<name>/package.json`, fetch with `$.http.fetch` the release notes of each new major's `x.0.0` (at most three, tags `v<version>`, `<name>@<version>` or `<version>`), and cut them to 12,000 characters. Find the import lines with `$.process.run(['git', '--no-pager', 'grep', '-n', '-I', '-E', pattern, '--', '.', ':!node_modules'])`, at most 40. Call `$.model.complete` with `model: 'haiku'`, `maxTokens: 400`, a 60-second `timeoutMs`, and a system prompt that asks for exactly `DIFFICULTY: low|medium|high` and `REASON:` in at most 280 characters, based only on what it is given, never inventing APIs, and saying so when the notes are missing. Accept the answer only if both lines parse. Cache it in `$.store` under `why:<name>@<from>-><to>` for good. Show "Analyzing…" while it runs. Test with `on('model.complete', ...)` that the prompt contains the notes and an import line, and that a reply without the form shows a fallback line.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.model.complete`, `$.store.get`, `$.store.set`). It is adapted from `hooks/explain.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). The notes and the import lines are passed in; fetching them is shown above.
 

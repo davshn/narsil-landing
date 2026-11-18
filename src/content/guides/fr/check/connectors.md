@@ -3,7 +3,7 @@ title: Les connecteurs
 description: 'Comment Narsil Check liste les serveurs MCP de la session avec leur état et le nombre d’outils de chacun, demandés une fois au serveur de connecteurs de l’application de bureau.'
 route: check
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -85,11 +85,31 @@ Le prix à payer, c’est la surface. En dehors de l’application de bureau, il
 
 Les commits montrent que la finalité de la section a changé une fois. Dans `2bd1919`, un clic sur n’importe quelle ligne de connecteur ouvrait `/mcp`, la liste de serveurs du moteur lui-même. Un commit plus tard, `c07f5e9` a rendu les lignes de nouveau simples, et son message dit pourquoi : « /mcp from a mod only prints a summary in the desktop app » (/mcp depuis un mod n’affiche qu’un résumé dans l’application de bureau). La section sert donc à lire d’un coup d’œil, et l’endroit où se connecter ou réparer un serveur reste celui de l’application.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une section qui liste les serveurs MCP de la session et leur état. L’idée que Claude doit bien saisir : « aucun serveur n’est connecté » et « je n’ai pas pu lire les serveurs » sont deux réponses différentes, et la section les montre différemment.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, ajoute une section « Connectors » au panneau. Dans l’application de bureau, lis une fois les serveurs MCP de la session avec `$.mcp.call('ccd_connectors', 'session_connectors_status')`, en préférant `structuredContent` et en te rabattant sur le JSON du contenu textuel. Analyse un tableau `servers` en `{ name, status, tools }` à partir de `name`, `status` et `tool_count`, en écartant les entrées sans nom, et traite un tableau manquant comme une erreur, pas comme une liste vide. Affiche d’abord les serveurs connectés avec un point vert et leur nombre d’outils, puis les autres avec un point jaune et leur état. Colore le point de la section en rouge quand la lecture a échoué, en gris avant, en jaune quand un serveur est `needs_auth` ou `failed`, et en vert sinon. Ne relis que quand le repli s’ouvre. Teste l’analyseur et les couleurs comme des fonctions pures.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La liste vient d’un seul `$.mcp.call('ccd_connectors', 'session_connectors_status')`, lu d’abord dans `structuredContent` et sinon dans le JSON du contenu texte.
+2. L’analyseur écarte les entrées sans `name` de type chaîne, garde un `status` inconnu sous forme de texte, et renvoie `undefined`, pas une liste vide, quand il n’y a pas de tableau `servers`.
+3. Le point de la section est rouge quand la lecture a échoué, gris avant la première lecture, jaune quand un serveur est `needs_auth` ou `failed`, et vert sinon.
+4. Les serveurs connectés viennent d’abord, avec un point vert et leur nombre d’outils, puis les autres, avec un point jaune et leur état.
+5. La liste n’est pas relue sur une minuterie. Ouvrir le repli la relit.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « hors de l’application de bureau, la section dit qu’aucun connecteur n’est connecté, au lieu de dire pourquoi elle n’a pas pu les lire ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour la section des connecteurs n’a pas été consignée. Aucun des journaux de tâches publics de narsil-check (`odd/tasks/*.md`) ne la couvre.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/session.ts`, avec les commits liés de `hooks/register.tsx` :
 
@@ -100,13 +120,9 @@ La demande d’origine pour la section des connecteurs n’a pas été consigné
 
 Le schéma : une fonctionnalité ajoutée avec le reste de la barre de session, un clic qui s’est révélé inutile dans l’application de bureau et a été retiré, et la règle d’interroger rarement, héritée de l’environnement.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, ajoute une section « Connectors » au panneau. Dans l’application de bureau, lis une fois les serveurs MCP de la session avec `$.mcp.call('ccd_connectors', 'session_connectors_status')`, en préférant `structuredContent` et en te rabattant sur le JSON du contenu textuel. Analyse un tableau `servers` en `{ name, status, tools }` à partir de `name`, `status` et `tool_count`, en écartant les entrées sans nom, et traite un tableau manquant comme une erreur, pas comme une liste vide. Affiche d’abord les serveurs connectés avec un point vert et leur nombre d’outils, puis les autres avec un point jaune et leur état. Colore le point de la section en rouge quand la lecture a échoué, en gris avant, en jaune quand un serveur est `needs_auth` ou `failed`, et en vert sinon. Ne relis que quand le repli s’ouvre. Teste l’analyseur et les couleurs comme des fonctions pures.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325. Elle est adaptée de `hooks/session.ts` et de `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later).
 

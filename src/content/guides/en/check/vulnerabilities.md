@@ -3,7 +3,7 @@ title: Vulnerabilities with OSV.dev
 description: 'How Narsil Check asks OSV.dev about every installed package in one batched query, rates each advisory from its own rating or its CVSS vector, and counts twin advisories once.'
 route: check
 order: 14
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -128,11 +128,31 @@ For most projects that is an acceptable trade for one free source of advisories.
 
 The README and the task log say "nueve ecosistemas" ("nine ecosystems"). The code asks about ten names, every adapter but the Gradle wrapper. The commit that added the audit (`912478b`) says "Each severity copies its own list"; that was replaced in `b3ad055` by copying one finding per press, which is what the code does now.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a section that sends the installed packages to OSV.dev and groups what comes back by severity. The one idea it must get right is that the work happens in a few batched requests, and that the severity and the fixing version come from each advisory itself.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a Vulnerabilities section for npm projects. Read every installed package and version from `package-lock.json` (its `packages` entries), mark the ones not in `package.json` as indirect, and send them to `https://api.osv.dev/v1/querybatch` with `$.http.fetch`, as `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, in slices of 500. For each id the batch returns, fetch `/v1/vulns/<id>` and cache it in `$.store` under `osv:<id>` with its `modified` date, fetching again only when that changes. Rate each advisory from `database_specific.severity` first; if absent, compute the CVSS v3.1 base score from its vector and use the bands 9, 7, 4. Merge advisories that alias each other, keeping the GHSA one. Show the lowest `fixed` version above the installed one. Group by severity, worst first. Test the CVSS function against a few known vectors and their published scores, and the batch with a stubbed `http.fetch`.
+
+### What to check in Claude's answer
+
+1. The packages come from the lockfile, the whole installed tree, and the ones you do not declare are marked indirect.
+2. They go to `https://api.osv.dev/v1/querybatch` in slices of 500, never one request per package.
+3. Each detail is fetched from `/v1/vulns/<id>` and cached in `$.store` under `osv:<id>` with its `modified` date, and fetched again only when that date changes.
+4. Severity is the advisory's own word first. Only without one is the CVSS v3 base score computed and mapped to the bands 9, 7 and 4.
+5. Advisories that alias each other (GHSA and PYSEC) count once, with the GHSA one kept, and the fix shown is the lowest `fixed` version above the installed one.
+
+If a check fails, tell Claude what you see: "the same Python issue shows twice, once with a GHSA id and once with a PYSEC id".
+
+### How the author asked for it
 
 This one is recorded. `odd/tasks/vulnerabilities.md` in narsil-check quotes the author's words in its spec S1 and its log entry L1 (2026-11-05). Guide 1 of this path quotes the same two messages for the pane's design; here they matter for where the data comes from.
 
-### Recorded: the request
+#### Recorded: the request
 
 S1 quotes the first message:
 
@@ -142,7 +162,7 @@ In English: can we check vulnerabilities the same way, that is, create a vulnera
 
 The author asked for "pnpm audit or similar". The task log records that the agent proposed something else, and the author accepted it with "si" ("yes"). In the agent's words in the same spec: "OSV.dev instead of each ecosystem's audit tool; the full tree from the lockfile where one is read, direct dependencies elsewhere". That is the decision this guide explains: one database instead of nine tools, most of which were not installed on the machine.
 
-### Recorded in the task log: the assumption and the probes
+#### Recorded in the task log: the assumption and the probes
 
 These are the agent's notes, not the author's words. The spec's assumption:
 
@@ -150,7 +170,7 @@ These are the agent's notes, not the author's words. The spec's assumption:
 
 Log entry L2 records the probes that shaped the code: one batch answered npm, PyPI, Go, Maven, NuGet and crates.io together; the batch returns ids only; Swift packages are `SwiftURL` named `github.com/owner/repo`; and on the machine only npm and pnpm had audit tools, "no pip-audit, cargo-audit or govulncheck". L3 records that on a real project OSV found the same advisories `npm audit` reports, which `npm audit` spreads over more packages "because it also names the packages that only depend on them".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/osv.ts` in narsil-check:
 
@@ -158,13 +178,9 @@ From `git log -- hooks/osv.ts` in narsil-check:
 - `b3ad055` (2026-11-06) "feat: fold upgrade and vulnerability groups, copy a row on click, …". Severity groups fold on their own; one press copies one finding.
 - `7048580` (2026-11-09) "feat: check the Gradle wrapper and GitHub Actions for upgrades". Its message: "OSV is not asked about it", for the wrapper.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a Vulnerabilities section for npm projects. Read every installed package and version from `package-lock.json` (its `packages` entries), mark the ones not in `package.json` as indirect, and send them to `https://api.osv.dev/v1/querybatch` with `$.http.fetch`, as `{ queries: [{ package: { name, ecosystem: "npm" }, version }] }`, in slices of 500. For each id the batch returns, fetch `/v1/vulns/<id>` and cache it in `$.store` under `osv:<id>` with its `modified` date, fetching again only when that changes. Rate each advisory from `database_specific.severity` first; if absent, compute the CVSS v3.1 base score from its vector and use the bands 9, 7, 4. Merge advisories that alias each other, keeping the GHSA one. Show the lowest `fixed` version above the installed one. Group by severity, worst first. Test the CVSS function against a few known vectors and their published scores, and the batch with a stubbed `http.fetch`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.http.fetch`). It is adapted from `hooks/osv.ts` and `auditProject` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It leaves out the CVSS computation and the cache.
 

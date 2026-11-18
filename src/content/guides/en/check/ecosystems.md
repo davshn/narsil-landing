@@ -3,7 +3,7 @@ title: One adapter per ecosystem
 description: 'How Narsil Check reads eleven package ecosystems through one small contract: each adapter reads its manifest, asks its registry and says how to raise a version.'
 route: check
 order: 6
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -175,11 +175,31 @@ Cargo, Python and the Gradle version catalog write TOML. `hooks/toml.ts` is "a s
 
 Why write one? The mod has no `package.json` of its own: its hooks import only `claude-code` and its own files. Every parser it needs, TOML, YAML for `pnpm-lock.yaml` (read line by line in `pnpmLocked`), versions and ranges, lives in the repository. The reader's header lists Cargo and Python files; `hooks/maven.ts` imports it too, for `libs.versions.toml`.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to turn your list of outdated libraries into one engine with a pure adapter per ecosystem. The one idea it must get right is that an adapter never calls `$`: it names files, builds addresses and commands, and parses text, while the hooks module does all the reading, fetching and running.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, I list outdated npm dependencies. Refactor it so each package ecosystem is a pure adapter object in its own file under `hooks/`, with no calls to `$`: `id`, `label`, `manifests` (file names), `lockfiles`, `parse(files: Record<string, string>)` returning `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` and `installArgv(present, upgrades)`. Keep all I/O in `hooks/register.tsx`: check which manifests exist with `$.fs.exists`, read them with `$.fs.read`, fetch `latestUrl` with `$.http.fetch`, and run `installArgv` with `$.process.run`. Make npm the first adapter with no change in behavior, proven by the existing tests. Then add a PyPI adapter for `requirements.txt` against `https://pypi.org/pypi/<name>/json` (`info.version`). Test each adapter as pure functions with text fixtures and a synthetic registry answer.
+
+### What to check in Claude's answer
+
+1. No adapter calls `$`. `$.fs.exists`, `$.fs.read`, `$.http.fetch` and `$.process.run` appear only in `hooks/register.tsx`.
+2. Each adapter has `manifests`, `lockfiles`, `parse`, `latestUrl`, `latestOf` and `installArgv`. A field only one ecosystem needs is optional.
+3. npm becomes the first adapter with no change in behavior, and the existing tests still pass.
+4. A scoped npm name keeps its `@` and escapes its slash in the URL (`@types%2Fnode`).
+5. Each adapter is tested as pure functions with text fixtures and a synthetic registry answer, with no ecosystem toolchain installed.
+
+If a check fails, tell Claude what you see: "the PyPI tests fail on a machine with no Python, because the adapter runs a command itself".
+
+### How the author asked for it
 
 The adapters were built in three waves on 2026-11-04, each with a public task log in narsil-check. The task logs record the author's words, and also the plan the waves followed; the two are kept apart below.
 
-### Recorded: wave 2
+#### Recorded: wave 2
 
 `odd/tasks/ecosystems-wave-2.md`, log entry L1 (2026-11-04), quotes the author:
 
@@ -193,7 +213,7 @@ S1 records the plan the wave followed, under "The user's request, as wave 2 was 
 
 In English: "2. PyPI, Go, Cargo and Pub. They have registries with simple JSON APIs." The log does not say who wrote that line of the plan. The same S1 adds, in the task log's own words, that "Each ecosystem's adapter follows the shared contract: `detect`, `parse`, `latest`, `importPattern` (the planned contract), plus an install command for the bump group." The contract that shipped named those steps `manifests`, `parse`, `latestUrl`/`latestOf` and `installArgv`. Its stated assumption: "peer dependency and exact-pin checks stay npm-only".
 
-### Recorded: wave 3
+#### Recorded: wave 3
 
 `odd/tasks/ecosystems-wave-3.md`, L1 (2026-11-04), quotes the author: "dale a la oleada 3" ("go ahead with wave 3"). Its S1 records the plan:
 
@@ -203,7 +223,7 @@ In English: "3. Maven (Kotlin/Java), NuGet and RubyGems. Gradle is the hardest t
 
 That plan is why the README says a Gradle version kept in a variable "es código y queda fuera" ("is code and is left out").
 
-### Recorded: wave 4
+#### Recorded: wave 4
 
 `odd/tasks/ecosystems-wave-4.md`, L1 (2026-11-04), quotes the author: "dale a la oleada 4" ("go ahead with wave 4"). Its S1 records the plan:
 
@@ -213,7 +233,7 @@ In English: "4. SwiftPM. I leave it for the end because it depends on GitHub's A
 
 Here the plan changed along the way. The task log's assumption: "tags are read with `git ls-remote --tags --refs <url>` instead of the GitHub API, which has no request limit and works for any git host". That is where the contract got `latestCommand`, in `8444155` "feat: let an adapter answer its latest version with a command".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 Wave 1, npm alone, has no task log, so its request was not recorded. From `git log -- hooks/adapter.ts hooks/ecosystems.ts hooks/toml.ts hooks/semver.ts`:
 
@@ -227,13 +247,9 @@ Wave 1, npm alone, has no task log, so its request was not recorded. From `git l
 
 The pattern: first make the existing ecosystem an adapter without changing its behavior, then add one ecosystem per commit, and grow the contract by one optional field each time an ecosystem does not fit.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, I list outdated npm dependencies. Refactor it so each package ecosystem is a pure adapter object in its own file under `hooks/`, with no calls to `$`: `id`, `label`, `manifests` (file names), `lockfiles`, `parse(files: Record<string, string>)` returning `{ name, spec, isDev, installed? }[]`, `latestUrl(name)`, `latestOf(text)` and `installArgv(present, upgrades)`. Keep all I/O in `hooks/register.tsx`: check which manifests exist with `$.fs.exists`, read them with `$.fs.read`, fetch `latestUrl` with `$.http.fetch`, and run `installArgv` with `$.process.run`. Make npm the first adapter with no change in behavior, proven by the existing tests. Then add a PyPI adapter for `requirements.txt` against `https://pypi.org/pypi/<name>/json` (`info.version`). Test each adapter as pure functions with text fixtures and a synthetic registry answer.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/adapter.ts`, `hooks/npm.ts` and `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It reads versions from the manifest only, with no lockfile.
 

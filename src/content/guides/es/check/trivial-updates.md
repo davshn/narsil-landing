@@ -3,7 +3,7 @@ title: Actualizar las triviales
 description: 'Cómo el botón Actualizar las N sube a la vez cada patch y minor, conservando su operador de rango y su sección, y después ejecuta la herramienta de instalación de cada ecosistema.'
 route: check
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -137,17 +137,37 @@ Tres casos, cada uno tratado de forma distinta en `upgradeBumps`:
 - **La herramienta se ejecuta y falla.** El panel muestra el comando, su código de salida y el final de su salida, o el propio mensaje de la espera cuando pnpm o npm rechazaron una versión reciente, y vuelve a analizar. Los ecosistemas posteriores no se intentan, y los archivos ya reescritos se quedan; `git diff` los muestra.
 - **Cualquier otra cosa lanza una excepción.** "No pude ejecutar …" con el error.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un solo botón que suba de una vez todas las actualizaciones seguras. La única idea que debe entender bien es qué significa «seguras» aquí: solo suben los saltos patch y minor que nada bloquea, cada rango conserva su prefijo y cada biblioteca se queda en su sección.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
+
+> En mi mod de Claude Code `my-panel`, añade un botón "Actualizar todas" bajo las actualizaciones de npm que son un patch o un minor y no están bloqueadas. Elige el gestor de paquetes según el lockfile (pnpm, yarn, bun, y si no, npm). Conserva el prefijo de cada rango: `^1.2.0` con la última 1.4.0 pasa a `^1.4.0`, `~` sigue siendo `~`, sin prefijo sigue sin prefijo. Ejecuta un comando para `dependencies` y otro con `--save-dev` (o `-D`) para `devDependencies`, con `$.process.run` y un tiempo límite. Mientras se ejecuta, oculta el botón y muestra "Actualizando N bibliotecas con <manager>…"; una segunda pulsación no debe hacer nada. Con un código de salida distinto de cero, muestra el comando, su código de salida y las últimas líneas de stderr. Si sale bien, muestra un toast "Actualicé N bibliotecas" y di "Ejecuta los tests antes de hacer commit". Vuelve a analizar desde los registros en cualquier caso. Prueba que los comandos para tres actualizaciones, una de ellas de desarrollo, son exactamente dos, y que una actualización bloqueada o mayor nunca está en ellos.
+
+### Qué revisar en la respuesta de Claude
+
+1. Solo se instala el grupo `bump`. Las actualizaciones mayores y las bloqueadas nunca están en los comandos.
+2. Cada rango conserva su prefijo `^` o `~`: `^3.22.0` pasa a `^3.25.1`.
+3. Hay un comando para `dependencies` y otro con `--save-dev` (o `-D`) para `devDependencies`, y el gestor de paquetes se elige según el lockfile.
+4. Mientras se ejecuta, el botón está oculto y una segunda pulsación no hace nada.
+5. Un fallo muestra el comando, su código de salida y el final de su salida. Salga bien o mal, la lista se vuelve a analizar.
+
+Si una comprobación falla, dile a Claude lo que ves: "después de pulsar el botón, una herramienta de desarrollo pasó a `dependencies`".
+
+### Cómo lo pidió el autor
 
 La petición original del botón no quedó registrada: está en el primer commit, y ningún registro de tareas público cubre su creación.
 
-### Registrado en un registro de tareas
+#### Registrado en un registro de tareas
 
 El registro de tareas `odd/tasks/release-age-all-ecosystems.md` recoge, con las palabras del agente, cómo se comprobó el paso de instalación cuando la espera de 24 horas llegó hasta él. Su tarea T3 es "npm installs with `before` set to 24 hours ago" (npm instala con `before` fijado a hace 24 horas), y la entrada L3 anota que con `npm_config_before` un día atrás, npm rechazó una versión de tailwindcss de hacía una hora y resolvió su rango a la versión anterior. Es evidencia que reunió el agente, no una petición.
 
 `odd/tasks/ecosystems-wave-2.md` enumera "the bump button" (el botón de bump) en S3, entre lo que tenía que seguir funcionando a medida que se añadían ecosistemas; también es la spec del agente.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -S rangeFor`, `git log -S upgradeBumps` y los commits de cada ecosistema en narsil-check:
 
@@ -159,13 +179,9 @@ A partir de `git log -S rangeFor`, `git log -S upgradeBumps` y los commits de ca
 
 El patrón: el botón estaba desde el primer commit, y el trabajo posterior acotó lo que puede incluir "trivial" y lo que pasa cuando falta una herramienta.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil Check.
-
-> En mi mod de Claude Code `my-panel`, añade un botón "Actualizar todas" bajo las actualizaciones de npm que son un patch o un minor y no están bloqueadas. Elige el gestor de paquetes según el lockfile (pnpm, yarn, bun, y si no, npm). Conserva el prefijo de cada rango: `^1.2.0` con la última 1.4.0 pasa a `^1.4.0`, `~` sigue siendo `~`, sin prefijo sigue sin prefijo. Ejecuta un comando para `dependencies` y otro con `--save-dev` (o `-D`) para `devDependencies`, con `$.process.run` y un tiempo límite. Mientras se ejecuta, oculta el botón y muestra "Actualizando N bibliotecas con <manager>…"; una segunda pulsación no debe hacer nada. Con un código de salida distinto de cero, muestra el comando, su código de salida y las últimas líneas de stderr. Si sale bien, muestra un toast "Actualicé N bibliotecas" y di "Ejecuta los tests antes de hacer commit". Vuelve a analizar desde los registros en cualquier caso. Prueba que los comandos para tres actualizaciones, una de ellas de desarrollo, son exactamente dos, y que una actualización bloqueada o mayor nunca está en ellos.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Esta es una versión reducida de la idea, escrita para esta guía y comprobada con los tipos de Claude Code 2.1.325 (`$.process.run`, `$.ui.toast`). Está adaptada de `hooks/npm.ts` y `hooks/register.tsx` en [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Solo npm; `rescan` es tu propio análisis.
 

@@ -3,7 +3,7 @@ title: L’attente de 24 heures
 description: 'Pourquoi Narsil Check ne monte jamais une version publiée il y a moins d’un jour, où chaque registre dit quand une version est sortie, et ce qui se passe quand personne ne le sait.'
 route: check
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -139,11 +139,31 @@ Bloquer la ligne ne couvre que la bibliothèque que vous montez. Ses propres dé
 
 Quand l’un ou l’autre refuse, `ageRefusal` reconnaît le message de l’outil et le panneau le dit (« Bloqueada por minimumReleaseAge… », « Bloqueada por la espera de 24 h… », c’est-à-dire « bloquée par minimumReleaseAge… », « bloquée par l’attente de 24 h… »), sans rien mettre à jour. Le README est honnête sur le reste : yarn, bun et tous les autres écosystèmes n’ont pas un tel interrupteur, donc là l’attente s’applique à la bibliothèque qui monte, pas à ce qu’elle apporte.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de bloquer toute mise à jour dont la nouvelle version a été publiée il y a moins de 24 heures. L’idée que Claude doit bien saisir : ce qui compte comme preuve de l’âge ; une date valide venue du registre, ou le moment où le mod a vu la version pour la première fois, et jamais rien.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-panel`, bloque toute mise à jour dont la nouvelle version a été publiée il y a moins de 24 heures. Écris une fonction pure `ageReason(published, now, minutes, seen)` qui renvoie une raison en mots ou `undefined` : avec une date valide, bloque tant que la version a moins de `minutes` ; sans date, utilise `seen` (le moment où le mod a vu la version pour la première fois) comme preuve, et bloque quand il n’y a ni l’un ni l’autre. Pour PyPI, lis la date depuis `https://pypi.org/pypi/<name>/<version>/json` comme le `upload_time_iso_8601` le plus ancien dans `urls`, avec `$.http.fetch`. Garde une date valide dans `$.store` sous `published:pypi:<name>@<version>` pour de bon et ne stocke jamais rien qui ne soit pas une date. Garde l’heure de première observation sous `seen:pypi:<name>@<version>`. Mets une mise à jour bloquée dans un groupe `blocked` avec la raison sous sa ligne, et garde-la hors du bouton « Update all ». Teste la fonction avec un `now` fixe : une heure, deux jours, pas de date et pas de `seen`, pas de date et `seen` il y a un jour.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Avec une date valide, la mise à jour est bloquée tant que la version est plus jeune que l’attente, et la raison sous la ligne le dit en toutes lettres.
+2. Sans date, le moment de la première observation sert de preuve. Sans aucun des deux, la mise à jour est bloquée : « pas de date » ne veut jamais dire « assez ancienne ».
+3. Seule une valeur qui se lit comme une date est stockée sous `published:…`, si bien qu’une page d’erreur n’est jamais gardée. Le moment de la première observation est gardé sous `seen:…`.
+4. Pour PyPI, la date est le plus ancien `upload_time_iso_8601` des fichiers de la version, c’est-à-dire le moment où elle est devenue installable.
+5. Une mise à jour bloquée se trouve dans le groupe bloqué, le bouton « Update all » la laisse de côté, et les tests utilisent un `now` fixe pour les quatre cas que nomme le prompt.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « une version sans date lisible est bloquée depuis trois jours ».
+
+### Comment l’auteur l’a demandé
 
 Cette fonctionnalité est consignée avec les mots de l’auteur ou de l’autrice, dans le journal de tâches public de narsil-check `odd/tasks/release-age-all-ecosystems.md`. Le guide précédent cite les mêmes entrées pour les groupes ; ici, on les lit pour ce qu’elles disent de l’attente.
 
-### Consigné : de pnpm à tous les écosystèmes
+#### Consigné : de pnpm à tous les écosystèmes
 
 Avant cette tâche, il existait déjà un blocage pour le `minimumReleaseAge` de pnpm, et l’auteur ou l’autrice en avait fixé la règle en le corrigeant. Le journal de tâches la garde comme S4, avec ses mots :
 
@@ -157,11 +177,11 @@ L’entrée de journal L1 (2026-11-06) consigne la demande qui l’a étendue. L
 
 Traduction en français : « Le premier m’intéresse ; nous devrions implémenter quelque chose de similaire pour les autres langages, c’est plus sûr. » À la question de la durée d’attente, la réponse a été « 24 horas está perfecto » (« 24 heures, c’est parfait »).
 
-### Ce que l’agent en a fait
+#### Ce que l’agent en a fait
 
 Le reste du journal, ce sont les notes de l’agent lui-même, pas les mots de l’auteur ou de l’autrice. L’entrée L2 consigne comment la date de chaque registre a été trouvée : une sonde par registre, avec un vrai paquet, avant tout code. L’entrée L3 consigne la vérification de l’installation npm : avec `npm_config_before` réglé un jour en arrière, npm a refusé une version de tailwindcss vieille d’une heure et a résolu la plage vers la précédente. L’entrée L6 consigne les constats du vérificateur indépendant, parmi lesquels le fait qu’une date de committer SwiftPM « can be forged » (peut être falsifiée).
 
-### Consigné : la correction sur les dates manquantes
+#### Consigné : la correction sur les dates manquantes
 
 Le même jour, l’auteur ou l’autrice a remarqué le coût de « une date illisible bloque ». L7 cite la question :
 
@@ -169,7 +189,7 @@ Le même jour, l’auteur ou l’autrice a remarqué le coût de « une date ill
 
 Traduction en français : « que se passe-t-il si une version arrive toujours avec une date illisible ? nous ne la mettrons jamais à jour ? » Le journal consigne la proposition de l’agent (attendre 24 heures à partir du moment où le mod a vu la version pour la première fois, ne garder que les dates valides, lire la date de la release SwiftPM au lieu de celle du commit) et la réponse de l’auteur ou de l’autrice, « si hazlo asi » (« oui, fais-le comme ça »). La conception est celle de l’agent ; la question et l’approbation sont celles de l’auteur ou de l’autrice.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -S releasedUrls` et de `git log -S ageConflict` dans narsil-check :
 
@@ -184,13 +204,9 @@ Traduction en français : « que se passe-t-il si une version arrive toujours av
 
 Le schéma : la règle stricte est venue en premier et était juste, et la seule correction l’a rendue stricte sans qu’elle reste bloquée.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-panel`, bloque toute mise à jour dont la nouvelle version a été publiée il y a moins de 24 heures. Écris une fonction pure `ageReason(published, now, minutes, seen)` qui renvoie une raison en mots ou `undefined` : avec une date valide, bloque tant que la version a moins de `minutes` ; sans date, utilise `seen` (le moment où le mod a vu la version pour la première fois) comme preuve, et bloque quand il n’y a ni l’un ni l’autre. Pour PyPI, lis la date depuis `https://pypi.org/pypi/<name>/<version>/json` comme le `upload_time_iso_8601` le plus ancien dans `urls`, avec `$.http.fetch`. Garde une date valide dans `$.store` sous `published:pypi:<name>@<version>` pour de bon et ne stocke jamais rien qui ne soit pas une date. Garde l’heure de première observation sous `seen:pypi:<name>@<version>`. Mets une mise à jour bloquée dans un groupe `blocked` avec la raison sous sa ligne, et garde-la hors du bouton « Update all ». Teste la fonction avec un `now` fixe : une heure, deux jours, pas de date et pas de `seen`, pas de date et `seen` il y a un jour.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée par rapport aux types de Claude Code 2.1.325 (`$.http.fetch`, `$.store.get`, `$.store.set`). Elle est adaptée de `hooks/npm.ts` et `hooks/register.tsx` dans [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). Elle ne gère que PyPI ; un autre registre, c’est une URL et un lecteur de plus.
 

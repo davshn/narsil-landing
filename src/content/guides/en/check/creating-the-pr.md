@@ -3,7 +3,7 @@ title: Creating the PR
 description: 'How Narsil Check turns upgraded manifests into a commit, a chore/upgrade-deps branch and a pull request opened with gh, and then returns you to the main branch.'
 route: check
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: check
@@ -101,17 +101,37 @@ The 2.1.325 types say of `$.process.run`: "Git runs with repo hooks off". The RE
 
 The comment above `publish` still says "A commit of package.json and its lockfile alone", from the time the mod knew only npm. The code commits the manifests and lockfiles of every ecosystem with changes, as the README says.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a button that turns the dependency changes on disk into a commit and, on the default branch, a pull request. The one idea it must get right is that the commit holds only the dependency files: they are named after `--`, so your other work in progress stays out.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-panel`, add a button that turns the dependency changes of `package.json` into a pull request. First compare the dependency ranges of `git show HEAD:package.json` with the file on disk, and list the changed ones; show the button only when there are some. On press, with `$.process.run` and no shell: stop with a clear message on a detached HEAD; if the current branch is not the default one (from `git symbolic-ref --short refs/remotes/origin/HEAD`, else `main` or `master`), commit and push to it and stop there. On the default branch, create `chore/upgrade-deps-YYYY-MM-DD` (add `-HHMM` if that branch exists), run `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>`, and `gh pr create --base <default> --head <branch> --title … --body …` with a table of changes and a test plan. Then `git switch` back and say so; if the switch fails, stay and show git's error. Name the failing step in every error. Ignore a second press while it runs. Test it by answering `process.run` in the tests and checking the exact argv of each command, in order.
+
+### What to check in Claude's answer
+
+1. The pending changes come from comparing the dependency ranges of `git show HEAD:package.json` with the file on disk, so a change to `scripts` does not offer a PR.
+2. The default branch comes from `git symbolic-ref --short refs/remotes/origin/HEAD`, with `main` or `master` only when origin names none. On any other branch the button commits and pushes there, and stops.
+3. The commit names its files, as in `git commit -m … -m … -- package.json package-lock.json`, never with `git commit -a` or a bare `git commit`.
+4. After `gh pr create`, the button runs `git switch` back to the default branch. When the switch fails, it stays on the new branch and shows git's error.
+5. Every error names the step that failed, and a second press while the job runs does nothing.
+
+If a check fails, tell Claude what you see: "the PR includes a file I was still editing, not only package.json and its lockfile".
+
+### How the author asked for it
 
 The original request for this feature was not recorded. The button is already in the first commit, and no public task log covers its creation. One later task log mentions it, in the agent's words.
 
-### Recorded in a task log
+#### Recorded in a task log
 
 `odd/tasks/ecosystems-wave-4.md`, which adds Swift packages, lists as spec S2 what had to keep working. This is the agent's spec, not the author's words:
 
 > "Everything the earlier waves built keeps working for SwiftPM: grouping, the bump button, Haiku reasons, copy buttons, the commit/push/PR button and the auto-open rule."
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/git.ts` and `git log -S` over `hooks/register.tsx` in narsil-check:
 
@@ -121,13 +141,9 @@ From `git log -- hooks/git.ts` and `git log -S` over `hooks/register.tsx` in nar
 
 The design did not change much. What changed was where you end up afterwards.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-panel`, add a button that turns the dependency changes of `package.json` into a pull request. First compare the dependency ranges of `git show HEAD:package.json` with the file on disk, and list the changed ones; show the button only when there are some. On press, with `$.process.run` and no shell: stop with a clear message on a detached HEAD; if the current branch is not the default one (from `git symbolic-ref --short refs/remotes/origin/HEAD`, else `main` or `master`), commit and push to it and stop there. On the default branch, create `chore/upgrade-deps-YYYY-MM-DD` (add `-HHMM` if that branch exists), run `git add -- package.json package-lock.json`, `git commit -m "chore(deps): upgrade N dependencies" -m <list> -- package.json package-lock.json`, `git push -u origin <branch>`, and `gh pr create --base <default> --head <branch> --title … --body …` with a table of changes and a test plan. Then `git switch` back and say so; if the switch fails, stay and show git's error. Name the failing step in every error. Ignore a second press while it runs. Test it by answering `process.run` in the tests and checking the exact argv of each command, in order.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types (`$.process.run`, `$.ui.toast`). It is adapted from `hooks/git.ts` and `publish` in `hooks/register.tsx` in [narsil-check](https://github.com/davshn/narsil-check) (GPL-3.0-or-later). It handles only the default branch, and takes the files and changes as already found.
 
