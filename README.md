@@ -37,7 +37,7 @@ src/
   components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum), tools/ (Preact islands)
   i18n/               en, es, it, fr, pt (pt-BR) and the TranslationShape contract
   tools/logic/        rules adapted from Narsil and Narsil Check for the tools (GPL-3.0-or-later)
-  utils/              donation, developer, repositories, CSP and URL helpers
+  utils/              donation, developer, repositories, CSP and URL helpers, and the bot server configuration generator
 odd/tasks/            feature documents (specs, tasks, and log)
 ```
 

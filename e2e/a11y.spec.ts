@@ -11,6 +11,7 @@ const PATHS = [
   '/en/tools/priority/',
   '/en/tools/context/',
   '/en/tools/cache/',
+  '/en/tools/bot-config/',
   '/es/',
   '/it/',
   '/fr/',

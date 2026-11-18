@@ -21,12 +21,37 @@ test.describe('Interactive tools', () => {
         t.tools.priority.title,
         t.tools.context.title,
         t.tools.cache.title,
+        t.tools.botConfig.title,
       ])
       const hrefs = await links.evaluateAll((nodes) =>
         nodes.map((node) => node.getAttribute('href')),
       )
       expect(hrefs).toEqual(
-        ['semver', 'xp', 'priority', 'context', 'cache'].map((slug) => `/${locale}/tools/${slug}/`),
+        ['semver', 'xp', 'priority', 'context', 'cache', 'bot-config'].map(
+          (slug) => `/${locale}/tools/${slug}/`,
+        ),
+      )
+    })
+
+    test(`/${locale}/tools/bot-config/ builds the server file without real keys`, async ({
+      page,
+    }) => {
+      const copy = t.tools.botConfig
+      await page.goto(`/${locale}/tools/bot-config/`)
+      const yaml = page.locator('[data-bot-config-result] pre')
+      await expect(yaml).toContainText('api_key: sk-EXAMPLE-not-a-real-key')
+      const model = page.getByLabel(copy.modelLabel)
+      await expect(async () => {
+        await model.selectOption('claude-haiku-5-5')
+        await expect(yaml).toContainText('model_name: claude-haiku-5-5')
+      }).toPass()
+      await page.getByLabel(copy.hostLabel).fill('8.8.8.8')
+      await expect(page.getByRole('status')).toHaveText(copy.invalid.host)
+      await expect(yaml).toHaveCount(0)
+      await expect(page).toHaveURL(`/${locale}/tools/bot-config/`)
+      await expect(page.locator('[data-tool-guide]')).toHaveAttribute(
+        'href',
+        `/${locale}/bot/claude-brain/`,
       )
     })
 
