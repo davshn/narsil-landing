@@ -18,7 +18,7 @@ Quando você abre uma conversa no `claude.ai/code`, uma faixa aparece logo acima
 
 O texto ocupa duas linhas. Um toque o abre inteiro e outro toque o fecha. A faixa empurra a conversa para cima em vez de cobri-la, e se atualiza a cada 10 segundos enquanto a tela está visível.
 
-> **Experimental.** A faixa lê os mesmos dados que a página do `claude.ai` carrega para si mesma, de endereços internos que não são uma API pública, e encontra a caixa de mensagem pela estrutura da página. Uma atualização do Claude pode quebrá-la; quando isso acontece, a faixa simplesmente deixa de aparecer. Ela só lê e nunca envia os seus dados para lugar nenhum.
+> **Experimental.** A faixa lê os mesmos dados que a página do `claude.ai` carrega para si mesma, de endereços internos que não são uma API pública, e encontra a caixa de mensagem pela estrutura da página. Uma atualização do Claude pode quebrá-la; quando isso acontece, a faixa simplesmente deixa de aparecer. Ela só lê: nunca escreve na sua conta nem envia as suas conversas para lugar nenhum, embora a extensão carregue os desenhos da Narsil do GitHub e leia o tópico de estado dela no ntfy.sh.
 
 Tudo na faixa vem do próprio `claude.ai`, então ela não precisa de nenhuma mensagem do seu computador. Só dois detalhes dependem do [mod narsil-pet](https://github.com/davshn/narsil-pet): o estágio da Narsil no desenho e quanto tempo o cache dura.
 

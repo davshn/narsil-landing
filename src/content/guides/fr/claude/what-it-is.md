@@ -17,7 +17,7 @@ Narsil dans Claude (« Narsil en Claude » de son propre nom) est une extension 
 
 L’extension fonctionne par-dessus la vraie application web de Claude. Rien n’est remplacé : vous lisez toujours toute la conversation, vous approuvez les autorisations et répondez aux questions de Claude comme d’habitude. L’extension ne fait qu’ajouter ce qu’elle dessine autour.
 
-> **Expérimentale.** L’extension s’appuie sur la structure de la page `claude.ai` et sur des adresses internes que la page elle-même utilise, pas sur une API publique. Une mise à jour de Claude peut la casser à tout moment. Quand cela arrive, la bande ou le bloc cessent simplement de s’afficher ; ils ne cachent rien. Elle ne fait que lire, et n’envoie jamais vos données nulle part. Son code n’est pas public, donc ce parcours explique comment elle est construite et donne de petits exemples à vous.
+> **Expérimentale.** L’extension s’appuie sur la structure de la page `claude.ai` et sur des adresses internes que la page elle-même utilise, pas sur une API publique. Une mise à jour de Claude peut la casser à tout moment. Quand cela arrive, la bande ou le bloc cessent simplement de s’afficher ; ils ne cachent rien. Elle ne fait que lire : elle n’écrit jamais dans votre compte et n’envoie vos conversations nulle part, mais l’extension charge les dessins de Narsil depuis GitHub et lit son sujet d’état sur ntfy.sh. Son code n’est pas public, donc ce parcours explique comment elle est construite et donne de petits exemples à vous.
 
 L’extension fait partie de la famille Narsil. Le niveau et le décompte ntfy viennent de [Narsil pour Claude Code](https://github.com/davshn/narsil-pet), le mod sur votre ordinateur ; tout le reste fonctionne sans lui.
 

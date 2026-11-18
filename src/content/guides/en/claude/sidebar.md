@@ -20,7 +20,7 @@ Each limit shows a percent, a bar in green, amber or red, and when it resets, su
 
 ntfy.sh is used only for what the page cannot know. The level and the count change when the mod sends a status, which is when you write to Claude Code through Remote Control. When the count is more than an hour old, the block says so.
 
-> **Experimental.** The block finds its place by the structure of the `claude.ai` side menu, and reads the limits from an internal address of the page, not from a public API. A Claude update can break it; when it does, the block stops showing. It only reads, and it never sends your data anywhere.
+> **Experimental.** The block finds its place by the structure of the `claude.ai` side menu, and reads the limits from an internal address of the page, not from a public API. A Claude update can break it; when it does, the block stops showing. It only reads: it never writes to your account or sends your conversations anywhere, though the extension loads Narsil’s pictures from GitHub and reads its status topic from ntfy.sh.
 
 ## How it works inside
 

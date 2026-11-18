@@ -13,12 +13,12 @@ Objective: a short path that explains how Narsil in Claude (the private `davshn/
 
 ## Tasks
 
-| ID  | Specs     | Route                        | Status      | Commit                    |
-| --- | --------- | ---------------------------- | ----------- | ------------------------- |
-| T1  | S2        | inline                       | done        | `f66b4ea`                 |
-| T2  | S1, S3–S6 | delegated (context backstop) | in progress | 8a: guides 1–3            |
-| T3  | S2        | delegated (4 parallel)       | in progress | 8a: guides 1–3 translated |
-| T4  | S2        | inline                       | pending     |                           |
+| ID  | Specs     | Route                        | Status      | Commit                          |
+| --- | --------- | ---------------------------- | ----------- | ------------------------------- |
+| T1  | S2        | inline                       | done        | `f66b4ea`                       |
+| T2  | S1, S3–S6 | delegated (context backstop) | done        | `1ea2ddd` (1–3), 8b: guides 4–5 |
+| T3  | S2        | delegated (4 parallel)       | in progress | 8a: guides 1–3 translated       |
+| T4  | S2        | inline                       | pending     |                                 |
 
 T1: route `claude` (schema, `pathKeys`, `ROUTE_PATHS`, pages, path copy in five locales, home card link, Open Graph image mapping, e2e lists). T2: English guides (1–3 in PR 1, 4–5 in PR 2). T3: translations. T4: checks.
 
@@ -27,3 +27,5 @@ T1: route `claude` (schema, `pathKeys`, `ROUTE_PATHS`, pages, path copy in five 
 - L1 (2026-11-18, owner): S1 verbatim, then "Ruta corta". Earlier, phase 2 L5: "tambien quiero agregar la informacion de narsil-claude ponla como experimental, aunque he hecho muchas pruebas y fujnciona bastante bien"; L6: the repository is private and is not linked.
 - L2: guides 1–3 written from the narsil-claude code and commits (read-only). Checked against the code: the extension only sends GET requests to claude.ai (conversation list, events, usage) and only reads `<topic>-estado` from ntfy.sh; it never publishes. Outside servers still see requests: ntfy.sh sees the topic and the phone's IP, raw.githubusercontent.com serves the pictures (the file names reveal stage and pose), narsil-pwa.vercel.app serves the home screen icons. The home note "It only reads, and it never sends your data anywhere" was corrected in five locales to say so. Found in passing, not changed (private repo): `unseal` in `extension/lib/seal.js` returns an unsealed message unchanged even when a key is set, so a forged plain status is still shown; guide 3 says so. The guides name claude.ai's own request paths and the `[data-cds=ChatComposer]` selector to describe the page, not code from the repository.
 - L3: guides 1–3 translated to es, it, fr, pt. The extension's band is "franja" in Spanish and "banda" in Italian, while Claude Code's own band keeps "banda" (es) and "fascia" (it) as in the pet guides. Browser menu labels and claude.ai's "Search" in other languages were not checked against the real localized UIs. Checks: typecheck, `eslint src`, prettier ok; 728 unit tests; build 341 pages; chromium e2e 270 passed after making the "experimental" check case-insensitive.
+- L4 (2026-11-18, owner): "Listo, mergeado, continúa con las guías 4 y 5" (after #33). PR 2 on branch `feat/claude-path-2`.
+- L5: guides 4–5 written (colors-and-icon, android-packaging). Signing examples use placeholders only; the guide explains keeping AMO credentials in `WEB_EXT_API_KEY`/`WEB_EXT_API_SECRET` or a git-ignored file and regenerating them on addons.mozilla.org. The callouts of guides 1–3 in five locales still said the extension "never sends your data anywhere"; they now use the corrected wording of the home note. Judgement calls: no reason is recorded for leaving out animated backgrounds (guide 4 calls battery and frame cost a likely reason) or for the Firefox 142 minimum (guide 5 says so); uninstalling clears the stored topic and key is standard extension behavior, not checked in the code.

@@ -17,7 +17,7 @@ Narsil in Claude ("Narsil en Claude" nel suo nome proprio) è un'estensione del 
 
 L'estensione lavora sopra la vera web app di Claude. Niente viene sostituito: continui a leggere l'intera conversazione, ad approvare i permessi e a rispondere alle domande di Claude come sempre. L'estensione aggiunge solo ciò che disegna intorno.
 
-> **Sperimentale.** L'estensione si basa sulla struttura della pagina di `claude.ai` e su indirizzi interni che la pagina stessa usa, non su un'API pubblica. Un aggiornamento di Claude può romperla in qualsiasi momento. Quando succede, la banda o il blocco semplicemente smettono di comparire; non coprono niente. Legge soltanto, e non invia mai i tuoi dati da nessuna parte. Il suo codice non è pubblico, quindi questo percorso spiega come è fatta e dà piccoli esempi tutti tuoi.
+> **Sperimentale.** L'estensione si basa sulla struttura della pagina di `claude.ai` e su indirizzi interni che la pagina stessa usa, non su un'API pubblica. Un aggiornamento di Claude può romperla in qualsiasi momento. Quando succede, la banda o il blocco semplicemente smettono di comparire; non coprono niente. Legge soltanto: non scrive mai nel tuo account né invia le tue conversazioni da nessuna parte, anche se l’estensione carica i disegni di Narsil da GitHub e legge il suo topic di stato su ntfy.sh. Il suo codice non è pubblico, quindi questo percorso spiega come è fatta e dà piccoli esempi tutti tuoi.
 
 L'estensione fa parte della famiglia Narsil. Il livello e il conteggio ntfy arrivano da [Narsil per Claude Code](https://github.com/davshn/narsil-pet), la mod sul tuo computer; tutto il resto funziona senza di essa.
 

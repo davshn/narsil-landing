@@ -301,7 +301,13 @@ test.describe('Narsil desk bot path', () => {
   }
 })
 
-const CLAUDE_GUIDES = ['what-it-is', 'conversation-band', 'sidebar']
+const CLAUDE_GUIDES = [
+  'what-it-is',
+  'conversation-band',
+  'sidebar',
+  'colors-and-icon',
+  'android-packaging',
+]
 
 test.describe('Narsil in Claude path', () => {
   for (const locale of locales) {

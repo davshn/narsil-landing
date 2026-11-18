@@ -17,7 +17,7 @@ Narsil in Claude ("Narsil en Claude" in its own name) is a browser extension for
 
 The extension works on top of the real Claude web app. Nothing is replaced: you still read the whole conversation, approve permissions and answer Claude's questions as always. The extension only adds what it draws around them.
 
-> **Experimental.** The extension relies on the structure of the `claude.ai` page and on internal addresses the page itself uses, not on a public API. A Claude update can break it at any time. When that happens, the band or the block simply stop showing; they cover nothing. It only reads, and it never sends your data anywhere. Its code is not public, so this path explains how it is built and gives small examples of your own.
+> **Experimental.** The extension relies on the structure of the `claude.ai` page and on internal addresses the page itself uses, not on a public API. A Claude update can break it at any time. When that happens, the band or the block simply stop showing; they cover nothing. It only reads: it never writes to your account or sends your conversations anywhere, though the extension loads Narsil’s pictures from GitHub and reads its status topic from ntfy.sh. Its code is not public, so this path explains how it is built and gives small examples of your own.
 
 The extension is part of the Narsil family. The level and the ntfy count come from [Narsil for Claude Code](https://github.com/davshn/narsil-pet), the mod on your computer; everything else works without it.
 
