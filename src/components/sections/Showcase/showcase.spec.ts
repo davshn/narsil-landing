@@ -58,6 +58,36 @@ describe('Showcase', () => {
     ).toBe(true)
   })
 
+  it('lays a detail over the framed capture, each with its own alt text and size', async () => {
+    const detail = {
+      light: '/band.png',
+      dark: '/band.png',
+      alt: 'The band',
+      width: 360,
+      height: 120,
+    }
+    const host = await render(Showcase, {
+      props: { title: 'How it looks', items: [{ ...items[1], detail }] },
+    })
+    const frame = host.querySelector('.showcase-frame-phone img')
+    const band = host.querySelector('.showcase-detail img')
+
+    expect(
+      host.querySelector('.showcase-shots')?.classList.contains('showcase-shots-detailed'),
+    ).toBe(true)
+    expect(frame?.getAttribute('alt')).toBe('The phone app')
+    expect(band?.getAttribute('alt')).toBe('The band')
+    expect(band?.getAttribute('height')).toBe('120')
+    expect(host.querySelector('.showcase-detail')?.classList.contains('showcase-frame')).toBe(false)
+  })
+
+  it('renders no detail when the item has none', async () => {
+    const host = await render(Showcase, { props: { title: 'How it looks', items } })
+
+    expect(host.querySelector('.showcase-shots-detailed')).toBeNull()
+    expect(host.querySelector('.showcase-detail')).toBeNull()
+  })
+
   it('renders the subtitle and the note only when provided', async () => {
     const bare = await render(Showcase, { props: { title: 'How it looks', items } })
     const full = await render(Showcase, {

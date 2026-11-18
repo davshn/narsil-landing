@@ -45,6 +45,7 @@ export interface ShowcaseCopy {
   title: string
   text: string
   alt: string
+  detailAlt?: string
 }
 
 export interface PathCopy {

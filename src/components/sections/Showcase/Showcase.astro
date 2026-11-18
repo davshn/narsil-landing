@@ -5,15 +5,19 @@ import './showcase.css'
 
 type Frame = 'window' | 'pane' | 'phone'
 
-interface ShowcaseItem {
-  title: string
-  text: string
-  alt: string
-  frame: Frame
+interface ShowcaseShot {
   light: ImageMetadata | string
   dark: ImageMetadata | string
+  alt: string
   width: number
   height: number
+}
+
+interface ShowcaseItem extends ShowcaseShot {
+  title: string
+  text: string
+  frame: Frame
+  detail?: ShowcaseShot
 }
 
 interface Props {
@@ -24,6 +28,7 @@ interface Props {
 }
 
 const { title, subtitle, items, note } = Astro.props
+const sizes = '(min-width: 1024px) 22rem, 90vw'
 ---
 
 <section class="showcase">
@@ -35,23 +40,34 @@ const { title, subtitle, items, note } = Astro.props
     <div class="showcase-grid">
       {items.map((item) => (
         <figure class="showcase-item">
-          <div class={`showcase-frame showcase-frame-${item.frame}`}>
-            <ResponsiveImage
-              src={item.light}
-              alt={item.alt}
-              width={item.width}
-              height={item.height}
-              sizes="(min-width: 1024px) 22rem, 90vw"
-              pictureClass="theme-light-only"
-            />
-            <ResponsiveImage
-              src={item.dark}
-              alt={item.alt}
-              width={item.width}
-              height={item.height}
-              sizes="(min-width: 1024px) 22rem, 90vw"
-              pictureClass="theme-dark-only"
-            />
+          <div
+            class={`showcase-shots${item.detail === undefined ? '' : ' showcase-shots-detailed'}`}
+          >
+            {[
+              { shot: item, className: `showcase-frame showcase-frame-${item.frame}` },
+              ...(item.detail === undefined
+                ? []
+                : [{ shot: item.detail, className: 'showcase-detail' }]),
+            ].map(({ shot, className }) => (
+              <div class={className}>
+                <ResponsiveImage
+                  src={shot.light}
+                  alt={shot.alt}
+                  width={shot.width}
+                  height={shot.height}
+                  sizes={sizes}
+                  pictureClass="theme-light-only"
+                />
+                <ResponsiveImage
+                  src={shot.dark}
+                  alt={shot.alt}
+                  width={shot.width}
+                  height={shot.height}
+                  sizes={sizes}
+                  pictureClass="theme-dark-only"
+                />
+              </div>
+            ))}
           </div>
           <figcaption class="showcase-caption">
             <span class="showcase-caption-title">{item.title}</span>
