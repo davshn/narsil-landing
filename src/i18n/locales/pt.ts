@@ -110,7 +110,8 @@ export const pt: TranslationShape = {
       badge: 'Experimental',
       title: 'Narsil no Claude, a extensão do navegador',
       text: 'O Narsil também vive dentro do claude.ai no seu celular: uma extensão para Firefox e Vivaldi no Android mostra acima da caixa de texto o status, o contexto, o cache e o último evento da conversa aberta, e no menu lateral o nível do Narsil, seus limites de uso e as mensagens do ntfy.sh do dia. Ela também veste o Claude com as cores do Narsil.',
-      note: 'É experimental: foi bem testada, mas depende da estrutura da página do claude.ai e não de uma API pública, então uma atualização do Claude pode quebrá-la. Ela só lê e nunca envia seus dados para lugar nenhum. O código dela não é público, mas os guias explicam como ela é feita.',
+      note: 'É experimental: foi bem testada, mas depende da estrutura da página do claude.ai e não de uma API pública, então uma atualização do Claude pode quebrá-la. Ela só lê: nunca escreve na sua conta nem envia suas conversas para lugar nenhum, embora carregue os desenhos da Narsil do GitHub e leia o tópico de estado dela no ntfy.sh. O código dela não é público, mas os guias explicam como ela é feita.',
+      cta: 'Como ela é feita',
     },
   },
   mods: {
@@ -156,6 +157,17 @@ export const pt: TranslationShape = {
     ],
     listTitle: 'Os guias',
     startCta: 'Comece o primeiro guia',
+  },
+  claude: {
+    title: 'Narsil no Claude',
+    description:
+      'Como é feita a extensão experimental que leva a Narsil ao claude.ai no Android: a faixa da conversa, o menu lateral, as cores e os pacotes para Android.',
+    intro: [
+      'Narsil no Claude é uma extensão para Firefox e Vivaldi no Android que mostra a Narsil dentro do app web real do claude.ai. Cada guia explica uma das partes dela: o que faz, como funciona por dentro e como foi pedida à IA.',
+      'Ela é experimental: depende da estrutura da página do claude.ai, não de uma API pública, então uma atualização do Claude pode quebrá-la. O código dela não é público, então o código mínimo destes guias é escrito para os guias.',
+    ],
+    listTitle: 'Os guias',
+    startCta: 'Começar o primeiro guia',
   },
   guide: {
     breadcrumbLabel: 'Trilha de navegação',

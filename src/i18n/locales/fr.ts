@@ -108,7 +108,8 @@ export const fr: TranslationShape = {
       badge: 'Expérimental',
       title: 'Narsil dans Claude, l’extension de navigateur',
       text: 'Narsil vit aussi dans claude.ai sur votre téléphone : une extension pour Firefox et Vivaldi sur Android affiche au-dessus de la zone de saisie l’état, le contexte, le cache et le dernier événement de la conversation ouverte, et dans le menu latéral le niveau de Narsil, vos limites d’utilisation et les messages ntfy.sh du jour. Elle habille aussi Claude aux couleurs de Narsil.',
-      note: 'Elle est expérimentale : elle est bien testée, mais elle s’appuie sur la structure de la page claude.ai et non sur une API publique, donc une mise à jour de Claude peut la casser. Elle ne fait que lire et n’envoie jamais vos données nulle part. Son code n’est pas public, mais les guides expliquent comment elle est construite.',
+      note: 'Elle est expérimentale : elle est bien testée, mais elle s’appuie sur la structure de la page claude.ai et non sur une API publique, donc une mise à jour de Claude peut la casser. Elle ne fait que lire : elle n’écrit jamais dans votre compte et n’envoie vos conversations nulle part, mais elle charge les dessins de Narsil depuis GitHub et lit son topic d’état sur ntfy.sh. Son code n’est pas public, mais les guides expliquent comment elle est construite.',
+      cta: 'Comment elle est faite',
     },
   },
   mods: {
@@ -151,6 +152,17 @@ export const fr: TranslationShape = {
     intro: [
       'Le bot a deux cartes reliées par quatre fils. Le ventre, un ESP32-P4 avec un écran tactile de 4,3 pouces, fait tourner Xiaozhi : il écoute, parle avec Claude par votre serveur et affiche vos tâches et vos pull requests. La tête, un ESP32-S3 avec un écran de 1,3 pouce dans un cube prisme, ne dessine que le visage de Narsil et reçoit son état du ventre par UART.',
       'Lisez les guides dans l’ordre. Chacun explique ce que fait la partie, comment elle marche, les choix derrière et la conversation où ils ont été pris, puis le code.',
+    ],
+    listTitle: 'Les guides',
+    startCta: 'Commencer le premier guide',
+  },
+  claude: {
+    title: 'Narsil dans Claude',
+    description:
+      'Comment est faite l’extension expérimentale qui amène Narsil dans claude.ai sur Android : la bande de la conversation, le menu latéral, les couleurs et les paquets Android.',
+    intro: [
+      'Narsil dans Claude est une extension pour Firefox et Vivaldi sur Android qui affiche Narsil dans la vraie application web claude.ai. Chaque guide explique une de ses parties : ce qu’elle fait, comment elle marche à l’intérieur et comment on l’a demandée à l’IA.',
+      'Elle est expérimentale : elle dépend de la structure de la page claude.ai, pas d’une API publique, donc une mise à jour de Claude peut la casser. Son code n’est pas public, donc le code minimal de ces guides est écrit pour les guides.',
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',

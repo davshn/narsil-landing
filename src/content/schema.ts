@@ -1,6 +1,6 @@
 import { z } from 'astro/zod'
 
-export const guideRoutes = ['mods', 'pet', 'check', 'bot'] as const
+export const guideRoutes = ['mods', 'pet', 'check', 'bot', 'claude'] as const
 export type GuideRoute = (typeof guideRoutes)[number]
 
 export const sourceRepositories = ['pet', 'check'] as const
