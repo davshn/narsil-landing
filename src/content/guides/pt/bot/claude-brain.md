@@ -83,7 +83,27 @@ Para obter uma:
 2. Defina um limite mensal em [Spend limits](https://platform.claude.com/settings/spend-limits) (`platform.claude.com/settings/spend-limits`): ao lado de **Monthly spend limit**, clique em **Adjust limit** ou **Set limit**. Segundo a [página de limites de taxa](https://platform.claude.com/docs/en/api/rate-limits), quando o seu próprio limite é atingido, a API responde HTTP 400 até o mês seguinte ou até você aumentá-lo, então um laço descontrolado custa no máximo isso.
 3. Para revogá-la, apague a chave na mesma página **API keys**. As requisições com ela param de funcionar na hora; crie uma nova e atualize o PC.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um novo provedor de modelo de linguagem para o xiaozhi-esp32-server: um único arquivo Python que chame a API Messages do Claude por meio do SDK oficial `anthropic`. A única ideia que ele precisa acertar é que o provedor é um gerador: ele entrega o texto à medida que o Claude o escreve, então a barriga começa a falar antes de a resposta terminar.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
+
+> Eu rodo o xinnan-tech/xiaozhi-esp32-server no Docker. Escreva um novo provedor de LLM para ele que chame o Claude pelo SDK oficial `anthropic` para Python, não pelo endpoint compatível com a OpenAI. Primeiro leia `core/providers/llm/base.py`, `core/providers/llm/gemini/gemini.py`, `core/utils/llm.py` e `core/utils/dialogue.py` para aprender a interface e o formato do diálogo. Converta as mensagens de sistema para o parâmetro `system`, faça streaming com `messages.stream` e entregue a partir de `text_stream`, leia o modelo, o `max_tokens` e a chave de API do bloco de configuração do provedor, e coloque no cache a parte estável do prompt de sistema com `cache_control`. Mostre-me a entrada do `.config.yaml` e como adicionar o arquivo e o SDK ao contêiner Docker.
+
+### O que conferir na resposta do Claude
+
+1. O arquivo é `core/providers/llm/claude/claude.py`, a sua classe é `LLMProvider` e estende `LLMProviderBase`, e o bloco de configuração diz `type: claude`, então `create_instance` o encontra.
+2. `response` abre `client.messages.stream(...)` e entrega com yield a partir de `text_stream`. Usa o SDK nativo, não o endpoint compatível com a OpenAI, que não tem cache de prompt.
+3. As mensagens de sistema viram o parâmetro `system`, e tudo o que vem antes do primeiro turno do usuário é descartado, então `messages` sempre começa com um turno `user`.
+4. O prompt de sistema é dividido em `<context>`: a parte estável leva `cache_control: {"type": "ephemeral"}`, e a parte com a hora vem depois dela, sem cache.
+5. A chave de API vem da variável de ambiente `ANTHROPIC_API_KEY` ou de `api_key` em `data/.config.yaml` no seu PC. Ela nunca aparece no código nem num repositório, e a resposta lembra você de definir um limite de gasto mensal no Console.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "`usage.cache_read_input_tokens` é zero em todo turno".
+
+### Como a pessoa autora pediu
 
 Este guia vem de uma decisão. No guia 4, a pessoa autora colocou o servidor no PC com um motivo:
 
@@ -97,13 +117,9 @@ A IA então perguntou como o servidor deveria chegar ao Claude. Ofereceu duas op
 
 Essa resposta é a especificação S5: um provedor nativo. O modelo, o nível de esforço e a divisão do cache não foram perguntados; a IA os tirou da documentação da Anthropic e do próprio modelo do servidor, e são configurações que você pode mudar.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
-
-> Eu rodo o xinnan-tech/xiaozhi-esp32-server no Docker. Escreva um novo provedor de LLM para ele que chame o Claude pelo SDK oficial `anthropic` para Python, não pelo endpoint compatível com a OpenAI. Primeiro leia `core/providers/llm/base.py`, `core/providers/llm/gemini/gemini.py`, `core/utils/llm.py` e `core/utils/dialogue.py` para aprender a interface e o formato do diálogo. Converta as mensagens de sistema para o parâmetro `system`, faça streaming com `messages.stream` e entregue a partir de `text_stream`, leia o modelo, o `max_tokens` e a chave de API do bloco de configuração do provedor, e coloque no cache a parte estável do prompt de sistema com `cache_control`. Mostre-me a entrada do `.config.yaml` e como adicionar o arquivo e o SDK ao contêiner Docker.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 O provedor, `providers/claude/claude.py` na sua pasta `xiaozhi-server` no PC (MIT, como os próprios exemplos do site):
 

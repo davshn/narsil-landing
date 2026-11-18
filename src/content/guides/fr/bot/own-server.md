@@ -95,7 +95,27 @@ Le bot utilise `OpenaiASR` pour la reconnaissance et garde `EdgeTTS` pour la syn
 
 Le serveur fait un seul travail : la voix. Le ventre se connecte à ntfy et à GitHub par lui-même (guides 7 et 8), et la tête dessine ce que le ventre lui envoie. Si votre PC est éteint, ou si Docker est arrêté, les alertes de Narsil, vos pull requests et son visage continuent de fonctionner. Seul le mot d’activation ne mène nulle part jusqu’au retour du serveur.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude d’installer le serveur de xinnan-tech en mode minimal avec Docker sur votre PC. L’idée que Claude doit bien saisir : le serveur reste sur votre réseau local, et vos modifications et vos clés vont dans `data/.config.yaml`, jamais dans `config.yaml`.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à configurer le bot.
+
+> Je veux faire tourner xinnan-tech/xiaozhi-esp32-server dans son mode minimal avec Docker sur mon PC Windows, joignable uniquement depuis mon réseau local, pour un appareil Xiaozhi. Lis le README du projet, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` et `docker-compose.yml`, puis donne-moi : l’arborescence des dossiers, un `data/.config.yaml` qui ne remplace que ce dont j’ai besoin (adresse WebSocket avec mon IP LAN, fuseau horaire, un outil de reconnaissance vocale qui comprend l’espagnol), les commandes pour le démarrer et lire ses journaux, et l’URL OTA que je dois donner à l’appareil. Cite l’avertissement de sécurité du projet et dis-moi quels ports il ouvre.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Elle cite l’avertissement de sécurité et garde le serveur sur votre réseau local : aucun port 8000 ou 8003 redirigé sur le routeur, car l’authentification est désactivée par défaut.
+2. Vos clés vivent seulement dans `data/.config.yaml`, sur votre PC et hors de tout dépôt. La réponse ne modifie pas `config.yaml` et ne met de clé dans aucun autre fichier.
+3. `server.websocket` est défini explicitement avec l’adresse de votre PC sur le réseau local et le port 8000, car les adresses du journal Docker sont celles du conteneur.
+4. La reconnaissance vocale comprend l’espagnol, comme `OpenaiASR`, et non `FunASR`, dont le modèle prend en charge zh, en, ja, ko et yue.
+5. Elle règle votre propre `server.timezone_offset` au lieu du `+8` par défaut, et donne l’URL OTA avec le port 8003 et le chemin `/xiaozhi/ota/`.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la page OTA dans mon navigateur affiche une adresse WebSocket qui n’est pas celle de mon PC ».
+
+### Comment l’auteur l’a demandé
 
 La décision de faire tourner un serveur a été prise dans le guide 3 : l’auteur ou l’autrice a choisi « servidor propio », un serveur à soi, plutôt que xiaozhi.me. L’IA a alors proposé ce serveur en mode minimal, avec Docker, sur le réseau local uniquement, et a redemandé avant de continuer. L’auteur ou l’autrice a confirmé :
 
@@ -111,13 +131,9 @@ Traduction en français : sur le PC ; de toute façon, l’idée est de l’util
 
 Cette seconde réponse explique deux choses dans ce guide. Le serveur tourne dans Docker sur le PC sur lequel l’auteur ou l’autrice travaille déjà, si bien que rien de nouveau ne doit rester allumé. Et Claude est le cerveau : la décision suivante, consignée comme spec S5, a retenu l’option « 1 », un fournisseur Anthropic natif écrit en Python avec le SDK Anthropic plutôt qu’un point de terminaison compatible OpenAI. Le guide 5 le construit.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à configurer le bot.
-
-> Je veux faire tourner xinnan-tech/xiaozhi-esp32-server dans son mode minimal avec Docker sur mon PC Windows, joignable uniquement depuis mon réseau local, pour un appareil Xiaozhi. Lis le README du projet, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` et `docker-compose.yml`, puis donne-moi : l’arborescence des dossiers, un `data/.config.yaml` qui ne remplace que ce dont j’ai besoin (adresse WebSocket avec mon IP LAN, fuseau horaire, un outil de reconnaissance vocale qui comprend l’espagnol), les commandes pour le démarrer et lire ses journaux, et l’URL OTA que je dois donner à l’appareil. Cite l’avertissement de sécurité du projet et dis-moi quels ports il ouvre.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Le dossier sur le PC, d’après le guide de déploiement :
 

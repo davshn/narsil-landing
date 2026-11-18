@@ -100,7 +100,27 @@ O Wi-Fi cai, e conexões longas se rompem. O ntfy guarda as mensagens por um tem
 
 O tópico fica guardado na NVS da barriga, por meio da classe `Settings` do Xiaozhi (`main/settings.h`), no namespace `narsil`, sob a chave `ntfy_topic`. Você o digita uma vez na tela de configurações da barriga, que o [guia 9](/pt/bot/belly-ui/) constrói; ele nunca aparece no código-fonte. O [guia 12](/pt/bot/secrets-privacy/) explica por que a NVS não é criptografada por padrão e o que isso significa para um dispositivo na sua mesa.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude uma tarefa na barriga que siga os dois tópicos ntfy da Narsil num único stream JSON e passe cada alerta e cada estado para a tela. A única ideia que ele precisa acertar é que o tópico funciona como uma senha, então vive na NVS da barriga, e que uma reconexão pede com `since=` exatamente o que foi perdido.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
+
+> O meu ESP32-P4 roda o Xiaozhi (ESP-IDF 6). Acrescente uma tarefa do FreeRTOS que assine dois tópicos do ntfy.sh num único stream JSON (`https://ntfy.sh/<a>,<b>/json`), o leia com `esp_http_client_open`, `esp_http_client_fetch_headers` e `esp_http_client_read`, o divida em linhas, analise cada uma com o cJSON e passe os eventos `message` para um callback. Use o pacote de certificados, leia o tópico da NVS com a classe `Settings` do Xiaozhi, guarde o ID da última mensagem e reconecte com `since=` depois de um erro. Cite a documentação do ntfy para o formato do stream e o parâmetro `since`.
+
+### O que conferir na resposta do Claude
+
+1. Um único stream segue os dois tópicos, o tópico de alertas e o mesmo nome com `-estado`, separados por vírgula em `https://ntfy.sh/<topic>,<topic>-estado/json`, e a URL não tem `poll=1`.
+2. O stream é lido com `esp_http_client_open`, `esp_http_client_fetch_headers` e `esp_http_client_read`, cortado em linhas a cada `\n`, e só os eventos `message` chegam à tela; `open` e `keepalive` não.
+3. Lembra o `id` da última mensagem e se reconecta com `since=<that id>`. Numa inicialização do zero, pede `since=10m`, nunca `since=all`.
+4. O tópico é lido da NVS com a classe `Settings` do Xiaozhi (namespace `narsil`, chave `ntfy_topic`). Ele nunca aparece num arquivo de código, num valor padrão nem no repositório, e o Claude diz que `/narsil movil nuevo` cria um tópico novo se ele vazar.
+5. O HTTPS usa o pacote de certificados (`crt_bundle_attach = esp_crt_bundle_attach`), e um texto que começa com `narsil1:` é mostrado como "Narsil", com o tipo de alerta tirado da sua tag.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "depois de desligar e ligar o Wi-Fi, o alerta de teste que eu enviei nesse meio-tempo nunca aparece".
+
+### Como a pessoa autora pediu
 
 O trabalho da barriga estava na primeira descrição do bot feita pela pessoa autora:
 
@@ -116,13 +136,9 @@ Tradução para o português: "por cabo, a partir da barriga".
 
 Assim, a barriga é a única placa na rede para os alertas: ela assina o ntfy, e a cabeça recebe só a pose e o estado pelo fio ([guia 10](/pt/bot/uart-protocol/)). Como reconectar, e o que mostrar quando há uma chave definida, não foram perguntados; a IA os tirou da documentação do ntfy e do `sealedMessage` do narsil-pet.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é a conversa usada para construir o bot.
-
-> O meu ESP32-P4 roda o Xiaozhi (ESP-IDF 6). Acrescente uma tarefa do FreeRTOS que assine dois tópicos do ntfy.sh num único stream JSON (`https://ntfy.sh/<a>,<b>/json`), o leia com `esp_http_client_open`, `esp_http_client_fetch_headers` e `esp_http_client_read`, o divida em linhas, analise cada uma com o cJSON e passe os eventos `message` para um callback. Use o pacote de certificados, leia o tópico da NVS com a classe `Settings` do Xiaozhi, guarde o ID da última mensagem e reconecte com `since=` depois de um erro. Cite a documentação do ntfy para o formato do stream e o parâmetro `since`.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Uma tarefa para a barriga, em C++, ao lado do código do Xiaozhi (MIT, como os próprios exemplos do site). `ShowAlert` e `ShowStatus` são as funções da tela do [guia 9](/pt/bot/belly-ui/):
 

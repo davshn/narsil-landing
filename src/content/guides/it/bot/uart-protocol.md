@@ -119,7 +119,27 @@ Entrambi i lati usano il [driver UART](https://docs.espressif.com/projects/esp-i
 
 Le chiamate sono quelle dell'esempio `uart_echo` di ESP-IDF: `uart_driver_install` con un buffer di ricezione, `uart_param_config`, `uart_set_pin`, poi `uart_write_bytes` per inviare e `uart_read_bytes` con un timeout per ricevere. Sulla testa, `uart_read_bytes` con un timeout di 200 ms è anche l'orologio del suo ciclo principale: torna prima quando arrivano byte e altrimenti lascia alla testa il tempo di controllare il silenzio.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un piccolo protocollo di testo tra la pancia e la testa, ed entrambi i suoi lati in ESP-IDF. L'unica idea che deve fare bene è la riga: `$`, la versione `N1`, un tipo, i campi, `*` e un checksum XOR di due cifre dei byte tra `$` e `*`.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
+
+> Due schede ESP32 condividono una UART (UART_NUM_1, 115200 baud, massa comune). Il corpo invia alla testa solo una posa e uno stato vocale; la testa li disegna e deve reggere riavvii e fili staccati. Progetta un protocollo testuale a righe con un campo di versione e un checksum XOR di un byte, elenca ogni messaggio con un esempio e il suo checksum, e scrivi entrambi i lati in ESP-IDF 6 con `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` e `uart_read_bytes`. Il corpo ripete il suo stato ogni 5 s; la testa invia un saluto all'avvio e nient'altro. Spiega come testo ogni lato da un PC con un adattatore USB-seriale.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il checksum copre solo i byte tra `$` e `*`, scritto in esadecimale maiuscolo. Il codice di Claude ottiene `1B` per `$N1,H*1B`.
+2. Ci sono tre messaggi: `P` con una posa e uno stadio, `V` con `idle`, `listening` o `speaking`, e il saluto `H` della testa. La testa non invia nient'altro, quindi non può mai chiedere nulla alla pancia né raggiungere un segreto.
+3. La pancia invia le sue righe `P` e `V` quando cambiano, comunque ogni cinque secondi, e subito dopo un saluto. La testa abbassa la retroilluminazione dopo 15 secondi senza una riga valida, e scarta le righe più lunghe di 64 byte.
+4. La posa viene dall'URL di `art`: il nome del file prima di `-oscuro.png` e il numero dopo `/etapa` (1 quando non c'è), controllati rispetto ai cinque nomi di posa e agli stadi da 1 a 5.
+5. Entrambi i lati usano `UART_NUM_1` a 115200 baud, 8 bit di dati, nessuna parità, 1 bit di stop e nessun controllo di flusso: GPIO4 e GPIO5 sulla pancia, GPIO14 e GPIO13 sulla testa, con una massa comune.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "scrivo `$N1,P,necesita,2*33` nel terminale della testa e non cambia nulla".
+
+### Come l'ha chiesta l'autore
 
 Il collegamento stesso è venuto da una delle prime risposte di chi ha creato Narsil. Alla domanda se la testa si sarebbe collegata alla rete da sola o avrebbe ricevuto i suoi dati dalla pancia, chi ha creato Narsil ha detto:
 
@@ -135,13 +155,9 @@ In italiano: "la testa sarà uno schermo olografico che sia solo la faccia di Na
 
 Insieme, queste due risposte sono la portata del protocollo: un filo, e solo ciò che serve alla faccia. Il formato non è stato una decisione di chi ha creato Narsil. L'IA ha confrontato i frame binari con le righe di testo, e ha scelto righe di testo con una versione e un checksum perché si possono leggere e scrivere a mano durante i test. Ricavare la posa dall'URL di `art`, invece di aggiungere un nuovo campo sul PC, è venuto dalla lettura di `artUrl` e `sendStatus` di narsil-pet: l'informazione c'era già, quindi sul lato del PC non doveva cambiare niente.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
-
-> Due schede ESP32 condividono una UART (UART_NUM_1, 115200 baud, massa comune). Il corpo invia alla testa solo una posa e uno stato vocale; la testa li disegna e deve reggere riavvii e fili staccati. Progetta un protocollo testuale a righe con un campo di versione e un checksum XOR di un byte, elenca ogni messaggio con un esempio e il suo checksum, e scrivi entrambi i lati in ESP-IDF 6 con `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` e `uart_read_bytes`. Il corpo ripete il suo stato ogni 5 s; la testa invia un saluto all'avvio e nient'altro. Spiega come testo ogni lato da un PC con un adattatore USB-seriale.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Il lato della pancia, in C++ accanto al codice di Xiaozhi (MIT, come gli esempi del sito). `head_link_init` della guida 1 configura la porta; questo aggiunge i messaggi e il task del collegamento:
 

@@ -87,7 +87,27 @@ El mensaje `V` de la guía 10 dice si Xiaozhi está escuchando o hablando. La ca
 
 Los LED de la pantalla están en GPIO20, a través de un transistor. La cabeza maneja el pin con el periférico PWM [LEDC](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/peripherals/ledc.html) de ESP-IDF a 5 kHz con 10 bits de resolución, así que el ciclo de trabajo, de 0 a 1023, es el brillo. Funciona con el brillo al máximo mientras llegan líneas, y baja al 20 % después de 15 segundos de silencio (guía 10): la panza está apagada o el cable está suelto, y una Narsil atenuada lo dice sin apagarse. La retroiluminación sigue apagada hasta que se dibuja el primer fotograma, así que la pantalla nunca muestra al arrancar la memoria aleatoria del controlador.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude el firmware de la cabeza: una app de ESP-IDF que dibuja la pose de Narsil, recibida por la UART, en la pantalla ST7789 bajo el cubo de prisma. La idea que debe acertar es que el cubo es un espejo: la imagen debe dibujarse en espejo, y todo lo que no es Narsil debe ser negro puro, porque el negro es lo que se ve transparente.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
+
+> Tengo una Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) bajo un cubo prisma de fantasma de Pepper. Lee la wiki y el esquema de Waveshare para los pines de la LCD y de la retroiluminación, y la documentación de `esp_lcd` de ESP-IDF 6. Escribe una app de ESP-IDF que inicialice el ST7789 con `esp_lcd_new_panel_st7789`, ponga la imagen en espejo con `esp_lcd_panel_mirror`, mantenga el fondo en negro puro, fije la retroiluminación con LEDC, y dibuje una de 25 imágenes RGB565 incrustadas elegida por una pose y una etapa recibidas por UART. Espera a `on_color_trans_done` antes de reutilizar el búfer del fotograma. Explica por qué la imagen debe ir en espejo y por qué el negro se ve transparente, y cómo compruebo la alineación.
+
+### Qué revisar en la respuesta de Claude
+
+1. La imagen se refleja en el controlador de la pantalla con `esp_lcd_panel_mirror`, empezando con `mirror_x` activado, y la pantalla de arranque muestra un cuadrado rojo en la esquina superior izquierda durante tres segundos para que puedas comprobar el eje.
+2. Cada fotograma se borra a negro puro (`0x0000`), y el arte se convierte con `--background 0x000000` y `--cf RGB565_SWAPPED`, no con `RGB565` a secas.
+3. Los pines coinciden con el esquema de Waveshare: CLK en GPIO40, MOSI en GPIO41, CS en GPIO39, DC en GPIO38, reset en GPIO42 y la retroiluminación en GPIO20. Ninguno es GPIO13 ni GPIO14, la UART de la guía 10.
+4. Después de `esp_lcd_panel_draw_bitmap`, el código espera a que `on_color_trans_done` entregue su semáforo antes de volver a tocar el búfer del fotograma.
+5. La cabeza solo vuelve a dibujar cuando cambian la pose, la etapa o el estado de voz. La retroiluminación sigue apagada hasta el primer fotograma, y baja al 20 % después de 15 segundos sin una línea de la panza.
+
+Si una comprobación falla, dile a Claude lo que ves: "Narsil mira hacia el lado equivocado, y el cuadrado rojo está en la esquina superior derecha del cubo".
+
+### Cómo lo pidió el autor
 
 El trabajo de la cabeza estaba en la primera descripción del bot que hizo quien creó Narsil:
 
@@ -97,13 +117,9 @@ El trabajo de la cabeza estaba en la primera descripción del bot que hizo quien
 
 Qué dibujar fue la propuesta de la IA: Narsil ya tiene arte pintado para cada estado y cada etapa en narsil-pet, las mismas imágenes que usan los avisos del teléfono, así que la cabeza muestra esas en lugar de un dibujo nuevo. Cómo se entera la cabeza de la pose quedó resuelto antes con la respuesta de quien creó Narsil, "Por cable desde la panza", que la guía 10 convirtió en el protocolo.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
-
-> Tengo una Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) bajo un cubo prisma de fantasma de Pepper. Lee la wiki y el esquema de Waveshare para los pines de la LCD y de la retroiluminación, y la documentación de `esp_lcd` de ESP-IDF 6. Escribe una app de ESP-IDF que inicialice el ST7789 con `esp_lcd_new_panel_st7789`, ponga la imagen en espejo con `esp_lcd_panel_mirror`, mantenga el fondo en negro puro, fije la retroiluminación con LEDC, y dibuje una de 25 imágenes RGB565 incrustadas elegida por una pose y una etapa recibidas por UART. Espera a `on_color_trans_done` antes de reutilizar el búfer del fotograma. Explica por qué la imagen debe ir en espejo y por qué el negro se ve transparente, y cómo compruebo la alineación.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Primero el arte. Desde una carpeta con un clon de narsil-pet y otro de LVGL (para `LVGLImage.py`, que necesita `pip install pypng lz4`), en PowerShell:
 

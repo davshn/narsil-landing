@@ -110,7 +110,27 @@ Il percorso della voce è l'unico che ha bisogno del tuo PC. Avvisi, pull reques
 
 Il firmware di entrambe le schede vive in un unico repository pubblico, `davshn/narsil-bot`: un fork di 78/xiaozhi-esp32 per la pancia, con il firmware della testa nella sua cartella `head/`.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di leggere le pagine ufficiali di entrambe le schede e di proporre il ruolo di ciascuna, i pin della UART, l'alimentazione e l'elenco dei componenti. L'unica idea che deve fare bene è che la pancia possiede ogni connessione e ogni segreto, e la testa disegna solo ciò che riceve su tre fili.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per progettare il bot.
+
+> Voglio costruire un bot da scrivania con due schede ESP32: una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 come corpo e una ESP32-S3-LCD-1.3-C (ST7789 240×240 sotto un cubo prismatico) come testa. Il corpo deve fare tutta la parte di rete e la testa deve solo disegnare una faccia che riceve via UART. Leggi le pagine e gli schemi ufficiali di Waveshare e SpotPear, poi proponi: il ruolo di ogni scheda, quali pin liberi dell'header usare per la UART su ciascun lato (evitando i pin che il supporto di scheda o la console di avvio usano già), come alimentare entrambe le schede e una distinta dei materiali. Cita la pagina da cui viene ogni pin, e fammi una domanda alla volta quando qualcosa è una vera scelta.
+
+### Cosa controllare nella risposta di Claude
+
+1. La pancia fa tutta la parte di rete e custodisce la password del Wi-Fi, il token GitHub e il topic ntfy. La testa non custodisce segreti e riceve solo una posa e uno stato tramite la UART.
+2. La UART usa pin liberi dell'header: GPIO4 (TX) e GPIO5 (RX) sulla pancia, GPIO13 (RX) e GPIO14 (TX) sulla testa. Evita i pin che il `config.h` di Xiaozhi occupa già, come quelli da GPIO9 a GPIO13 per l'audio.
+3. I fili si incrociano: ogni TX va all'RX dell'altra scheda, e un terzo filo unisce le due masse.
+4. Ogni scheda ha il suo cavo USB-C, e i pin 3V3 restano scollegati. Entrambe le schede usano logica a 3,3 V, quindi non serve un traslatore di livello.
+5. I pin della console restano liberi: GPIO37 e GPIO38 sulla pancia, GPIO43 e GPIO44 sulla testa. Ogni scelta di pin cita la pagina o lo schema da cui viene.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la testa stampa caratteri senza senso, e il mio piano non ha un filo di massa tra le schede".
+
+### Come l'ha chiesta l'autore
 
 Il design è partito da un carrello della spesa. Il 2026-11-17 chi ha creato Narsil ha condiviso uno screenshot di un carrello di AliExpress con le due schede e un pacco di cavi Dupont, e ha descritto l'idea:
 
@@ -128,13 +148,9 @@ In italiano: "Via cavo dalla pancia".
 
 Quella risposta è la regola di "Perché la pancia fa tutta la parte di rete" qui sopra: una scheda possiede la rete e i segreti, l'altra si limita a disegnare. L'IA ha fatto le sue domande una alla volta, con le pagine di Waveshare e SpotPear come fonti, e ha registrato ogni risposta nel documento dei task del progetto come specifica numerata.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per progettare il bot.
-
-> Voglio costruire un bot da scrivania con due schede ESP32: una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 come corpo e una ESP32-S3-LCD-1.3-C (ST7789 240×240 sotto un cubo prismatico) come testa. Il corpo deve fare tutta la parte di rete e la testa deve solo disegnare una faccia che riceve via UART. Leggi le pagine e gli schemi ufficiali di Waveshare e SpotPear, poi proponi: il ruolo di ogni scheda, quali pin liberi dell'header usare per la UART su ciascun lato (evitando i pin che il supporto di scheda o la console di avvio usano già), come alimentare entrambe le schede e una distinta dei materiali. Cita la pagina da cui viene ogni pin, e fammi una domanda alla volta quando qualcosa è una vera scelta.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Il cablaggio diventa codice in un solo punto su ogni scheda: la configurazione della UART. Questo è il lato della pancia, scritto per questa guida con il driver UART di ESP-IDF (`driver/uart.h`, le stesse chiamate dell'esempio `uart_echo` di ESP-IDF). Il lato della testa è uguale, con i suoi pin.
 

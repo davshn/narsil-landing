@@ -110,7 +110,27 @@ Le trajet de la voix est le seul qui a besoin de votre PC. Les alertes, les pull
 
 Le firmware des deux cartes se trouve dans un seul dépôt public, `davshn/narsil-bot` : un fork de 78/xiaozhi-esp32 pour le ventre, avec le firmware de la tête dans son propre dossier `head/`.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de lire les pages officielles des deux cartes et de proposer le rôle de chacune, les broches de l’UART, l’alimentation et la liste des composants. L’idée que Claude doit bien saisir : le ventre gère toutes les connexions et tous les secrets, et la tête ne fait que dessiner ce qu’elle reçoit par trois fils.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à concevoir le bot.
+
+> Je veux construire un bot de bureau à partir de deux cartes ESP32 : une Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 comme corps et une ESP32-S3-LCD-1.3-C (ST7789 240×240 sous un cube prisme) comme tête. Le corps doit gérer tout le réseau et la tête doit seulement dessiner un visage qu’elle reçoit par UART. Lis les pages et les schémas officiels de Waveshare et de SpotPear, puis propose : le rôle de chaque carte, quelles broches libres du connecteur utiliser pour l’UART de chaque côté (en évitant les broches que le support de carte ou la console de démarrage utilisent déjà), comment alimenter les deux cartes, et une liste des composants. Cite la page d’où vient chaque broche, et pose-moi une question à la fois quand quelque chose relève d’un vrai choix.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le ventre gère tout le réseau et garde le mot de passe Wi-Fi, le token GitHub et le topic ntfy. La tête ne garde aucun secret et ne reçoit qu’une pose et un état par l’UART.
+2. L’UART utilise des broches libres du connecteur : GPIO4 (TX) et GPIO5 (RX) sur le ventre, GPIO13 (RX) et GPIO14 (TX) sur la tête. Elle évite les broches que prend déjà le `config.h` de Xiaozhi, comme GPIO9 à GPIO13 pour l’audio.
+3. Les fils se croisent : chaque TX va au RX de l’autre carte, et un troisième fil relie les deux masses.
+4. Chaque carte a son propre câble USB-C, et les broches 3V3 restent non connectées. Les deux cartes utilisent une logique en 3,3 V, donc aucun convertisseur de niveau n’est nécessaire.
+5. Les broches de la console restent libres : GPIO37 et GPIO38 sur le ventre, GPIO43 et GPIO44 sur la tête. Chaque choix de broche cite la page ou le schéma d’où il vient.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la tête affiche des caractères illisibles, et mon plan n’a pas de fil de masse entre les cartes ».
+
+### Comment l’auteur l’a demandé
 
 La conception est partie d’un panier d’achat. Le 2026-11-17, l’auteur ou l’autrice a partagé une capture d’écran d’un panier AliExpress contenant les deux cartes et un lot de fils Dupont, et a décrit l’idée :
 
@@ -128,13 +148,9 @@ Traduction en français : par câble depuis le ventre.
 
 Cette réponse est la règle de « Pourquoi le ventre gère tout le réseau » ci-dessus : une carte possède le réseau et les secrets, l’autre ne fait que dessiner. L’IA a posé ses questions une à la fois, avec les pages de Waveshare et de SpotPear comme sources, et a consigné chaque réponse dans le document de tâches du projet sous forme de spec numérotée.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à concevoir le bot.
-
-> Je veux construire un bot de bureau à partir de deux cartes ESP32 : une Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 comme corps et une ESP32-S3-LCD-1.3-C (ST7789 240×240 sous un cube prisme) comme tête. Le corps doit gérer tout le réseau et la tête doit seulement dessiner un visage qu’elle reçoit par UART. Lis les pages et les schémas officiels de Waveshare et de SpotPear, puis propose : le rôle de chaque carte, quelles broches libres du connecteur utiliser pour l’UART de chaque côté (en évitant les broches que le support de carte ou la console de démarrage utilisent déjà), comment alimenter les deux cartes, et une liste des composants. Cite la page d’où vient chaque broche, et pose-moi une question à la fois quand quelque chose relève d’un vrai choix.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Le câblage devient du code à un seul endroit sur chaque carte : la configuration de l’UART. Voici le côté du ventre, écrit pour ce guide avec le pilote UART d’ESP-IDF (`driver/uart.h`, les mêmes appels que l’exemple `uart_echo` d’ESP-IDF). Le côté de la tête est identique avec ses propres broches.
 

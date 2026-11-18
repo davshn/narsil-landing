@@ -95,7 +95,27 @@ Il bot usa `OpenaiASR` per il riconoscimento e mantiene `EdgeTTS` per la sintesi
 
 Il server fa un solo lavoro: la voce. La pancia si collega da sola a ntfy e a GitHub (guide 7 e 8), e la testa disegna ciò che la pancia le invia. Se il tuo PC è spento, o Docker è fermo, gli avvisi di Narsil, le tue pull request e la sua faccia continuano a funzionare. Solo la wake word non porta da nessuna parte finché il server non torna.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di configurare il server di xinnan-tech in modalità minima con Docker sul tuo PC. L'unica idea che deve fare bene è che il server resta sulla tua rete locale, e che le tue modifiche e le tue chiavi vanno in `data/.config.yaml`, mai in `config.yaml`.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
+
+> Voglio eseguire xinnan-tech/xiaozhi-esp32-server nella sua modalità minima con Docker sul mio PC Windows, raggiungibile solo dalla mia rete locale, per un dispositivo Xiaozhi. Leggi il README del progetto, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` e `docker-compose.yml`, poi dammi: la struttura delle cartelle, un `data/.config.yaml` che sovrascriva solo ciò che mi serve (indirizzo WebSocket con il mio IP LAN, fuso orario, un riconoscitore vocale che capisca lo spagnolo), i comandi per avviarlo e leggerne i log, e l'URL OTA che devo dare al dispositivo. Cita l'avviso di sicurezza del progetto e dimmi quali porte apre.
+
+### Cosa controllare nella risposta di Claude
+
+1. Cita l'avviso di sicurezza e tiene il server sulla tua rete locale: nessun inoltro delle porte 8000 o 8003 sul router, perché l'autenticazione è disattivata per impostazione predefinita.
+2. Le tue chiavi vivono solo in `data/.config.yaml`, sul tuo PC e fuori da qualsiasi repository. La risposta non modifica `config.yaml` e non mette una chiave in nessun altro file.
+3. `server.websocket` è impostato esplicitamente con l'indirizzo LAN del tuo PC e la porta 8000, perché gli indirizzi nel log di Docker sono quelli del container.
+4. Il riconoscimento vocale capisce lo spagnolo, come `OpenaiASR`, e non è `FunASR`, il cui modello supporta zh, en, ja, ko e yue.
+5. Imposta il tuo `server.timezone_offset` invece del predefinito `+8`, e indica l'URL OTA sulla porta 8003 con il percorso `/xiaozhi/ota/`.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la pagina OTA nel mio browser mostra un indirizzo WebSocket che non è quello del mio PC".
+
+### Come l'ha chiesta l'autore
 
 La decisione di eseguire un server è arrivata nella guida 3: chi ha creato Narsil ha scelto "servidor propio", un server proprio, invece di xiaozhi.me. L'IA ha poi proposto questo server in modalità minima, con Docker, solo sulla rete locale, e ha chiesto di nuovo prima di andare avanti. Chi ha creato Narsil ha confermato:
 
@@ -111,13 +131,9 @@ In italiano: "sul PC; tanto l'idea è usarlo per lavorare con Claude".
 
 Quella seconda risposta spiega due cose di questa guida. Il server gira in Docker sul PC su cui chi ha creato Narsil lavora già, quindi niente di nuovo deve restare acceso. E Claude è il cervello: la decisione successiva, registrata come specifica S5, ha scelto l'opzione "1", un provider Anthropic nativo scritto in Python con l'Anthropic SDK invece di un endpoint compatibile con OpenAI. La guida 5 lo costruisce.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
-
-> Voglio eseguire xinnan-tech/xiaozhi-esp32-server nella sua modalità minima con Docker sul mio PC Windows, raggiungibile solo dalla mia rete locale, per un dispositivo Xiaozhi. Leggi il README del progetto, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` e `docker-compose.yml`, poi dammi: la struttura delle cartelle, un `data/.config.yaml` che sovrascriva solo ciò che mi serve (indirizzo WebSocket con il mio IP LAN, fuso orario, un riconoscitore vocale che capisca lo spagnolo), i comandi per avviarlo e leggerne i log, e l'URL OTA che devo dare al dispositivo. Cita l'avviso di sicurezza del progetto e dimmi quali porte apre.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 La cartella sul PC, dalla guida all'installazione:
 

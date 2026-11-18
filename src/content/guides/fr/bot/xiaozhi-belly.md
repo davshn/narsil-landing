@@ -98,7 +98,27 @@ Cette émotion `llm` sera utile plus tard : c’est la première chose que le ve
 
 Xiaozhi enregistre des outils sur l’appareil via le singleton `McpServer`, avec `AddTool(name, description, properties, callback)`. Le serveur envoie `initialize`, puis `tools/list`, puis `tools/call` en JSON-RPC 2.0, comme l’explique son [document d’utilisation du MCP](https://github.com/78/xiaozhi-esp32/blob/main/docs/mcp-usage.md). C’est ainsi que le cerveau de Narsil pourra agir sur le bot, et pas seulement parler à travers lui ; des guides ultérieurs ajoutent les propres outils du bot.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de compiler Xiaozhi pour la carte du ventre et de le diriger vers votre propre serveur. L’idée que Claude doit bien saisir : l’URL OTA décide du serveur qu’utilise le ventre, et vous l’enregistrez sur l’appareil, jamais dans le dépôt.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
+
+> J’ai un fork de 78/xiaozhi-esp32 et une Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Lis le dossier de carte `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` et `docs/ota.md`, puis explique : quelle variante de compilation convient à ma carte et comment connaître la révision de ma puce, la commande `scripts/build.py` exacte, et toutes les façons dont le firmware décide quelle URL OTA utiliser. Je veux que l’adresse de mon serveur reste hors du dépôt, alors recommande l’option qui l’enregistre sur l’appareil, et dis-moi ce que je verrai au premier démarrage.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La commande de compilation nomme le dossier de la carte `waveshare/esp32-p4-wifi6-touch-lcd` et passe `--name`, si bien que `build.py` ne s’arrête pas dans un conteneur sans terminal.
+2. La variante correspond à la révision de votre puce : `esp32-p4-wifi6-touch-lcd-4.3` avant la révision 3, `esp32-p4x-wifi6-touch-lcd-4.3` pour la révision 3.x. Claude vous dit de lire la révision qu’affiche esptool.
+3. L’adresse du serveur est enregistrée sur l’appareil, dans l’onglet Advanced du portail Wi-Fi, sous `wifi/ota_url`. Elle n’est écrite ni dans `Kconfig.projbuild` ni dans aucun fichier du dépôt.
+4. L’URL OTA utilise l’adresse de votre PC sur votre réseau, en `http://` simple, le port 8003 et le chemin `/xiaozhi/ota/` avec la barre oblique finale. Jamais `127.0.0.1` ni `localhost`.
+5. Claude explique le repli : une URL enregistrée invalide est ignorée, et le firmware utilise `CONFIG_OTA_URL`, le service officiel.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le moniteur affiche Ignoring invalid saved OTA URL; using the default ».
+
+### Comment l’auteur l’a demandé
 
 La voix ne figurait pas dans la première conception. Une fois que les deux cartes ont eu leur rôle, l’IA a demandé comment Narsil devait parler, et l’auteur ou l’autrice avait déjà une réponse :
 
@@ -116,13 +136,9 @@ Traduction en français : un serveur à soi.
 
 C’est à cause de cette réponse que ce guide s’attarde sur l’URL OTA : c’est le seul réglage qui fait passer le ventre du service officiel au vôtre. Le guide 4 construit le serveur lui-même.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
-
-> J’ai un fork de 78/xiaozhi-esp32 et une Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Lis le dossier de carte `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` et `docs/ota.md`, puis explique : quelle variante de compilation convient à ma carte et comment connaître la révision de ma puce, la commande `scripts/build.py` exacte, et toutes les façons dont le firmware décide quelle URL OTA utiliser. Je veux que l’adresse de mon serveur reste hors du dépôt, alors recommande l’option qui l’enregistre sur l’appareil, et dis-moi ce que je verrai au premier démarrage.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Le ventre n’a besoin d’aucun nouveau code pour ce guide : c’est Xiaozhi tel quel, compilé pour la bonne carte. Depuis la racine du fork, dans PowerShell, avec l’image Docker du guide 2 :
 

@@ -94,7 +94,27 @@ La [pagina Get Started](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp3
 
 Un'installazione nativa flasha direttamente, senza bridge. Il costo è un'installazione pesante sul PC, e devi installare lo stesso branch `release/v6.1` che chiede Xiaozhi, non la prima versione che offre EIM.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude i comandi per compilare entrambe le schede nell'immagine Docker di Espressif e per fare il flashing da Windows. L'unica idea che deve fare bene è che è il firmware che gira a decidere la versione: Xiaozhi richiede ESP-IDF 6.0.1 o successivo, quindi la build usa `espressif/idf:release-v6.1`, e il flashing avviene fuori da Docker.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
+
+> Compilo firmware ESP32 su Windows con Docker e non voglio ESP-IDF installato in modo nativo. Il mio progetto è un fork di 78/xiaozhi-esp32 per una scheda ESP32-P4, più una piccola app ESP-IDF per un ESP32-S3 in una sottocartella. Leggi il README e il workflow di CI di Xiaozhi e la guida IDF Docker Image di Espressif, poi dimmi: quale tag di `espressif/idf` usare e perché, il comando `docker run` esatto per compilare ogni target da PowerShell, e come flashare e monitorare ogni scheda da Windows, dato che Docker non può passare le porte seriali USB. Cita la documentazione per ogni versione e comando.
+
+### Cosa controllare nella risposta di Claude
+
+1. L'immagine è `espressif/idf:release-v6.1`, il branch `release/v6.1` che Xiaozhi consiglia, non il tag `v6.1` né una versione 5.x della pagina di Waveshare.
+2. La build gira in Docker con la cartella del progetto montata in `/project`, e passa `-e IDF_GIT_SAFE_DIR=/project` per l'errore "dubious ownership".
+3. La pancia viene compilata per `esp32p4` con `scripts/build.py`, e la testa per `esp32s3` con `idf.py set-target esp32s3`.
+4. Il flashing non usa `--device` su Windows. Usa esptool sull'host con `write-flash 0x0` per il binario unito, oppure `esp_rfc2217_server` con `host.docker.internal` come host della porta.
+5. La pancia viene flashata tramite la sua porta Type-C marcata "USB to UART", e la risposta menziona `idf.py fullclean` dopo un cambio di versione di ESP-IDF.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la build della pancia fallisce con ESP-IDF 5.5.2" oppure "il container non trova la mia porta COM".
+
+### Come l'ha chiesta l'autore
 
 La questione della toolchain è nata da una decisione precedente. Quando l'IA ha chiesto cosa dovesse eseguire la pancia per dare una voce a Narsil, chi ha creato Narsil ha risposto:
 
@@ -112,13 +132,9 @@ In italiano: "repository proprio, come fork".
 
 Poi, alla domanda se dovesse essere pubblico o privato fin dall'inizio, chi ha creato Narsil ha risposto "1", la prima opzione proposta: pubblico fin dall'inizio. Per questo entrambe le schede si compilano da un unico repository, `davshn/narsil-bot`, e per questo la toolchain deve gestire due target in un solo albero.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
-
-> Compilo firmware ESP32 su Windows con Docker e non voglio ESP-IDF installato in modo nativo. Il mio progetto è un fork di 78/xiaozhi-esp32 per una scheda ESP32-P4, più una piccola app ESP-IDF per un ESP32-S3 in una sottocartella. Leggi il README e il workflow di CI di Xiaozhi e la guida IDF Docker Image di Espressif, poi dimmi: quale tag di `espressif/idf` usare e perché, il comando `docker run` esatto per compilare ogni target da PowerShell, e come flashare e monitorare ogni scheda da Windows, dato che Docker non può passare le porte seriali USB. Cita la documentazione per ogni versione e comando.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 La build della pancia, dalla radice del fork in PowerShell (`${PWD}` è la cartella corrente di PowerShell; il flag `-u $UID` è per Linux e macOS e qui è omesso):
 

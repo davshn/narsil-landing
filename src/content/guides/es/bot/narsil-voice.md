@@ -68,7 +68,27 @@ El bot sustituye las tres. La frase de error se dice tal como está escrita, as�
 
 La palabra de activación se escucha en la panza, no en el servidor. `scripts/build.py` de Xiaozhi elige "Hi ESP" para una compilación en español (guía 3), y el bot la conserva. `Kconfig.projbuild` de Xiaozhi también ofrece una palabra de activación personalizada en el ESP32-P4 (`USE_CUSTOM_WAKE_WORD`, con la frase en `CUSTOM_WAKE_WORD`), mediante el modelo MultiNet de ESP-SR; su texto de ayuda pide pinyin para las frases en chino. "Para ir más lejos" tiene más.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude el `prompt` de Narsil y las líneas de `data/.config.yaml` que le dan respuestas y una voz en español. La idea que debe acertar es que el personaje, el idioma de las respuestas y la voz son tres ajustes separados: `prompt`, `TTS.EdgeTTS.language` y `TTS.EdgeTTS.voice`.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
+
+> Mi dispositivo Xiaozhi habla a través de xinnan-tech/xiaozhi-esp32-server con Claude como LLM. Lee `agent-base-prompt.txt` y `core/utils/prompt_manager.py` del servidor para ver dónde va el ajuste `prompt` y cómo se rellena `{{language}}`. Después escribe un `prompt` para mi personaje, una serpiente marina tranquila y cálida que responde con dos frases cortas como mucho, pensadas para la voz, y las líneas de `data/.config.yaml` que fijan respuestas en español, una voz de EdgeTTS en español latinoamericano que aparezca en `edge-tts --list-voices`, y versiones en español de `system_error_response` y `exit_commands`.
+
+### Qué revisar en la respuesta de Claude
+
+1. El `prompt` solo dice quién es Narsil: una serpiente marina tranquila y cálida que habla en primera persona y nunca dice su propio nombre. La plantilla que lo rodea ya añade las reglas generales.
+2. Pide dos frases cortas como mucho salvo que pidas más, sin listas, sin Markdown y sin código leído en voz alta.
+3. `language` vale `Spanish` dentro de `TTS.EdgeTTS`, el bloque que nombra `selected_module.TTS`. Sin él, las respuestas vuelven al chino.
+4. `voice` es una voz de español latinoamericano que imprime `edge-tts --list-voices`, como `es-MX-DaliaNeural`, no la `zh-CN-XiaoxiaoNeural` por defecto. Claude no debería pedirte una clave: EdgeTTS no necesita ninguna, pero envía las respuestas, como texto, a Microsoft.
+5. `system_error_response` está en español, porque se dice tal cual está escrito, y `exit_commands` lleva palabras en español como `salir` en lugar de `退出` y `关闭`.
+
+Si una comprobación falla, dile a Claude lo que ves: "Narsil responde en español, pero con una voz china".
+
+### Cómo lo pidió el autor
 
 El personaje nunca fue una pregunta, porque quedó resuelto desde el primer mensaje. Quien creó Narsil describió la cabeza como la cara de Narsil:
 
@@ -80,13 +100,9 @@ Y cuando la IA preguntó cómo debía hablar Narsil, la elección fue Xiaozhi:
 
 Una cara que es la de Narsil necesita una voz que también sea suya. La IA no escribió un personaje nuevo: leyó el README y `hooks/words.ts` de narsil-pet, y conservó lo que dicen de ella. El nombre de la voz, el valor de `language` y la frase de error en español no se preguntaron; son elecciones de la IA a partir de la lista de voces de Microsoft y de la plantilla del servidor, y puedes cambiar cualquiera de ellas.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
-
-> Mi dispositivo Xiaozhi habla a través de xinnan-tech/xiaozhi-esp32-server con Claude como LLM. Lee `agent-base-prompt.txt` y `core/utils/prompt_manager.py` del servidor para ver dónde va el ajuste `prompt` y cómo se rellena `{{language}}`. Después escribe un `prompt` para mi personaje, una serpiente marina tranquila y cálida que responde con dos frases cortas como mucho, pensadas para la voz, y las líneas de `data/.config.yaml` que fijan respuestas en español, una voz de EdgeTTS en español latinoamericano que aparezca en `edge-tts --list-voices`, y versiones en español de `system_error_response` y `exit_commands`.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Las líneas que `data/.config.yaml` añade a las de las guías 4 y 5:
 

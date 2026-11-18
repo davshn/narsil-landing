@@ -98,7 +98,27 @@ Esa emoción de `llm` será útil más adelante: es lo primero que la panza pued
 
 Xiaozhi registra herramientas en el dispositivo a través del singleton `McpServer`, con `AddTool(name, description, properties, callback)`. El servidor envía `initialize`, después `tools/list` y después `tools/call` por JSON-RPC 2.0, como explica su [documento de uso de MCP](https://github.com/78/xiaozhi-esp32/blob/main/docs/mcp-usage.md). Así es como el cerebro de Narsil podrá actuar sobre el bot, no solo hablar a través de él; guías posteriores añaden las herramientas propias del bot.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude que compile Xiaozhi para la placa de la panza y lo apunte a tu propio servidor. La idea que debe acertar es que la URL OTA decide qué servidor usa la panza, y que la guardas en el dispositivo, nunca en el repositorio.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
+
+> Tengo un fork de 78/xiaozhi-esp32 y una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Lee la carpeta de la placa `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` y `docs/ota.md`, y después explícame: qué variante de compilación encaja con mi placa y cómo sé la revisión de mi chip, el comando `scripts/build.py` exacto, y todas las formas en que el firmware decide qué URL OTA usar. Quiero que la dirección de mi servidor quede fuera del repositorio, así que recomiéndame la opción que la guarda en el dispositivo, y dime qué veré en el primer arranque.
+
+### Qué revisar en la respuesta de Claude
+
+1. El comando de compilación nombra la carpeta de la placa `waveshare/esp32-p4-wifi6-touch-lcd` y pasa `--name`, así que `build.py` no se detiene en un contenedor sin terminal.
+2. La variante coincide con la revisión de tu chip: `esp32-p4-wifi6-touch-lcd-4.3` antes de la revisión 3, `esp32-p4x-wifi6-touch-lcd-4.3` para la revisión 3.x. Te dice que leas la revisión que imprime esptool.
+3. La dirección del servidor se guarda en el dispositivo, en la pestaña Advanced del portal del Wi-Fi, como `wifi/ota_url`. No se escribe en `Kconfig.projbuild` ni en ningún archivo del repositorio.
+4. La URL OTA usa la dirección de tu PC en tu red, `http://` sin cifrar, el puerto 8003 y la ruta `/xiaozhi/ota/` con la barra final. Nunca `127.0.0.1` ni `localhost`.
+5. Explica la alternativa de respaldo: una URL guardada no válida se ignora, y el firmware usa `CONFIG_OTA_URL`, el servicio oficial.
+
+Si una comprobación falla, dile a Claude lo que ves: "el monitor muestra Ignoring invalid saved OTA URL; using the default".
+
+### Cómo lo pidió el autor
 
 La voz no estaba en el primer diseño. Cuando las dos placas ya tenían sus papeles, la IA preguntó cómo debía hablar Narsil, y quien creó Narsil ya tenía una respuesta:
 
@@ -112,13 +132,9 @@ Después tocaba decidir dónde se procesa la voz. Xiaozhi se conecta a xiaozhi.m
 
 Esa respuesta es la razón de que esta guía dedique tiempo a la URL OTA: es el único ajuste que lleva la panza del servicio oficial al tuyo. La guía 4 construye el servidor en sí.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es la conversación con la que se construyó el bot.
-
-> Tengo un fork de 78/xiaozhi-esp32 y una Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Lee la carpeta de la placa `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` y `docs/ota.md`, y después explícame: qué variante de compilación encaja con mi placa y cómo sé la revisión de mi chip, el comando `scripts/build.py` exacto, y todas las formas en que el firmware decide qué URL OTA usar. Quiero que la dirección de mi servidor quede fuera del repositorio, así que recomiéndame la opción que la guarda en el dispositivo, y dime qué veré en el primer arranque.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 La panza no necesita código nuevo para esta guía: es Xiaozhi tal cual, compilado para la placa correcta. Desde la raíz del fork, en PowerShell, con la imagen Docker de la guía 2:
 

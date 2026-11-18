@@ -94,7 +94,27 @@ La [page Get Started](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp32p
 
 Une installation native flashe directement, sans pont. Le prix est une installation volumineuse sur le PC, et vous devez installer la même branche `release/v6.1` que demande Xiaozhi, et non la première version que propose EIM.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude les commandes pour compiler les deux cartes dans l’image Docker d’Espressif et pour les flasher depuis Windows. L’idée que Claude doit bien saisir : c’est le firmware exécuté qui décide de la version ; Xiaozhi a besoin d’ESP-IDF 6.0.1 ou plus récent, donc la compilation utilise `espressif/idf:release-v6.1`, et le flashage se fait hors de Docker.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à configurer le bot.
+
+> Je compile du firmware ESP32 sous Windows avec Docker et je ne veux pas installer ESP-IDF en natif. Mon projet est un fork de 78/xiaozhi-esp32 pour une carte ESP32-P4, plus une petite application ESP-IDF pour un ESP32-S3 dans un sous-dossier. Lis le README et le workflow de CI de Xiaozhi ainsi que le guide IDF Docker Image d’Espressif, puis dis-moi : quelle étiquette `espressif/idf` utiliser et pourquoi, la commande `docker run` exacte pour compiler chaque cible depuis PowerShell, et comment flasher et surveiller chaque carte depuis Windows sachant que Docker ne peut pas transmettre les ports série USB. Cite la documentation pour chaque version et chaque commande.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. L’image est `espressif/idf:release-v6.1`, la branche `release/v6.1` que recommande Xiaozhi, pas le tag `v6.1` ni une version 5.x de la page de Waveshare.
+2. La compilation s’exécute dans Docker avec le dossier du projet monté sur `/project`, et passe `-e IDF_GIT_SAFE_DIR=/project` pour l’erreur « dubious ownership ».
+3. Le ventre est compilé pour `esp32p4` avec `scripts/build.py`, et la tête pour `esp32s3` avec `idf.py set-target esp32s3`.
+4. Le flashage n’utilise pas `--device` sous Windows. Il utilise esptool sur l’hôte avec `write-flash 0x0` pour le binaire fusionné, ou `esp_rfc2217_server` avec `host.docker.internal` comme hôte du port.
+5. Le ventre est flashé par son port Type-C marqué « USB to UART », et la réponse mentionne `idf.py fullclean` après un changement de version d’ESP-IDF.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la compilation du ventre échoue avec ESP-IDF 5.5.2 » ou « le conteneur ne trouve pas mon port COM ».
+
+### Comment l’auteur l’a demandé
 
 La question de la chaîne d’outils est née d’une décision antérieure. Quand l’IA a demandé ce que le ventre devait exécuter pour donner une voix à Narsil, l’auteur ou l’autrice a répondu :
 
@@ -112,13 +132,9 @@ Traduction en français : un dépôt à soi, sous forme de fork.
 
 Puis, à la question de savoir s’il devait être public ou privé dès le départ, l’auteur ou l’autrice a répondu « 1 », la première option proposée : public dès le départ. C’est pourquoi les deux cartes se compilent depuis un seul dépôt, `davshn/narsil-bot`, et pourquoi la chaîne d’outils doit gérer deux cibles dans une seule arborescence.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à configurer le bot.
-
-> Je compile du firmware ESP32 sous Windows avec Docker et je ne veux pas installer ESP-IDF en natif. Mon projet est un fork de 78/xiaozhi-esp32 pour une carte ESP32-P4, plus une petite application ESP-IDF pour un ESP32-S3 dans un sous-dossier. Lis le README et le workflow de CI de Xiaozhi ainsi que le guide IDF Docker Image d’Espressif, puis dis-moi : quelle étiquette `espressif/idf` utiliser et pourquoi, la commande `docker run` exacte pour compiler chaque cible depuis PowerShell, et comment flasher et surveiller chaque carte depuis Windows sachant que Docker ne peut pas transmettre les ports série USB. Cite la documentation pour chaque version et chaque commande.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Compiler le ventre, depuis la racine du fork dans PowerShell (`${PWD}` est le dossier courant de PowerShell ; l’option `-u $UID` est pour Linux et macOS et n’apparaît pas ici) :
 

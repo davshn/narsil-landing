@@ -78,7 +78,27 @@ La richiesta usa [`esp_http_client`](https://docs.espressif.com/projects/esp-idf
 
 Il token vive nella NVS, nel namespace `narsil` di `Settings` di Xiaozhi sotto la chiave `gh_token`, scritto una volta nella schermata delle impostazioni della pancia ([guida 9](/it/bot/belly-ui/)). Non viene mai compilato nel firmware né scritto nel log.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude una funzione sulla pancia che chieda all'API di ricerca di GitHub le pull request aperte che richiedono la tua revisione, e le mostri sullo schermo. L'unica idea che deve fare bene è che il token può solo leggere, con l'accesso minimo, e vive nella NVS sulla pancia, mai nel codice né nel log.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
+
+> Su un ESP32-P4 con ESP-IDF 6, voglio mostrare le pull request aperte di GitHub che richiedono la mia review. Verifica nella documentazione REST di GitHub se `GET /search/issues` funziona con un fine-grained personal access token e quale permesso richiede, l'attuale `X-GitHub-Api-Version`, il limite di frequenza della ricerca e come funzionano le richieste condizionali con `If-None-Match`. Poi scrivi una funzione che la chiami con `esp_http_client` e il bundle di certificati, legga il token dalla NVS, conservi l'ETag, gestisca 304, 401, 403 e 429 e analizzi `items` con cJSON. Dimmi come creare il token con l'accesso minimo e come revocarlo.
+
+### Cosa controllare nella risposta di Claude
+
+1. Fa una sola richiesta, `GET /search/issues` con `is:pr+is:open+review-requested:@me`, e invia gli header `Authorization`, `Accept`, `X-GitHub-Api-Version` (`2026-03-10`) e `User-Agent`.
+2. Il token è un fine-grained personal access token con una data di scadenza: nessun permesso per i repository pubblici, oppure solo **Pull requests: Read-only** per i repository privati che aggiungi. Claude ti spiega anche come revocarlo: **Delete** accanto al token nella pagina dei token di GitHub.
+3. Il token viene letto dalla NVS (namespace `narsil`, chiave `gh_token`) e inviato solo nell'header `Authorization`. Non viene mai compilato nel firmware né stampato nel log, nemmeno l'header.
+4. Chiede ogni due minuti, una richiesta alla volta. Conserva l'`etag`, lo rimanda come `If-None-Match` e tiene la lista che ha in caso di `304`.
+5. Mostra `401` sullo schermo come token sbagliato, scaduto o eliminato, e con `403` o `429` aspetta `retry-after` (o `x-ratelimit-reset`) prima di riprovare. L'HTTPS usa il bundle di certificati.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "la lista è vuota, ma ho una richiesta di revisione su un repository privato".
+
+### Come l'ha chiesta l'autore
 
 Le pull request sono arrivate con lo scopo del bot: uno schermo nella pancia che mostra ciò che ha bisogno di te, accanto ai compiti di Narsil. Dove avviene il lavoro di rete l'ha deciso la risposta di chi ha creato Narsil sulla testa:
 
@@ -90,13 +110,9 @@ Quindi la pancia chiama GitHub da sola. La specifica S6 ha poi fissato la regola
 
 Il resto toccava all'IA verificarlo, non a chi ha creato Narsil deciderlo: quale endpoint elenca le pull request che hanno bisogno di te, se un token fine-grained può chiamarlo e qual è il permesso minimo che funziona. L'IA ha letto la documentazione della ricerca di GitHub e le sue pagine di endpoint e permessi per i token fine-grained, e ha scelto la ricerca con un permesso **Pull requests** di sola lettura solo dove i repository privati lo richiedono.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è la conversazione usata per preparare il bot.
-
-> Su un ESP32-P4 con ESP-IDF 6, voglio mostrare le pull request aperte di GitHub che richiedono la mia review. Verifica nella documentazione REST di GitHub se `GET /search/issues` funziona con un fine-grained personal access token e quale permesso richiede, l'attuale `X-GitHub-Api-Version`, il limite di frequenza della ricerca e come funzionano le richieste condizionali con `If-None-Match`. Poi scrivi una funzione che la chiami con `esp_http_client` e il bundle di certificati, legga il token dalla NVS, conservi l'ETag, gestisca 304, 401, 403 e 429 e analizzi `items` con cJSON. Dimmi come creare il token con l'accesso minimo e come revocarlo.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Una funzione per la pancia, in C++ accanto al codice di Xiaozhi (MIT, come gli esempi del sito). `ShowPullRequest` e `ShowGithubError` sono le funzioni dello schermo della [guida 9](/it/bot/belly-ui/); un task chiama `PollPullRequests()` ogni due minuti:
 

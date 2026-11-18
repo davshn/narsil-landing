@@ -87,7 +87,27 @@ Le message `V` du guide 10 indique si Xiaozhi écoute ou parle. La tête le mont
 
 Les LED de l’écran sont sur GPIO20, à travers un transistor. La tête pilote la broche avec le périphérique PWM [LEDC](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/peripherals/ledc.html) d’ESP-IDF à 5 kHz avec une résolution de 10 bits : le rapport cyclique, de 0 à 1023, est donc la luminosité. Elle tourne à pleine luminosité tant que des lignes arrivent, et descend à 20 % après 15 secondes de silence (guide 10) : le ventre est éteint ou le fil est mal branché, et une Narsil atténuée le dit sans s’éteindre. Le rétroéclairage reste éteint jusqu’à ce que la première image soit dessinée, si bien que l’écran ne montre jamais la mémoire aléatoire du contrôleur au démarrage.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude le firmware de la tête : une application ESP-IDF qui dessine la pose de Narsil, reçue par l’UART, sur l’écran ST7789 sous le cube prisme. L’idée que Claude doit bien saisir : le cube est un miroir ; l’image doit être dessinée en miroir, et tout ce qui n’est pas Narsil doit être noir pur, car c’est le noir qui paraît transparent.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
+
+> J’ai une Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) sous un cube prisme à fantôme de Pepper. Lis le wiki et le schéma de Waveshare pour les broches du LCD et du rétroéclairage, ainsi que la documentation `esp_lcd` d’ESP-IDF 6. Écris une application ESP-IDF qui initialise le ST7789 avec `esp_lcd_new_panel_st7789`, inverse l’image avec `esp_lcd_panel_mirror`, garde le fond en noir pur, règle le rétroéclairage avec LEDC, et dessine l’une de 25 images RGB565 embarquées choisie selon une pose et un stade reçus par l’UART. Attends `on_color_trans_done` avant de réutiliser le tampon d’image. Explique pourquoi l’image doit être inversée et pourquoi le noir paraît transparent, et comment je vérifie l’alignement.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. L’image est mise en miroir dans le contrôleur de l’écran avec `esp_lcd_panel_mirror`, en commençant avec `mirror_x` activé, et l’écran de démarrage affiche un carré rouge dans le coin supérieur gauche pendant trois secondes pour que vous puissiez vérifier l’axe.
+2. Chaque image est effacée en noir pur (`0x0000`), et les dessins sont convertis avec `--background 0x000000` et `--cf RGB565_SWAPPED`, pas avec `RGB565` simple.
+3. Les broches correspondent au schéma de Waveshare : CLK sur GPIO40, MOSI sur GPIO41, CS sur GPIO39, DC sur GPIO38, reset sur GPIO42 et le rétroéclairage sur GPIO20. Aucune n’est GPIO13 ou GPIO14, l’UART du guide 10.
+4. Après `esp_lcd_panel_draw_bitmap`, le code attend que `on_color_trans_done` libère son sémaphore avant de toucher à nouveau au tampon d’image.
+5. La tête ne redessine que quand la pose, l’étape ou l’état vocal change. Le rétroéclairage reste éteint jusqu’à la première image, et descend à 20 % après 15 secondes sans ligne du ventre.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « Narsil regarde du mauvais côté, et le carré rouge est dans le coin supérieur droit du cube ».
+
+### Comment l’auteur l’a demandé
 
 Le rôle de la tête figurait dans la première description du bot par l’auteur ou l’autrice :
 
@@ -99,13 +119,9 @@ Traduction en français : la tête sera un écran holographique qui ne soit que 
 
 Ce qu’il fallait dessiner était la proposition de l’IA : Narsil a déjà des dessins peints pour chaque état et chaque stade dans narsil-pet, les mêmes images qu’utilisent les alertes du téléphone ; la tête montre donc celles-là au lieu d’un nouveau dessin. La façon dont la tête apprend la pose avait été réglée plus tôt par la réponse de l’auteur ou de l’autrice, « Por cable desde la panza » (par câble depuis le ventre), que le guide 10 a transformée en protocole.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas la conversation qui a servi à construire le bot.
-
-> J’ai une Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) sous un cube prisme à fantôme de Pepper. Lis le wiki et le schéma de Waveshare pour les broches du LCD et du rétroéclairage, ainsi que la documentation `esp_lcd` d’ESP-IDF 6. Écris une application ESP-IDF qui initialise le ST7789 avec `esp_lcd_new_panel_st7789`, inverse l’image avec `esp_lcd_panel_mirror`, garde le fond en noir pur, règle le rétroéclairage avec LEDC, et dessine l’une de 25 images RGB565 embarquées choisie selon une pose et un stade reçus par l’UART. Attends `on_color_trans_done` avant de réutiliser le tampon d’image. Explique pourquoi l’image doit être inversée et pourquoi le noir paraît transparent, et comment je vérifie l’alignement.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 D’abord les dessins. Depuis un dossier contenant un clone de narsil-pet et de LVGL (pour `LVGLImage.py`, qui demande `pip install pypng lz4`), dans PowerShell :
 
