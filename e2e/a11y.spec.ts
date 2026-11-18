@@ -23,6 +23,7 @@ const PATHS = [
   '/en/mods/pet/your-commands/',
   '/en/mods/check/',
   '/en/mods/check/side-panel/',
+  '/en/mods/check/ecosystems/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

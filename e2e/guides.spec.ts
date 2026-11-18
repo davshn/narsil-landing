@@ -137,7 +137,16 @@ test.describe('Status pet path', () => {
   }
 })
 
-const CHECK_GUIDES = ['side-panel', 'session-environment', 'connectors', 'pr-ci']
+const CHECK_GUIDES = [
+  'side-panel',
+  'session-environment',
+  'connectors',
+  'pr-ci',
+  'branch-behind',
+  'ecosystems',
+  'classifying-updates',
+  'blocking-dependencies',
+]
 
 test.describe('Review panel path', () => {
   for (const locale of locales) {
