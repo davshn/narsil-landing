@@ -168,6 +168,16 @@ export const pt: TranslationShape = {
     ],
     donate: 'Me pague um café',
     unavailable: 'As doações ainda não estão abertas.',
+    flow: {
+      title: 'Para onde vai o seu café',
+      steps: ['Um café', 'Tempo para escrever e manter guias', 'Guias grátis para todos'],
+      promises: ['Sem anúncios', 'Sem cadastro', 'Sem analytics, nunca pede seus tokens'],
+    },
+    about: {
+      title: 'Sobre o desenvolvedor',
+      name: 'Hernán David Figueroa',
+      bio: 'Desenvolvedor full-stack com mais de 8 anos de experiência, especializado em fintech e pagamentos seguros. Trabalho com terminais POS e recursos de pagamento para Android e iOS em um gateway de pagamentos colombiano. Criei o Narsil e este workshop para que qualquer pessoa possa entender e ampliar o Claude Code. Moro em Bogotá.',
+    },
     reposTitle: 'O código-fonte',
     repos: {
       pet: 'Narsil, o mod de mascote de status',
