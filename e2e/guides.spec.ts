@@ -346,7 +346,7 @@ test.describe('Narsil in Claude path', () => {
         .locator('a')
         .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
       expect(hrefs.filter((href) => PRIVATE_REPOSITORIES.test(href))).toEqual([])
-      await expect(page.locator('[data-guide-body]')).toContainText('experimental')
+      await expect(page.locator('[data-guide-body]')).toContainText(/experimental/iv)
     })
   }
 })
