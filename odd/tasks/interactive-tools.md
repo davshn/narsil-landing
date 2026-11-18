@@ -13,15 +13,16 @@ Objective: small in-browser tools under `/[locale]/tools/` that help readers und
 
 ## Tasks
 
-| ID  | Specs      | Route  | Status      | Commit |
-| --- | ---------- | ------ | ----------- | ------ |
-| T1  | S2         | inline | in progress |        |
-| T2  | S1, S4     | inline | pending     |        |
-| T3  | S1, S3, S5 | inline | pending     |        |
-| T4  | S3         | inline | pending     |        |
+| ID  | Specs      | Route  | Status | Commit                                    |
+| --- | ---------- | ------ | ------ | ----------------------------------------- |
+| T1  | S2         | inline | done   | `7148560`                                 |
+| T2  | S1, S4     | inline | done   | `9e8da7a`                                 |
+| T3  | S1, S3, S5 | inline | done   | 6a island commit                          |
+| T4  | S3         | inline | done   | 678 unit tests, 210 e2e passed (chromium) |
 
 T1: Preact dependencies and config (own commit, risk item 5). T2: semver logic from `narsil-check/hooks/semver.ts` (`parseVersion`, `compare`, `bumpOf`, `show`) and the group rule (`major` → review, else bump). T3: classifier island, `/tools/` and `/tools/semver/` pages, nav, copy in five locales. T4: e2e (tools, CSP, axe), checks.
 
 ## Log
 
 - L1 (2026-11-18, owner): "Preact, como el brief", then "Sí, arranca la 6a" after the plan in S6.
+- L2: 6a checks: typecheck, `eslint src`, prettier ok; 678 unit tests, coverage 97.6% lines (`src/tools/logic` 100%); 210 chromium e2e passed, including the tools spec in five locales, CSP and axe on `/en/tools/` and `/en/tools/semver/`. `parseVersion` keeps the source behavior of reading `1.2.3.` as 1.2.0 with prerelease `3.`.

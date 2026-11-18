@@ -17,6 +17,7 @@ Experimental: Narsil in Claude, an extension for Firefox and Vivaldi on Android 
 - [Home (English)](/en/)
 - [Home (Spanish)](/es/)
 - [Mod fundamentals](/en/mods/): what a mod is made of, the $ object, installing and testing, surfaces, and the GPL v3
+- [Tools](/en/tools/): small in-browser tools that run the mods' rules with your own values, starting with the [semver classifier](/en/tools/semver/)
 - [Support the project](/en/support/)
 
 ## Source code
@@ -26,7 +27,7 @@ Experimental: Narsil in Claude, an extension for Firefox and Vivaldi on Android 
 
 ## License
 
-Site code and example code: MIT. Guide text: CC BY-SA 4.0. Code quoted from Narsil and Narsil Check: GPL-3.0-or-later.
+Site code and example code: MIT. Guide text: CC BY-SA 4.0. Code quoted from Narsil and Narsil Check, and the interactive tools' logic adapted from them: GPL-3.0-or-later.
 
 ## Pricing
 

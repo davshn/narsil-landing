@@ -1,0 +1,95 @@
+---
+import Container from '@components/ui/Container/Container.astro'
+import Text from '@components/ui/Text/Text.astro'
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import SiteLayout from '@layouts/SiteLayout.astro'
+import { buildWebPage } from '@seo/json-ld'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const t = useTranslations(locale)
+const tools = [
+  {
+    href: `/${locale}/tools/semver/`,
+    title: t.tools.semver.title,
+    text: t.tools.semver.description,
+  },
+]
+
+const siteUrl = Astro.site?.href ?? Astro.url.origin
+const jsonLd = buildWebPage({
+  name: t.tools.title,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  description: t.tools.description,
+  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  inLanguage: locale,
+})
+---
+
+<SiteLayout
+  title={`${t.tools.title} — ${t.meta.siteName}`}
+  description={t.tools.description}
+  locale={locale}
+  jsonLd={jsonLd}
+>
+  <Container as="section" maxWidth="md" padding="section">
+    <h1 class="text-3xl font-bold mb-6">{t.tools.title}</h1>
+    <div class="flex flex-col gap-4 mb-8">
+      <Text as="p">{t.tools.intro}</Text>
+      <Text as="p" tone="muted">
+        {t.tools.privacy}
+      </Text>
+    </div>
+    <ul class="flex flex-col gap-4" data-tool-list>
+      {tools.map((tool) => (
+        <li class="tool-card">
+          <h2 class="text-xl font-semibold">
+            <a class="tool-card-link" href={tool.href}>
+              {tool.title}
+            </a>
+          </h2>
+          <Text as="p" tone="muted">
+            {tool.text}
+          </Text>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</SiteLayout>
+
+<style>
+  @reference '../../../styles/global.css';
+
+  .tool-card {
+    @apply relative flex flex-col gap-2 p-6;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-neu-md);
+  }
+
+  .tool-card-link {
+    @apply text-foreground no-underline;
+  }
+
+  .tool-card-link::after {
+    content: '';
+    @apply absolute inset-0;
+    border-radius: var(--radius-xl);
+  }
+
+  .tool-card:hover .tool-card-link {
+    @apply text-primary;
+  }
+
+  .tool-card:has(.tool-card-link:focus-visible) {
+    @apply outline-2 outline-offset-4 outline-ring;
+  }
+
+  .tool-card-link:focus-visible {
+    @apply outline-none;
+  }
+</style>

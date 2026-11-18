@@ -16,6 +16,7 @@ export const en: TranslationShape = {
   nav: {
     mods: 'Mod fundamentals',
     routes: 'Learning paths',
+    tools: 'Tools',
     support: 'Support the project',
   },
   footer: {
@@ -175,6 +176,42 @@ export const en: TranslationShape = {
     coffeeTitle: 'Did this guide help?',
     coffeeText: 'Every guide is free. If this one saved you time, you can buy me a coffee.',
     coffeeCta: 'Buy me a coffee',
+  },
+  tools: {
+    title: 'Tools',
+    description:
+      'Small in-browser tools that help you understand the guides: try the rules of Narsil and Narsil Check with your own values.',
+    intro:
+      'Each tool runs one rule from the mods so you can try it with your own values, next to the guide that explains it.',
+    privacy:
+      'Everything runs in your browser. Nothing you type leaves this page or goes into a link.',
+    open: 'Open the tool',
+    semver: {
+      title: 'Semver classifier',
+      description:
+        'Type an installed version and a newer one to see the group Narsil Check puts the upgrade in, including the rule below 1.0.0.',
+      intro:
+        'Narsil Check compares the version you have with the latest one and sorts the upgrade by how far apart they are. This tool runs the same rule.',
+      guideText: 'How Narsil Check classifies updates',
+      installedLabel: 'Installed version',
+      candidateLabel: 'New version',
+      resultLabel: 'Group',
+      groups: {
+        review: 'Major version: review the changes',
+        bump: 'Version bump only',
+      },
+      bumps: {
+        patch: 'patch',
+        minor: 'minor',
+        major: 'major',
+      },
+      summary: 'From {from} to {to}: a {bump} jump.',
+      belowOne:
+        'Below 1.0.0 a minor counts as a major, and below 0.1.0 so does a patch, as npm reads caret ranges.',
+      current: '{to} is not newer than {from}, so there is nothing to update.',
+      invalidInstalled: 'The installed version is not a version Narsil Check can read.',
+      invalidCandidate: 'The new version is not a version Narsil Check can read.',
+    },
   },
   support: {
     title: 'Support Narsil Workshop',

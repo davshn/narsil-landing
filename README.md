@@ -31,11 +31,12 @@ All optional. Configure them in `.env` (copy from `.env.example`).
 
 ```text
 src/
-  pages/[locale]/     index.astro (home) and support.astro
+  pages/[locale]/     index.astro (home), support.astro, mods/ and bot/ guides, and tools/
   layouts/            BaseLayout (document shell), SiteLayout (header, language selector, footer), and GuideLayout
                       (path sidebar from 1024 px, "on this page" table of contents from 1280 px, both folded above the text on phones)
-  components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum)
+  components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum), tools/ (Preact islands)
   i18n/               en, es, it, fr, pt (pt-BR) and the TranslationShape contract
+  tools/logic/        rules adapted from Narsil and Narsil Check for the tools (GPL-3.0-or-later)
   utils/              donation, developer, repositories, CSP and URL helpers
 odd/tasks/            feature documents (specs, tasks, and log)
 ```
@@ -71,6 +72,6 @@ CI (`.github/workflows/quality.yml`) runs on a pull request only after the owner
 
 - Site code and example code written for the guides: MIT, see [`LICENSE`](LICENSE).
 - Guide text: CC BY-SA 4.0.
-- Code quoted or adapted from Narsil and Narsil Check: GPL-3.0-or-later, the license of those projects.
+- Code quoted or adapted from Narsil and Narsil Check, including the tool logic in `src/tools/logic/`: GPL-3.0-or-later, the license of those projects.
 
 [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md) says which material is which. This is not legal advice.

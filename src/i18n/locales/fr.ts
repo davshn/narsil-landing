@@ -16,6 +16,7 @@ export const fr: TranslationShape = {
   nav: {
     mods: 'Bases des mods',
     routes: 'Parcours',
+    tools: 'Outils',
     support: 'Soutenir le projet',
   },
   footer: {
@@ -177,6 +178,42 @@ export const fr: TranslationShape = {
     coffeeText:
       'Tous les guides sont gratuits. Si celui-ci vous a fait gagner du temps, vous pouvez m’offrir un café.',
     coffeeCta: 'Offrez-moi un café',
+  },
+  tools: {
+    title: 'Outils',
+    description:
+      'De petits outils qui tournent dans le navigateur et aident à comprendre les guides : essayez les règles de Narsil et Narsil Check avec vos propres valeurs.',
+    intro:
+      'Chaque outil exécute une règle des mods pour que vous l’essayiez avec vos propres valeurs, à côté du guide qui l’explique.',
+    privacy:
+      'Tout tourne dans votre navigateur. Rien de ce que vous tapez ne quitte cette page ni n’entre dans un lien.',
+    open: 'Ouvrir l’outil',
+    semver: {
+      title: 'Classeur semver',
+      description:
+        'Tapez une version installée et une plus récente pour voir dans quel groupe Narsil Check range la mise à jour, avec la règle sous 1.0.0.',
+      intro:
+        'Narsil Check compare la version que vous avez avec la dernière et range la mise à jour selon l’écart entre les deux. Cet outil exécute la même règle.',
+      guideText: 'Comment Narsil Check classe les mises à jour',
+      installedLabel: 'Version installée',
+      candidateLabel: 'Nouvelle version',
+      resultLabel: 'Groupe',
+      groups: {
+        review: 'Version majeure : examiner les changements',
+        bump: 'Montée de version seule',
+      },
+      bumps: {
+        patch: 'correctif',
+        minor: 'mineur',
+        major: 'majeur',
+      },
+      summary: 'De {from} à {to} : un saut {bump}.',
+      belowOne:
+        'Sous 1.0.0 un saut mineur compte comme majeur, et sous 0.1.0 un correctif aussi, comme npm lit les plages avec ^.',
+      current: '{to} n’est pas plus récente que {from} : il n’y a rien à mettre à jour.',
+      invalidInstalled: 'La version installée n’est pas une version que Narsil Check sait lire.',
+      invalidCandidate: 'La nouvelle version n’est pas une version que Narsil Check sait lire.',
+    },
   },
   support: {
     title: 'Soutenir Narsil Workshop',
