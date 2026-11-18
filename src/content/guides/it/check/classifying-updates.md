@@ -2,7 +2,7 @@
 title: Classificare gli aggiornamenti
 description: 'Come Narsil Check ordina ogni libreria non aggiornata in Bloccata, Versione major, Solo alzare la versione o Fuori dall’SDK di Expo, e perché le risposte dei registry si tengono sei ore.'
 route: check
-order: 7
+order: 8
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

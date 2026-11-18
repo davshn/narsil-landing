@@ -2,7 +2,7 @@
 title: A espera de 24 horas
 description: 'Por que o Narsil Check nunca sobe uma versão publicada há menos de um dia, onde cada registro diz quando uma versão saiu e o que acontece quando ninguém sabe dizer.'
 route: check
-order: 9
+order: 10
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

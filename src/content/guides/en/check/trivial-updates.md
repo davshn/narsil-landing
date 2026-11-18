@@ -2,7 +2,7 @@
 title: Updating the trivial ones
 description: 'How the Actualizar las N button raises every patch and minor at once, keeping each range operator and section, then runs the install tool of each ecosystem.'
 route: check
-order: 12
+order: 13
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

@@ -2,7 +2,7 @@
 title: Expliquer une version majeure avec Haiku
 description: 'Comment Narsil Check demande à Haiku la difficulté d’une mise à jour majeure pour ce projet, à partir des notes de version et des lignes qui importent la bibliothèque, sans rien inventer.'
 route: check
-order: 11
+order: 12
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

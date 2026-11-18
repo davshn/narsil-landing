@@ -2,7 +2,7 @@
 title: Des outils pour Claude
 description: 'Comment Narsil Check donne à Claude quatre outils sur la liste des tâches avec $.tool.register, les sert depuis des hooks tool.call, et comment le modèle décide quand les utiliser.'
 route: check
-order: 16
+order: 17
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

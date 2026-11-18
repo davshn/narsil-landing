@@ -2,7 +2,7 @@
 title: Dipendenze che si bloccano a vicenda
 description: 'Come Narsil Check trova gli aggiornamenti npm che non possono salire da soli: peer chieste dalla nuova versione, peer chieste dai pacchetti installati e pin esatti nell’albero.'
 route: check
-order: 8
+order: 9
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

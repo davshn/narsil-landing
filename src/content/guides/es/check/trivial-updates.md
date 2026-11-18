@@ -2,7 +2,7 @@
 title: Actualizar las triviales
 description: 'Cómo el botón Actualizar las N sube a la vez cada patch y minor, conservando su operador de rango y su sección, y después ejecuta la herramienta de instalación de cada ecosistema.'
 route: check
-order: 12
+order: 13
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

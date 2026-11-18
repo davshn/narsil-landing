@@ -2,7 +2,7 @@
 title: Versioni fissate apposta
 description: 'Come Narsil Check legge un commento come "# pinned: 3.7 breaks auth" in un manifest e tiene quella libreria fuori dal pulsante di aggiornamento, con il commento come motivo.'
 route: check
-order: 10
+order: 11
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

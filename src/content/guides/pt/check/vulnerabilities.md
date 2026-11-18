@@ -2,7 +2,7 @@
 title: Vulnerabilidades com o OSV.dev
 description: 'Como o Narsil Check pergunta ao OSV.dev sobre cada pacote instalado numa só consulta em lote, classifica cada alerta pela sua própria nota ou pelo vetor CVSS e conta os alertas gêmeos uma vez.'
 route: check
-order: 14
+order: 15
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

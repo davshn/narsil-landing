@@ -60,8 +60,8 @@ export const fr: TranslationShape = {
         },
         {
           title: 'Le panneau Narsil Check',
-          text: 'Un panneau latéral avec l’environnement de la session, les étapes de la CI, les mises à jour de dépendances classées par risque, les vulnérabilités et les tâches en attente.',
-          alt: 'Le panneau Narsil Check : environnement et CI, trois mises à jour de dépendances, une vulnérabilité et deux tâches en attente',
+          text: 'Un panneau latéral avec une carte en direct du travail de Claude, l’environnement de la session, les étapes de la CI, les mises à jour de dépendances classées par risque, les vulnérabilités et les tâches en attente.',
+          alt: 'Le panneau Narsil Check : une carte en direct du travail de Claude avec bébé Narsil au centre, environnement et CI, trois mises à jour de dépendances, une vulnérabilité et deux tâches en attente',
         },
         {
           title: 'Narsil dans Claude, sur votre téléphone',
@@ -75,7 +75,7 @@ export const fr: TranslationShape = {
     },
     aboutTitle: 'Qu’est-ce que Narsil ?',
     about: [
-      'Narsil est un mod Claude Code : une petite mascotte qui vit au-dessus du prompt et vous indique d’un coup d’œil si Claude travaille, a besoin de vous, a terminé ou est bloqué. Narsil Check est son frère, un panneau latéral qui vérifie votre branche, la CI, les dépendances et les vulnérabilités.',
+      'Narsil est un mod Claude Code : une petite mascotte qui vit au-dessus du prompt et vous indique d’un coup d’œil si Claude travaille, a besoin de vous, a terminé ou est bloqué. Narsil Check est son frère, un panneau latéral qui montre en direct le travail de Claude et vérifie votre branche, la CI, les dépendances et les vulnérabilités.',
       'Ici, vous ne vous contenterez pas de les installer : vous construirez vos propres versions avec Claude. Chaque guide explique une fonctionnalité avec des mots simples, vous donne un prompt pour la demander à Claude et vous montre comment vérifier que ce que Claude a construit est correct. Le code est là pour être lu et comparé, pas copié.',
     ],
     routesTitle: 'Quatre parcours',
@@ -91,7 +91,7 @@ export const fr: TranslationShape = {
       {
         title: 'Votre propre panneau de revue',
         description:
-          'Créez un mod comme Narsil Check avec Claude : un panneau latéral avec les étapes de la CI, une branche en retard sur la distante, des mises à jour classées par risque, les vulnérabilités d’OSV.dev et des outils pour Claude.',
+          'Créez un mod comme Narsil Check avec Claude : un panneau latéral avec une carte en direct du travail de Claude, les étapes de la CI, une branche en retard sur la distante, des mises à jour classées par risque, les vulnérabilités d’OSV.dev et des outils pour Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -146,7 +146,7 @@ export const fr: TranslationShape = {
     description:
       'Créez un mod comme Narsil Check avec Claude, fonctionnalité par fonctionnalité : ce que fait chacune, comment elle marche, le prompt pour la demander à Claude et le code à lire et à comparer avec ce que Claude a écrit.',
     intro: [
-      'Narsil Check est un panneau latéral qui vérifie votre session avant de livrer : environnement, connecteurs, CI, branche en retard sur la distante, mises à jour classées par risque, vulnérabilités et une liste de tâches que Claude peut utiliser. Chaque guide explique une fonctionnalité, les choix qui la portent et le prompt qui amène Claude à la construire.',
+      'Narsil Check est un panneau latéral qui vérifie votre session avant de livrer : une carte en direct du travail de Claude, environnement, connecteurs, CI, branche en retard sur la distante, mises à jour classées par risque, vulnérabilités et une liste de tâches que Claude peut utiliser. Chaque guide explique une fonctionnalité, les choix qui la portent et le prompt qui amène Claude à la construire.',
       'Quand la demande d’origine a été conservée, le guide la cite mot pour mot, pour que vous voyiez comment l’auteur a parlé à Claude. Le code qui suit est une référence : lisez-le pour comprendre le résultat et pour vérifier ce que Claude a écrit pour vous.',
     ],
     listTitle: 'Les guides',

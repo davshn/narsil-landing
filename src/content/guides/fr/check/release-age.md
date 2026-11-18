@@ -2,7 +2,7 @@
 title: L’attente de 24 heures
 description: 'Pourquoi Narsil Check ne monte jamais une version publiée il y a moins d’un jour, où chaque registre dit quand une version est sortie, et ce qui se passe quand personne ne le sait.'
 route: check
-order: 9
+order: 10
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

@@ -2,7 +2,7 @@
 title: Una rama por detrás de su remoto
 description: 'Cómo Narsil Check hace fetch, cuenta los commits que le faltan a tu rama, avisa arriba del panel y los trae con un botón de git pull -r.'
 route: check
-order: 5
+order: 6
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

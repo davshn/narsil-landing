@@ -62,8 +62,8 @@ export const pt: TranslationShape = {
         },
         {
           title: 'O painel do Narsil Check',
-          text: 'Um painel lateral com o ambiente da sessão, os passos do CI, as atualizações de bibliotecas agrupadas por risco, as vulnerabilidades e as tarefas pendentes.',
-          alt: 'O painel do Narsil Check: ambiente e CI, três atualizações de bibliotecas, uma vulnerabilidade e duas tarefas pendentes',
+          text: 'Um painel lateral com um mapa ao vivo do trabalho do Claude, o ambiente da sessão, os passos do CI, as atualizações de bibliotecas agrupadas por risco, as vulnerabilidades e as tarefas pendentes.',
+          alt: 'O painel do Narsil Check: um mapa ao vivo do trabalho do Claude com a Narsil bebê no centro, ambiente e CI, três atualizações de bibliotecas, uma vulnerabilidade e duas tarefas pendentes',
         },
         {
           title: 'Narsil no Claude, no celular',
@@ -77,7 +77,7 @@ export const pt: TranslationShape = {
     },
     aboutTitle: 'O que é o Narsil?',
     about: [
-      'O Narsil é um mod do Claude Code: um pequeno mascote que fica acima do prompt e mostra num relance se o Claude está trabalhando, precisa de você, terminou ou travou. O Narsil Check é o irmão dele, um painel lateral que revisa sua branch, a CI, as dependências e as vulnerabilidades.',
+      'O Narsil é um mod do Claude Code: um pequeno mascote que fica acima do prompt e mostra num relance se o Claude está trabalhando, precisa de você, terminou ou travou. O Narsil Check é o irmão dele, um painel lateral que mostra ao vivo o trabalho do Claude e revisa sua branch, a CI, as dependências e as vulnerabilidades.',
       'Aqui você não vai só instalá-los: vai construir as suas próprias versões junto com o Claude. Cada guia explica uma funcionalidade em palavras simples, dá um prompt para pedi-la ao Claude e mostra como conferir que o que o Claude construiu está certo. O código está ali para ler e comparar, não para copiar.',
     ],
     routesTitle: 'Quatro trilhas de aprendizado',
@@ -93,7 +93,7 @@ export const pt: TranslationShape = {
       {
         title: 'Seu próprio painel de revisão',
         description:
-          'Crie um mod como o Narsil Check com o Claude: um painel lateral com as etapas da CI, a branch atrás da remota, atualizações agrupadas por risco, vulnerabilidades do OSV.dev e ferramentas para o Claude.',
+          'Crie um mod como o Narsil Check com o Claude: um painel lateral com um mapa ao vivo do trabalho do Claude, as etapas da CI, a branch atrás da remota, atualizações agrupadas por risco, vulnerabilidades do OSV.dev e ferramentas para o Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -148,7 +148,7 @@ export const pt: TranslationShape = {
     description:
       'Crie um mod como o Narsil Check com o Claude, funcionalidade por funcionalidade: o que cada uma faz, como funciona, o prompt para pedi-la ao Claude e o código para ler e comparar com o que o Claude escreveu.',
     intro: [
-      'O Narsil Check é um painel lateral que revisa sua sessão antes de entregar: ambiente, conectores, CI, branch atrás da remota, atualizações agrupadas por risco, vulnerabilidades e uma lista de pendências que o Claude pode usar. Cada guia explica uma funcionalidade, as decisões por trás dela e o prompt que faz o Claude construí-la.',
+      'O Narsil Check é um painel lateral que revisa sua sessão antes de entregar: um mapa ao vivo do trabalho do Claude, ambiente, conectores, CI, branch atrás da remota, atualizações agrupadas por risco, vulnerabilidades e uma lista de pendências que o Claude pode usar. Cada guia explica uma funcionalidade, as decisões por trás dela e o prompt que faz o Claude construí-la.',
       'Quando o pedido original ficou registrado, o guia o cita palavra por palavra, para você ver como o autor conversou com o Claude. O código que vem depois é uma referência: leia-o para entender o resultado e para conferir o que o Claude escreveu para você.',
     ],
     listTitle: 'Os guias',

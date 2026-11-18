@@ -62,8 +62,8 @@ export const it: TranslationShape = {
         },
         {
           title: 'Il pannello di Narsil Check',
-          text: 'Un pannello laterale con l’ambiente della sessione, i passi della CI, gli aggiornamenti delle librerie raggruppati per rischio, le vulnerabilità e le attività in sospeso.',
-          alt: 'Il pannello di Narsil Check: ambiente e CI, tre aggiornamenti di librerie, una vulnerabilità e due attività in sospeso',
+          text: 'Un pannello laterale con una mappa in diretta del lavoro di Claude, l’ambiente della sessione, i passi della CI, gli aggiornamenti delle librerie raggruppati per rischio, le vulnerabilità e le attività in sospeso.',
+          alt: 'Il pannello di Narsil Check: una mappa in diretta del lavoro di Claude con la piccola Narsil al centro, ambiente e CI, tre aggiornamenti di librerie, una vulnerabilità e due attività in sospeso',
         },
         {
           title: 'Narsil in Claude, sul telefono',
@@ -77,7 +77,7 @@ export const it: TranslationShape = {
     },
     aboutTitle: "Che cos'è Narsil?",
     about: [
-      'Narsil è una mod di Claude Code: una piccola mascotte che vive sopra il prompt e ti dice a colpo d’occhio se Claude sta lavorando, ha bisogno di te, ha finito o si è bloccato. Narsil Check è la sua sorella, un pannello laterale che controlla il tuo branch, la CI, le dipendenze e le vulnerabilità.',
+      'Narsil è una mod di Claude Code: una piccola mascotte che vive sopra il prompt e ti dice a colpo d’occhio se Claude sta lavorando, ha bisogno di te, ha finito o si è bloccato. Narsil Check è la sua sorella, un pannello laterale che mostra in diretta il lavoro di Claude e controlla il tuo branch, la CI, le dipendenze e le vulnerabilità.',
       'Qui non ti limiterai a installarle: costruirai le tue versioni insieme a Claude. Ogni guida spiega una funzionalità con parole semplici, ti dà un prompt per chiederla a Claude e ti mostra come verificare che ciò che Claude ha costruito sia corretto. Il codice è lì per essere letto e confrontato, non copiato.',
     ],
     routesTitle: 'Quattro percorsi di apprendimento',
@@ -93,7 +93,7 @@ export const it: TranslationShape = {
       {
         title: 'Il tuo pannello di revisione',
         description:
-          'Crea con Claude una mod come Narsil Check: un pannello laterale con i passi della CI, il branch indietro rispetto al remoto, aggiornamenti raggruppati per rischio, vulnerabilità da OSV.dev e strumenti per Claude.',
+          'Crea con Claude una mod come Narsil Check: un pannello laterale con una mappa in diretta del lavoro di Claude, i passi della CI, il branch indietro rispetto al remoto, aggiornamenti raggruppati per rischio, vulnerabilità da OSV.dev e strumenti per Claude.',
         icon: 'lucide:list-checks',
       },
       {
@@ -148,7 +148,7 @@ export const it: TranslationShape = {
     description:
       'Crea con Claude una mod come Narsil Check, una funzionalità alla volta: cosa fa ognuna, come funziona, il prompt per chiederla a Claude e il codice da leggere e confrontare con ciò che ha scritto Claude.',
     intro: [
-      'Narsil Check è un pannello laterale che controlla la tua sessione prima della consegna: ambiente, connettori, CI, branch indietro rispetto al remoto, aggiornamenti raggruppati per rischio, vulnerabilità e una lista di cose da fare che Claude può usare. Ogni guida spiega una funzionalità, le scelte che ci sono dietro e il prompt che porta Claude a costruirla.',
+      'Narsil Check è un pannello laterale che controlla la tua sessione prima della consegna: una mappa in diretta del lavoro di Claude, ambiente, connettori, CI, branch indietro rispetto al remoto, aggiornamenti raggruppati per rischio, vulnerabilità e una lista di cose da fare che Claude può usare. Ogni guida spiega una funzionalità, le scelte che ci sono dietro e il prompt che porta Claude a costruirla.',
       'Quando la richiesta originale è stata registrata, la guida la cita parola per parola, così puoi vedere come l’autore ha parlato con Claude. Il codice che segue è un riferimento: leggilo per capire il risultato e per controllare ciò che Claude ha scritto per te.',
     ],
     listTitle: 'Le guide',

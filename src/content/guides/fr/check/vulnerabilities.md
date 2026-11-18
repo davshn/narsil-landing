@@ -2,7 +2,7 @@
 title: Les vulnérabilités avec OSV.dev
 description: 'Comment Narsil Check interroge OSV.dev sur chaque paquet installé en une requête groupée, classe chaque avis par sa propre note ou son vecteur CVSS, et compte une seule fois les avis jumeaux.'
 route: check
-order: 14
+order: 15
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

@@ -2,7 +2,7 @@
 title: Conectores
 description: 'Cómo Narsil Check enumera los servidores MCP de la sesión con su estado y cuántas herramientas tiene cada uno, consultados una vez al propio servidor de conectores de la app de escritorio.'
 route: check
-order: 3
+order: 4
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

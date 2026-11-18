@@ -2,7 +2,7 @@
 title: Une branche en retard sur son dépôt distant
 description: 'Comment Narsil Check fait un fetch, compte les commits qui manquent à votre branche, avertit en haut du panneau et les récupère avec un bouton git pull -r.'
 route: check
-order: 5
+order: 6
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

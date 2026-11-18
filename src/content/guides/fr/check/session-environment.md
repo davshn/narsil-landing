@@ -2,7 +2,7 @@
 title: L’environnement de la session
 description: 'Comment Narsil Check affiche le dépôt, le dossier, la branche, Remote Control et Auto-fix, lus depuis git et les serveurs de l’application de bureau, et pourquoi il les interroge si peu.'
 route: check
-order: 2
+order: 3
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

@@ -2,7 +2,7 @@
 title: 'El entorno de la sesión'
 description: 'Cómo Narsil Check muestra el repositorio, la carpeta, la rama, Remote Control y Auto-fix, leídos de git y de los servidores de la app de escritorio, y por qué los consulta tan poco.'
 route: check
-order: 2
+order: 3
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

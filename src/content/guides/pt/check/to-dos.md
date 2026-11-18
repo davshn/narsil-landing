@@ -2,7 +2,7 @@
 title: Pendências
 description: 'Como o Narsil Check mantém uma lista de pendências por projeto num arquivo JSON não rastreado, a deixa fora do git e nunca sobrescreve uma lista danificada sem uma cópia.'
 route: check
-order: 15
+order: 16
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

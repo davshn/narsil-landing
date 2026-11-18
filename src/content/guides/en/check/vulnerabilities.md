@@ -2,7 +2,7 @@
 title: Vulnerabilities with OSV.dev
 description: 'How Narsil Check asks OSV.dev about every installed package in one batched query, rates each advisory from its own rating or its CVSS vector, and counts twin advisories once.'
 route: check
-order: 14
+order: 15
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

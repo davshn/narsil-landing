@@ -2,7 +2,7 @@
 title: O ambiente da sessão
 description: 'Como o Narsil Check mostra o repositório, a pasta, o branch, o Remote Control e o Auto-fix, lidos do git e dos servidores do app de desktop, e por que os consulta tão pouco.'
 route: check
-order: 2
+order: 3
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

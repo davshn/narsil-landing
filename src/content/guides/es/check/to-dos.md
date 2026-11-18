@@ -2,7 +2,7 @@
 title: Pendientes
 description: 'Cómo Narsil Check guarda una lista de pendientes por proyecto en un archivo JSON sin seguimiento, la mantiene fuera de git y nunca sobrescribe una lista dañada sin hacer una copia.'
 route: check
-order: 15
+order: 16
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:

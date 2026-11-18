@@ -2,7 +2,7 @@
 title: L'attesa di 24 ore
 description: 'Perché Narsil Check non alza mai una versione pubblicata meno di un giorno fa, dove ogni registry dice quando è uscita una versione e cosa succede quando nessuno sa dirlo.'
 route: check
-order: 9
+order: 10
 updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
