@@ -116,7 +116,27 @@ To uninstall from Firefox, open the menu, go to **Extensions**, choose **Narsil 
 
 If you no longer sign anything, revoke the API credentials on the same addons.mozilla.org page where you created them.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a Node script that derives a Manifest V3 package for Vivaldi from your Firefox extension, and for a restore step in the background. The one idea it must get right is that there is one source: the Chromium package is a copy with a derived manifest, not a second version of the code.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> My Firefox extension lives in `extension/` with a Manifest V2 `manifest.json`. Write a Node script, with no dependencies, that copies the folder to `dist/chromium` and writes a Manifest V3 `manifest.json` there: drop `browser_specific_settings`, move URL patterns from `permissions` to `host_permissions` and add the content scripts' `matches` to them, add the `scripting` permission, turn the background scripts into a one-line service worker that calls `importScripts()` with them, put a file that sets `self.browser = self.chrome` first in each content script group, and convert `web_accessible_resources` to the V3 object form. Export the manifest conversion as a function and test it with `node --test`. Then, in the background, on start, send each matching tab a ping with `tabs.sendMessage`; where nothing answers, insert the manifest's content script CSS and JS again with `scripting.insertCSS` and `scripting.executeScript`. Use only APIs documented on MDN and developer.chrome.com.
+
+### What to check in Claude's answer
+
+1. The derived manifest drops `browser_specific_settings`, moves URL patterns from `permissions` to `host_permissions`, adds the content scripts' `matches` to them, and adds `scripting`.
+2. The background becomes a one-line service worker that loads the same background scripts with `importScripts()`, and a file that sets `self.browser = self.chrome` comes first in each content script group.
+3. The restore sends each matching tab a ping with `tabs.sendMessage` and inserts the CSS and JS again only where nothing answers, and only files from the extension's own manifest.
+4. The manifest conversion is exported as a function and tested with `node --test` on a small Manifest V2 object.
+5. If you also ask Claude for the signing, the channel is `unlisted`, and the AMO credentials are typed when signing, never written into the repository or a command line.
+
+If a check fails, tell Claude what you see: "after I tap Update in Vivaldi, the band comes back without its colors".
+
+### How the author asked for it
 
 No request for the packaging was recorded. The owner's words recorded for this path are about the site ([guide 1](/en/mods/claude/what-it-is/) quotes them). The following is reconstructed from the extension's commit history:
 
@@ -129,13 +149,9 @@ No request for the packaging was recorded. The owner's words recorded for this p
 
 The second browser took one day to add and a week to settle: each fix after `11dadb3` answers a way Vivaldi on Android loaded the extension only in part, found by using it.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> My Firefox extension lives in `extension/` with a Manifest V2 `manifest.json`. Write a Node script, with no dependencies, that copies the folder to `dist/chromium` and writes a Manifest V3 `manifest.json` there: drop `browser_specific_settings`, move URL patterns from `permissions` to `host_permissions` and add the content scripts' `matches` to them, add the `scripting` permission, turn the background scripts into a one-line service worker that calls `importScripts()` with them, put a file that sets `self.browser = self.chrome` first in each content script group, and convert `web_accessible_resources` to the V3 object form. Export the manifest conversion as a function and test it with `node --test`. Then, in the background, on start, send each matching tab a ping with `tabs.sendMessage`; where nothing answers, insert the manifest's content script CSS and JS again with `scripting.insertCSS` and `scripting.executeScript`. Use only APIs documented on MDN and developer.chrome.com.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Three pieces, written for this guide (MIT): the conversion, the restore on start, and the signing.
 

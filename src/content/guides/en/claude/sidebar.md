@@ -100,7 +100,27 @@ The mod sends a status only while you write from away. When you go back to the d
 
 The count itself has to come from the computer, because ntfy.sh counts messages per IP address. The mod asks ntfy.sh, from the computer's network, how many messages that network has sent today, and puts the answer in its status. If the phone asked, ntfy.sh would answer about the phone's network, which sends nothing. As the phone guide explains, that day also starts at an hour of ntfy.sh's own, not at midnight, which is why the row shows its own reset time.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a block after the side menu's Search button, fed by a background script that follows the mod's status topic on ntfy.sh. The one idea it must get right is that the topic stays in the background, and that nothing from ntfy.sh is trusted: it reaches the page only as text.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my extension for `https://claude.ai/*`, add a block right after the side menu's Search button, found by its position, not its text. The content script opens a `runtime.connect` port to the background while the page is visible and closes it when hidden. The background reads the topic from `storage.local`, polls `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, then follows the same JSON stream with `fetch` and a stream reader from the last message id, retrying with a doubling wait up to 60 s. It posts the newest parsed status to every port, never the topic. In the block, show the `xp` field as text with `textContent`, accept an image URL only from one fixed prefix, and add "data from N h ago" when the status's `at` is over an hour old. Test the parsing and the stream with `node --test`, passing a fake `fetch`.
+
+### What to check in Claude's answer
+
+1. Search is found by its position, not by its text, so the block still appears when the page is in another language.
+2. Only the background reads the topic from `storage.local` and talks to ntfy.sh. It posts the status to the ports, never the topic.
+3. It polls `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h` first, then follows the stream from the last message id, and waits twice as long after each failure, up to 60 seconds.
+4. The port is open while the page is visible and closed while it is hidden, so nothing is read while you are not looking.
+5. Every value goes in with `textContent`, a picture is shown only from one fixed address, and a status whose `at` is over an hour old gets the "data from N h ago" note.
+
+If a check fails, tell Claude what you see: "after I turn the network off and on, the level never changes again".
+
+### How the author asked for it
 
 No request for the block was recorded. The owner's words recorded for this path are about the site ([guide 1](/en/mods/claude/what-it-is/) quotes them). The following is reconstructed from the extension's commit history:
 
@@ -110,13 +130,9 @@ No request for the block was recorded. The owner's words recorded for this path 
 
 On the mod's side, narsil-pet's `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" cut its status down to the five fields above, the same day.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my extension for `https://claude.ai/*`, add a block right after the side menu's Search button, found by its position, not its text. The content script opens a `runtime.connect` port to the background while the page is visible and closes it when hidden. The background reads the topic from `storage.local`, polls `https://ntfy.sh/<topic>-estado/json?poll=1&since=12h`, then follows the same JSON stream with `fetch` and a stream reader from the last message id, retrying with a doubling wait up to 60 s. It posts the newest parsed status to every port, never the topic. In the block, show the `xp` field as text with `textContent`, accept an image URL only from one fixed prefix, and add "data from N h ago" when the status's `at` is over an hour old. Test the parsing and the stream with `node --test`, passing a fake `fetch`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The two halves, written for this guide (MIT). The background follows the status topic and sends what it reads to the block; the content script shows it. Try it with an invented topic such as `narsil-0123456789abcdef0123`, on a topic of your own.
 

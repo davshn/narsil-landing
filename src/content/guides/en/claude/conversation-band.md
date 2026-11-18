@@ -89,7 +89,27 @@ The text is clamped to two lines with CSS ([`line-clamp`](https://developer.mozi
 
 The band writes a value only when it changed, since each write of its own is one more change for the observer. And the observer stops, with everything that used it, once the extension is removed or reloaded, so an orphaned copy does not keep drawing.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a content script that draws a band just above `claude.ai`'s message box and reads the conversation's data with the page's own session. The one idea it must get right is that the band only reads, and only while you look: `GET` requests every 10 seconds, and none while the page is hidden.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Firefox extension for `https://claude.ai/*`, add a content script that draws a status band just before the page's message box, as its previous sibling, so it pushes the conversation up instead of covering it. Find the conversation id in `location.pathname`. Every 10 seconds, and only while `document.hidden` is false, read the conversation's data with the page's own session (`content.fetch` when it exists, otherwise `fetch`, with `credentials: 'include'`), `GET` only. Show the state, the context percent, the last text Claude wrote and how long ago, and a cache countdown estimated from the time of Claude's last message plus 60 minutes. Use one `MutationObserver` on the document, throttled with `requestAnimationFrame`, to put the band back when the page rebuilds and to reset it when the conversation changes. Write text only with `textContent`. Clamp the text to two lines and let a tap expand it. Keep the rules in a module with no DOM code, and test them with `node --test`.
+
+### What to check in Claude's answer
+
+1. The band is inserted just before the message box, as its previous sibling, not as a `position: fixed` layer, so it covers nothing.
+2. The requests use `content.fetch` when it exists, otherwise `fetch`, with `credentials: 'include'`, and they are `GET` only.
+3. It asks every 10 seconds, not at all while `document.hidden` is true, and at once when `visibilitychange` shows the page again.
+4. The cache countdown starts from Claude's last message, not from the conversation's last event, and the old data is dropped when the id in the address changes.
+5. There is one `MutationObserver`, run at most once per frame with `requestAnimationFrame`, and the band writes its text with `textContent` and moves only when something changed.
+
+If a check fails, tell Claude what you see: "the cache countdown starts over each time I open the page".
+
+### How the author asked for it
 
 No request for the band was recorded. The owner's words recorded for this path are about the site ([guide 1](/en/mods/claude/what-it-is/) quotes them). The following is reconstructed from the extension's commit history:
 
@@ -101,13 +121,9 @@ No request for the band was recorded. The owner's words recorded for this path a
 
 The history shows a move from data sent by the computer to data the page already had: the band works the moment you open a conversation, even with the computer off.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Firefox extension for `https://claude.ai/*`, add a content script that draws a status band just before the page's message box, as its previous sibling, so it pushes the conversation up instead of covering it. Find the conversation id in `location.pathname`. Every 10 seconds, and only while `document.hidden` is false, read the conversation's data with the page's own session (`content.fetch` when it exists, otherwise `fetch`, with `credentials: 'include'`), `GET` only. Show the state, the context percent, the last text Claude wrote and how long ago, and a cache countdown estimated from the time of Claude's last message plus 60 minutes. Use one `MutationObserver` on the document, throttled with `requestAnimationFrame`, to put the band back when the page rebuilds and to reset it when the conversation changes. Write text only with `textContent`. Clamp the text to two lines and let a tap expand it. Keep the rules in a module with no DOM code, and test them with `node --test`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A small content script of the same shape, written for this guide (MIT). `readConversation` stands for whatever reads your data; here it returns the time of Claude's last message, in seconds. The rest is the band's mechanics: placing it, following the page, refreshing while visible and estimating the cache.
 
