@@ -14,11 +14,11 @@ Objective: a new structure for the site that keeps its colors and neumorphic sty
 
 ## Tasks
 
-| ID  | Specs          | Route  | Status  | Commit                            |
-| --- | -------------- | ------ | ------- | --------------------------------- |
-| T1  | S1, S2, S3, S5 | inline | review  | branch feat/guide-workshop-layout |
-| T2  | S1, S2, S6     | inline | pending |                                   |
-| T3  | S1, S2, S4, S7 | inline | pending |                                   |
+| ID  | Specs          | Route  | Status  | Commit                      |
+| --- | -------------- | ------ | ------- | --------------------------- |
+| T1  | S1, S2, S3, S5 | inline | done    | PR #20                      |
+| T2  | S1, S2, S6     | inline | review  | branch feat/path-curriculum |
+| T3  | S1, S2, S4, S7 | inline | pending |                             |
 
 ## Log
 
@@ -26,3 +26,5 @@ Objective: a new structure for the site that keeps its colors and neumorphic sty
 - L2 (2026-11-18): audit at 320, 375, 768, 1024, and 1440 px. Found: horizontal scroll at 320 px on `/en/mods/what-is-a-mod/`, a 28 px header brand link, a single 700 px guide column with no table of contents, and 17 identical stacked cards on each path page.
 - L3 (2026-11-18, owner): "Sí, empieza" to the three-PR plan, starting with the guides.
 - L4 (2026-11-18): T1 built. GuideLayout gets a three-column shell (path 15rem, text up to 46rem with 70ch paragraphs, table of contents 13rem), GuidePathList and GuideToc components, a scroll script that marks the visible heading with aria-current="location", tables and long inline code that wrap or scroll instead of widening the page, a 44 px header brand, and larger previous/next cards. The 320 px overflow on what-is-a-mod and the 28 px brand target no longer show in the audit.
+- L5 (2026-11-18): T1 merged as PR #20 after resolving conflicts with the bot path (PR #19); GitHub Actions jobs do not start because of an account billing limit.
+- L6 (2026-11-18, owner): "Sí, sigue". T2 built: GuideIndexLayout gets a two-column header with a summary card (guide count, estimated reading time at 200 words a minute, last update) and a GuideCurriculum timeline whose guides alternate around a central rail from 1024 px and hang from a left rail below; each card shows its reading time.

@@ -1,15 +1,17 @@
 ---
+import GuideCurriculum from '@components/guide/GuideCurriculum/GuideCurriculum.astro'
 import Button from '@components/ui/Button/Button.astro'
-import Card from '@components/ui/Card/Card.astro'
-import CardBody from '@components/ui/Card/CardBody.astro'
-import Container from '@components/ui/Container/Container.astro'
 import Text from '@components/ui/Text/Text.astro'
 import { guideRefs } from '@content/guide-pages'
-import type { Locale, PathKey } from '@i18n/index'
+import { languageTags, type Locale, type PathKey } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage } from '@seo/json-ld'
 import { guideHref, guidesFor } from '@utils/guides'
+import { readingDuration, readingMinutes } from '@utils/reading-time'
+import { fillTemplate } from '@utils/template'
+
+import './guide-index.css'
 
 interface Props {
   locale: Locale
@@ -21,6 +23,31 @@ const t = useTranslations(locale)
 const copy = t[route]
 const guides = guidesFor(await guideRefs(), locale, route)
 const [first] = guides
+
+const minutesOf = guides.map((guide) => readingMinutes(guide.entry.body ?? ''))
+const totalMinutes = minutesOf.reduce((sum, minutes) => sum + minutes, 0)
+const total = readingDuration(totalMinutes)
+const totalLabel = fillTemplate(
+  total.unit === 'hours' ? t.guide.readingHours : t.guide.readingMinutes,
+  { value: total.value },
+)
+const latest = guides.reduce<Date | undefined>((newest, guide) => {
+  const { updated } = guide.entry.data
+  return newest === undefined || updated > newest ? updated : newest
+}, undefined)
+const latestText =
+  latest === undefined
+    ? undefined
+    : new Intl.DateTimeFormat(languageTags[locale], { dateStyle: 'long', timeZone: 'UTC' }).format(
+        latest,
+      )
+
+const items = guides.map((guide, index) => ({
+  title: guide.title,
+  description: guide.entry.data.description,
+  href: guideHref(locale, route, guide.slug),
+  meta: fillTemplate(t.guide.guideMinutes, { value: minutesOf[index] }),
+}))
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const jsonLd = buildWebPage({
@@ -38,36 +65,44 @@ const jsonLd = buildWebPage({
   locale={locale}
   jsonLd={jsonLd}
 >
-  <Container as="section" maxWidth="md" padding="section" class="flex flex-col gap-8">
-    <header class="flex flex-col gap-4">
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">{copy.title}</h1>
-      {copy.intro.map((paragraph) => (
-        <Text as="p">{paragraph}</Text>
-      ))}
-      {first !== undefined && (
-        <div>
-          <Button href={guideHref(locale, route, first.slug)}>{copy.startCta}</Button>
-        </div>
+  <div class="path-page">
+    <header class="path-hero">
+      <div class="path-hero-text">
+        <h1 class="path-title">{copy.title}</h1>
+        {copy.intro.map((paragraph) => (
+          <Text as="p" class="path-intro">
+            {paragraph}
+          </Text>
+        ))}
+        {first !== undefined && (
+          <div>
+            <Button size="lg" href={guideHref(locale, route, first.slug)}>
+              {copy.startCta}
+            </Button>
+          </div>
+        )}
+      </div>
+      {guides.length > 0 && (
+        <aside class="path-summary" aria-labelledby="path-summary-title" data-path-summary>
+          <h2 id="path-summary-title" class="path-summary-title">
+            {t.guide.summaryTitle}
+          </h2>
+          <ul class="path-summary-list">
+            <li class="path-summary-count">
+              {fillTemplate(t.guide.guideCount, { count: guides.length })}
+            </li>
+            <li>{totalLabel}</li>
+            {latestText !== undefined && <li>{`${t.guide.updated}: ${latestText}`}</li>}
+          </ul>
+        </aside>
       )}
     </header>
 
-    <section class="flex flex-col gap-4" aria-labelledby="guides-title">
-      <h2 id="guides-title" class="text-2xl font-bold tracking-tight">
+    <section class="path-guides" aria-labelledby="guides-title">
+      <h2 id="guides-title" class="path-section-title">
         {copy.listTitle}
       </h2>
-      <ol class="flex flex-col gap-4" data-guide-list>
-        {guides.map((guide, index) => (
-          <li>
-            <Card href={guideHref(locale, route, guide.slug)}>
-              <CardBody class="flex flex-col gap-1">
-                <span class="text-sm text-muted-foreground">{index + 1}</span>
-                <span class="text-lg font-semibold">{guide.title}</span>
-                <span class="text-muted-foreground">{guide.entry.data.description}</span>
-              </CardBody>
-            </Card>
-          </li>
-        ))}
-      </ol>
+      <GuideCurriculum items={items} />
     </section>
-  </Container>
+  </div>
 </SiteLayout>
