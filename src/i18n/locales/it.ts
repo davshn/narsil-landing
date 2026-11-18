@@ -110,7 +110,7 @@ export const it: TranslationShape = {
       badge: 'Sperimentale',
       title: 'Narsil in Claude, l’estensione del browser',
       text: 'Narsil vive anche dentro claude.ai sul tuo telefono: un’estensione per Firefox e Vivaldi su Android mostra sopra la casella di testo lo stato, il contesto, la cache e l’ultimo evento della conversazione aperta, e nel menu laterale il livello di Narsil, i tuoi limiti di utilizzo e i messaggi ntfy.sh del giorno. Inoltre veste Claude con i colori di Narsil.',
-      note: 'È sperimentale: è molto collaudata, ma si basa sulla struttura della pagina di claude.ai e non su un’API pubblica, quindi un aggiornamento di Claude può romperla. Legge soltanto e non invia mai i tuoi dati da nessuna parte. Il suo codice non è pubblico, ma le guide spiegano come si costruisce.',
+      note: 'È sperimentale: è molto collaudata, ma si basa sulla struttura della pagina di claude.ai e non su un’API pubblica, quindi un aggiornamento di Claude può romperla. Legge soltanto: non scrive mai nel tuo account né invia le tue conversazioni da nessuna parte, anche se carica i disegni di Narsil da GitHub e legge il suo topic di stato su ntfy.sh. Il suo codice non è pubblico, ma le guide spiegano come si costruisce.',
       cta: 'Come è fatta',
     },
   },

@@ -107,7 +107,7 @@ export const es: TranslationShape = {
       badge: 'Experimental',
       title: 'Narsil en Claude, la extensión del navegador',
       text: 'Narsil también vive dentro de claude.ai en tu móvil: una extensión para Firefox y Vivaldi en Android muestra encima de la caja de texto el estado, el contexto, la caché y el último evento de la conversación abierta, y en el menú lateral el nivel de Narsil, tus límites de uso y los mensajes de ntfy.sh del día. Además viste Claude con los colores de Narsil.',
-      note: 'Es experimental: está muy probada, pero se apoya en la estructura de la página de claude.ai y no en una API pública, así que una actualización de Claude puede romperla. Solo lee y nunca envía tus datos a ningún sitio. Su código no es público, pero las guías explican cómo se hace.',
+      note: 'Es experimental: está muy probada, pero se apoya en la estructura de la página de claude.ai y no en una API pública, así que una actualización de Claude puede romperla. Solo lee: nunca escribe en tu cuenta ni envía tus conversaciones a ningún sitio, aunque carga los dibujos de Narsil desde GitHub y lee su tema de estado en ntfy.sh. Su código no es público, pero las guías explican cómo se hace.',
       cta: 'Cómo está hecha',
     },
   },
