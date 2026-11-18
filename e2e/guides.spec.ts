@@ -287,3 +287,31 @@ test.describe('Narsil desk bot path', () => {
     })
   }
 })
+
+test.describe('Path curriculum', () => {
+  const t = useTranslations('en')
+
+  test('summarizes the path and lists its guides as a numbered curriculum', async ({ page }) => {
+    await page.goto('/en/mods/pet/')
+    const summary = page.locator('[data-path-summary]')
+    await expect(summary).toContainText(`${PET_GUIDES.length} guides`)
+    await expect(summary).toContainText(/About \d+ (?:h|min) of reading/v)
+    await expect(page.locator('.curriculum-number')).toHaveCount(PET_GUIDES.length)
+    await expect(page.locator('.curriculum-meta').first()).toHaveText(/^\d+ min$/v)
+    await expect(page.getByRole('link', { name: t.pet.startCta })).toHaveAttribute(
+      'href',
+      `/en/mods/pet/${PET_GUIDES[0]}/`,
+    )
+  })
+
+  for (const width of [320, 1440]) {
+    test(`fits the curriculum in ${width} px without scrolling sideways`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.goto('/en/mods/check/')
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      )
+      expect(overflow).toBe(0)
+    })
+  }
+})

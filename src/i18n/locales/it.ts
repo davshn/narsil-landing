@@ -169,6 +169,11 @@ export const it: TranslationShape = {
     previous: 'Precedente',
     next: 'Successiva',
     backToPath: 'Tutte le guide di questo percorso',
+    summaryTitle: 'In questo percorso',
+    guideCount: '{count} guide',
+    readingMinutes: 'Circa {value} min di lettura',
+    readingHours: 'Circa {value} h di lettura',
+    guideMinutes: '{value} min',
     coffeeTitle: 'Questa guida ti è stata utile?',
     coffeeText:
       'Tutte le guide sono gratuite. Se questa ti ha fatto risparmiare tempo, puoi offrirmi un caffè.',

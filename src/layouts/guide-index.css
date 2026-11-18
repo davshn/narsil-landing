@@ -1,0 +1,58 @@
+@reference '../styles/global.css';
+
+.path-page {
+  @apply mx-auto flex w-full flex-col gap-14 px-4 py-12 sm:px-6 lg:gap-20 lg:py-16;
+  max-width: 72rem;
+}
+
+.path-hero {
+  @apply grid gap-8 lg:items-center lg:gap-12;
+}
+
+@media (min-width: 1024px) {
+  .path-hero {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+}
+
+.path-hero-text {
+  @apply flex flex-col gap-5;
+}
+
+.path-title {
+  @apply text-4xl font-bold tracking-tight sm:text-5xl;
+  line-height: var(--leading-tight);
+}
+
+.path-intro {
+  @apply text-lg text-muted-foreground;
+  max-width: 62ch;
+}
+
+.path-summary {
+  @apply flex flex-col gap-4 p-6;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-lg);
+}
+
+.path-summary-title {
+  @apply text-xs font-semibold uppercase text-muted-foreground;
+  letter-spacing: var(--tracking-wide);
+}
+
+.path-summary-list {
+  @apply m-0 flex list-none flex-col gap-3 p-0 text-sm text-muted-foreground;
+}
+
+.path-summary-list .path-summary-count {
+  @apply text-3xl font-bold text-primary;
+  line-height: var(--leading-tight);
+}
+
+.path-guides {
+  @apply flex flex-col gap-8;
+}
+
+.path-section-title {
+  @apply text-2xl font-bold tracking-tight sm:text-3xl;
+}

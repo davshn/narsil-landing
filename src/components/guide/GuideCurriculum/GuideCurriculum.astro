@@ -1,0 +1,36 @@
+---
+import './guide-curriculum.css'
+
+interface CurriculumItem {
+  title: string
+  description: string
+  href: string
+  meta?: string
+}
+
+interface Props {
+  items: CurriculumItem[]
+}
+
+const { items } = Astro.props
+---
+
+<ol class="curriculum" data-guide-list>
+  {items.map((item, index) => (
+    <li
+      class={`curriculum-item ${index % 2 === 0 ? 'curriculum-item-start' : 'curriculum-item-end'}`}
+      style={`--curriculum-row: ${index + 1}`}
+    >
+      <span class="curriculum-number" aria-hidden="true">
+        {index + 1}
+      </span>
+      <a class="curriculum-card" href={item.href}>
+        <span class="curriculum-title">{item.title}</span>
+        <span class="curriculum-description">{item.description}</span>
+        {item.meta !== undefined && item.meta !== '' && (
+          <span class="curriculum-meta">{item.meta}</span>
+        )}
+      </a>
+    </li>
+  ))}
+</ol>

@@ -132,6 +132,11 @@ export interface TranslationShape {
     previous: string
     next: string
     backToPath: string
+    summaryTitle: string
+    guideCount: string
+    readingMinutes: string
+    readingHours: string
+    guideMinutes: string
     coffeeTitle: string
     coffeeText: string
     coffeeCta: string
