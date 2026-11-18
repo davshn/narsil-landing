@@ -1,10 +1,3 @@
-overrides:
-  '@iconify/tools': '^5.0.12'
-  # @lhci/cli > proxy-agent > get-uri pins basic-ftp ^5 (GHSA-c475-qrg2-pj4r and later
-  # advisories, patched only in 6.x). get-uri's API use is unaffected by 6.0's breaking
-  # change. Remove once get-uri depends on basic-ftp 6.
-  basic-ftp: '^6.2.1'
-
 allowBuilds:
   esbuild: true
   sharp: true
