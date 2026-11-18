@@ -87,7 +87,27 @@ The `V` message of guide 10 says whether Xiaozhi is listening or speaking. The h
 
 The screen's LEDs are on GPIO20, through a transistor. The head drives the pin with ESP-IDF's [LEDC](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-reference/peripherals/ledc.html) PWM peripheral at 5 kHz with 10-bit resolution, so the duty cycle, from 0 to 1023, is the brightness. It runs at full brightness while lines arrive, and drops to 20% after 15 seconds of silence (guide 10): the belly is off or the wire is loose, and a dim Narsil says so without going dark. The backlight stays off until the first frame is drawn, so the screen never flashes the controller's random memory at boot.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for the head's firmware: an ESP-IDF app that draws Narsil's pose, received over the UART, on the ST7789 screen under the prism cube. The one idea it must get right is that the cube is a mirror: the image must be drawn mirrored, and everything that is not Narsil must be pure black, because black is what looks transparent.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> I have a Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) under a Pepper's-ghost prism cube. Read Waveshare's wiki and schematic for the LCD and backlight pins, and ESP-IDF 6's `esp_lcd` docs. Write an ESP-IDF app that initializes the ST7789 with `esp_lcd_new_panel_st7789`, mirrors the image with `esp_lcd_panel_mirror`, keeps the background pure black, sets the backlight with LEDC, and draws one of 25 embedded RGB565 images chosen by a pose and a stage received over UART. Wait for `on_color_trans_done` before reusing the frame buffer. Explain why the image must be mirrored and why black looks transparent, and how I check the alignment.
+
+### What to check in Claude's answer
+
+1. The image is mirrored in the screen controller with `esp_lcd_panel_mirror`, starting with `mirror_x` set, and the boot screen shows a red square in the top-left corner for three seconds so you can check the axis.
+2. Every frame is cleared to pure black (`0x0000`), and the art is converted with `--background 0x000000` and `--cf RGB565_SWAPPED`, not plain `RGB565`.
+3. The pins match Waveshare's schematic: CLK on GPIO40, MOSI on GPIO41, CS on GPIO39, DC on GPIO38, reset on GPIO42 and the backlight on GPIO20. None of them is GPIO13 or GPIO14, the UART of guide 10.
+4. After `esp_lcd_panel_draw_bitmap`, the code waits for `on_color_trans_done` to give its semaphore before it touches the frame buffer again.
+5. The head redraws only when the pose, the stage or the voice state changes. The backlight stays off until the first frame, and drops to 20% after 15 seconds without a line from the belly.
+
+If a check fails, tell Claude what you see: "Narsil faces the wrong way, and the red square is in the top-right corner of the cube".
+
+### How the author asked for it
 
 The head's job was in the author's first description of the bot:
 
@@ -99,13 +119,9 @@ In English: "the head is going to be a holographic screen that is only Narsil's 
 
 What to draw was the AI's proposal: Narsil already has painted art for every state and stage in narsil-pet, the same pictures the phone alerts use, so the head shows those instead of a new drawing. How the head learns the pose was settled earlier by the author's answer "Por cable desde la panza" ("by cable, from the belly"), which guide 10 turned into the protocol.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> I have a Waveshare ESP32-S3-LCD-1.3 (ST7789, 240×240, SPI) under a Pepper's-ghost prism cube. Read Waveshare's wiki and schematic for the LCD and backlight pins, and ESP-IDF 6's `esp_lcd` docs. Write an ESP-IDF app that initializes the ST7789 with `esp_lcd_new_panel_st7789`, mirrors the image with `esp_lcd_panel_mirror`, keeps the background pure black, sets the backlight with LEDC, and draws one of 25 embedded RGB565 images chosen by a pose and a stage received over UART. Wait for `on_color_trans_done` before reusing the frame buffer. Explain why the image must be mirrored and why black looks transparent, and how I check the alignment.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 First the art. From a folder with a clone of narsil-pet and of LVGL (for `LVGLImage.py`, which needs `pip install pypng lz4`), in PowerShell:
 

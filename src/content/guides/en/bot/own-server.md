@@ -95,7 +95,27 @@ The bot uses `OpenaiASR` for recognition and keeps `EdgeTTS` for synthesis, whic
 
 The server does one job: voice. The belly connects to ntfy and GitHub on its own (guides 7 and 8), and the head draws whatever the belly sends it. If your PC is off, or Docker is stopped, Narsil's alerts, your pull requests and her face keep working. Only the wake word leads nowhere until the server is back.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to set up xinnan-tech's server in minimal mode with Docker on your PC. The one idea it must get right is that the server stays on your local network, and that your changes and keys go in `data/.config.yaml`, never in `config.yaml`.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to set up the bot.
+
+> I want to run xinnan-tech/xiaozhi-esp32-server in its minimal mode with Docker on my Windows PC, reachable only from my local network, for a Xiaozhi device. Read the project's README, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` and `docker-compose.yml`, then give me: the folder layout, a `data/.config.yaml` that overrides only what I need (WebSocket address with my LAN IP, time zone, a speech recognizer that understands Spanish), the commands to start it and read its logs, and the OTA URL I must give the device. Quote the project's security warning and tell me which ports it opens.
+
+### What to check in Claude's answer
+
+1. It quotes the security warning and keeps the server on your local network: no port 8000 or 8003 forwarded on the router, because authentication is off by default.
+2. Your keys live only in `data/.config.yaml`, on your PC and outside any repository. The answer does not edit `config.yaml` and does not put a key in any other file.
+3. `server.websocket` is set explicitly with your PC's LAN address and port 8000, because the addresses in the Docker log are the container's.
+4. The speech recognizer understands Spanish, such as `OpenaiASR`, and not `FunASR`, whose model supports zh, en, ja, ko and yue.
+5. It sets your own `server.timezone_offset` instead of the default `+8`, and gives the OTA URL as port 8003 with the path `/xiaozhi/ota/`.
+
+If a check fails, tell Claude what you see: "the OTA page in my browser shows a WebSocket address that is not my PC's".
+
+### How the author asked for it
 
 The decision to run a server came in guide 3: the author chose "servidor propio", an own server, over xiaozhi.me. The AI then proposed this server in minimal mode, with Docker, on the local network only, and asked again before going on. The author confirmed:
 
@@ -111,13 +131,9 @@ In English: "on the PC; anyway, the idea is to use it to work with Claude".
 
 That second answer explains two things in this guide. The server runs in Docker on the PC the author already works on, so nothing new has to stay on. And Claude is the brain: the next decision, recorded as spec S5, chose option "1", a native Anthropic provider written in Python with the Anthropic SDK rather than an OpenAI-compatible endpoint. Guide 5 builds it.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to set up the bot.
-
-> I want to run xinnan-tech/xiaozhi-esp32-server in its minimal mode with Docker on my Windows PC, reachable only from my local network, for a Xiaozhi device. Read the project's README, `docs/Deployment.md`, `main/xiaozhi-server/config.yaml` and `docker-compose.yml`, then give me: the folder layout, a `data/.config.yaml` that overrides only what I need (WebSocket address with my LAN IP, time zone, a speech recognizer that understands Spanish), the commands to start it and read its logs, and the OTA URL I must give the device. Quote the project's security warning and tell me which ports it opens.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The folder on the PC, from the deployment guide:
 

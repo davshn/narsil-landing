@@ -110,7 +110,27 @@ The voice path is the only one that needs your PC. Alerts, pull requests and the
 
 The firmware for both boards lives in one public repository, `davshn/narsil-bot`: a fork of 78/xiaozhi-esp32 for the belly, with the head's firmware in its own `head/` folder.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to read the official pages of both boards and propose the role of each one, the UART pins, the power and the parts list. The one idea it must get right is that the belly owns every connection and every secret, and the head only draws what it receives over three wires.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to design the bot.
+
+> I want to build a desk bot from two ESP32 boards: a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 as the body and an ESP32-S3-LCD-1.3-C (ST7789 240×240 under a prism cube) as the head. The body must do all networking and the head must only draw a face it receives over UART. Read the official Waveshare and SpotPear pages and schematics, then propose: the role of each board, which free header pins to use for the UART on each side (avoiding pins the board support or the boot console already use), how to power both boards, and a bill of materials. Cite the page each pin comes from, and ask me one question at a time when something is a real choice.
+
+### What to check in Claude's answer
+
+1. The belly does all the networking and holds the Wi-Fi password, the GitHub token and the ntfy topic. The head holds no secrets and only receives a pose and a state over UART.
+2. The UART uses free header pins: GPIO4 (TX) and GPIO5 (RX) on the belly, GPIO13 (RX) and GPIO14 (TX) on the head. It avoids the pins Xiaozhi's `config.h` already takes, such as GPIO9 to GPIO13 for audio.
+3. The wires cross: each TX goes to the other board's RX, and a third wire joins the two grounds.
+4. Each board has its own USB-C cable, and the 3V3 pins stay unconnected. Both boards use 3.3 V logic, so no level shifter is needed.
+5. The console pins are left alone: GPIO37 and GPIO38 on the belly, GPIO43 and GPIO44 on the head. Each pin choice cites the page or schematic it comes from.
+
+If a check fails, tell Claude what you see: "the head prints garbage, and my plan has no ground wire between the boards".
+
+### How the author asked for it
 
 The design started from a shopping cart. On 2026-11-17 the author shared a screenshot of an AliExpress cart with the two boards and a pack of Dupont wires, and described the idea:
 
@@ -128,13 +148,9 @@ In English: "By cable from the belly".
 
 That answer is the rule in "Why the belly does all the networking" above: one board owns the network and the secrets, the other only draws. The AI asked its questions one at a time, with the Waveshare and SpotPear pages as sources, and recorded each answer in the project's task document as a numbered spec.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to design the bot.
-
-> I want to build a desk bot from two ESP32 boards: a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3 as the body and an ESP32-S3-LCD-1.3-C (ST7789 240×240 under a prism cube) as the head. The body must do all networking and the head must only draw a face it receives over UART. Read the official Waveshare and SpotPear pages and schematics, then propose: the role of each board, which free header pins to use for the UART on each side (avoiding pins the board support or the boot console already use), how to power both boards, and a bill of materials. Cite the page each pin comes from, and ask me one question at a time when something is a real choice.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The wiring becomes code in one place on each board: the UART setup. This is the belly's side, written for this guide with the ESP-IDF UART driver (`driver/uart.h`, the same calls as ESP-IDF's `uart_echo` example). The head's side is the same with its own pins.
 

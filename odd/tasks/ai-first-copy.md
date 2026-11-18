@@ -21,16 +21,16 @@ Objective: rewrite the site copy so it teaches clearly and puts building with Cl
 
 ## Tasks
 
-| ID  | Specs              | Route                               | Status  | Commit                                                       |
-| --- | ------------------ | ----------------------------------- | ------- | ------------------------------------------------------------ |
-| T1  | S3, S4             | inline                              | done    | `acd2f1d`                                                    |
-| T2  | S2, S3, S5         | inline                              | done    | `acd2f1d`                                                    |
-| T3  | S6                 | delegated (4 parallel writers)      | done    | translations commit                                          |
-| T4  | S2                 | inline                              | done    | 728 unit tests, 99.15 % lines, 18 mods e2e passed (chromium) |
-| T5  | S2–S6, S8 (pet)    | delegated (3 en + 4 locale writers) | done    | 115 guides e2e passed (chromium)                             |
-| T6  | S2–S6, S8 (check)  | delegated (3 en + 4 locale writers) | done    | 115 guides e2e passed (chromium)                             |
-| T7  | S2–S6, S8 (claude) | delegated (1 en + 4 locale writers) | done    | 115 guides e2e passed (chromium)                             |
-| T8  | S2–S6 (bot)        | later slice                         | pending |                                                              |
+| ID  | Specs              | Route                               | Status | Commit                                                       |
+| --- | ------------------ | ----------------------------------- | ------ | ------------------------------------------------------------ |
+| T1  | S3, S4             | inline                              | done   | `acd2f1d`                                                    |
+| T2  | S2, S3, S5         | inline                              | done   | `acd2f1d`                                                    |
+| T3  | S6                 | delegated (4 parallel writers)      | done   | translations commit                                          |
+| T4  | S2                 | inline                              | done   | 728 unit tests, 99.15 % lines, 18 mods e2e passed (chromium) |
+| T5  | S2–S6, S8 (pet)    | delegated (3 en + 4 locale writers) | done   | 115 guides e2e passed (chromium)                             |
+| T6  | S2–S6, S8 (check)  | delegated (3 en + 4 locale writers) | done   | 115 guides e2e passed (chromium)                             |
+| T7  | S2–S6, S8 (claude) | delegated (1 en + 4 locale writers) | done   | 115 guides e2e passed (chromium)                             |
+| T8  | S2–S6, S8 (bot)    | delegated (3 en + 4 locale writers) | done   | 115 guides e2e passed (chromium)                             |
 
 T1: English UI copy in `src/i18n/locales/en.ts`. T2: the five English mods guides. T3: UI copy and mods guides in es, it, fr, pt, one writer per locale (disjoint files, several minutes each). T4: e2e expectations for the new guide headings and full checks.
 
@@ -44,3 +44,5 @@ T1: English UI copy in `src/i18n/locales/en.ts`. T2: the five English mods guide
 - L6 (2026-11-18, owner): "dale, sigue con la ruta pet". S8 template applied to the 17 pet guides in five locales on branch `docs/ai-first-pet`, stacked on PR 36; three parallel English writers (disjoint guides), then four locale writers. Localized "Reference code": es "Código de referencia", it "Codice di riferimento", fr "Code de référence", pt "Código de referência".
 - L7 (2026-11-18, owner): "dale, sigue con la ruta check". PR 36 and PR 38 are merged; the check slice runs on `docs/ai-first-check` from `main`, with the same S8 template and the same writer split.
 - L8 (2026-11-18, owner): "dale, sigue con la ruta claude". PR 39 is merged; the claude slice runs on `docs/ai-first-claude` from `main`: one English writer for the five guides (context backstop), then four locale writers.
+- L9 (2026-11-18, owner): "dale, sigue con la ruta bot". PR 40 is merged; the bot slice runs on `docs/ai-first-bot` from `main`: three English writers (four guides each), then four locale writers.
+- L10: The pet guide `tasks-and-subagents.md` still pointed readers to the removed "How it was asked of the AI" heading in all five locales; fixed in the bot slice to point to "How the author asked for it". With T8 the rewrite covers the UI copy and every guide path.

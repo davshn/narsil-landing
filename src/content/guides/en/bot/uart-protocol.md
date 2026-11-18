@@ -119,7 +119,27 @@ Both sides use the ESP-IDF [UART driver](https://docs.espressif.com/projects/esp
 
 The calls are the ones in ESP-IDF's `uart_echo` example: `uart_driver_install` with a receive buffer, `uart_param_config`, `uart_set_pin`, then `uart_write_bytes` to send and `uart_read_bytes` with a timeout to receive. On the head, `uart_read_bytes` with a 200 ms timeout is also the clock of its main loop: it returns early when bytes arrive and otherwise lets the head check for silence.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a small text protocol between the belly and the head, and for both sides of it in ESP-IDF. The one idea it must get right is the line: `$`, the version `N1`, a type, the fields, `*` and a two-digit XOR checksum of the bytes between `$` and `*`.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> Two ESP32 boards share a UART (UART_NUM_1, 115200 baud, shared ground). The body sends the head only a pose and a voice state; the head draws them and must survive reboots and unplugged wires. Design a line-based text protocol with a version field and a one-byte XOR checksum, list every message with an example and its checksum, and write both sides in ESP-IDF 6 with `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` and `uart_read_bytes`. The body repeats its state every 5 s; the head sends one hello at boot and nothing else. Explain how I test each side from a PC with a USB-serial adapter.
+
+### What to check in Claude's answer
+
+1. The checksum covers only the bytes between `$` and `*`, written in uppercase hexadecimal. Claude's code gets `1B` for `$N1,H*1B`.
+2. There are three messages: `P` with a pose and a stage, `V` with `idle`, `listening` or `speaking`, and the head's `H` hello. The head sends nothing else, so it can never ask the belly for anything or reach a secret.
+3. The belly sends its `P` and `V` lines when they change, every five seconds anyway, and at once after a hello. The head dims its backlight after 15 seconds with no valid line, and throws away lines longer than 64 bytes.
+4. The pose comes from the `art` URL: the file name before `-oscuro.png` and the number after `/etapa` (1 when there is none), checked against the five pose names and stages 1 to 5.
+5. Both sides use `UART_NUM_1` at 115200 baud, 8 data bits, no parity, 1 stop bit and no flow control: GPIO4 and GPIO5 on the belly, GPIO14 and GPIO13 on the head, on a shared ground.
+
+If a check fails, tell Claude what you see: "I type `$N1,P,necesita,2*33` on the head's terminal and nothing changes".
+
+### How the author asked for it
 
 The link itself came from one of the author's first answers. Asked whether the head would join the network on its own or receive its data from the belly, the author said:
 
@@ -135,13 +155,9 @@ In English: "the head is going to be a holographic screen that is only Narsil's 
 
 Together, those two answers are the protocol's scope: a wire, and only what the face needs. The format was not the author's decision. The AI compared binary frames with text lines, and chose text lines with a version and a checksum because they can be read and typed by hand while testing. Mapping the pose from the `art` URL, instead of adding a new field on the PC, came from reading narsil-pet's `artUrl` and `sendStatus`: the information was already there, so nothing on the PC side had to change.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> Two ESP32 boards share a UART (UART_NUM_1, 115200 baud, shared ground). The body sends the head only a pose and a voice state; the head draws them and must survive reboots and unplugged wires. Design a line-based text protocol with a version field and a one-byte XOR checksum, list every message with an example and its checksum, and write both sides in ESP-IDF 6 with `uart_driver_install`, `uart_param_config`, `uart_set_pin`, `uart_write_bytes` and `uart_read_bytes`. The body repeats its state every 5 s; the head sends one hello at boot and nothing else. Explain how I test each side from a PC with a USB-serial adapter.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The belly's side, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `head_link_init` from guide 1 sets up the port; this adds the messages and the link task:
 

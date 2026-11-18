@@ -94,7 +94,27 @@ Espressif's [Get Started page](https://docs.espressif.com/projects/esp-idf/en/v6
 
 A native install flashes directly, with no bridge. The cost is a large install on the PC, and you have to install the same `release/v6.1` branch Xiaozhi asks for, not whichever version EIM offers first.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for the commands to build both boards in Espressif's Docker image and to flash them from Windows. The one idea it must get right is that the firmware that runs decides the version: Xiaozhi needs ESP-IDF 6.0.1 or later, so the build uses `espressif/idf:release-v6.1`, and flashing happens outside Docker.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to set up the bot.
+
+> I build ESP32 firmware on Windows with Docker and do not want ESP-IDF installed natively. My project is a fork of 78/xiaozhi-esp32 for an ESP32-P4 board, plus a small ESP-IDF app for an ESP32-S3 in a subfolder. Read Xiaozhi's README and CI workflow and Espressif's IDF Docker Image guide, then tell me: which `espressif/idf` tag to use and why, the exact `docker run` command to build each target from PowerShell, and how to flash and monitor each board from Windows given that Docker cannot pass USB serial ports through. Quote the documentation for every version and command.
+
+### What to check in Claude's answer
+
+1. The image is `espressif/idf:release-v6.1`, the `release/v6.1` branch Xiaozhi recommends, not the `v6.1` tag and not a 5.x version from Waveshare's page.
+2. The build runs in Docker with the project folder mounted at `/project`, and passes `-e IDF_GIT_SAFE_DIR=/project` for the "dubious ownership" error.
+3. The belly is built for `esp32p4` with `scripts/build.py`, and the head for `esp32s3` with `idf.py set-target esp32s3`.
+4. Flashing does not use `--device` on Windows. It uses esptool on the host with `write-flash 0x0` for the merged binary, or `esp_rfc2217_server` with `host.docker.internal` as the port's host.
+5. The belly is flashed through its Type-C port marked "USB to UART", and the answer mentions `idf.py fullclean` after a change of ESP-IDF version.
+
+If a check fails, tell Claude what you see: "the belly build fails with ESP-IDF 5.5.2" or "the container cannot find my COM port".
+
+### How the author asked for it
 
 The toolchain question came from an earlier decision. When the AI asked what the belly should run to give Narsil a voice, the author answered:
 
@@ -112,13 +132,9 @@ In English: "own repository, as a fork".
 
 Then, asked whether it should be public or private from the start, the author answered "1", the first option offered: public from the start. That is why both boards build from one repository, `davshn/narsil-bot`, and why the toolchain has to handle two targets in one tree.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to set up the bot.
-
-> I build ESP32 firmware on Windows with Docker and do not want ESP-IDF installed natively. My project is a fork of 78/xiaozhi-esp32 for an ESP32-P4 board, plus a small ESP-IDF app for an ESP32-S3 in a subfolder. Read Xiaozhi's README and CI workflow and Espressif's IDF Docker Image guide, then tell me: which `espressif/idf` tag to use and why, the exact `docker run` command to build each target from PowerShell, and how to flash and monitor each board from Windows given that Docker cannot pass USB serial ports through. Quote the documentation for every version and command.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Building the belly, from the root of the fork in PowerShell (`${PWD}` is PowerShell's current folder; the `-u $UID` flag is for Linux and macOS and is left out here):
 

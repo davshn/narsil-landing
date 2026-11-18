@@ -98,7 +98,27 @@ That `llm` emotion is useful later: it is the first thing the belly can forward 
 
 Xiaozhi registers tools on the device through the `McpServer` singleton, with `AddTool(name, description, properties, callback)`. The server sends `initialize`, then `tools/list`, then `tools/call` over JSON-RPC 2.0, as its [MCP usage document](https://github.com/78/xiaozhi-esp32/blob/main/docs/mcp-usage.md) explains. This is how Narsil's brain will be able to act on the bot, not only talk through it; later guides add the bot's own tools.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to build Xiaozhi for the belly's board and to point it at your own server. The one idea it must get right is that the OTA URL decides which server the belly uses, and that you save it on the device, never in the repository.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> I have a fork of 78/xiaozhi-esp32 and a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Read the board folder `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` and `docs/ota.md`, then explain: which build variant fits my board and how I tell my chip revision, the exact `scripts/build.py` command, and every way the firmware decides which OTA URL to use. I want my server address kept out of the repository, so recommend the option that stores it on the device, and tell me what I will see on first boot.
+
+### What to check in Claude's answer
+
+1. The build command names the board folder `waveshare/esp32-p4-wifi6-touch-lcd` and passes `--name`, so `build.py` does not stop in a container with no terminal.
+2. The variant matches your chip revision: `esp32-p4-wifi6-touch-lcd-4.3` before revision 3, `esp32-p4x-wifi6-touch-lcd-4.3` for revision 3.x. It tells you to read the revision esptool prints.
+3. The server address is saved on the device, in the Wi-Fi portal's Advanced tab, as `wifi/ota_url`. It is not written into `Kconfig.projbuild` or any file in the repository.
+4. The OTA URL uses your PC's address on your network, plain `http://`, port 8003 and the path `/xiaozhi/ota/` with the final slash. Never `127.0.0.1` or `localhost`.
+5. It explains the fallback: an invalid saved URL is ignored, and the firmware uses `CONFIG_OTA_URL`, the official service.
+
+If a check fails, tell Claude what you see: "the monitor shows Ignoring invalid saved OTA URL; using the default".
+
+### How the author asked for it
 
 The voice was not in the first design. Once the two boards had their roles, the AI asked how Narsil should talk, and the author already had an answer:
 
@@ -116,13 +136,9 @@ In English: "own server".
 
 That answer is why this guide spends time on the OTA URL: it is the single setting that moves the belly from the official service to yours. Guide 4 builds the server itself.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> I have a fork of 78/xiaozhi-esp32 and a Waveshare ESP32-P4-WIFI6-Touch-LCD-4.3. Read the board folder `main/boards/waveshare/esp32-p4-wifi6-touch-lcd/`, `main/Kconfig.projbuild`, `main/ota.cc` and `docs/ota.md`, then explain: which build variant fits my board and how I tell my chip revision, the exact `scripts/build.py` command, and every way the firmware decides which OTA URL to use. I want my server address kept out of the repository, so recommend the option that stores it on the device, and tell me what I will see on first boot.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 The belly needs no new code for this guide: it is Xiaozhi as it comes, built for the right board. From the root of the fork, in PowerShell, with the Docker image of guide 2:
 

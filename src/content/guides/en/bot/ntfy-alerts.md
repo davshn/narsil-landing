@@ -100,7 +100,27 @@ Wi-Fi drops, and long connections break. ntfy keeps messages for a while (the se
 
 The topic is stored in the belly's NVS, through Xiaozhi's `Settings` class (`main/settings.h`), in the namespace `narsil` under the key `ntfy_topic`. You type it once on the belly's settings screen, which [guide 9](/en/bot/belly-ui/) builds; it never appears in the source code. [Guide 12](/en/bot/secrets-privacy/) explains why NVS is not encrypted by default and what that means for a device on your desk.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a task on the belly that follows Narsil's two ntfy topics in one JSON stream and passes each alert and status to the screen. The one idea it must get right is that the topic works like a password, so it lives in NVS on the belly, and that a reconnect asks with `since=` for exactly what was missed.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
+
+> My ESP32-P4 runs Xiaozhi (ESP-IDF 6). Add a FreeRTOS task that subscribes to two ntfy.sh topics in one JSON stream (`https://ntfy.sh/<a>,<b>/json`), reads it with `esp_http_client_open`, `esp_http_client_fetch_headers` and `esp_http_client_read`, splits it into lines, parses each with cJSON and passes `message` events to a callback. Use the certificate bundle, read the topic from NVS with Xiaozhi's `Settings` class, keep the last message ID and reconnect with `since=` after an error. Quote the ntfy docs for the stream format and the `since` parameter.
+
+### What to check in Claude's answer
+
+1. One stream follows both topics, the alerts topic and the same name with `-estado`, separated by a comma in `https://ntfy.sh/<topic>,<topic>-estado/json`, and the URL has no `poll=1`.
+2. The stream is read with `esp_http_client_open`, `esp_http_client_fetch_headers` and `esp_http_client_read`, cut into lines at each `\n`, and only `message` events reach the screen; `open` and `keepalive` do not.
+3. It remembers the last message `id` and reconnects with `since=<that id>`. On a fresh boot it asks for `since=10m`, never `since=all`.
+4. The topic is read from NVS with Xiaozhi's `Settings` class (namespace `narsil`, key `ntfy_topic`). It never appears in a source file, a default value or the repository, and Claude tells you that `/narsil movil nuevo` makes a new topic if it leaks.
+5. HTTPS uses the certificate bundle (`crt_bundle_attach = esp_crt_bundle_attach`), and a text that starts with `narsil1:` is shown as "Narsil", with the kind of alert taken from its tag.
+
+If a check fails, tell Claude what you see: "after I turn the Wi-Fi off and on, the test alert I sent meanwhile never shows up".
+
+### How the author asked for it
 
 The belly's job was in the author's first description of the bot:
 
@@ -116,13 +136,9 @@ In English: "by cable, from the belly".
 
 So the belly is the only board on the network for alerts: it subscribes to ntfy, and the head gets only pose and state over the wire ([guide 10](/en/bot/uart-protocol/)). How to reconnect, and what to show when a key is set, were not asked; the AI took them from ntfy's documentation and from narsil-pet's `sealedMessage`.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the conversation used to build the bot.
-
-> My ESP32-P4 runs Xiaozhi (ESP-IDF 6). Add a FreeRTOS task that subscribes to two ntfy.sh topics in one JSON stream (`https://ntfy.sh/<a>,<b>/json`), reads it with `esp_http_client_open`, `esp_http_client_fetch_headers` and `esp_http_client_read`, splits it into lines, parses each with cJSON and passes `message` events to a callback. Use the certificate bundle, read the topic from NVS with Xiaozhi's `Settings` class, keep the last message ID and reconnect with `since=` after an error. Quote the ntfy docs for the stream format and the `since` parameter.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A task for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowAlert` and `ShowStatus` are the screen's functions from [guide 9](/en/bot/belly-ui/):
 
