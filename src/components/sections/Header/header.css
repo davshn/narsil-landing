@@ -12,7 +12,7 @@
 }
 
 .header-brand {
-  @apply mr-auto flex items-center gap-2 text-foreground font-semibold text-lg no-underline shrink-0;
+  @apply mr-auto flex min-h-11 items-center gap-2 text-foreground font-semibold text-lg no-underline shrink-0;
 }
 
 .header-nav {

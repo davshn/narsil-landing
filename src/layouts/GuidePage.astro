@@ -5,6 +5,7 @@ import type { GuidePageProps, GuidePageRef } from '@content/guide-pages'
 import { useTranslations } from '@i18n/utils'
 import GuideLayout from '@layouts/GuideLayout.astro'
 import { guideHref, guideNeighbors, routeHref } from '@utils/guides'
+import { tocEntries } from '@utils/toc'
 
 type Props = GuidePageProps
 
@@ -12,8 +13,13 @@ const { route, guide, list } = Astro.props
 const { locale, slug } = guide
 const t = useTranslations(locale)
 const { data } = guide.entry
-const { Content } = await render(guide.entry)
+const { Content, headings } = await render(guide.entry)
 const { previous, next } = guideNeighbors(list, slug)
+const guides = list.map((item) => ({
+  title: item.title,
+  href: guideHref(locale, route, item.slug),
+  isCurrent: item.slug === slug,
+}))
 const link = (item: GuidePageRef | undefined): { title: string; href: string } | undefined =>
   item === undefined ? undefined : { title: item.title, href: guideHref(locale, route, item.slug) }
 ---
@@ -29,6 +35,8 @@ const link = (item: GuidePageRef | undefined): { title: string; href: string } |
   updated={data.updated}
   verifiedWith={data.verifiedWith}
   sources={data.sources}
+  guides={guides}
+  toc={tocEntries(headings)}
   previous={link(previous)}
   next={link(next)}
 >

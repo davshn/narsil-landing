@@ -1,0 +1,25 @@
+@reference '../../../styles/global.css';
+
+.guide-toc {
+  @apply m-0 flex list-none flex-col p-0;
+}
+
+.guide-toc-link {
+  @apply flex min-h-9 items-center border-l-2 border-transparent py-1.5 pl-3 text-sm text-muted-foreground no-underline;
+  line-height: var(--leading-snug);
+  transition:
+    color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.guide-toc-depth-3 .guide-toc-link {
+  @apply pl-6;
+}
+
+.guide-toc-link:hover {
+  @apply text-foreground;
+}
+
+.guide-toc-link[aria-current='location'] {
+  @apply border-primary font-semibold text-primary;
+}

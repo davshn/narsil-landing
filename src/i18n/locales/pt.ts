@@ -164,6 +164,8 @@ export const pt: TranslationShape = {
     sourcesIntro:
       'Estes arquivos fazem parte dos mods originais, publicados sob a GPL v3. O código citado nesta página vem deles e mantém essa licença.',
     pathNavLabel: 'Guias desta trilha',
+    tocTitle: 'Nesta página',
+    pagerLabel: 'Guia anterior e próximo',
     previous: 'Anterior',
     next: 'Próximo',
     backToPath: 'Todos os guias desta trilha',
