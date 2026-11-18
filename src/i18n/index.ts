@@ -56,7 +56,7 @@ export interface PathCopy {
   startCta: string
 }
 
-export const pathKeys = ['mods', 'pet', 'check', 'bot'] as const
+export const pathKeys = ['mods', 'pet', 'check', 'bot', 'claude'] as const
 export type PathKey = (typeof pathKeys)[number]
 
 export interface TranslationShape {
@@ -114,12 +114,14 @@ export interface TranslationShape {
       title: string
       text: string
       note: string
+      cta: string
     }
   }
   mods: PathCopy
   pet: PathCopy
   check: PathCopy
   bot: PathCopy
+  claude: PathCopy
   guide: {
     breadcrumbLabel: string
     stepOf: string

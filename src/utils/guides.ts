@@ -37,6 +37,7 @@ const ROUTE_PATHS: Record<GuideRoute, string> = {
   pet: 'mods/pet',
   check: 'mods/check',
   bot: 'bot',
+  claude: 'mods/claude',
 }
 
 export function routeHref(locale: Locale, route: GuideRoute): string {

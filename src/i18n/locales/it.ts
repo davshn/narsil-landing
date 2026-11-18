@@ -111,6 +111,7 @@ export const it: TranslationShape = {
       title: 'Narsil in Claude, l’estensione del browser',
       text: 'Narsil vive anche dentro claude.ai sul tuo telefono: un’estensione per Firefox e Vivaldi su Android mostra sopra la casella di testo lo stato, il contesto, la cache e l’ultimo evento della conversazione aperta, e nel menu laterale il livello di Narsil, i tuoi limiti di utilizzo e i messaggi ntfy.sh del giorno. Inoltre veste Claude con i colori di Narsil.',
       note: 'È sperimentale: è molto collaudata, ma si basa sulla struttura della pagina di claude.ai e non su un’API pubblica, quindi un aggiornamento di Claude può romperla. Legge soltanto e non invia mai i tuoi dati da nessuna parte. Il suo codice non è pubblico, ma le guide spiegano come si costruisce.',
+      cta: 'Come è fatta',
     },
   },
   mods: {
@@ -156,6 +157,17 @@ export const it: TranslationShape = {
     ],
     listTitle: 'Le guide',
     startCta: 'Inizia la prima guida',
+  },
+  claude: {
+    title: 'Narsil in Claude',
+    description:
+      'Come è fatta l’estensione sperimentale che porta Narsil su claude.ai in Android: la banda della conversazione, il menu laterale, i colori e i pacchetti per Android.',
+    intro: [
+      'Narsil in Claude è un’estensione per Firefox e Vivaldi su Android che mostra Narsil dentro la vera web app di claude.ai. Ogni guida spiega una delle sue parti: cosa fa, come funziona dentro e come è stata chiesta all’IA.',
+      'È sperimentale: dipende dalla struttura della pagina di claude.ai, non da un’API pubblica, quindi un aggiornamento di Claude può romperla. Il suo codice non è pubblico, quindi il codice minimo di queste guide è scritto per le guide.',
+    ],
+    listTitle: 'Le guide',
+    startCta: 'Inizia dalla prima guida',
   },
   guide: {
     breadcrumbLabel: 'Percorso di navigazione',

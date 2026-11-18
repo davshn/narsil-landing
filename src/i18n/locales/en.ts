@@ -108,6 +108,7 @@ export const en: TranslationShape = {
       title: 'Narsil in Claude, the browser extension',
       text: 'Narsil also lives inside claude.ai on your phone: an extension for Firefox and Vivaldi on Android shows above the message box the state, context, cache, and last event of the open conversation, and in the side menu the Narsil level, your usage limits, and the ntfy.sh messages of the day. It also dresses Claude in the Narsil colors.',
       note: 'It is experimental: it is well tested, but it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. It only reads, and it never sends your data anywhere. Its code is not public, but the guides explain how it is built.',
+      cta: 'How it is built',
     },
   },
   mods: {
@@ -150,6 +151,17 @@ export const en: TranslationShape = {
     intro: [
       'The bot has two boards joined by four wires. The belly, an ESP32-P4 with a 4.3-inch touch screen, runs Xiaozhi: it listens, talks with Claude through your own server, and shows your tasks and pull requests. The head, an ESP32-S3 with a 1.3-inch screen inside a prism cube, only draws Narsil’s face, and it gets its state from the belly over UART.',
       'Read the guides in order. Each one explains what the part does, how it works, the decisions behind it and the conversation where they were taken, then the code.',
+    ],
+    listTitle: 'The guides',
+    startCta: 'Start the first guide',
+  },
+  claude: {
+    title: 'Narsil in Claude',
+    description:
+      'How the experimental extension that brings Narsil into claude.ai on Android is built: the conversation band, the side menu, the colors and the Android packages.',
+    intro: [
+      'Narsil in Claude is a browser extension for Firefox and Vivaldi on Android that shows Narsil inside the real claude.ai web app. Each guide explains one of its parts: what it does, how it works inside and how it was asked of the AI.',
+      'It is experimental: it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. Its code is not public, so the minimal code in these guides is written for the guides.',
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',

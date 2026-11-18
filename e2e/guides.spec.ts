@@ -301,6 +301,56 @@ test.describe('Narsil desk bot path', () => {
   }
 })
 
+const CLAUDE_GUIDES = ['what-it-is', 'conversation-band', 'sidebar']
+
+test.describe('Narsil in Claude path', () => {
+  for (const locale of locales) {
+    const t = useTranslations(locale)
+
+    test(`/${locale}/mods/claude/ lists the extension guides in order`, async ({ page }) => {
+      await page.goto(`/${locale}/mods/claude/`)
+      await expect(page.getByRole('heading', { level: 1, name: t.claude.title })).toBeVisible()
+      const hrefs = await page
+        .locator('[data-guide-list] a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+      expect(hrefs).toEqual(CLAUDE_GUIDES.map((slug) => `/${locale}/mods/claude/${slug}/`))
+    })
+
+    test(`/${locale}/ links the experimental extension card to its path`, async ({ page }) => {
+      await page.goto(`/${locale}/`)
+      const link = page.locator('[data-extension-guides]')
+      await expect(link).toHaveText(t.home.extension.cta)
+      await link.click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/mods/claude/$`, 'v'))
+    })
+  }
+
+  for (const slug of CLAUDE_GUIDES) {
+    test(`/en/mods/claude/${slug}/ follows the path template and links no private repository`, async ({
+      page,
+    }) => {
+      await page.goto(`/en/mods/claude/${slug}/`)
+      await expect(page.locator('[data-guide-body] > h2')).toHaveText([
+        'What it does',
+        'How it works inside',
+        'How it was asked of the AI',
+        'The minimal code',
+        'Common mistakes and how to test it',
+        'Going further',
+      ])
+      await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute(
+        'href',
+        '/en/mods/claude/',
+      )
+      const hrefs = await page
+        .locator('a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+      expect(hrefs.filter((href) => PRIVATE_REPOSITORIES.test(href))).toEqual([])
+      await expect(page.locator('[data-guide-body]')).toContainText('experimental')
+    })
+  }
+})
+
 test.describe('Path curriculum', () => {
   const t = useTranslations('en')
 

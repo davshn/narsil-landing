@@ -7,6 +7,7 @@ describe('ogImageKeyFor', () => {
     expect(ogImageKeyFor('/en/mods/pet/states/')).toBe('pet')
     expect(ogImageKeyFor('/pt/mods/pet/')).toBe('pet')
     expect(ogImageKeyFor('/es/mods/check/side-panel/')).toBe('check')
+    expect(ogImageKeyFor('/fr/mods/claude/sidebar/')).toBe('pet')
     expect(ogImageKeyFor('/it/mods/what-is-a-mod/')).toBe('mods')
     expect(ogImageKeyFor('/fr/mods/')).toBe('mods')
     expect(ogImageKeyFor('/en/bot/claude-brain/')).toBe('bot')
