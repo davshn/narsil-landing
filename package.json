@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@astrojs/preact": "^6.1.6",
-    "@iconify-json/lucide": "^1.2.155",
+    "@iconify-json/lucide": "^1.2.156",
     "astro-icon": "^1.2.0",
     "preact": "^11.2.0"
   }
