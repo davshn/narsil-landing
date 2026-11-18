@@ -39,7 +39,6 @@
 
 .path-card-index {
   @apply text-3xl font-bold text-muted-foreground;
-  opacity: var(--opacity-muted);
   font-variant-numeric: tabular-nums;
 }
 
