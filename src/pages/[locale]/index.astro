@@ -23,8 +23,10 @@ import checkDark from '../../assets/screens/check-oscuro.png'
 import checkLight from '../../assets/screens/check-claro.png'
 import overlayDark from '../../assets/screens/overlay-oscuro.png'
 import overlayLight from '../../assets/screens/overlay-claro.png'
-import narsilClaudeBand from '../../assets/screens/narsil-claude-band.png'
-import narsilClaude from '../../assets/screens/narsil-claude.png'
+import narsilClaudeBandDark from '../../assets/screens/narsil-claude-band-oscuro.png'
+import narsilClaudeBandLight from '../../assets/screens/narsil-claude-band-claro.png'
+import narsilClaudeDark from '../../assets/screens/narsil-claude-oscuro.png'
+import narsilClaudeLight from '../../assets/screens/narsil-claude-claro.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -119,16 +121,17 @@ const jsonLd = [
       {
         ...claudeMenuCopy,
         frame: 'phone',
-        light: narsilClaude,
-        dark: narsilClaude,
+        light: narsilClaudeLight,
+        dark: narsilClaudeDark,
         width: 360,
         height: 754,
         detail: {
-          light: narsilClaudeBand,
-          dark: narsilClaudeBand,
+          light: narsilClaudeBandLight,
+          dark: narsilClaudeBandDark,
           alt: claudeBandAlt,
           width: 360,
           height: 120,
+          lightHeight: 131,
         },
       },
     ]}

@@ -11,6 +11,7 @@ interface ShowcaseShot {
   alt: string
   width: number
   height: number
+  lightHeight?: number
 }
 
 interface ShowcaseItem extends ShowcaseShot {
@@ -74,7 +75,7 @@ const sizes = '(min-width: 1024px) 22rem, 90vw'
                   src={shot.light}
                   alt={shot.alt}
                   width={shot.width}
-                  height={shot.height}
+                  height={shot.lightHeight ?? shot.height}
                   sizes={sizes}
                   pictureClass="theme-light-only"
                 />

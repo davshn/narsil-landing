@@ -81,6 +81,30 @@ describe('Showcase', () => {
     expect(host.querySelector('.showcase-detail')?.classList.contains('showcase-frame')).toBe(false)
   })
 
+  it('gives the light capture its own height when lightHeight is set', async () => {
+    const detail = {
+      light: '/band-light.png',
+      dark: '/band-dark.png',
+      alt: 'The band',
+      width: 360,
+      height: 120,
+      lightHeight: 131,
+    }
+    const host = await render(Showcase, {
+      props: { title: 'How it looks', items: [{ ...items[1], detail }] },
+    })
+
+    expect(
+      host.querySelector('.showcase-detail .theme-light-only img')?.getAttribute('height'),
+    ).toBe('131')
+    expect(
+      host.querySelector('.showcase-detail .theme-dark-only img')?.getAttribute('height'),
+    ).toBe('120')
+    expect(
+      host.querySelector('.showcase-frame-phone .theme-light-only img')?.getAttribute('height'),
+    ).toBe('844')
+  })
+
   it('renders no detail when the item has none', async () => {
     const host = await render(Showcase, { props: { title: 'How it looks', items } })
 
