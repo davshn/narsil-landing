@@ -9,7 +9,8 @@ import type { GuideSource } from '@content/schema'
 import { languageTags, type Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
-import { buildWebPage } from '@seo/json-ld'
+import { buildBreadcrumbList, buildTechArticle } from '@seo/json-ld'
+import { DEVELOPER_PROFILE_URL } from '@utils/developer'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
 import { sourceLabel, sourceUrl } from '@utils/guides'
 import { fillTemplate } from '@utils/template'
@@ -70,13 +71,24 @@ const hasPath = guides.length > 0
 const hasToc = toc.length > 0
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
-const jsonLd = buildWebPage({
-  name: title,
-  url: new URL(Astro.url.pathname, siteUrl).href,
-  description,
-  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-  inLanguage: locale,
-})
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+const modifiedTime = updated.toISOString().slice(0, 10)
+const jsonLd = [
+  buildTechArticle({
+    headline: title,
+    description,
+    url: pageUrl,
+    inLanguage: languageTags[locale],
+    dateModified: updated,
+    author: { name: t.support.about.name, url: DEVELOPER_PROFILE_URL },
+    isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+  }),
+  buildBreadcrumbList([
+    { name: t.meta.siteName, url: new URL(`/${locale}/`, siteUrl).href },
+    { name: pathTitle, url: new URL(pathHref, siteUrl).href },
+    { name: title, url: pageUrl },
+  ]),
+]
 ---
 
 <SiteLayout
@@ -84,6 +96,7 @@ const jsonLd = buildWebPage({
   description={description}
   locale={locale}
   jsonLd={jsonLd}
+  og={{ type: 'article', modifiedTime }}
 >
   <div
     class="guide-shell"

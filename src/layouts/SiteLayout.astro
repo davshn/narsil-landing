@@ -15,9 +15,10 @@ interface Props {
   description: string
   locale: Locale
   jsonLd?: object | object[]
+  og?: { image?: string; type?: 'website' | 'article'; modifiedTime?: string }
 }
 
-const { title, description, locale, jsonLd } = Astro.props
+const { title, description, locale, jsonLd, og } = Astro.props
 const t = useTranslations(locale)
 
 const modsHref = `/${locale}/mods/`
@@ -50,6 +51,7 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
   locale={locale}
   siteName={t.meta.siteName}
   jsonLd={jsonLd}
+  og={og}
 >
   <SkipToContent slot="skip-nav" label={t.common.skipToContent} />
 

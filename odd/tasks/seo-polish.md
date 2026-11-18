@@ -12,15 +12,16 @@ Objective: structured data, Open Graph and Lighthouse coverage for the guides, p
 
 ## Tasks
 
-| ID  | Specs  | Route  | Status      | Commit |
-| --- | ------ | ------ | ----------- | ------ |
-| T1  | S2, S3 | inline | in progress |        |
-| T2  | S2     | inline | pending     |        |
-| T3  | S4     | inline | pending     |        |
-| T4  | S5     | inline | pending     |        |
+| ID  | Specs  | Route  | Status  | Commit           |
+| --- | ------ | ------ | ------- | ---------------- |
+| T1  | S2, S3 | inline | done    | `e649ce9`        |
+| T2  | S2, S3 | inline | done    | 7a wiring commit |
+| T3  | S4     | inline | pending |                  |
+| T4  | S5     | inline | pending |                  |
 
 T1: builders in `src/seo/json-ld.ts` with tests. T2: guides, path indexes and tools use them; `og` type in `BaseLayout` and `SiteLayout`; e2e. T3: path images and their use. T4: Lighthouse URLs, sitemap check.
 
 ## Log
 
 - L1 (2026-11-18, owner): "Listo, mergeado, continúa con la fase 7", then "Una por ruta" for the Open Graph images.
+- L2: 7a on `feat/seo-1`. Guides: `TechArticle` (author from `t.support.about.name` and `DEVELOPER_PROFILE_URL`) and `BreadcrumbList` home, path, guide; `og:type` article with `article:modified_time` as a date. Path indexes: `WebPage` and `BreadcrumbList`. Tools: `WebApplication` and `BreadcrumbList` home, tools, tool. `inLanguage` is `languageTags[locale]` on every page. URLs in JSON-LD fall back to the local origin when `PUBLIC_SITE_URL` is not set, as before.

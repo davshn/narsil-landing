@@ -6,7 +6,7 @@ import { guideRefs } from '@content/guide-pages'
 import { languageTags, type Locale, type PathKey } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
-import { buildWebPage } from '@seo/json-ld'
+import { buildBreadcrumbList, buildWebPage } from '@seo/json-ld'
 import { guideHref, guidesFor } from '@utils/guides'
 import { readingDuration, readingMinutes } from '@utils/reading-time'
 import { fillTemplate } from '@utils/template'
@@ -50,13 +50,20 @@ const items = guides.map((guide, index) => ({
 }))
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
-const jsonLd = buildWebPage({
-  name: copy.title,
-  url: new URL(Astro.url.pathname, siteUrl).href,
-  description: copy.description,
-  isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
-  inLanguage: locale,
-})
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href
+const jsonLd = [
+  buildWebPage({
+    name: copy.title,
+    url: pageUrl,
+    description: copy.description,
+    isPartOf: { '@type': 'WebSite', name: t.meta.siteName, url: siteUrl },
+    inLanguage: languageTags[locale],
+  }),
+  buildBreadcrumbList([
+    { name: t.meta.siteName, url: new URL(`/${locale}/`, siteUrl).href },
+    { name: copy.title, url: pageUrl },
+  ]),
+]
 ---
 
 <SiteLayout
