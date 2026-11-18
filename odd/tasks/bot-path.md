@@ -24,9 +24,9 @@ Objective: a Narsil desk bot with a body and a voice, built in a public firmware
 | T2  | S8       | inline                         | done        | this branch                                              |
 | T3  | S7, S8   | inline                         | done        | 621 unit tests, 221 pages, 144 e2e passed (chromium)     |
 | T4  | S10      | inline                         | pending     |                                                          |
-| T5  | S10, S11 | delegated (context backstop)   | in progress | `87d2515` (6a: guides 1–4); 6b: guides 5–8               |
-| T6  | S11      | delegated (4 parallel writers) | in progress | 6a translations commit                                   |
-| T7  | S10, S11 | inline                         | in progress | 6a: 622 unit tests, 246 pages, 164 e2e passed (chromium) |
+| T5  | S10, S11 | delegated (context backstop)   | done        | `87d2515` (6a: guides 1–4); `39bf70e` (6b: guides 5–8)   |
+| T6  | S11      | delegated (4 parallel writers) | in progress | `4b4cbf5` (6a); 6b translations commit                   |
+| T7  | S10, S11 | inline                         | in progress | 6b: 632 unit tests, 266 pages, 177 e2e passed (chromium) |
 
 T1: license files, README, `llms.txt`, footer copy and spec. T2: bot copy in the home meta, footer, hero and route card, `CLAUDE.md`, README. T3: unit tests, e2e, build.
 
@@ -60,3 +60,4 @@ Judgement calls in 6b (guides 5–8):
 - L5 (2026-11-18, owner): S9 superseded as quoted; phase 5 continues as path 3 guides only (6a on branch `feat/bot-path-1`).
 - L6: 6a translated to es, it, fr, pt; the Italian writer used "l'autore" and it was replaced by "chi ha creato Narsil" (no gender is known for the owner).
 - L7 (2026-11-18, owner): "Listo, continúa con la 6b" (after #19 merged). 6b on branch `feat/bot-path-2`: guides 5–8, English by one delegated writer (context backstop), then four parallel translators.
+- L8: 6b translated to es, it, fr, pt. Checks: typecheck ok; `eslint src` ok (`e2e/**` is ignored by the ESLint config); prettier ok; 632 unit tests, coverage 97.62% lines; build 266 pages; chromium e2e first run 28 failed, the next two runs 177 passed with no change in between (cause not found). Open terms for the owner: es "tema" for an ntfy topic and decimal comma in prices; fr prices kept as `$0.20`; pt "modelo" used both for template and language model.
