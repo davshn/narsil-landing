@@ -200,7 +200,16 @@ test.describe('Review panel path', () => {
   }
 })
 
-const BOT_GUIDES = ['the-bot', 'toolchain', 'xiaozhi-belly', 'own-server']
+const BOT_GUIDES = [
+  'the-bot',
+  'toolchain',
+  'xiaozhi-belly',
+  'own-server',
+  'claude-brain',
+  'narsil-voice',
+  'ntfy-alerts',
+  'github-prs',
+]
 
 test.describe('Narsil desk bot path', () => {
   for (const locale of locales) {
