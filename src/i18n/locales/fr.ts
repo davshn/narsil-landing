@@ -1,3 +1,5 @@
+import { frDiagrams } from '../diagrams/fr'
+
 import type { TranslationShape } from '../index'
 
 export const fr: TranslationShape = {
@@ -129,6 +131,7 @@ export const fr: TranslationShape = {
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
+    stages: frDiagrams.stages.mods,
   },
   pet: {
     title: 'Votre propre mascotte d’état',
@@ -140,6 +143,7 @@ export const fr: TranslationShape = {
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
+    stages: frDiagrams.stages.pet,
   },
   check: {
     title: 'Votre propre panneau de revue',
@@ -151,6 +155,7 @@ export const fr: TranslationShape = {
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
+    stages: frDiagrams.stages.check,
   },
   bot: {
     title: 'Un bot Narsil',
@@ -162,6 +167,7 @@ export const fr: TranslationShape = {
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
+    stages: frDiagrams.stages.bot,
   },
   claude: {
     title: 'Narsil dans Claude',
@@ -173,7 +179,9 @@ export const fr: TranslationShape = {
     ],
     listTitle: 'Les guides',
     startCta: 'Commencer le premier guide',
+    stages: frDiagrams.stages.claude,
   },
+  botMap: frDiagrams.botMap,
   guide: {
     breadcrumbLabel: 'Fil d’Ariane',
     stepOf: 'Guide {current} sur {total}',
@@ -193,6 +201,8 @@ export const fr: TranslationShape = {
     readingMinutes: 'Environ {value} min de lecture',
     readingHours: 'Environ {value} h de lecture',
     guideMinutes: '{value} min',
+    stagesTitle: 'Le parcours en un coup d’œil',
+    stageGuide: 'Guide {number} : {title}',
     coffeeTitle: 'Ce guide vous a aidé ?',
     coffeeText:
       'Tous les guides sont gratuits. Si celui-ci vous a fait gagner du temps, vous pouvez m’offrir un café.',

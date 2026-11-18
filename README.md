@@ -34,7 +34,7 @@ src/
   pages/[locale]/     index.astro (home), support.astro, mods/ and bot/ guides, and tools/
   layouts/            BaseLayout (document shell), SiteLayout (header, language selector, footer), and GuideLayout
                       (path sidebar from 1024 px, "on this page" table of contents from 1280 px, both folded above the text on phones)
-  components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum), tools/ (Preact islands)
+  components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum, PathStages, BotArchitecture, GuideDots), tools/ (Preact islands)
   i18n/               en, es, it, fr, pt (pt-BR) and the TranslationShape contract
   tools/logic/        rules adapted from Narsil and Narsil Check for the tools (GPL-3.0-or-later)
   utils/              donation, developer, repositories, CSP and URL helpers, and the bot server configuration generator

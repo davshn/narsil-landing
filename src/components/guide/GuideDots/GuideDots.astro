@@ -1,0 +1,29 @@
+---
+import { fillTemplate } from '@utils/template'
+
+import type { NumberedGuide } from '@utils/path-stages'
+
+import './guide-dots.css'
+
+interface Props {
+  guides: NumberedGuide[]
+  labelTemplate: string
+}
+
+const { guides, labelTemplate } = Astro.props
+---
+
+<ol class="guide-dots" data-guide-dots>
+  {guides.map((guide) => (
+    <li>
+      <a
+        class="guide-dot"
+        href={guide.href}
+        aria-label={fillTemplate(labelTemplate, { number: guide.number, title: guide.title })}
+        title={guide.title}
+      >
+        {guide.number}
+      </a>
+    </li>
+  ))}
+</ol>
