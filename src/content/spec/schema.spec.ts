@@ -38,6 +38,12 @@ describe('guideSchema', () => {
     })
   })
 
+  it('accepts a guide without a Claude Code version, as the bot guides are', () => {
+    const { verifiedWith: _verifiedWith, ...rest } = valid
+    const guide = guideSchema.parse({ ...rest, route: 'bot' })
+    expect(guide.verifiedWith).toBeUndefined()
+  })
+
   it('defaults sources to an empty list', () => {
     const { sources: _sources, ...rest } = valid
     expect(guideSchema.parse(rest).sources).toEqual([])

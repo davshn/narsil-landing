@@ -199,3 +199,44 @@ test.describe('Review panel path', () => {
     })
   }
 })
+
+const BOT_GUIDES = ['the-bot', 'toolchain', 'xiaozhi-belly', 'own-server']
+
+test.describe('Narsil desk bot path', () => {
+  for (const locale of locales) {
+    const t = useTranslations(locale)
+
+    test(`/${locale}/bot/ lists the bot guides in order`, async ({ page }) => {
+      await page.goto(`/${locale}/bot/`)
+      await expect(page.getByRole('heading', { level: 1, name: t.bot.title })).toBeVisible()
+      const hrefs = await page
+        .locator('[data-guide-list] a')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+      expect(hrefs).toEqual(BOT_GUIDES.map((slug) => `/${locale}/bot/${slug}/`))
+    })
+
+    test(`/${locale}/ links the third learning path to the bot path`, async ({ page }) => {
+      await page.goto(`/${locale}/`)
+      await page.locator('#routes .features-item-link').nth(2).click()
+      await expect(page).toHaveURL(new RegExp(`/${locale}/bot/$`, 'v'))
+    })
+  }
+
+  for (const slug of BOT_GUIDES) {
+    test(`/en/bot/${slug}/ follows the path template without a Claude Code version`, async ({
+      page,
+    }) => {
+      await page.goto(`/en/bot/${slug}/`)
+      await expect(page.locator('[data-guide-body] > h2')).toHaveText([
+        'What it does',
+        'How it works inside',
+        'How it was asked of the AI',
+        'The minimal code',
+        'Common mistakes and how to test it',
+        'Going further',
+      ])
+      await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute('href', '/en/bot/')
+      await expect(page.locator('[data-guide-meta]')).not.toContainText('Claude Code')
+    })
+  }
+})

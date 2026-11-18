@@ -27,6 +27,9 @@ const PATHS = [
   '/en/mods/check/explain-major/',
   '/en/mods/check/vulnerabilities/',
   '/en/mods/check/kotlin-gradle-agp/',
+  '/en/bot/',
+  '/en/bot/the-bot/',
+  '/en/bot/own-server/',
 ] as const
 const COLOR_SCHEMES = ['light', 'dark'] as const
 

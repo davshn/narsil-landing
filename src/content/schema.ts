@@ -24,7 +24,8 @@ export const guideSchema = z.object({
   updated: z.coerce.date(),
   verifiedWith: z
     .string()
-    .regex(/^\d+\.\d+\.\d+$/v, 'Use the Claude Code version the guide was checked against'),
+    .regex(/^\d+\.\d+\.\d+$/v, 'Use the Claude Code version the guide was checked against')
+    .optional(),
   sources: z.array(guideSourceSchema).default([]),
   draft: z.boolean().default(false),
 })

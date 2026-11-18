@@ -1,0 +1,13 @@
+---
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import GuideIndexLayout from '@layouts/GuideIndexLayout.astro'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+---
+
+<GuideIndexLayout locale={locale} route="bot" />
