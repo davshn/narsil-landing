@@ -79,6 +79,7 @@ export interface TranslationShape {
     description: string
     donate: string
     trademark: string
+    license: string
     privacy: string
   }
   home: {

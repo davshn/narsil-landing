@@ -3,9 +3,9 @@ import type { TranslationShape } from '../index'
 export const fr: TranslationShape = {
   meta: {
     siteName: 'Narsil Workshop',
-    title: 'Narsil Workshop — créez vos propres mods Claude Code et un bot ESP32-S3',
+    title: 'Narsil Workshop — créez vos propres mods Claude Code et un bot Narsil',
     description:
-      'Des guides gratuits, pas à pas, pour créer un mod de mascotte d’état comme Narsil, un panneau de revue comme Narsil Check et un bot ESP32-S3 qui affiche vos pull requests GitHub.',
+      'Des guides gratuits, pas à pas, pour créer un mod de mascotte d’état comme Narsil, un panneau de revue comme Narsil Check et un bot Narsil qui parle avec Claude et affiche vos pull requests GitHub.',
   },
   common: {
     skipToContent: 'Aller au contenu',
@@ -19,17 +19,19 @@ export const fr: TranslationShape = {
     support: 'Soutenir le projet',
   },
   footer: {
-    description: 'Des guides gratuits pour créer de zéro des mods Claude Code et un bot ESP32-S3.',
+    description: 'Des guides gratuits pour créer de zéro des mods Claude Code et un bot Narsil.',
     donate: 'Offrez-moi un café',
     trademark:
       'Claude et Claude Code sont des marques d’Anthropic, PBC. Ce projet n’est ni affilié à Anthropic ni approuvé par Anthropic.',
     privacy:
       'Ce site n’a aucune analyse d’audience et ne vous demande jamais de jetons ni de clés.',
+    license:
+      'Code du site et des exemples : MIT. Texte des guides : CC BY-SA 4.0. Code cité de Narsil et Narsil Check : GPL-3.0-or-later.',
   },
   home: {
     headline: 'Créez vos propres mods Claude Code, pas à pas',
     subheadline:
-      'Découvrez comment Narsil et Narsil Check fonctionnent de l’intérieur, reconstruisez chaque fonctionnalité de zéro et terminez avec un bot ESP32-S3 qui affiche vos pull requests.',
+      'Découvrez comment Narsil et Narsil Check fonctionnent de l’intérieur, reconstruisez chaque fonctionnalité de zéro et terminez avec un bot Narsil qui parle avec Claude et affiche vos pull requests.',
     cta: 'Voir les parcours',
     fundamentalsCta: 'Commencer par les bases',
     heroAlt: 'Narsil, un petit dragon des mers, qui dit bonjour',
@@ -88,9 +90,9 @@ export const fr: TranslationShape = {
         icon: 'lucide:list-checks',
       },
       {
-        title: 'Un bot ESP32-S3',
+        title: 'Un bot Narsil',
         description:
-          'Construisez un petit appareil avec écran qui affiche les pull requests qui vous attendent sur GitHub et l’état de Narsil, reçu par un sujet ntfy privé.',
+          'Donnez un corps à Narsil : un écran tactile ESP32-P4 dans le ventre avec vos tâches et vos pull requests, une tête holographique ESP32-S3 avec son visage, et une voix grâce à Xiaozhi et Claude sur votre propre serveur.',
         icon: 'lucide:cpu',
       },
     ],

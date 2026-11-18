@@ -56,6 +56,28 @@ describe('useTranslations', () => {
     expect(trademark).toContain('Anthropic, PBC')
   })
 
+  it.each(locales)('names the three licenses in %s', (locale) => {
+    const {
+      footer: { license },
+    } = useTranslations(locale)
+    expect(license).toContain('MIT')
+    expect(license).toContain('CC BY-SA 4.0')
+    expect(license).toContain('GPL-3.0-or-later')
+  })
+
+  it.each(locales)(
+    'describes the bot as Narsil with a body, not a bare ESP32-S3 bot, in %s',
+    (locale) => {
+      const {
+        home: { routes },
+      } = useTranslations(locale)
+      expect(routes[2].description).toContain('ESP32-P4')
+      expect(routes[2].description).toContain('ESP32-S3')
+      expect(routes[2].description).toContain('Xiaozhi')
+      expect(routes[2].description).toContain('Claude')
+    },
+  )
+
   it.each(locales)('keeps the route icons in %s', (locale) => {
     expect(useTranslations(locale).home.routes.map((route) => route.icon)).toEqual([
       'lucide:sparkles',

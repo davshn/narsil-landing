@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Narsil Workshop: a free, static, multilingual site (English, Spanish, Italian, French, and Brazilian Portuguese) that teaches, step by step, how to build Claude Code mods like Narsil (`davshn/narsil-pet`) and Narsil Check (`davshn/narsil-check`), and an ESP32-S3 desk bot that shows GitHub pull requests and the Narsil status. Built on landingTemplate: **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. There is no backend, no analytics, and the site never asks for tokens, topics, or keys.
+Narsil Workshop: a free, static, multilingual site (English, Spanish, Italian, French, and Brazilian Portuguese) that teaches, step by step, how to build Claude Code mods like Narsil (`davshn/narsil-pet`) and Narsil Check (`davshn/narsil-check`), and a Narsil desk bot with a body (an ESP32-P4 touch screen in the belly and a holographic ESP32-S3 head) that talks through Xiaozhi and Claude on your own server and shows GitHub pull requests and the Narsil status. Built on landingTemplate: **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. There is no backend, no analytics, and the site never asks for tokens, topics, or keys.
 
 Reference docs: `README.md` (setup, i18n, styling tokens, SEO, CI, and testing details) and `odd/tasks/narsil-workshop.md` (specs, tasks, and log).
 

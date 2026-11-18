@@ -1,6 +1,6 @@
 # Narsil Workshop
 
-A free, static, multilingual site that teaches, step by step, how to build Claude Code mods like [Narsil](https://github.com/davshn/narsil-pet) and [Narsil Check](https://github.com/davshn/narsil-check), and an ESP32-S3 desk bot that shows GitHub pull requests and the Narsil status.
+A free, static, multilingual site that teaches, step by step, how to build Claude Code mods like [Narsil](https://github.com/davshn/narsil-pet) and [Narsil Check](https://github.com/davshn/narsil-check), and a Narsil desk bot with a body (an ESP32-P4 touch screen in the belly and a holographic ESP32-S3 head) that talks through Xiaozhi and Claude on your own server and shows GitHub pull requests and the Narsil status.
 
 Built on [landingTemplate](https://github.com/davshn/landingTemplate): **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. There is no backend and no analytics, and the site never asks for tokens or keys.
 
@@ -62,6 +62,14 @@ CI (`.github/workflows/quality.yml`) runs on a pull request only after the owner
 2. Mod fundamentals and the guide content collection.
 3. Path 1: a status pet mod like Narsil.
 4. Path 2: a review panel mod like Narsil Check.
-5. Path 3: the ESP32-S3 bot.
+5. Path 3: the Narsil desk bot (firmware in the public fork `davshn/narsil-bot`).
 6. Interactive tools.
 7. SEO and polish.
+
+## License
+
+- Site code and example code written for the guides: MIT, see [`LICENSE`](LICENSE).
+- Guide text: CC BY-SA 4.0.
+- Code quoted or adapted from Narsil and Narsil Check: GPL-3.0-or-later, the license of those projects.
+
+[`LICENSE-CONTENT.md`](LICENSE-CONTENT.md) says which material is which. This is not legal advice.
