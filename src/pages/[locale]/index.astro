@@ -39,7 +39,7 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
 
 const [working, waiting, done, failed] = t.home.states.items
 const refs = await guideRefs()
-const pathKeys = ['pet', 'check', 'bot'] as const
+const pathKeys = ['pet', 'check', 'bot', 'claude'] as const
 const paths = t.home.routes.map((route, index) => {
   const key = pathKeys[index]
   const count = guidesFor(refs, locale, key).length
