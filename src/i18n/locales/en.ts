@@ -293,6 +293,42 @@ export const en: TranslationShape = {
       warm: 'Cache: {left} min left',
       cold: 'Cold cache: the next message is charged in full',
     },
+    botConfig: {
+      title: 'Bot server configuration',
+      description:
+        'Build the data/.config.yaml of the Narsil desk bot server from guides 4 to 6: address, time zone, Claude model and voice, with no real keys.',
+      intro:
+        'The desk bot server on your PC reads data/.config.yaml. This tool writes the file guides 4, 5 and 6 build: the server address on your network, speech recognition, Claude as the brain, and Narsil’s personality and voice.',
+      guideText: 'Claude as the brain of the bot',
+      hostLabel: 'Your PC address on the local network',
+      timezoneLabel: 'Time zone offset (hours)',
+      modelLabel: 'Model',
+      models: {
+        'claude-opus-5-5': 'Claude Opus 5.5',
+        'claude-haiku-5-5': 'Claude Haiku 5.5',
+      },
+      effortLabel: 'Effort',
+      efforts: {
+        low: 'Low',
+        medium: 'Medium',
+        high: 'High',
+      },
+      maxTokensLabel: 'Max tokens per answer',
+      voiceLabel: 'Edge voice',
+      resultLabel: 'data/.config.yaml',
+      invalid: {
+        host: 'Use a private IPv4 address of your network, such as 192.168.1.50: the server only listens on your network.',
+        timezone: 'Use a whole number of hours between -12 and 14.',
+        model: 'Pick one of the models.',
+        effort: 'Pick one of the effort levels.',
+        maxTokens: 'Use a whole number from 1 to 128000.',
+        voice: 'Use an Edge voice name, such as es-MX-DaliaNeural.',
+      },
+      copy: 'Copy the file',
+      copied: 'Copied',
+      keyNote:
+        'The only key in the file is a placeholder for speech recognition: replace it in your own copy on your PC. The Anthropic key never goes in this file; the server reads it from ANTHROPIC_API_KEY.',
+    },
   },
   support: {
     title: 'Support Narsil Workshop',

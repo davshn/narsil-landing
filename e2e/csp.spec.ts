@@ -24,6 +24,7 @@ test.describe('Content Security Policy', () => {
     '/en/tools/priority/',
     '/en/tools/context/',
     '/en/tools/cache/',
+    '/en/tools/bot-config/',
   ]) {
     test(`${path} ships a hash-based script policy and runs without violations`, async ({
       page,

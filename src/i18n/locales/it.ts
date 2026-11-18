@@ -297,6 +297,42 @@ export const it: TranslationShape = {
       warm: 'Cache: restano {left} min',
       cold: 'Cache fredda: il prossimo messaggio si paga per intero',
     },
+    botConfig: {
+      title: 'Configurazione del server del bot',
+      description:
+        'Prepara il data/.config.yaml del server del bot da scrivania di Narsil con le guide 4–6: indirizzo, fuso orario, modello di Claude e voce, senza chiavi vere.',
+      intro:
+        'Il server del bot sul tuo PC legge data/.config.yaml. Questo strumento scrive il file che costruiscono le guide 4, 5 e 6: l’indirizzo del server nella tua rete, il riconoscimento vocale, Claude come cervello e la personalità e la voce di Narsil.',
+      guideText: 'Claude come cervello del bot',
+      hostLabel: 'Indirizzo del tuo PC nella rete locale',
+      timezoneLabel: 'Differenza di fuso orario (ore)',
+      modelLabel: 'Modello',
+      models: {
+        'claude-opus-5-5': 'Claude Opus 5.5',
+        'claude-haiku-5-5': 'Claude Haiku 5.5',
+      },
+      effortLabel: 'Sforzo',
+      efforts: {
+        low: 'Basso',
+        medium: 'Medio',
+        high: 'Alto',
+      },
+      maxTokensLabel: 'Token massimi per risposta',
+      voiceLabel: 'Voce di Edge',
+      resultLabel: 'data/.config.yaml',
+      invalid: {
+        host: 'Usa un indirizzo IPv4 privato della tua rete, come 192.168.1.50: il server ascolta solo nella tua rete.',
+        timezone: 'Usa un numero intero di ore tra -12 e 14.',
+        model: 'Scegli uno dei modelli.',
+        effort: 'Scegli uno dei livelli di sforzo.',
+        maxTokens: 'Usa un numero intero da 1 a 128000.',
+        voice: 'Usa un nome di voce di Edge, come es-MX-DaliaNeural.',
+      },
+      copy: 'Copia il file',
+      copied: 'Copiato',
+      keyNote:
+        'L’unica chiave del file è un segnaposto per il riconoscimento vocale: sostituiscila nella tua copia sul PC. La chiave di Anthropic non va mai in questo file; il server la legge da ANTHROPIC_API_KEY.',
+    },
   },
   support: {
     title: 'Sostieni Narsil Workshop',

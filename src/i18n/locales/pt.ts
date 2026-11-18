@@ -297,6 +297,42 @@ export const pt: TranslationShape = {
       warm: 'Cache: restam {left} min',
       cold: 'Cache frio: a próxima mensagem é cobrada por inteiro',
     },
+    botConfig: {
+      title: 'Configuração do servidor do bot',
+      description:
+        'Monte o data/.config.yaml do servidor do bot de mesa da Narsil com os guias 4 a 6: endereço, fuso, modelo do Claude e voz, sem chaves reais.',
+      intro:
+        'O servidor do bot no seu PC lê data/.config.yaml. Esta ferramenta escreve o arquivo que os guias 4, 5 e 6 montam: o endereço do servidor na sua rede, o reconhecimento de voz, o Claude como cérebro e a personalidade e a voz da Narsil.',
+      guideText: 'O Claude como cérebro do bot',
+      hostLabel: 'Endereço do seu PC na rede local',
+      timezoneLabel: 'Diferença de fuso horário (horas)',
+      modelLabel: 'Modelo',
+      models: {
+        'claude-opus-5-5': 'Claude Opus 5.5',
+        'claude-haiku-5-5': 'Claude Haiku 5.5',
+      },
+      effortLabel: 'Esforço',
+      efforts: {
+        low: 'Baixo',
+        medium: 'Médio',
+        high: 'Alto',
+      },
+      maxTokensLabel: 'Máximo de tokens por resposta',
+      voiceLabel: 'Voz do Edge',
+      resultLabel: 'data/.config.yaml',
+      invalid: {
+        host: 'Use um endereço IPv4 privado da sua rede, como 192.168.1.50: o servidor só escuta na sua rede.',
+        timezone: 'Use um número inteiro de horas entre -12 e 14.',
+        model: 'Escolha um dos modelos.',
+        effort: 'Escolha um dos níveis de esforço.',
+        maxTokens: 'Use um número inteiro de 1 a 128000.',
+        voice: 'Use um nome de voz do Edge, como es-MX-DaliaNeural.',
+      },
+      copy: 'Copiar o arquivo',
+      copied: 'Copiado',
+      keyNote:
+        'A única chave do arquivo é um marcador para o reconhecimento de voz: troque-a na sua própria cópia no PC. A chave da Anthropic nunca vai neste arquivo; o servidor a lê de ANTHROPIC_API_KEY.',
+    },
   },
   support: {
     title: 'Apoie o Narsil Workshop',

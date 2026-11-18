@@ -1,0 +1,25 @@
+---
+import { BotConfigGenerator } from '@components/tools/BotConfig/BotConfigGenerator'
+import { defaultLocale, isLocale, locales, type Locale } from '@i18n/index'
+import { useTranslations } from '@i18n/utils'
+import ToolLayout from '@layouts/ToolLayout.astro'
+
+export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
+  return locales.map((locale) => ({ params: { locale } }))
+}
+
+const rawLocale = Astro.params.locale ?? ''
+const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
+const copy = useTranslations(locale).tools.botConfig
+---
+
+<ToolLayout
+  locale={locale}
+  title={copy.title}
+  description={copy.description}
+  intro={copy.intro}
+  guideHref={`/${locale}/bot/claude-brain/`}
+  guideText={copy.guideText}
+>
+  <BotConfigGenerator client:visible copy={copy} />
+</ToolLayout>

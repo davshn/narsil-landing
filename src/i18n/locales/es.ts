@@ -294,6 +294,42 @@ export const es: TranslationShape = {
       warm: 'Caché: quedan {left} min',
       cold: 'Caché fría: el próximo mensaje se cobra completo',
     },
+    botConfig: {
+      title: 'Configuración del servidor del bot',
+      description:
+        'Arma el data/.config.yaml del servidor del bot de escritorio de Narsil con las guías 4 a 6: dirección, zona horaria, modelo de Claude y voz, sin claves reales.',
+      intro:
+        'El servidor del bot en tu PC lee data/.config.yaml. Esta herramienta escribe el archivo que arman las guías 4, 5 y 6: la dirección del servidor en tu red, el reconocimiento de voz, Claude como cerebro y la personalidad y la voz de Narsil.',
+      guideText: 'Claude como cerebro del bot',
+      hostLabel: 'Dirección de tu PC en la red local',
+      timezoneLabel: 'Diferencia horaria (horas)',
+      modelLabel: 'Modelo',
+      models: {
+        'claude-opus-5-5': 'Claude Opus 5.5',
+        'claude-haiku-5-5': 'Claude Haiku 5.5',
+      },
+      effortLabel: 'Esfuerzo',
+      efforts: {
+        low: 'Bajo',
+        medium: 'Medio',
+        high: 'Alto',
+      },
+      maxTokensLabel: 'Máximo de tokens por respuesta',
+      voiceLabel: 'Voz de Edge',
+      resultLabel: 'data/.config.yaml',
+      invalid: {
+        host: 'Usa una dirección IPv4 privada de tu red, como 192.168.1.50: el servidor solo escucha en tu red.',
+        timezone: 'Usa un número entero de horas entre -12 y 14.',
+        model: 'Elige uno de los modelos.',
+        effort: 'Elige uno de los niveles de esfuerzo.',
+        maxTokens: 'Usa un número entero de 1 a 128000.',
+        voice: 'Usa un nombre de voz de Edge, como es-MX-DaliaNeural.',
+      },
+      copy: 'Copiar el archivo',
+      copied: 'Copiado',
+      keyNote:
+        'La única clave del archivo es un marcador para el reconocimiento de voz: cámbiala en tu propia copia en tu PC. La clave de Anthropic nunca va en este archivo; el servidor la lee de ANTHROPIC_API_KEY.',
+    },
   },
   support: {
     title: 'Apoya Narsil Workshop',

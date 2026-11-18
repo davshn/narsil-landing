@@ -226,6 +226,32 @@ export interface TranslationShape {
       warm: string
       cold: string
     }
+    botConfig: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      hostLabel: string
+      timezoneLabel: string
+      modelLabel: string
+      models: { 'claude-opus-5-5': string; 'claude-haiku-5-5': string }
+      effortLabel: string
+      efforts: { low: string; medium: string; high: string }
+      maxTokensLabel: string
+      voiceLabel: string
+      resultLabel: string
+      invalid: {
+        host: string
+        timezone: string
+        model: string
+        effort: string
+        maxTokens: string
+        voice: string
+      }
+      copy: string
+      copied: string
+      keyNote: string
+    }
   }
   support: {
     title: string

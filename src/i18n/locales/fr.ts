@@ -295,6 +295,42 @@ export const fr: TranslationShape = {
       warm: 'Cache : il reste {left} min',
       cold: 'Cache froid : le prochain message est facturé en entier',
     },
+    botConfig: {
+      title: 'Configuration du serveur du bot',
+      description:
+        'Préparez le data/.config.yaml du serveur du bot de bureau de Narsil avec les guides 4 à 6 : adresse, fuseau, modèle Claude et voix, sans vraie clé.',
+      intro:
+        'Le serveur du bot sur votre PC lit data/.config.yaml. Cet outil écrit le fichier que construisent les guides 4, 5 et 6 : l’adresse du serveur sur votre réseau, la reconnaissance vocale, Claude comme cerveau, et la personnalité et la voix de Narsil.',
+      guideText: 'Claude comme cerveau du bot',
+      hostLabel: 'Adresse de votre PC sur le réseau local',
+      timezoneLabel: 'Décalage horaire (heures)',
+      modelLabel: 'Modèle',
+      models: {
+        'claude-opus-5-5': 'Claude Opus 5.5',
+        'claude-haiku-5-5': 'Claude Haiku 5.5',
+      },
+      effortLabel: 'Effort',
+      efforts: {
+        low: 'Faible',
+        medium: 'Moyen',
+        high: 'Élevé',
+      },
+      maxTokensLabel: 'Tokens maximum par réponse',
+      voiceLabel: 'Voix Edge',
+      resultLabel: 'data/.config.yaml',
+      invalid: {
+        host: 'Utilisez une adresse IPv4 privée de votre réseau, comme 192.168.1.50 : le serveur n’écoute que sur votre réseau.',
+        timezone: 'Utilisez un nombre entier d’heures entre -12 et 14.',
+        model: 'Choisissez l’un des modèles.',
+        effort: 'Choisissez l’un des niveaux d’effort.',
+        maxTokens: 'Utilisez un nombre entier de 1 à 128000.',
+        voice: 'Utilisez un nom de voix Edge, comme es-MX-DaliaNeural.',
+      },
+      copy: 'Copier le fichier',
+      copied: 'Copié',
+      keyNote:
+        'La seule clé du fichier est un espace réservé pour la reconnaissance vocale : remplacez-la dans votre propre copie sur votre PC. La clé Anthropic ne va jamais dans ce fichier ; le serveur la lit dans ANTHROPIC_API_KEY.',
+    },
   },
   support: {
     title: 'Soutenir Narsil Workshop',
