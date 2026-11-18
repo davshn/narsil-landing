@@ -11,18 +11,23 @@ Objective: the `/mods/check/` path with the 17 guides of brief 3.2, delivered in
 - S5. "No inventes la API": every `$` call exists in the plugin-authoring types (Claude Code 2.1.325) or in narsil-check's code.
 - S6. Code quoted from narsil-check carries attribution and a link (GPL v3). Examples use synthetic data only (no real repositories, tokens, or package names that would mislead; well-known public packages may be used as examples).
 - S7. Guides 1–4 (PR 4a): the side panel (`hooks/register.tsx`, `hooks/words.ts`: collapsible sections with a colored dot red/yellow/green/blue, remembering what was collapsed, copy to clipboard); session environment (`hooks/session.ts`: repository, folder, branch, remote control and Auto-fix read from the desktop app's MCP servers, and why it is asked only once); connectors (`hooks/session.ts`: listing MCP servers and their tools); PR CI (`hooks/ci.ts`: GitHub Actions steps through `gh`, refreshing every 10 s while running).
+- S9. Guides 5–8 (PR 4b, branch `feat/check-path-2`): branch behind its remote (`hooks/git.ts`: `git fetch`, counting the missing commits, the `git pull -r` button); ecosystem architecture (`hooks/adapter.ts`, `hooks/ecosystems.ts`, `hooks/npm.ts`, `hooks/semver.ts`, `hooks/toml.ts`: one adapter per ecosystem that reads the manifest, asks the registry and rewrites the version; start with npm and add one more as an exercise); classifying updates (`hooks/register.tsx`, `hooks/semver.ts`: the groups Blocked, Major version, Version bump only and Outside the Expo SDK; the 6-hour cache); dependencies that block each other (`hooks/npm.ts`: peers of the new version, peers of what is installed, versions pinned in the tree).
 - S8. Every guide exists in `en`, `es`, `it`, `fr`, `pt`.
 
 ## Tasks
 
-| ID  | Specs  | Route                          | Status | Commit                                               |
-| --- | ------ | ------------------------------ | ------ | ---------------------------------------------------- |
-| T1  | S1     | inline                         | done   | `f44cd60`                                            |
-| T2  | S2–S7  | delegated (context backstop)   | done   | `d95d02d`                                            |
-| T3  | S8     | delegated (4 parallel writers) | done   | translations commit                                  |
-| T4  | S1, S8 | inline                         | done   | 123 e2e passed (chromium), 598 unit tests, 156 pages |
+| ID  | Specs  | Route                          | Status  | Commit                                               |
+| --- | ------ | ------------------------------ | ------- | ---------------------------------------------------- |
+| T1  | S1     | inline                         | done    | `f44cd60`                                            |
+| T2  | S2–S7  | delegated (context backstop)   | done    | `d95d02d`                                            |
+| T3  | S8     | delegated (4 parallel writers) | done    | translations commit                                  |
+| T4  | S1, S8 | inline                         | done    | 123 e2e passed (chromium), 598 unit tests, 156 pages |
+| T5  | S9     | delegated (context backstop)   | pending |                                                      |
+| T6  | S8, S9 | delegated (4 parallel writers) | pending |                                                      |
+| T7  | S9     | inline                         | pending |                                                      |
 
 ## Log
 
 - L1 (2026-11-17, owner): "Listo mergeado continúa" (after PR #7, path 1 complete; phase 4 follows the four-PR plan announced for it).
 - L2: discrepancies the 4a guides describe, following the code: the folder comes from `$.session.cwd()` and the branch and repository from `git`, not from the desktop app's MCP servers (only Remote Control, the worktree, the PR and Auto-fix, and the connectors do); the 2.1.325 types say `$.mcp.call` raises no permission prompt (line 2885) while narsil-check's README and `4770a49` record one; folds are kept in `$.state` (session) while the README says they persist across sessions.
+- L3 (2026-11-17, owner): "Listo continúa" (PR #8 merged).
