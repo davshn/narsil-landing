@@ -9,7 +9,7 @@ const config: ViteUserConfig = {
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
-      include: ['src/**/*.ts'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'src/**/*.spec.ts',
         'src/**/*.d.ts',
