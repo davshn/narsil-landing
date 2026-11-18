@@ -64,12 +64,12 @@ export const pt: TranslationShape = {
           alt: 'O painel do Narsil Check: ambiente e CI, três atualizações de bibliotecas, uma vulnerabilidade e duas tarefas pendentes',
         },
         {
-          title: 'No celular',
-          text: 'Um app web instalável que recebe os alertas do Narsil pelo ntfy e mostra o que o seu PC mostrou por último.',
-          alt: 'O app do Narsil no celular: o estado atual, o nível, os limites de uso, o cache e os próximos passos',
+          title: 'Narsil no Claude, no celular',
+          text: 'Uma extensão experimental que leva o Narsil para dentro do claude.ai no Android: no menu lateral, o nível dele, seus limites de uso e as mensagens do ntfy do dia; acima da caixa de texto, o estado da conversa aberta. O código dela não é público, mas os guias explicam como ela é feita.',
+          alt: 'O menu lateral do claude.ai num celular Android com o bloco do Narsil: o nível, os limites de 5 horas e da semana, e as mensagens do ntfy do dia. Os dados pessoais estão desfocados.',
         },
       ],
-      note: 'São as interfaces reais com dados de exemplo. O painel do Narsil Check foi recriado a partir do código-fonte, porque ele só é desenhado dentro do Claude Code. As ilustrações do Narsil vêm de davshn/narsil-pet (GPL v3).',
+      note: 'A janela flutuante usa dados de exemplo, e a captura do celular é real, com os dados pessoais desfocados. O painel do Narsil Check foi recriado a partir do código-fonte, porque ele só é desenhado dentro do Claude Code. As ilustrações do Narsil vêm de davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: 'O que é o Narsil?',
     about: [
@@ -106,7 +106,7 @@ export const pt: TranslationShape = {
       badge: 'Experimental',
       title: 'Narsil no Claude, a extensão do navegador',
       text: 'O Narsil também vive dentro do claude.ai no seu celular: uma extensão para Firefox e Vivaldi no Android mostra acima da caixa de texto o status, o contexto, o cache e o último evento da conversa aberta, e no menu lateral o nível do Narsil, seus limites de uso e as mensagens do ntfy.sh do dia. Ela também veste o Claude com as cores do Narsil.',
-      note: 'É experimental: foi bem testada, mas depende da estrutura da página do claude.ai e não de uma API pública, então uma atualização do Claude pode quebrá-la. Ela só lê e nunca envia seus dados para lugar nenhum.',
+      note: 'É experimental: foi bem testada, mas depende da estrutura da página do claude.ai e não de uma API pública, então uma atualização do Claude pode quebrá-la. Ela só lê e nunca envia seus dados para lugar nenhum. O código dela não é público, mas os guias explicam como ela é feita.',
     },
   },
   mods: {

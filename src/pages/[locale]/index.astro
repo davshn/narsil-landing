@@ -21,8 +21,7 @@ import checkDark from '../../assets/screens/check-oscuro.png'
 import checkLight from '../../assets/screens/check-claro.png'
 import overlayDark from '../../assets/screens/overlay-oscuro.png'
 import overlayLight from '../../assets/screens/overlay-claro.png'
-import phoneDark from '../../assets/screens/phone-oscuro.png'
-import phoneLight from '../../assets/screens/phone-claro.png'
+import narsilClaude from '../../assets/screens/narsil-claude.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -34,7 +33,7 @@ const t = useTranslations(locale)
 const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
 
 const [working, waiting, done, failed] = t.home.states.items
-const [overlayCopy, checkCopy, phoneCopy] = t.home.showcase.items
+const [overlayCopy, checkCopy, claudeCopy] = t.home.showcase.items
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href
@@ -102,7 +101,14 @@ const jsonLd = [
         height: 620,
       },
       { ...checkCopy, frame: 'pane', light: checkLight, dark: checkDark, width: 340, height: 842 },
-      { ...phoneCopy, frame: 'phone', light: phoneLight, dark: phoneDark, width: 390, height: 844 },
+      {
+        ...claudeCopy,
+        frame: 'phone',
+        light: narsilClaude,
+        dark: narsilClaude,
+        width: 360,
+        height: 754,
+      },
     ]}
   />
 

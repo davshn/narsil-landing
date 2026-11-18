@@ -61,12 +61,12 @@ export const en: TranslationShape = {
           alt: 'The Narsil Check panel: environment and CI, three dependency updates, one vulnerability, and two pending tasks',
         },
         {
-          title: 'On your phone',
-          text: 'An installable web app that receives Narsil alerts through ntfy and shows what your PC last showed.',
-          alt: 'The Narsil phone app: the current state, the level, the usage limits, the cache, and the next steps',
+          title: 'Narsil in Claude, on your phone',
+          text: 'An experimental extension that brings Narsil into claude.ai on Android: in the side menu, its level, your usage limits, and the ntfy messages of the day; above the message box, the state of the open conversation. Its code is not public, but the guides explain how it is built.',
+          alt: 'The claude.ai side menu on an Android phone with the Narsil block: the level, the 5-hour and weekly limits, and the ntfy messages of the day. Personal details are blurred.',
         },
       ],
-      note: 'The real interfaces, filled with example data. The Narsil Check panel is recreated from its source code, because it only renders inside Claude Code. Narsil art comes from davshn/narsil-pet (GPL v3).',
+      note: 'The floating window uses example data, and the phone capture is real, with personal details blurred. The Narsil Check panel is recreated from its source code, because it only renders inside Claude Code. Narsil art comes from davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: 'What is Narsil?',
     about: [
@@ -103,7 +103,7 @@ export const en: TranslationShape = {
       badge: 'Experimental',
       title: 'Narsil in Claude, the browser extension',
       text: 'Narsil also lives inside claude.ai on your phone: an extension for Firefox and Vivaldi on Android shows above the message box the state, context, cache, and last event of the open conversation, and in the side menu the Narsil level, your usage limits, and the ntfy.sh messages of the day. It also dresses Claude in the Narsil colors.',
-      note: 'It is experimental: it is well tested, but it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. It only reads, and it never sends your data anywhere.',
+      note: 'It is experimental: it is well tested, but it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. It only reads, and it never sends your data anywhere. Its code is not public, but the guides explain how it is built.',
     },
   },
   mods: {
