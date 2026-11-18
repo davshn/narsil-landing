@@ -76,7 +76,7 @@ Con `403` o `429`, la panza espera el tiempo de `retry-after` (o de `x-ratelimit
 
 La petición usa [`esp_http_client`](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/protocols/esp_http_client.html) de ESP-IDF con el paquete de certificados (`crt_bundle_attach = esp_crt_bundle_attach`), como el stream de ntfy de la guía 7. Esta vez la respuesta es corta, así que usa `esp_http_client_perform`, junta el cuerpo en el evento `HTTP_EVENT_ON_DATA`, captura el `etag` en `HTTP_EVENT_ON_HEADER` (donde `evt->header_key` y `evt->header_value` contienen cada cabecera de la respuesta), y lee el código de estado con `esp_http_client_get_status_code` cuando `perform` termina.
 
-El token vive en la NVS, en el espacio de nombres `narsil` de `Settings` de Xiaozhi, con la clave `gh_token`, y se escribe una vez en la pantalla de ajustes de la panza (guía 9). Nunca se compila en el firmware ni se escribe en el log.
+El token vive en la NVS, en el espacio de nombres `narsil` de `Settings` de Xiaozhi, con la clave `gh_token`, y se escribe una vez en la pantalla de ajustes de la panza ([guía 9](/es/bot/belly-ui/)). Nunca se compila en el firmware ni se escribe en el log.
 
 ## Cómo se le pidió a la IA
 
@@ -96,7 +96,7 @@ El siguiente prompt se escribió para esta guía como sugerencia. No es la conve
 
 ## El código mínimo
 
-Una función para la panza, en C++ junto al código de Xiaozhi (MIT, como los ejemplos propios del sitio). `ShowPullRequest` y `ShowGithubError` son las funciones de la pantalla de la guía 9; una tarea llama a `PollPullRequests()` cada dos minutos:
+Una función para la panza, en C++ junto al código de Xiaozhi (MIT, como los ejemplos propios del sitio). `ShowPullRequest` y `ShowGithubError` son las funciones de la pantalla de la [guía 9](/es/bot/belly-ui/); una tarea llama a `PollPullRequests()` cada dos minutos:
 
 ```cpp
 #include <cJSON.h>
@@ -202,4 +202,4 @@ Una respuesta JSON con `total_count` significa que el token funciona. Añade `-i
 - **Checks y revisiones.** Los endpoints de pulls (`GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews`, por ejemplo) dan el estado de revisión de cada pull request; también necesitan **Pull requests: Read-only**.
 - **Notificaciones en lugar de búsqueda.** La API de notificaciones de GitHub responde "qué me pasó a mí", pero GitHub no la lista entre los endpoints para tokens fine-grained, así que necesitaría un token clásico.
 - **Rotación.** Con un token de 30 días, pon un recordatorio en tu calendario. La panza puede mostrar la fecha de caducidad si la escribes junto con el token.
-- La guía 9 dibuja las dos listas, avisos y pull requests, en la pantalla de la panza, en la [ruta del bot](/es/bot/).
+- La [guía 9](/es/bot/belly-ui/) dibuja las dos listas, avisos y pull requests, en la pantalla de la panza.

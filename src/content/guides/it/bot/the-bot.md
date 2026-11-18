@@ -52,7 +52,7 @@ La testa è la ESP32-S3-LCD-1.3-C, la versione della ESP32-S3-LCD-1.3 di Wavesha
 | Altro           | Slot per scheda TF, un header GPIO da 2,54 mm                                                    |
 | Prisma          | Un cubo di vetro che poggia sullo schermo e ne riflette l'immagine                               |
 
-Il prisma è il motivo per cui la faccia sembra fluttuare: lo schermo sta in orizzontale e la faccia interna del cubo lo riflette verso di te. Un riflesso è un'immagine speculare, quindi la testa disegna la sua faccia specchiata; se ne occupa la guida 11.
+Il prisma è il motivo per cui la faccia sembra fluttuare: lo schermo sta in orizzontale e la faccia interna del cubo lo riflette verso di te. Un riflesso è un'immagine speculare, quindi la testa disegna la sua faccia specchiata; se ne occupa la [guida 11](/it/bot/holographic-head/).
 
 L'ESP32-S3 ha il suo Wi-Fi, e la testa non lo usa. È una decisione, spiegata qui sotto.
 
@@ -60,7 +60,7 @@ L'ESP32-S3 ha il suo Wi-Fi, e la testa non lo usa. È una decisione, spiegata qu
 
 I dati di Narsil vivono su internet: gli avvisi arrivano tramite ntfy, le pull request arrivano dall'API REST di GitHub e la voce va al tuo server. Tutti e tre hanno bisogno di Wi-Fi, credenziali e logica di ritentativo. Se si collegassero entrambe le schede, entrambe avrebbero bisogno della password del Wi-Fi, del token di GitHub e del topic di ntfy, e potrebbero non essere d'accordo su cosa sta facendo Narsil.
 
-Così la pancia possiede ogni connessione e ogni segreto, e decide lo stato di Narsil. La testa riceve solo cosa disegnare: una posa e uno stato, tramite un cavo seriale. Non custodisce segreti e, se si riavvia, aspetta semplicemente il messaggio successivo. La guida 10 definisce quel protocollo.
+Così la pancia possiede ogni connessione e ogni segreto, e decide lo stato di Narsil. La testa riceve solo cosa disegnare: una posa e uno stato, tramite un cavo seriale. Non custodisce segreti e, se si riavvia, aspetta semplicemente il messaggio successivo. La [guida 10](/it/bot/uart-protocol/) definisce quel protocollo.
 
 ### Il collegamento UART
 
@@ -163,7 +163,7 @@ void head_link_init(void)
 }
 ```
 
-Un dettaglio è facile da perdere. Sull'ESP32-P4, i pin predefiniti di ESP-IDF per UART1 sono GPIO10 e GPIO11, e su questa scheda quei pin portano l'audio (word select e data in dell'I2S). `uart_set_pin` instrada invece UART1 su GPIO4 e GPIO5 attraverso la matrice GPIO, così i pin predefiniti non vengono mai toccati. Inviare è poi una sola chiamata, `uart_write_bytes(HEAD_UART, data, len)`; cosa va in `data` è la guida 10.
+Un dettaglio è facile da perdere. Sull'ESP32-P4, i pin predefiniti di ESP-IDF per UART1 sono GPIO10 e GPIO11, e su questa scheda quei pin portano l'audio (word select e data in dell'I2S). `uart_set_pin` instrada invece UART1 su GPIO4 e GPIO5 attraverso la matrice GPIO, così i pin predefiniti non vengono mai toccati. Inviare è poi una sola chiamata, `uart_write_bytes(HEAD_UART, data, len)`; cosa va in `data` è la [guida 10](/it/bot/uart-protocol/).
 
 ## Errori comuni e come testarlo
 
@@ -178,7 +178,7 @@ Per testare il collegamento prima che esista qualsiasi protocollo, flasha entram
 
 ## Per andare oltre
 
-- Lo schermo touch della pancia può fare di più che mostrare: un tocco può segnare un avviso come letto, cosa che la guida 9 costruisce con LVGL.
+- Lo schermo touch della pancia può fare di più che mostrare: un tocco può segnare un avviso come letto, cosa che la [guida 9](/it/bot/belly-ui/) costruisce con LVGL.
 - Il QMI8658 della testa può capire quando qualcuno solleva il bot o lo tocca. La testa potrebbe rimandarlo indietro sul suo filo TX, ed è per questo che il collegamento ha due fili dati e non uno.
 - Entrambe le schede hanno connettori per la batteria (MX1.25 sulla testa, un connettore per batteria al litio da 3,7 V sulla pancia). Il bot di questo percorso funziona via USB, il che mantiene semplice il progetto dell'alimentazione.
 - La [pagina ESP-IDF di Waveshare per la pancia](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/ESP-IDF/) elenca progetti di esempio (strumenti I2C, Wi-Fi station, codec I2S, LVGL) utili per verificare ogni parte della scheda da sola.

@@ -50,7 +50,7 @@ Il template ha una regola rigida: ogni risposta è scritta in `{{language}}`, qu
 
 Narsil parla spagnolo latinoamericano neutro, quindi il bot usa `es-MX-DaliaNeural`, una voce femminile per lo spagnolo (Messico) nell'[elenco delle voci](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts) di Microsoft. Edge offre un sottoinsieme di quell'elenco; `edge-tts --list-voices`, dal [README di edge-tts](https://github.com/rany2/edge-tts), stampa le voci che può davvero usare, quindi verifica lì la tua scelta. `es-CO-SalomeNeural` ed `es-US-PalomaNeural` sono altre voci femminili latinoamericane nell'elenco di Microsoft.
 
-EdgeTTS non richiede chiave, ma è un servizio online: le risposte di Narsil, come testo, vanno a Microsoft per essere pronunciate. La guida 12 elenca cosa esce dalla tua rete.
+EdgeTTS non richiede chiave, ma è un servizio online: le risposte di Narsil, come testo, vanno a Microsoft per essere pronunciate. La [guida 12](/it/bot/secrets-privacy/) elenca cosa esce dalla tua rete.
 
 ### Le frasi proprie del server
 

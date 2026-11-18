@@ -52,7 +52,7 @@ The head is the ESP32-S3-LCD-1.3-C, the version of Waveshare's ESP32-S3-LCD-1.3 
 | Other     | TF card slot, a 2.54 mm GPIO header                                                  |
 | Prism     | A glass cube that sits on the screen and reflects its image                          |
 
-The prism is why the face looks like it floats: the screen lies flat and the cube's inner face reflects it towards you. A reflection is a mirror image, so the head draws its face mirrored; guide 11 covers that.
+The prism is why the face looks like it floats: the screen lies flat and the cube's inner face reflects it towards you. A reflection is a mirror image, so the head draws its face mirrored; [guide 11](/en/bot/holographic-head/) covers that.
 
 The ESP32-S3 has its own Wi-Fi, and the head does not use it. That is a decision, explained next.
 
@@ -60,7 +60,7 @@ The ESP32-S3 has its own Wi-Fi, and the head does not use it. That is a decision
 
 Narsil's data lives on the internet: alerts arrive through ntfy, pull requests come from the GitHub REST API, and the voice goes to your server. All three need Wi-Fi, credentials and retry logic. If both boards connected, both would need the Wi-Fi password, the GitHub token and the ntfy topic, and both could disagree about what Narsil is doing.
 
-So the belly owns every connection and every secret, and decides Narsil's state. The head receives only what to draw: a pose and a state, over a serial cable. It holds no secrets, and if it reboots it simply waits for the next message. Guide 10 defines that protocol.
+So the belly owns every connection and every secret, and decides Narsil's state. The head receives only what to draw: a pose and a state, over a serial cable. It holds no secrets, and if it reboots it simply waits for the next message. [Guide 10](/en/bot/uart-protocol/) defines that protocol.
 
 ### The UART link
 
@@ -163,7 +163,7 @@ void head_link_init(void)
 }
 ```
 
-One detail is easy to miss. On the ESP32-P4, ESP-IDF's default pins for UART1 are GPIO10 and GPIO11, and on this board those carry the audio (I2S word select and data in). `uart_set_pin` routes UART1 to GPIO4 and GPIO5 through the GPIO matrix instead, so the default pins are never touched. Sending is then one call, `uart_write_bytes(HEAD_UART, data, len)`; what goes in `data` is guide 10.
+One detail is easy to miss. On the ESP32-P4, ESP-IDF's default pins for UART1 are GPIO10 and GPIO11, and on this board those carry the audio (I2S word select and data in). `uart_set_pin` routes UART1 to GPIO4 and GPIO5 through the GPIO matrix instead, so the default pins are never touched. Sending is then one call, `uart_write_bytes(HEAD_UART, data, len)`; what goes in `data` is [guide 10](/en/bot/uart-protocol/).
 
 ## Common mistakes and how to test it
 
@@ -178,7 +178,7 @@ To test the link before any protocol exists, flash both boards with ESP-IDF's `u
 
 ## Going further
 
-- The belly's touch screen can do more than show: a tap can mark an alert as read, which guide 9 builds with LVGL.
+- The belly's touch screen can do more than show: a tap can mark an alert as read, which [guide 9](/en/bot/belly-ui/) builds with LVGL.
 - The head's QMI8658 can tell when someone picks the bot up or taps it. The head could send that back on its TX wire, which is why the link has two data wires and not one.
 - Both boards have battery headers (MX1.25 on the head, a 3.7 V lithium header on the belly). The bot in this path runs from USB, which keeps the power design simple.
 - Waveshare's [ESP-IDF page for the belly](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/ESP-IDF/) lists example projects (I2C tools, Wi-Fi station, I2S codec, LVGL) that are useful to check each part of the board on its own.

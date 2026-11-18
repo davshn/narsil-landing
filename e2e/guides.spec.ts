@@ -256,6 +256,10 @@ const BOT_GUIDES = [
   'narsil-voice',
   'ntfy-alerts',
   'github-prs',
+  'belly-ui',
+  'uart-protocol',
+  'holographic-head',
+  'secrets-privacy',
 ]
 
 test.describe('Narsil desk bot path', () => {

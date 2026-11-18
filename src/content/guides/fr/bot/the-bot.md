@@ -52,7 +52,7 @@ La tête est l’ESP32-S3-LCD-1.3-C, la version de l’ESP32-S3-LCD-1.3 de Waves
 | Autres          | Emplacement pour carte TF, un connecteur GPIO au pas de 2,54 mm                                   |
 | Prisme          | Un cube en verre posé sur l’écran qui en reflète l’image                                          |
 
-C’est le prisme qui donne l’impression que le visage flotte : l’écran est à plat et la face intérieure du cube le reflète vers vous. Un reflet est une image en miroir, donc la tête dessine son visage inversé ; le guide 11 traite ce point.
+C’est le prisme qui donne l’impression que le visage flotte : l’écran est à plat et la face intérieure du cube le reflète vers vous. Un reflet est une image en miroir, donc la tête dessine son visage inversé ; le [guide 11](/fr/bot/holographic-head/) traite ce point.
 
 L’ESP32-S3 a son propre Wi-Fi, et la tête ne s’en sert pas. C’est une décision, expliquée ci-dessous.
 
@@ -60,7 +60,7 @@ L’ESP32-S3 a son propre Wi-Fi, et la tête ne s’en sert pas. C’est une dé
 
 Les données de Narsil vivent sur Internet : les alertes arrivent par ntfy, les pull requests viennent de l’API REST de GitHub, et la voix part vers votre serveur. Les trois ont besoin du Wi-Fi, d’identifiants et d’une logique de nouvelle tentative. Si les deux cartes se connectaient, toutes deux auraient besoin du mot de passe Wi-Fi, du token GitHub et du topic ntfy, et toutes deux pourraient être en désaccord sur ce que fait Narsil.
 
-Le ventre possède donc chaque connexion et chaque secret, et décide de l’état de Narsil. La tête ne reçoit que ce qu’elle doit dessiner : une pose et un état, par un câble série. Elle ne détient aucun secret, et si elle redémarre, elle attend simplement le message suivant. Le guide 10 définit ce protocole.
+Le ventre possède donc chaque connexion et chaque secret, et décide de l’état de Narsil. La tête ne reçoit que ce qu’elle doit dessiner : une pose et un état, par un câble série. Elle ne détient aucun secret, et si elle redémarre, elle attend simplement le message suivant. Le [guide 10](/fr/bot/uart-protocol/) définit ce protocole.
 
 ### La liaison UART
 
@@ -163,7 +163,7 @@ void head_link_init(void)
 }
 ```
 
-Un détail passe facilement inaperçu. Sur l’ESP32-P4, les broches par défaut d’ESP-IDF pour l’UART1 sont GPIO10 et GPIO11, et sur cette carte elles portent l’audio (sélection de mot I2S et entrée de données). `uart_set_pin` achemine plutôt l’UART1 vers GPIO4 et GPIO5 par la matrice GPIO, si bien que les broches par défaut ne sont jamais touchées. L’envoi se fait ensuite en un appel, `uart_write_bytes(HEAD_UART, data, len)` ; ce que contient `data` relève du guide 10.
+Un détail passe facilement inaperçu. Sur l’ESP32-P4, les broches par défaut d’ESP-IDF pour l’UART1 sont GPIO10 et GPIO11, et sur cette carte elles portent l’audio (sélection de mot I2S et entrée de données). `uart_set_pin` achemine plutôt l’UART1 vers GPIO4 et GPIO5 par la matrice GPIO, si bien que les broches par défaut ne sont jamais touchées. L’envoi se fait ensuite en un appel, `uart_write_bytes(HEAD_UART, data, len)` ; ce que contient `data` relève du [guide 10](/fr/bot/uart-protocol/).
 
 ## Erreurs fréquentes et comment tester
 
@@ -178,7 +178,7 @@ Pour tester la liaison avant qu’un protocole existe, flashez les deux cartes a
 
 ## Pour aller plus loin
 
-- L’écran tactile du ventre peut faire plus qu’afficher : un appui peut marquer une alerte comme lue, ce que le guide 9 construit avec LVGL.
+- L’écran tactile du ventre peut faire plus qu’afficher : un appui peut marquer une alerte comme lue, ce que le [guide 9](/fr/bot/belly-ui/) construit avec LVGL.
 - Le QMI8658 de la tête peut détecter quand quelqu’un soulève le bot ou le tapote. La tête pourrait renvoyer cette information sur son fil TX, et c’est pourquoi la liaison a deux fils de données et non un seul.
 - Les deux cartes ont des connecteurs de batterie (MX1.25 sur la tête, un connecteur lithium 3,7 V sur le ventre). Le bot de ce parcours fonctionne sur USB, ce qui garde la conception de l’alimentation simple.
 - La [page ESP-IDF de Waveshare pour le ventre](https://docs.waveshare.com/ESP32-P4-WIFI6-Touch-LCD-4.3/ESP-IDF/) liste des projets d’exemple (outils I2C, station Wi-Fi, codec I2S, LVGL) utiles pour vérifier chaque partie de la carte isolément.

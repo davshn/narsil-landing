@@ -76,7 +76,7 @@ On `403` or `429`, the belly waits for the time in `retry-after` (or `x-ratelimi
 
 The request uses ESP-IDF's [`esp_http_client`](https://docs.espressif.com/projects/esp-idf/en/stable/esp32p4/api-reference/protocols/esp_http_client.html) with the certificate bundle (`crt_bundle_attach = esp_crt_bundle_attach`), like the ntfy stream in guide 7. This time the answer is short, so it uses `esp_http_client_perform`, collects the body in the `HTTP_EVENT_ON_DATA` event, catches the `etag` in `HTTP_EVENT_ON_HEADER` (where `evt->header_key` and `evt->header_value` hold each response header), and reads the status with `esp_http_client_get_status_code` after `perform` returns.
 
-The token lives in NVS, in Xiaozhi's `Settings` namespace `narsil` under the key `gh_token`, typed once on the belly's settings screen (guide 9). It is never compiled into the firmware or written to the log.
+The token lives in NVS, in Xiaozhi's `Settings` namespace `narsil` under the key `gh_token`, typed once on the belly's settings screen ([guide 9](/en/bot/belly-ui/)). It is never compiled into the firmware or written to the log.
 
 ## How it was asked of the AI
 
@@ -98,7 +98,7 @@ The following prompt was written for this guide as a suggestion. It is not the c
 
 ## The minimal code
 
-A function for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowPullRequest` and `ShowGithubError` are the screen's functions from guide 9; a task calls `PollPullRequests()` every two minutes:
+A function for the belly, in C++ next to Xiaozhi's code (MIT, like the site's own examples). `ShowPullRequest` and `ShowGithubError` are the screen's functions from [guide 9](/en/bot/belly-ui/); a task calls `PollPullRequests()` every two minutes:
 
 ```cpp
 #include <cJSON.h>
@@ -204,4 +204,4 @@ A JSON answer with `total_count` means the token works. Add `-i` to see the `eta
 - **Checks and reviews.** The pulls endpoints (`GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews`, for example) give the review state of each pull request; they also need **Pull requests: Read-only**.
 - **Notifications instead of search.** GitHub's notifications API answers "what happened to me", but GitHub does not list it among the endpoints for fine-grained tokens, so it would need a classic token.
 - **Rotation.** With a 30-day token, put a reminder in your calendar. The belly can show the expiry date if you type it with the token.
-- Guide 9 draws both lists, alerts and pull requests, on the belly screen, in the [bot path](/en/bot/).
+- [Guide 9](/en/bot/belly-ui/) draws both lists, alerts and pull requests, on the belly screen.

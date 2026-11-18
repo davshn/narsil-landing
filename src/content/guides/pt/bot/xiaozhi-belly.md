@@ -168,4 +168,4 @@ Para testar, abra o monitor (guia 2) durante a primeira inicialização. Você d
 - O [documento de OTA](https://github.com/78/xiaozhi-esp32/blob/main/docs/ota.md) do Xiaozhi descreve como um servidor também pode oferecer atualizações de firmware; o servidor da xinnan-tech pode servi-las a partir da sua pasta `data/bin`, de modo que a barriga pode se atualizar por Wi-Fi.
 - `scripts/build.py --list-wake-words` lista os modelos de palavra de ativação do componente ESP-SR atual, e `--wake-word` escolhe um.
 - O [guia de placa personalizada](https://github.com/78/xiaozhi-esp32/blob/main/docs/custom-board.md) avisa para nunca sobrescrever a configuração de uma placa existente com uma personalizada, porque o OTA pode substituir o seu firmware pelo de fábrica daquela placa. Tenha isso em mente sempre que acrescentar código próprio à barriga.
-- O Xiaozhi também pode mostrar expressões na sua própria tela; o guia 9 substitui a tela da barriga pela interface própria da Narsil.
+- O Xiaozhi também pode mostrar expressões na sua própria tela; o [guia 9](/pt/bot/belly-ui/) substitui a tela da barriga pela interface própria da Narsil.
