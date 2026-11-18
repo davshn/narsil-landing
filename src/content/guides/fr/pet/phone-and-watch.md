@@ -3,7 +3,7 @@ title: Les alertes sur votre téléphone et votre montre
 description: 'Comment /narsil movil envoie ce qui a besoin de vous à un sujet ntfy.sh privé quand vous écrivez à distance : limite quotidienne, sujet d’état silencieux, clé de scellement, Web Push.'
 route: pet
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -156,9 +156,29 @@ Deux remarques de confidentialité découlent du code. L’abonnement lui-même 
 - **La clé vit à deux endroits** : dans le store du plugin, un fichier JSON sous le répertoire de configuration de Claude Code, et dans la réponse de `/narsil movil clave`, qui fait partie de la conversation. Les réponses des commandes de Narsil ne définissent pas `isTextDisplayOnly`, et les types 2.1.325 disent que, hormis les plugins livrés avec Claude Code, « Any other plugin's text stays in requests » (le texte de tout autre plugin reste dans les requêtes), si bien que le modèle la lit aussi. Considérez que la conversation contient la clé.
 - **L’envoi s’arrête au bureau.** Rien ne part tant que votre dernier message est venu du terminal ou de l’application de bureau, sauf le test.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
 
-### Consigné : alerter le téléphone quand j’écris depuis le téléphone
+Demandez à Claude d’envoyer sur votre téléphone, par ntfy.sh, ce qui a besoin de vous, uniquement quand vous êtes absent. L’idée que Claude doit bien saisir : l’absence n’est pas un événement ; elle se lit dans l’origine de votre dernier message, `bridge` pour Remote Control et `composer` pour le poste de travail.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, ajoute des alertes sur le téléphone via ntfy.sh. `/my-pet phone` crée un sujet `my-pet-` plus 20 caractères hexadécimaux tirés de `crypto.randomUUID()`, l’enregistre dans `$.store`, et répond comment s’abonner dans l’application ntfy, en avertissant que quiconque connaît le sujet peut le lire. Enregistre l’endroit où la personne a écrit en dernier : dans `prompt.submit` et `command.run`, `e.origin.kind === 'bridge'` signifie à distance et `'composer'` signifie au bureau ; garde-le dans `$.store` pour que toutes les conversations le partagent. Quand un tour de la conversation principale se termine, et seulement à distance, publie `{ topic, title, message, priority }` en JSON sur `https://ntfy.sh` avec `$.http.fetch`. Compte les messages par jour UTC dans `$.store` et arrête-toi à 200. Ne mets jamais le sujet dans les journaux. Teste avec `claude-code/testing`, en répondant toi-même à `http.fetch` : rien n’est envoyé au bureau, une alerte est envoyée depuis le pont, et la 201e du jour ne l’est pas.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le sujet est `my-pet-` suivi de 20 caractères hexadécimaux tirés de `crypto.randomUUID()`, jamais un nom qu’on pourrait deviner, et il n’apparaît jamais dans un journal.
+2. `prompt.submit` comme `command.run` enregistrent l’origine, et elle est gardée dans `$.store`, si bien que toutes les conversations la partagent.
+3. Rien n’est publié tant que le dernier message vient du poste de travail.
+4. Les messages sont comptés par jour UTC dans `$.store`, le compte est vérifié avant chaque message, et l’envoi s’arrête à 200.
+5. La réponse de la commande prévient que toute personne qui connaît le sujet peut le lire.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « mon téléphone vibre pendant que je tape au poste de travail ».
+
+### Comment l’auteur l’a demandé
+
+#### Consigné : alerter le téléphone quand j’écris depuis le téléphone
 
 La règle du téléphone telle qu’elle fonctionne aujourd’hui a été demandée dans le journal de tâches de la vue de flotte, `odd/tasks/fleet-view.md`. L1 (2026-11-06), la demande d’origine, comprend :
 
@@ -176,7 +196,7 @@ Le journal de tâches consigne le résultat dans L9 (T4 terminée) : « Where yo
 
 L9 décrit aussi un état `-estado` plus riche, avec une liste `sessions` et les champs de la conversation la plus importante. Cet état a été réduit plus tard : `544ef89` (2026-11-09) « feat: send only what the Firefox extension reads through ntfy » (n’envoyer par ntfy que ce que lit l’extension Firefox) a laissé les cinq champs ci-dessus. Le code et le README s’accordent sur les cinq.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 Les étapes antérieures n’ont pas été consignées. À partir de `git log -- hooks/phone.ts hooks/seal.ts` et des commits liés :
 
@@ -192,13 +212,9 @@ Les étapes antérieures n’ont pas été consignées. À partir de `git log --
 
 L’historique montre une fonctionnalité façonnée par ses récepteurs : chaque fois que l’application de l’autre côté a changé, le côté du mod a changé avec elle.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, ajoute des alertes sur le téléphone via ntfy.sh. `/my-pet phone` crée un sujet `my-pet-` plus 20 caractères hexadécimaux tirés de `crypto.randomUUID()`, l’enregistre dans `$.store`, et répond comment s’abonner dans l’application ntfy, en avertissant que quiconque connaît le sujet peut le lire. Enregistre l’endroit où la personne a écrit en dernier : dans `prompt.submit` et `command.run`, `e.origin.kind === 'bridge'` signifie à distance et `'composer'` signifie au bureau ; garde-le dans `$.store` pour que toutes les conversations le partagent. Quand un tour de la conversation principale se termine, et seulement à distance, publie `{ topic, title, message, priority }` en JSON sur `https://ntfy.sh` avec `$.http.fetch`. Compte les messages par jour UTC dans `$.store` et arrête-toi à 200. Ne mets jamais le sujet dans les journaux. Teste avec `claude-code/testing`, en répondant toi-même à `http.fetch` : rien n’est envoyé au bureau, une alerte est envoyée depuis le pont, et la 201e du jour ne l’est pas.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`$.store.get`, `$.store.set`, `$.http.fetch`, `$.clock.now`, `$.command.register`, `command.run`, `prompt.submit`, `turn.complete`, `crypto.randomUUID`). Il est adapté de `hooks/phone.ts` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Il envoie du texte en clair ; pour le scellement, lisez `hooks/seal.ts`.
 

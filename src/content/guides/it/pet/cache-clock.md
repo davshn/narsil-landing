@@ -3,7 +3,7 @@ title: L'orologio della cache
 description: "Come Narsil conta alla rovescia la cache del prompt dall'inizio dell'ultima richiesta, 60 minuti con un abbonamento e 5 con una chiave API, e perché il turno dopo costa di più quando è fredda."
 route: pet
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Ogni conversazione invia anche all'hub `cacheEndsAt`, il momento in cui la sua c
 
 Il README dice che l'orologio è verde finché è fresco e rosso quando sta per scadere, e `hooks/words.ts` ha un `cacheColor` per questo, basato su quanta parte della vita della cache è stata consumata. Nel codice attuale `hooks/register.tsx` importa `cacheColor` ma non lo chiama mai: la fascia disegna l'orologio come testo attenuato, e la finestra mobile come una semplice nota. Se costruisci il tuo, il colore è un'aggiunta di una riga, mostrata sotto.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un conto alla rovescia che mostri, dopo ogni turno, quanto dovrebbe durare la cache del prompt. L'unica idea che Claude deve fare bene: l'orologio conta dall'inizio dell'ultima richiesta, non dalla fine del turno.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-pet`, mostra un conto alla rovescia della cache del prompt nella fascia `AbovePrompt` mentre Claude mi aspetta. In `turn.step`, solo per la conversazione principale (`e.agentId === undefined`), registra l'ora con `$.clock.now()` prima della richiesta e lascia passare lo stream con `return yield* next(e)`. In `turn.complete`, per la conversazione principale, avvia un orologio in un atom a partire dall'ora di quella richiesta; svuotalo in `turn.start`. Fallo durare 60 minuti quando `$.session.usage()` riporta finestre di limiti e 5 minuti quando non ne riporta nessuna, e permetti a un comando `/pet cache <min>` di sovrascriverlo. Ogni pochi secondi con `$.clock.every`, ricalcola i minuti interi rimasti, arrotondati per eccesso, e scrivi l'atom solo quando il numero è cambiato. Mostra "Cache: N min" e, a zero, "Cache fredda: il prossimo messaggio viene addebitato per intero". Aggiungi un test con un orologio simulato che verifichi che una risposta di tre minuti lasci due minuti di una cache di cinque minuti.
+
+### Cosa controllare nella risposta di Claude
+
+1. L'ora della richiesta viene registrata in `turn.step`, solo per la conversazione principale (`e.agentId === undefined`), e l'hook continua a passare il flusso con `return yield* next(e)`.
+2. `turn.complete` fa partire l'orologio da quell'ora della richiesta, e `turn.start` lo svuota, così non c'è orologio mentre Claude lavora.
+3. I minuti rimanenti sono arrotondati per eccesso, e l'atom viene scritto solo quando quel numero cambia, non a ogni battito.
+4. La cache dura 60 minuti quando l'account ha finestre di limiti e 5 quando non ne ha, e un comando può impostarla a mano.
+5. Un test con un orologio simulato mostra che una risposta di tre minuti lascia due minuti di una cache da cinque minuti.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "dopo una risposta lunga l'orologio mostra 5 min pieni", oppure "le risposte di Claude non compaiono più sullo schermo".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per l'orologio della cache non è stata registrata. È arrivato il 2026-10-30, prima dei log pubblici dei task.
 
-### Registrato: la cache resta
+#### Registrato: la cache resta
 
 L'unica menzione registrata è in `odd/tasks/fleet-view.md` in narsil-pet, L2 (estratto), quando l'autore stava rimuovendo sezioni della fascia per fare spazio all'elenco delle conversazioni:
 
@@ -114,7 +134,7 @@ L'unica menzione registrata è in `odd/tasks/fleet-view.md` in narsil-pet, L2 (e
 
 In italiano: quella della cache la teniamo; quella del denaro potremmo eliminarla anche. Il conteggio della spesa se n'è andato; l'orologio della cache è rimasto, e il design concordato in L4 lo ha messo nella riga di ogni conversazione: "the list of conversations (state, title, context bar, cache clock)" (l'elenco delle conversazioni: stato, titolo, barra del contesto, orologio della cache).
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/register.tsx hooks/words.ts`, i commit che hanno toccato l'orologio:
 
@@ -125,13 +145,9 @@ Da `git log -- hooks/register.tsx hooks/words.ts`, i commit che hanno toccato l'
 - `0072d87` (2026-11-07) "fix: make room for the cache in each band row" (fa spazio alla cache in ogni riga della fascia).
 - `c3e4464` (2026-11-09) "fix: count the prompt cache from the start of its last request" (conta la cache del prompt dall'inizio della sua ultima richiesta). La correzione descritta sopra: prima, l'orologio partiva quando il turno finiva, e sovrastimava ciò che restava dopo una risposta lunga.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-pet`, mostra un conto alla rovescia della cache del prompt nella fascia `AbovePrompt` mentre Claude mi aspetta. In `turn.step`, solo per la conversazione principale (`e.agentId === undefined`), registra l'ora con `$.clock.now()` prima della richiesta e lascia passare lo stream con `return yield* next(e)`. In `turn.complete`, per la conversazione principale, avvia un orologio in un atom a partire dall'ora di quella richiesta; svuotalo in `turn.start`. Fallo durare 60 minuti quando `$.session.usage()` riporta finestre di limiti e 5 minuti quando non ne riporta nessuna, e permetti a un comando `/pet cache <min>` di sovrascriverlo. Ogni pochi secondi con `$.clock.every`, ricalcola i minuti interi rimasti, arrotondati per eccesso, e scrivi l'atom solo quando il numero è cambiato. Mostra "Cache: N min" e, a zero, "Cache fredda: il prossimo messaggio viene addebitato per intero". Aggiungi un test con un orologio simulato che verifichi che una risposta di tre minuti lasci due minuti di una cache di cinque minuti.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Scritto per questa guida e verificato con i tipi della 2.1.325 (`turn.step`, `turn.start`, `turn.complete`, `$.clock.now`, `$.clock.every`, `$.session.usage`). È adattato da `hooks/register.tsx` e `hooks/words.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L'atom `cache` è dichiarato in `types/index.d.ts` come nella prima guida, con il tipo `{ requestAt: number; minutes: number; left: number } | null`.
 

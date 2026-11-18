@@ -3,7 +3,7 @@ title: Toutes les conversations au même endroit
 description: 'Comment Narsil rassemble l’état de chaque conversation ouverte dans un hub local, les classe en commençant par l’erreur, les pagine par quatre et oublie les silencieuses au bout d’une heure.'
 route: pet
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -92,7 +92,27 @@ Ce que la bande affiche ouvert, la page sur laquelle elle se trouve et l’affic
 - **Une heure, ni 30 secondes ni pour toujours.** L’historique des commits montre que l’expiration a été ajustée deux fois. `2ce3acb` (2026-11-07) « fix: keep sleeping conversations listed in the hub » (garder les conversations en veille dans la liste du hub) explique que l’application de bureau met en veille le moteur d’une conversation que vous n’avez pas ouverte depuis un moment, si bien que ses battements s’arrêtent et que le hub la retirait au bout de 30 secondes. Le correctif conservait chaque conversation aussi longtemps que le serveur tournait. Puis `570961d` (2026-11-10) « fix: forget conversations silent for an hour in the hub » (oublier dans le hub les conversations silencieuses depuis une heure) indique que les conversations supprimées s’accumulaient, et retient une heure : assez longtemps pour une conversation en veille, assez court pour qu’une conversation supprimée disparaisse.
 - **La copie de vous-même dans le hub est remplacée.** `fleetOf` et `ownEntry` utilisent l’état frais de cette conversation, en ne conservant le `changedAt` du hub que tant que l’état reste le même, afin que votre propre ligne n’ait jamais un battement de retard.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un petit hub local qui rassemble l’état de chaque conversation, ainsi que le code du mod qui lui envoie son état et relit la liste. L’idée que Claude doit bien saisir : chaque conversation exécute sa propre copie du mod et ne voit pas les autres, donc le hub est le seul endroit où elles se rencontrent.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Mon mod Claude Code `my-pet` affiche l’état d’une conversation dans la bande `AbovePrompt`. Fais-lui afficher toutes les conversations ouvertes. Écris un petit hub Node.js (`hub.cjs`) qui n’écoute que sur 127.0.0.1, accepte `POST /state` et sert `GET /sessions`, tous deux protégés par un jeton aléatoire que le mod conserve dans `$.store`, et oublie une conversation une heure après son dernier signalement. Dans le mod, signale l’état de cette conversation toutes les deux secondes avec `$.clock.every` et `$.http.fetch`, relis la liste dans un atome, et garde le classement et la pagination sous forme de fonctions pures dans `hooks/fleet.ts` : l’erreur, puis l’attente, puis le travail, puis terminé, puis l’arrêt, le changement le plus récent en premier, quatre lignes par page. Dessine l’état de la conversation la plus importante en haut et les lignes en dessous, cette conversation en premier. Ajoute des tests pour le classement, la pagination et l’expiration.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le hub n’écoute que sur `127.0.0.1`, et `POST /state` comme `GET /sessions` exigent le jeton que le mod garde dans `$.store`.
+2. Le hub oublie une conversation une heure après son dernier envoi : pas après quelques secondes, et pas jamais.
+3. Le classement va de l’erreur à l’attente, puis au travail, puis au terminé, puis à l’arrêt, le changement le plus récent en premier, et l’état frais de cette conversation remplace la copie du hub avant le classement.
+4. Les lignes arrivent quatre par page, et le numéro de page reste dans les limites quand des conversations partent.
+5. Un `$.http.fetch` qui échoue est intercepté et la dernière liste est conservée, et l’atome n’est écrit que lorsque la liste a changé.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « une conversation que je n’ai pas ouverte depuis un moment disparaît de la liste » ou « la page 2 est vide après que j’ai fermé deux conversations ».
+
+### Comment l’auteur l’a demandé
 
 Cette fonctionnalité a un journal de tâches public : `odd/tasks/fleet-view.md` dans narsil-pet, entrées L1 à L13. Il cite mot pour mot les demandes de l’auteur ou de l’autrice.
 
@@ -112,13 +132,9 @@ Les corrections qui ont suivi, et ce qu’elles ont changé :
 
 L’expiration d’une heure ne faisait pas partie du journal ; elle est venue après, dans les deux commits décrits plus haut.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Mon mod Claude Code `my-pet` affiche l’état d’une conversation dans la bande `AbovePrompt`. Fais-lui afficher toutes les conversations ouvertes. Écris un petit hub Node.js (`hub.cjs`) qui n’écoute que sur 127.0.0.1, accepte `POST /state` et sert `GET /sessions`, tous deux protégés par un jeton aléatoire que le mod conserve dans `$.store`, et oublie une conversation une heure après son dernier signalement. Dans le mod, signale l’état de cette conversation toutes les deux secondes avec `$.clock.every` et `$.http.fetch`, relis la liste dans un atome, et garde le classement et la pagination sous forme de fonctions pures dans `hooks/fleet.ts` : l’erreur, puis l’attente, puis le travail, puis terminé, puis l’arrêt, le changement le plus récent en premier, quatre lignes par page. Dessine l’état de la conversation la plus importante en haut et les lignes en dessous, cette conversation en premier. Ajoute des tests pour le classement, la pagination et l’expiration.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide. Le classement et la pagination sont adaptés de `hooks/fleet.ts`, et l’expiration et l’ordre du hub de `overlay/server.cjs`, tous deux dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

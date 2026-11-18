@@ -3,7 +3,7 @@ title: Contexto e limites
 description: 'Como a Narsil desenha a barra de contexto de cada conversa, estima quando ela enche no ritmo dos últimos 15 minutos, sugere /compact uma vez e mostra os limites de 5 horas e semanal.'
 route: pet
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -108,9 +108,29 @@ As peças em `hooks/usage.ts` são pequenas e puras:
 
 O contexto pertence a uma conversa, não a você. Um único número de "contexto" para várias conversas faria a média de coisas que não podem ser somadas numa média. Por isso a barra geral foi removida e cada linha ganhou a sua, como registra a próxima seção. Os limites da conta são o caso oposto: pertencem à conta, então aparecem uma vez.
 
-## Como foi pedido à IA
+## Construa com o Claude
 
-### Registrado: uma barra por conversa
+Peça ao Claude que mostre na faixa o preenchimento da janela de contexto e os limites da conta, com uma estimativa de quando o contexto enche. A única ideia que o Claude precisa acertar: o Claude Code já tem os números, então o mod os lê de `$.session.usage()` e `session.measure` e nunca conta tokens nem consulta com um temporizador.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-pet`, mostre o preenchimento da janela de contexto e os limites de 5 horas e semanal da conta na faixa `AbovePrompt`. Leia-os uma vez com `$.session.usage()` em `session.start` e depois a cada evento `session.measure`, e guarde-os num atom. Escreva a lógica como funções puras em `hooks/usage.ts`: uma que converta `context` e `rateLimits` (`five_hour`, `seven_day`) no meu próprio formato, uma barra de texto de dez células, uma cor que fica âmbar em 60 % e vermelha em 85 %, e `minutesToFull(samples, now)`, que estima quando o contexto enche a partir das leituras dos últimos 15 minutos e retorna null com menos de um minuto de leituras ou sem crescimento. Sugira `/compact` uma vez por enchimento quando o contexto passar de 70 % e encher em até 20 minutos, ou passar de 85 %. Adicione testes para cada função e confira cada API com os tipos do plugin-authoring.
+
+### O que conferir na resposta do Claude
+
+1. Os números são lidos uma vez em `session.start` e depois a cada evento `session.measure`, sem um temporizador que pergunte de novo e de novo.
+2. Sem janelas de limite de uso (uma chave de API), nenhuma barra de limite aparece, em vez de barras em 0 %.
+3. `minutesToFull` usa só as leituras dos últimos 15 minutos e retorna null com menos de um minuto de leituras ou sem crescimento, e as leituras são apagadas quando o contexto encolhe.
+4. A sugestão de `/compact` vem uma vez por enchimento: a partir de 70 % quando o contexto enche em até 20 minutos, a partir de 85 % sempre, atrás de uma flag que só volta quando o contexto cai (a Narsil usa 50 %).
+5. As barras ficam âmbar em 60 % e vermelhas em 85 %.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a sugestão de /compact voltou em 71, 72 e 73 %", ou "depois de /compact a estimativa ainda diz que o contexto está quase cheio".
+
+### Como a pessoa autora pediu
+
+#### Registrado: uma barra por conversa
 
 As barras por conversa foram pedidas em `odd/tasks/fleet-view.md` no narsil-pet, na mesma conversa que produziu a visão de frota (L1 tem a data 2026-11-06; as entradas posteriores não têm data). L3 (trecho):
 
@@ -124,7 +144,7 @@ O detalhamento foi pedido em L2 (trecho):
 
 Tradução para o português: o detalhe de como o contexto se preenche deveria aparecer quando se clica na palavra "contexto". L7 o registra como feito na faixa. Um dia depois, `250d2c6` (2026-11-07) "feat: open the context from its percent and let next steps stand alone" (abrir o contexto pela sua porcentagem e deixar os próximos passos sozinhos) moveu o controle da faixa da palavra para a porcentagem, que é onde o README e o código o colocam hoje. Na janela flutuante, a palavra "Contexto" ainda o abre.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 As barras, a estimativa e a sugestão vieram antes desse registro, e os seus pedidos não foram registrados. A partir de `git log -- hooks/usage.ts hooks/register.tsx`:
 
@@ -135,13 +155,9 @@ As barras, a estimativa e a sugestão vieram antes desse registro, e os seus ped
 - `d654e3b` (2026-11-06) "feat: list this conversation first with a blue context bar" (listar esta conversa primeiro, com uma barra de contexto azul).
 - `250d2c6` (2026-11-07), acima.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-pet`, mostre o preenchimento da janela de contexto e os limites de 5 horas e semanal da conta na faixa `AbovePrompt`. Leia-os uma vez com `$.session.usage()` em `session.start` e depois a cada evento `session.measure`, e guarde-os num atom. Escreva a lógica como funções puras em `hooks/usage.ts`: uma que converta `context` e `rateLimits` (`five_hour`, `seven_day`) no meu próprio formato, uma barra de texto de dez células, uma cor que fica âmbar em 60 % e vermelha em 85 %, e `minutesToFull(samples, now)`, que estima quando o contexto enche a partir das leituras dos últimos 15 minutos e retorna null com menos de um minuto de leituras ou sem crescimento. Sugira `/compact` uma vez por enchimento quando o contexto passar de 70 % e encher em até 20 minutos, ou passar de 85 %. Adicione testes para cada função e confira cada API com os tipos do plugin-authoring.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Escrito para este guia e conferido com os tipos da 2.1.325 (`$.session.usage`, `session.measure`, `SessionContextUsage`, `SessionRateLimit`, `$.clock.now`, `$.ui.toast`). Foi adaptado de `hooks/usage.ts` e `hooks/register.tsx` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). O atom `usage` está declarado em `types/index.d.ts`, como no primeiro guia.
 

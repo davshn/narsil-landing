@@ -3,7 +3,7 @@ title: Experiencia y crecimiento
 description: 'Cómo Narsil gana experiencia con los turnos terminados, los tests que pasan y los subagentes que acaban, sube de nivel, crece en cinco etapas y lo celebra, con XP que dura entre sesiones.'
 route: pet
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -128,7 +128,27 @@ En la banda, la celebración solo se dibuja cuando la conversación que muestra 
 - **El movimiento.** `STAGE_MOTION` escala cuánto y a qué velocidad se mueve: amplitud 1.15 y tempo 0.9 para la cría, bajando hasta 0.6 y 1.4 para la etapa 5.
 - **Todo lo que está fuera de la banda.** La ventana del consejo recibe `NARSIL_STAGE`; los avisos del móvil usan `phoneIcon(kind, stage)`, un PNG de ella en esa etapa sacado del repositorio; el tema `-estado` envía la etiqueta `xp` y la URL `art` (guía 15).
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un sistema de experiencia: puntos por turnos terminados, tests que pasan y subagentes terminados, y después niveles, etapas y una breve celebración. La idea que Claude debe acertar: el total vive en `$.store`, que comparten todas las conversaciones, así que cada ganancia vuelve a leer el almacén antes de sumar.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> En mi mod de Claude Code `my-pet`, dale experiencia a la mascota. Pon las reglas en un módulo puro `hooks/xp.ts`: 10 XP por cada turno terminado de la conversación principal (`turn.complete` con `reason === 'answer'` y sin `agentId`), 5 cuando un comando de tests (`npm test`, `pnpm test`, `vitest`, `pytest`) vuelve sin `isError` en `tool.call`, 3 cuando el `turn.complete` de un subagente acaba con `answer`. El nivel 1 necesita 100 XP, y cada nivel siguiente 100 más que el anterior; las etapas empiezan en los niveles 1, 5, 10, 20 y 35. Guarda el total en `$.store` bajo `xp` para que sobreviva a las sesiones, y antes de cada ganancia vuelve a leer el almacén, porque otras conversaciones suman a él. Refléjalo en un átomo para dibujar. Con un nuevo nivel, escribe un átomo `milestone` con la hora, muestra "Level N" en la banda `AbovePrompt` durante 6 segundos (9 para una nueva etapa) y regístralo con `$.ui.log`. Prueba con `claude-code/testing`: un turno con 95 XP muestra el nivel 2, y a un almacén cambiado a espaldas de la conversación se le suma, no se sobrescribe.
+
+### Qué revisar en la respuesta de Claude
+
+1. Las reglas están en un módulo puro (`hooks/xp.ts`) con los números que pediste: 10, 5 y 3 XP, cada nivel 100 XP más que el anterior, y etapas desde los niveles 1, 5, 10, 20 y 35.
+2. Una ganancia lee el almacén, suma, escribe el almacén y después actualiza el átomo. Nunca escribe el valor del átomo de vuelta en el almacén.
+3. Solo un turno que termina con `answer` gana XP, y los tests la ganan solo sin `isError`; un turno abortado no gana nada.
+4. Un valor guardado que no es un número positivo cuenta como 0 en lugar de romper la banda.
+5. Un hito lleva su hora, y la celebración termina a los 6 segundos para un nivel y a los 9 para una etapa.
+
+Si una comprobación falla, dile a Claude lo que ves: "con dos conversaciones abiertas, la XP que ganó una de ellas desaparece cuando la otra termina un turno", o "el aviso de nivel no se va nunca".
+
+### Cómo lo pidió el autor
 
 La petición original de la experiencia y los niveles no quedó registrada. Los registros de tareas públicos del proyecto empiezan más tarde.
 
@@ -138,7 +158,7 @@ Una petición posterior toca las etapas: en `odd/tasks/animated-poses.md`, L4 (2
 
 El registro de tareas lo convierte en S6: cada pose "at every stage 1-5, light and dark: 60 loops" (en cada etapa 1-5, clara y oscura: 60 bucles).
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/xp.ts` y los commits relacionados:
 
@@ -151,13 +171,9 @@ A partir de `git log -- hooks/xp.ts` y los commits relacionados:
 
 El orden dice mucho: primero los números, después las etapas que hacen visibles los números, después un dibujo por etapa, después las celebraciones, después el movimiento. Cada paso hace que la recompensa sea más fácil de notar.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> En mi mod de Claude Code `my-pet`, dale experiencia a la mascota. Pon las reglas en un módulo puro `hooks/xp.ts`: 10 XP por cada turno terminado de la conversación principal (`turn.complete` con `reason === 'answer'` y sin `agentId`), 5 cuando un comando de tests (`npm test`, `pnpm test`, `vitest`, `pytest`) vuelve sin `isError` en `tool.call`, 3 cuando el `turn.complete` de un subagente acaba con `answer`. El nivel 1 necesita 100 XP, y cada nivel siguiente 100 más que el anterior; las etapas empiezan en los niveles 1, 5, 10, 20 y 35. Guarda el total en `$.store` bajo `xp` para que sobreviva a las sesiones, y antes de cada ganancia vuelve a leer el almacén, porque otras conversaciones suman a él. Refléjalo en un átomo para dibujar. Con un nuevo nivel, escribe un átomo `milestone` con la hora, muestra "Level N" en la banda `AbovePrompt` durante 6 segundos (9 para una nueva etapa) y regístralo con `$.ui.log`. Prueba con `claude-code/testing`: un turno con 95 XP muestra el nivel 2, y a un almacén cambiado a espaldas de la conversación se le suma, no se sobrescribe.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Escrito para esta guía y comprobado con los tipos de 2.1.325 (`$.store.get`, `$.store.set`, `$.clock.now`, `$.ui.log`, `session.start`, `tool.call`, `turn.complete`, `ui.render`). Está adaptado de `hooks/xp.ts` y `hooks/register.tsx` en [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Los átomos se declaran en `types/index.d.ts` como en la primera guía: `xp: number` y `milestone: { kind: 'level' | 'grew'; level: number; at: number } | null`.
 

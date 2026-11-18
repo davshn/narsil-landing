@@ -3,7 +3,7 @@ title: Tâches et sous-agents
 description: 'Comment Narsil reconstruit les tâches d’une conversation depuis TodoWrite, TaskCreate, TaskUpdate et le plan de l’application de bureau, et montre chaque sous-agent, son type, son modèle et son temps.'
 route: pet
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -96,9 +96,29 @@ Les couleurs se trouvent dans `TONE_COLOR` : gris pour en cours, jaune `#F5B400`
 
 Les deux fichiers, `hooks/tasks.ts` et `hooks/agents.ts`, sont purs : des valeurs simples en entrée, des valeurs simples en sortie, pas de `$`. Le module de hooks possède les événements et les atomes. C’est ce découpage qui permet aux tests de vérifier chaque forme d’outil et chaque texte de pastille sans session, et qui permet à la même liste d’être dessinée par la bande, la fenêtre flottante et la bande d’une autre conversation.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
 
-### Les tâches : consignées dans le journal fleet-view
+Demandez à Claude une liste de tâches reconstruite à partir des appels des outils de tâches, et une pastille pour chaque sous-agent en cours. L’idée que Claude doit bien saisir : le moment ; un appel de tâche ne change la liste qu’une fois que `next(e)` a répondu sans erreur, et un sous-agent est chronométré par ses propres événements, pas par l’appel à l’outil `Agent`.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code, affiche la liste de tâches de la conversation principale dans la bande `AbovePrompt`. Dans `tool.call`, pour les appels `TodoWrite`, `TaskCreate` et `TaskUpdate` sans `agentId`, attends `next(e)` et, si le résultat n’est pas une erreur, applique l’appel à une liste conservée dans un atome : `TodoWrite` la remplace, `TaskCreate` ajoute la tâche avec l’identifiant issu de son résultat, `TaskUpdate` en modifie ou en supprime une par son `taskId`. Garde cette logique sous forme de fonction pure dans `hooks/tasks.ts`, avec des tests pour chaque outil. Affiche aussi une ligne par sous-agent en cours : crée-la sur `agent.spawn` (tâche, `subagentType`, `result.model`), marque-la active sur ses `tool.call`, termine-la sur son `turn.complete`, et recalcule le texte toutes les quelques secondes pour qu’un sous-agent inactif depuis cinq minutes l’indique. Vérifie chaque champ par rapport aux types de plugin-authoring.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le hook `tool.call` attend `next(e)` avant de changer la liste, et laisse la liste telle quelle quand le résultat est une erreur ou a été refusé.
+2. Les appels de tâches ne changent la liste que lorsque `e.agentId` est indéfini, si bien qu’un sous-agent qui appelle `TodoWrite` ne remplace pas la liste principale.
+3. `TaskCreate` prend l’identifiant de la tâche dans le résultat de l’outil, pas dans son entrée.
+4. Une pastille commence sur `agent.spawn` et se termine sur le `turn.complete` propre au sous-agent, pas au retour de l’appel à l’outil `Agent`.
+5. Les pastilles sont recalculées sur une horloge, si bien qu’un sous-agent inactif depuis cinq minutes est marqué silencieux même quand aucun événement n’arrive.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la pastille d’un sous-agent d’arrière-plan disparaît au moment où il démarre ».
+
+### Comment l’auteur l’a demandé
+
+#### Les tâches : consignées dans le journal fleet-view
 
 La liste de tâches par conversation a été demandée dans `odd/tasks/fleet-view.md` dans narsil-pet. En L2 (extrait), l’auteur ou l’autrice a écrit :
 
@@ -122,7 +142,7 @@ Traduction en français : la seule chose étrange est que les tâches de cette s
 
 L13 consigne la cause et le correctif : « the desktop app's `mcp__ccd_turn__wrap_up` checks the plan off with no last `update_plan`; the mod now marks every pending or in-progress task completed on it (hooks/tasks.ts) » (le `mcp__ccd_turn__wrap_up` de l’application de bureau coche le plan sans dernier `update_plan` ; le mod marque désormais à ce moment comme terminée chaque tâche en attente ou en cours, hooks/tasks.ts), avec un test en échec observé d’abord. Le commit est `5e9ca71` (2026-11-06) « fix: check the plan off when the app's next-step box closes the turn » (cocher le plan quand la case d’étape suivante de l’application clôt le tour).
 
-### Les sous-agents : reconstitution à partir de l’historique des commits
+#### Les sous-agents : reconstitution à partir de l’historique des commits
 
 La demande d’origine pour les pastilles de sous-agents n’a pas été conservée. D’après `git log -- hooks/agents.ts hooks/register.tsx` :
 
@@ -132,13 +152,9 @@ La demande d’origine pour les pastilles de sous-agents n’a pas été conserv
 - `519dd73` (2026-11-06) « fix: wait for background work before announcing a turn finished » (attendre le travail d’arrière-plan avant d’annoncer la fin d’un tour). Les sous-agents d’arrière-plan deviennent des lignes ⟳.
 - `49f0fd9` (2026-11-06) « feat: list every open conversation in the band » (lister chaque conversation ouverte dans la bande). Son message indique qu’ouvrir une ligne montre « its context (the word opens what fills it), its tasks and its subagents » (son contexte, le mot ouvrant ce qui le remplit, ses tâches et ses sous-agents).
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code, affiche la liste de tâches de la conversation principale dans la bande `AbovePrompt`. Dans `tool.call`, pour les appels `TodoWrite`, `TaskCreate` et `TaskUpdate` sans `agentId`, attends `next(e)` et, si le résultat n’est pas une erreur, applique l’appel à une liste conservée dans un atome : `TodoWrite` la remplace, `TaskCreate` ajoute la tâche avec l’identifiant issu de son résultat, `TaskUpdate` en modifie ou en supprime une par son `taskId`. Garde cette logique sous forme de fonction pure dans `hooks/tasks.ts`, avec des tests pour chaque outil. Affiche aussi une ligne par sous-agent en cours : crée-la sur `agent.spawn` (tâche, `subagentType`, `result.model`), marque-la active sur ses `tool.call`, termine-la sur son `turn.complete`, et recalcule le texte toutes les quelques secondes pour qu’un sous-agent inactif depuis cinq minutes l’indique. Vérifie chaque champ par rapport aux types de plugin-authoring.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié avec les types 2.1.325. Il est adapté de `hooks/tasks.ts`, `hooks/agents.ts` et `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Les atomes `tasks` et `runs` sont déclarés dans `types/index.d.ts` comme dans le premier guide.
 

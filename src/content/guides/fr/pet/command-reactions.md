@@ -3,7 +3,7 @@ title: Les réactions aux commandes
 description: 'Comment Narsil lit les commandes shell que Claude exécute : elle acclame les tests qui passent, remarque ceux qui échouent et avertit des commandes irréversibles sans jamais les bloquer.'
 route: pet
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -104,11 +104,31 @@ Un hook `tool.call` pourrait refuser l’appel : les types 2.1.325 documentent `
 
 Les réactions passent par `setMood`, le point d’entrée unique du premier guide : l’humeur reste celle de l’outil (« running » pour un shell, « scared » en cas d’échec), et la ligne de commentaire porte l’avertissement ou l’acclamation. La ligne du journal du terminal est écrite avec `$.ui.log`, coupée à la première ligne de la commande et à 120 caractères. L’avertissement est posé avant `next(e)`, si bien qu’il est à l’écran pendant que la commande attend une autorisation ou s’exécute.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un hook `tool.call` qui lit les commandes du shell, avertit avant les commandes irréversibles et réagit aux résultats des tests. L’idée que Claude doit bien saisir : le hook avertit, et ne bloque jamais.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, ajoute un hook `tool.call` qui réagit aux commandes shell. Ignore les appels dont `next.origin.plugin` n’est pas `"engine"`, ainsi que les outils autres que `Bash` et `PowerShell`. Avant d’appeler `next(e)`, compare `e.command` à une liste d’expressions régulières nommées pour les commandes irréversibles (suppression récursive forcée, push forcé mais pas `--force-with-lease`, reset hard, suppression d’une table) ; en cas de correspondance, écris un avertissement avec le nom dans un atome affiché dans la bande `AbovePrompt` et consigne-le avec `$.ui.log`, et ne renvoie jamais `{ deny }`. Après `next(e)`, si la commande correspond à un motif d’exécuteur de tests, affiche « Tests pass » quand `result.isError` est faux, « Tests fail » quand il est vrai, et « Recovered » quand ils passent après un échec. Ajoute des tests avec `claude-code/testing` où l’outil reçoit sa réponse d’un hook, pour que rien ne s’exécute réellement.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le hook ignore les appels dont `next.origin.plugin` n’est pas `"engine"`, ainsi que tout outil autre que `Bash` et `PowerShell`.
+2. L’avertissement est posé avant `next(e)`, pour qu’il soit à l’écran pendant que la commande attend une autorisation ou s’exécute.
+3. Aucun chemin du hook ne renvoie `{ deny }`.
+4. La réussite ou l’échec se lit dans `result.isError`, pas dans la sortie des tests, et un drapeau retient l’échec pour que la réussite suivante dise « Recovered ».
+5. Les tests répondent à l’outil depuis un hook, si bien qu’aucune commande destructrice ne s’exécute vraiment.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « l’avertissement n’apparaît qu’une fois la commande terminée » ou « l’animal reste au travail après qu’un autre mod a appelé un outil ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine de ces réactions n’a pas été consignée. Elles sont arrivées le 2026-10-30, avant les journaux de tâches publics du projet (`odd/tasks/fleet-view.md` commence le 2026-11-06 et ne les mentionne pas).
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` dans narsil-pet :
 
@@ -119,13 +139,9 @@ La demande d’origine de ces réactions n’a pas été consignée. Elles sont 
 
 Les motifs eux-mêmes n’ont pas changé depuis leur écriture : `git log -S` ne les trouve que dans le premier commit et dans le déplacement.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, ajoute un hook `tool.call` qui réagit aux commandes shell. Ignore les appels dont `next.origin.plugin` n’est pas `"engine"`, ainsi que les outils autres que `Bash` et `PowerShell`. Avant d’appeler `next(e)`, compare `e.command` à une liste d’expressions régulières nommées pour les commandes irréversibles (suppression récursive forcée, push forcé mais pas `--force-with-lease`, reset hard, suppression d’une table) ; en cas de correspondance, écris un avertissement avec le nom dans un atome affiché dans la bande `AbovePrompt` et consigne-le avec `$.ui.log`, et ne renvoie jamais `{ deny }`. Après `next(e)`, si la commande correspond à un motif d’exécuteur de tests, affiche « Tests pass » quand `result.isError` est faux, « Tests fail » quand il est vrai, et « Recovered » quand ils passent après un échec. Ajoute des tests avec `claude-code/testing` où l’outil reçoit sa réponse d’un hook, pour que rien ne s’exécute réellement.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`tool.call`, `next.origin`, `$.ui.log`, `ui.render`). Il est adapté de `hooks/register.tsx` et de `hooks/words.ts` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L’atome `line` est déclaré dans `types/index.d.ts` comme dans le premier guide, avec le type `string`.
 

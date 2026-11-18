@@ -3,7 +3,7 @@ title: Le résumé de session
 description: 'Comment Narsil compte ce qu’une conversation a fait (tours, fichiers, commandes, échecs, sous-agents) et continue après un redémarrage de Claude Code, pour /narsil resumen et après une pause.'
 route: pet
 order: 16
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -99,7 +99,27 @@ Le battement (`beat`, toutes les 2 secondes) appelle `tickWatch`, qui affiche le
 
 Il appelle alors `showTip($, await summarize($), 'summary')`. Réutiliser l’affichage du conseil signifie que le résumé obtient gratuitement la fenêtre du conseil, les trois lignes de la bande et la fenêtre flottante. `summarizedFor` le limite à une fois par pause : un nouveau tour définit un nouveau `c.at`, et la pause suivante peut être résumée de nouveau.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude une commande qui résume la conversation à partir de compteurs que le mod tient au fil de la session. L’idée que Claude doit bien saisir : où vivent les compteurs ; dans un atome, pour qu’un rechargement du mod les garde, et dans `$.store` sous une clé par conversation, pour qu’un redémarrage de Claude Code les garde aussi.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, ajoute `/my-pet summary`. Garde un atome `stats` avec `startedAt`, `turns`, `workedMs`, `files` (noms de base distincts, 200 au plus), `commands`, `failures` et `agents`. Compte les tours et leur `durationMs` dans le `turn.complete` de la conversation principale ; les fichiers modifiés à partir des appels `Edit` et `Write` dans `tool.call` ; les appels `Bash` comme commandes ; tout résultat avec `isError` comme échec ; les sous-agents dans `agent.spawn`. Ne modifie l’atome que par une seule fonction qui l’enregistre aussi dans `$.store` sous `stats:` plus `$.session.id()`. Au `session.start`, charge-le depuis le store seulement si l’atome est vide, et valide ce que tu lis. Ne garde que les 20 dernières clés de ce type. La commande affiche une ligne comme « Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure ». Teste avec `claude-code/testing` : une valeur stockée sous la clé de la session est poursuivie, et une 25e ancienne clé est supprimée.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Tous les compteurs sont dans un seul atome, jamais dans une variable de module, et ne changent que par une seule fonction qui les enregistre aussi.
+2. La clé du store est `stats:` suivi de `$.session.id()`, si bien que chaque conversation a ses propres compteurs.
+3. Dans `session.start`, le store n’est lu que si l’atome est vide, et ce qui est lu est vérifié champ par champ avant d’être utilisé.
+4. Les tours ne sont comptés que pour la conversation principale dans `turn.complete`, et un fichier modifié est compté une fois par nom de base.
+5. Seules les 20 clés `stats:` les plus récentes sont conservées.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après avoir redémarré Claude Code et repris cette conversation, le résumé indique 0 tour ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour le résumé de session n’a pas été consignée.
 
@@ -109,7 +129,7 @@ Une demande consignée touche au module dans lequel le résumé est né. `hooks/
 
 Traduction en français : nous supprimerions l’alerte de boucle, je ne l’ai pas trouvée si utile. Le journal de tâches l’enregistre comme S9, et `21e7288` l’a supprimée. Le résumé et le rappel sont restés.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/watch.ts` dans narsil-pet :
 
@@ -123,13 +143,9 @@ Traduction en français : nous supprimerions l’alerte de boucle, je ne l’ai 
 
 La première correction est la plus instructive : un résumé perdu quand Claude Code redémarre ne rapporte qu’une fraction du travail, ce qui est pire que rien.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, ajoute `/my-pet summary`. Garde un atome `stats` avec `startedAt`, `turns`, `workedMs`, `files` (noms de base distincts, 200 au plus), `commands`, `failures` et `agents`. Compte les tours et leur `durationMs` dans le `turn.complete` de la conversation principale ; les fichiers modifiés à partir des appels `Edit` et `Write` dans `tool.call` ; les appels `Bash` comme commandes ; tout résultat avec `isError` comme échec ; les sous-agents dans `agent.spawn`. Ne modifie l’atome que par une seule fonction qui l’enregistre aussi dans `$.store` sous `stats:` plus `$.session.id()`. Au `session.start`, charge-le depuis le store seulement si l’atome est vide, et valide ce que tu lis. Ne garde que les 20 dernières clés de ce type. La commande affiche une ligne comme « Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure ». Teste avec `claude-code/testing` : une valeur stockée sous la clé de la session est poursuivie, et une 25e ancienne clé est supprimée.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`$.session.id`, `$.store.get`, `$.store.set`, `$.clock.now`, `$.command.register`, `command.run`, `session.start`, `tool.call`, `turn.complete`, `agent.spawn`). Il est adapté de `hooks/watch.ts` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L’atome `stats` est déclaré dans `types/index.d.ts` comme `Stats | null`, avec le type ci-dessous. L’élagage à 20 est laissé de côté ; voir `saveStats`.
 

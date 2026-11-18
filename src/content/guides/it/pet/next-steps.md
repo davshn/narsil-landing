@@ -3,7 +3,7 @@ title: Prossimi passi
 description: 'Come Narsil propone fino a tre prossimi passi 15 minuti dopo un turno, dai commit del progetto, dalle modifiche senza commit e dai task in sospeso, e mette nel prompt quello che scegli.'
 route: pet
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -137,15 +137,35 @@ Perché riempire invece di inviare? Un passo viene da un modello piccolo che leg
 
 Quando arrivano i passi, `offerSteps` chiude anche ogni conversazione aperta nell'elenco della fascia (guida 3), così i passi si vedono da soli. Il commento nel render della fascia spiega la regola: "Next steps on offer close every conversation until you open one: then they hide, and come back once you close them all." (i prossimi passi proposti chiudono ogni conversazione finché non ne apri una: allora si nascondono, e tornano quando le chiudi tutte). È arrivato in `250d2c6`, "let next steps stand alone" (lascia che i prossimi passi restino da soli).
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude di proporre i prossimi passi dopo una pausa tranquilla, costruiti dai commit recenti del progetto, dai suoi file senza commit e dai suoi task in sospeso. L'unica idea che deve fare bene è che un passo va nella casella del prompt come bozza e non viene mai inviato: sei tu a decidere.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-pet`, proponi i prossimi passi dopo una pausa tranquilla. In `turn.complete`, per la conversazione principale, registra in un atom quando è finito il turno; svuotalo, insieme agli eventuali passi proposti, in `turn.start`. Su un battito `$.clock.every(2000, ...)`, una volta passati 15 minuti da quel momento e solo una volta per turno, leggi `git log --oneline -10` e `git status --short` con `$.process.run` e le righe `- [ ]` non spuntate di `odd/tasks/*.md` con `$.fs.list` e `$.fs.read`. Chiama `$.model.complete` con `model: 'haiku'` e un prompt di sistema che chieda da una a tre richieste all'imperativo, al massimo 90 caratteri ciascuna, che si possano inviare così come sono, prese da quel contesto, oppure esattamente `SKIP`. Scarta la risposta se nel frattempo è iniziato un nuovo turno. Mostra ogni passo come un `Button` nella fascia `AbovePrompt`; alla pressione, chiama `$.prompt.fill({ text })` e svuota i passi solo quando `isFilled` è true. Testa con un orologio simulato e `on('model.complete', ...)`: niente a 14 minuti, passi a 15, e il passo premuto che arriva a un hook `prompt.fill`.
+
+### Cosa controllare nella risposta di Claude
+
+1. La pausa conta dal momento in cui il turno è finito, e `turn.start` la svuota insieme agli eventuali passi proposti.
+2. Il modello viene interrogato al massimo una volta per turno, anche se il battito gira ogni due secondi.
+3. Dopo la risposta del modello, il codice controlla che nel frattempo non sia iniziato un nuovo turno, e scarta i passi se è successo.
+4. Al modello arrivano solo le righe `- [ ]` non spuntate dei file dei task; le voci spuntate restano fuori.
+5. Premere un passo chiama `$.prompt.fill` e non lo invia mai, e i passi vengono svuotati solo quando `isFilled` è true.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "dopo 15 minuti i passi cambiano ogni due secondi".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per i prossimi passi non è stata registrata. Sono arrivati il 2026-10-30, nello stesso commit dell'orologio della cache, prima dei log pubblici dei task. `docs/plan-advice.md`, il piano per i consigli, non li menziona.
 
-### Registrato: dove vanno
+#### Registrato: dove vanno
 
 Il design concordato per la fascia con ogni conversazione, `odd/tasks/fleet-view.md` in narsil-pet, L4, li colloca: "the tip and next steps of this window below" (il consiglio e i prossimi passi di questa finestra sotto) l'elenco. L4 è il design così come è stato concordato, messo per iscritto nel log, non le parole dell'autore stesso.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/register.tsx hooks/advice.ts`:
 
@@ -157,13 +177,9 @@ Da `git log -- hooks/register.tsx hooks/advice.ts`:
 
 Le correzioni seguono una direzione: da passi che arrivavano troppo presto e dicevano troppo poco, a passi che aspettano una pausa vera e leggono il piano del progetto stesso.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-pet`, proponi i prossimi passi dopo una pausa tranquilla. In `turn.complete`, per la conversazione principale, registra in un atom quando è finito il turno; svuotalo, insieme agli eventuali passi proposti, in `turn.start`. Su un battito `$.clock.every(2000, ...)`, una volta passati 15 minuti da quel momento e solo una volta per turno, leggi `git log --oneline -10` e `git status --short` con `$.process.run` e le righe `- [ ]` non spuntate di `odd/tasks/*.md` con `$.fs.list` e `$.fs.read`. Chiama `$.model.complete` con `model: 'haiku'` e un prompt di sistema che chieda da una a tre richieste all'imperativo, al massimo 90 caratteri ciascuna, che si possano inviare così come sono, prese da quel contesto, oppure esattamente `SKIP`. Scarta la risposta se nel frattempo è iniziato un nuovo turno. Mostra ogni passo come un `Button` nella fascia `AbovePrompt`; alla pressione, chiama `$.prompt.fill({ text })` e svuota i passi solo quando `isFilled` è true. Testa con un orologio simulato e `on('model.complete', ...)`: niente a 14 minuti, passi a 15, e il passo premuto che arriva a un hook `prompt.fill`.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Scritto per questa guida e verificato con i tipi della 2.1.325 (`$.model.complete`, `$.process.run`, `$.fs.list`, `$.fs.read`, `$.prompt.fill` e il suo `isFilled`, `$.clock.every`, `turn.start`, `turn.complete`, `ui.render`). È adattato da `hooks/advice.ts` e `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L'atom `ended` (`number | null`) e l'atom `steps` (`{ at: number; items: string[] } | null`) sono dichiarati in `types/index.d.ts` come nella prima guida.
 

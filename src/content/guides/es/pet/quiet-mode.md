@@ -3,7 +3,7 @@ title: El modo discreto
 description: 'Cómo /narsil discreto silencia a Narsil sin perder los avisos que importan: qué se detiene, qué sigue llegando y por qué la línea se traza en "te necesita".'
 route: pet
 order: 14
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -108,11 +108,31 @@ Leer el código también te dice lo que se queda, y vale la pena saberlo:
 
 Cuando el modo está activado, el comando `/narsil` sin argumentos añade una línea a su informe: "Modo discreto activado: sin voz, sin avisos de fin de turno ni consejos o pasos automáticos."
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude una única preferencia guardada que baje todos los ruidos que hace el mod. La idea que debe acertar es dónde cae la línea: un turno terminado puede esperar, pero una pregunta o un error siguen pasando, sin la voz.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> Mi mod de Claude Code `my-pet` habla, avisa al final de cada turno y muestra consejos. Añade un modo discreto: `/my-pet quiet` y `/my-pet normal` fijan un booleano `isQuiet` en las preferencias, guardado con `$.store.set` y cargado en `session.start`. En la función que envía todos los avisos, que recibe un tipo (`done`, `question`, `error`), vuelve antes de tiempo para `done` en modo discreto salvo que el aviso sea una prueba forzada, y no hables nunca en modo discreto; las preguntas y los errores se siguen mostrando. Omite también los consejos automáticos en modo discreto, pero conserva los consejos que pida la persona. Deja la banda como está. Añade tests con `claude-code/testing`: en modo discreto un turno terminado no genera notificación ni voz, y una llamada a `AskUserQuestion` sigue notificando.
+
+### Qué revisar en la respuesta de Claude
+
+1. `/my-pet quiet` y `/my-pet normal` cambian solo `isQuiet`, y la preferencia se guarda con `$.store.set` y se carga en `session.start`, así que dura entre sesiones.
+2. En la función que envía todos los avisos, un aviso `done` vuelve antes de tiempo en modo discreto salvo que sea la prueba forzada, y una `question` o un `error` se siguen mostrando.
+3. La voz se omite en modo discreto para todos los tipos de aviso.
+4. Los consejos automáticos se omiten en modo discreto, pero un consejo que pide la persona sigue respondiendo.
+5. La banda se dibuja como antes: el modo discreto detiene las interrupciones, no la información.
+
+Si una comprobación falla, dile a Claude lo que ves: "en modo discreto un diálogo de permiso espera y nada me avisa".
+
+### Cómo lo pidió el autor
 
 La petición original del modo discreto no quedó registrada. Los registros de tareas públicos del proyecto no lo cubren.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -S isQuiet -- hooks/register.tsx` en narsil-pet:
 
@@ -121,13 +141,9 @@ A partir de `git log -S isQuiet -- hooks/register.tsx` en narsil-pet:
 
 El modo llegó al final de la primera semana, cuando la voz, los avisos, los consejos y los próximos pasos ya existían. Ese orden encaja con un camino habitual: un mod gana funcionalidades una a una, y solo cuando se acumulan necesita un único interruptor para bajarlas.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> Mi mod de Claude Code `my-pet` habla, avisa al final de cada turno y muestra consejos. Añade un modo discreto: `/my-pet quiet` y `/my-pet normal` fijan un booleano `isQuiet` en las preferencias, guardado con `$.store.set` y cargado en `session.start`. En la función que envía todos los avisos, que recibe un tipo (`done`, `question`, `error`), vuelve antes de tiempo para `done` en modo discreto salvo que el aviso sea una prueba forzada, y no hables nunca en modo discreto; las preguntas y los errores se siguen mostrando. Omite también los consejos automáticos en modo discreto, pero conserva los consejos que pida la persona. Deja la banda como está. Añade tests con `claude-code/testing`: en modo discreto un turno terminado no genera notificación ni voz, y una llamada a `AskUserQuestion` sigue notificando.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Escrito para esta guía y comprobado con los tipos de 2.1.325 (`$.store.get`, `$.store.set`, `$.command.register`, `command.run`, `$.ui.notify`, `session.start`, `turn.complete`, `tool.call`). Está adaptado de `hooks/register.tsx` en [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). El átomo `prefs` se declara en `types/index.d.ts` como `{ isQuiet: boolean }`. La función vacía `speak` es donde va tu propia voz, como la de la guía 6.
 

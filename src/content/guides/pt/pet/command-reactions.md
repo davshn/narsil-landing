@@ -3,7 +3,7 @@ title: Reações aos comandos
 description: 'Como a Narsil lê os comandos de shell que o Claude executa: comemora testes que passam, percebe os que falham e avisa sobre comandos sem volta atrás, sem nunca bloqueá-los.'
 route: pet
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -104,11 +104,31 @@ Um hook `tool.call` poderia recusar a chamada: os tipos da 2.1.325 documentam `{
 
 As reações passam por `setMood`, o ponto de entrada único do primeiro guia: o humor continua sendo o da própria ferramenta ("running" para um shell, "scared" numa falha), e a linha de comentário leva o aviso ou a comemoração. A linha do log do terminal é escrita com `$.ui.log`, cortada na primeira linha do comando e em 120 caracteres. O aviso é definido antes de `next(e)`, então ele está na tela enquanto o comando espera permissão ou é executado.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um hook `tool.call` que leia comandos de shell, avise antes de comandos que não podem ser desfeitos e reaja aos resultados dos testes. A única ideia que o Claude precisa acertar: o hook avisa, e nunca bloqueia.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-pet`, adicione um hook `tool.call` que reaja a comandos de shell. Ignore as chamadas cujo `next.origin.plugin` não seja `"engine"`, e as ferramentas que não sejam `Bash` e `PowerShell`. Antes de chamar `next(e)`, compare `e.command` com uma lista de expressões regulares com nome para comandos que não podem ser desfeitos (apagar à força de forma recursiva, push forçado mas não `--force-with-lease`, reset hard, apagar uma tabela); quando houver correspondência, escreva um aviso com o nome num atom exibido na faixa `AbovePrompt` e registre-o com `$.ui.log`, e nunca devolva `{ deny }`. Depois de `next(e)`, se o comando corresponder a um padrão de executor de testes, mostre "Tests pass" quando `result.isError` for false e "Tests fail" quando for true, e "Recovered" quando passarem depois de uma falha. Adicione testes com `claude-code/testing` em que a ferramenta seja respondida por um hook, para que nada seja executado de verdade.
+
+### O que conferir na resposta do Claude
+
+1. O hook ignora as chamadas cujo `next.origin.plugin` não é `"engine"`, e toda ferramenta que não seja `Bash` e `PowerShell`.
+2. O aviso é definido antes de `next(e)`, então fica na tela enquanto o comando espera permissão ou roda.
+3. Nenhum caminho do hook retorna `{ deny }`.
+4. Passar ou falhar é lido de `result.isError`, não da saída dos testes, e uma flag lembra uma falha para que a próxima aprovação diga "Recovered".
+5. Os testes respondem à ferramenta a partir de um hook, então nenhum comando destrutivo roda de verdade.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "o aviso só aparece depois que o comando terminou", ou "o pet fica em trabalhando depois que outro mod chama uma ferramenta".
+
+### Como a pessoa autora pediu
 
 O pedido original destas reações não foi registrado. Elas chegaram em 2026-10-30, antes dos registros públicos de tarefas do projeto (`odd/tasks/fleet-view.md` começa em 2026-11-06 e não as menciona).
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` no narsil-pet:
 
@@ -119,13 +139,9 @@ A partir de `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` no nar
 
 Os próprios padrões não mudaram desde que foram escritos: `git log -S` os encontra apenas no primeiro commit e na mudança de lugar.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-pet`, adicione um hook `tool.call` que reaja a comandos de shell. Ignore as chamadas cujo `next.origin.plugin` não seja `"engine"`, e as ferramentas que não sejam `Bash` e `PowerShell`. Antes de chamar `next(e)`, compare `e.command` com uma lista de expressões regulares com nome para comandos que não podem ser desfeitos (apagar à força de forma recursiva, push forçado mas não `--force-with-lease`, reset hard, apagar uma tabela); quando houver correspondência, escreva um aviso com o nome num atom exibido na faixa `AbovePrompt` e registre-o com `$.ui.log`, e nunca devolva `{ deny }`. Depois de `next(e)`, se o comando corresponder a um padrão de executor de testes, mostre "Tests pass" quando `result.isError` for false e "Tests fail" quando for true, e "Recovered" quando passarem depois de uma falha. Adicione testes com `claude-code/testing` em que a ferramenta seja respondida por um hook, para que nada seja executado de verdade.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Escrito para este guia e conferido com os tipos da 2.1.325 (`tool.call`, `next.origin`, `$.ui.log`, `ui.render`). Foi adaptado de `hooks/register.tsx` e `hooks/words.ts` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). O atom `line` está declarado em `types/index.d.ts`, como no primeiro guia, com o tipo `string`.
 

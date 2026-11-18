@@ -3,7 +3,7 @@ title: Dibujo y animaciones
 description: 'Cómo se dibuja Narsil: una pose por estado, arte claro y oscuro en un solo SVG, bucles animados hechos con vídeos de IA y el límite de 131072 caracteres de la banda.'
 route: pet
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -110,11 +110,31 @@ La ventana flotante no tiene ese límite, así que muestra una copia más nítid
 
 Un dibujo completo es grande (el código dice "some 100 KB", unos 100 KB), y la banda y la ventana piden el mismo una y otra vez. `sprite` guarda los ocho últimos dibujos en un `Map` cuya clave es el ánimo, la etapa y el hito, y `pushOverlay` en `hooks/register.tsx` envía el SVG a la ventana solo cuando cambió (commit `19106d1` "perf: reuse Narsil's drawing and send it to the window only when it changes", reutilizar el dibujo de Narsil y enviarlo a la ventana solo cuando cambia).
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude una función que construya un único dibujo SVG de tu mascota para la banda, con una imagen clara y otra oscura dentro. La idea que Claude debe acertar: el dibujo entero, con los dos temas incluidos, debe quedarse dentro del límite de la banda de 131072 caracteres.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es uno de los prompts registrados en narsil-pet.
+
+> En mi mod de Claude Code, añade una función `petSvg(status)` que devuelva un documento SVG para el elemento `Svg` de la banda `AbovePrompt`. Debe contener una versión clara y otra oscura de mi personaje (URL de datos de `hooks/art.ts`), mostrar la adecuada con una media query `prefers-color-scheme` dentro del SVG y dar a cada estado una pequeña animación CSS (mecerse mientras trabaja, respirar despacio en reposo, una breve sacudida ante un error). Desactiva las animaciones con `prefers-reduced-motion`. Lanza un error si el documento supera los 131072 caracteres y añade un test que compruebe que todos los estados, en los dos temas, caben. En la terminal, dibuja una cara de texto en su lugar, ya que la terminal no tiene `Svg`.
+
+### Qué revisar en la respuesta de Claude
+
+1. El SVG contiene las dos imágenes, y una media query `prefers-color-scheme` dentro del SVG muestra una de ellas. El mod nunca elige el tema por sí mismo.
+2. El código comprueba la longitud del dibujo terminado frente a 131072 caracteres, y un test lo comprueba para cada estado en los dos temas.
+3. Una regla `prefers-reduced-motion: reduce` desactiva todas las animaciones.
+4. En la terminal (`e.surface === 'terminal'`), la banda dibuja una cara de texto, porque la terminal no tiene `Svg`.
+5. La animación mueve la propia imagen, no una copia deformada puesta encima.
+
+Si una comprobación falla, dile a Claude lo que ves: "en un escritorio oscuro la banda muestra la imagen clara", o "la banda no muestra nada para un estado".
+
+### Cómo lo pidió el autor
 
 Esta historia tiene dos partes. El arte fijo y su movimiento CSS llegaron primero, y sus peticiones no quedaron registradas. Los bucles animados tienen un registro de tareas público, `odd/tasks/animated-poses.md` en narsil-pet, que cita palabra por palabra las peticiones de quien creó Narsil.
 
-### Reconstrucción a partir del historial de commits (arte fijo)
+#### Reconstrucción a partir del historial de commits (arte fijo)
 
 A partir de `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 
@@ -124,7 +144,7 @@ A partir de `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 - `9f9cc75` y `6ac340e` (2026-10-31), las correcciones de la imagen duplicada descritas arriba.
 - `e79c512` (2026-11-09) "feat: make Narsil's body undulate and her rest less mechanical" (hacer que el cuerpo de Narsil ondule y que su reposo sea menos mecánico). Su mensaje describe las franjas que "only meet" (solo se tocan) y dice que en reposo "only starts to snore after a minute" (solo empieza a roncar pasado un minuto).
 
-### La petición registrada de los bucles animados
+#### La petición registrada de los bucles animados
 
 La primera entrada del registro, L1, con fecha 2026-11-15:
 
@@ -141,7 +161,7 @@ Las especificaciones del mismo archivo citan las correcciones que siguieron, y c
 
 El registro también recoge cómo se hicieron los vídeos. Al principio salían de Veo en la app de Gemini, y la cuota se agotó tras dos vídeos (L4). En L8 (2026-11-16), el autor o la autora pidió a Claude que hiciera los vídeos en su navegador y que se detuviera cuando llegara el límite de Veo. En L9 (2026-11-16) preguntó "antes de continuar, no es posible avanzar en los videos usando flow?". Flow tenía sus propios créditos, y su modo Frames, con la imagen de Narsil como primer y último fotograma, daba un bucle cerrado. En L10 (2026-11-16) pidió mejor calidad o más movimiento y después dijo "prioriza la nitidez y luego mas movimiento". El resultado, según registra L10: los 60 bucles hechos en Flow, de 3 segundos a 360p, con prompts que piden un movimiento claro del cuerpo, la cabeza y las aletas mientras el agua permanece en calma, porque el agua agitada le costaba nitidez al bucle de la banda.
 
-### El prompt que recibió el modelo de vídeo
+#### El prompt que recibió el modelo de vídeo
 
 El prompt que se envió al modelo de vídeo también está registrado, porque lo escribe un script. `tools/anim-sources.ps1` prepara, para cada bucle que falta, su imagen sobre verde puro (`#00FF00`) y un archivo de texto con el prompt de `Get-Prompt`. El prompt empieza así:
 
@@ -151,13 +171,9 @@ Es decir: crea un vídeo SILENCIOSO a partir de esta imagen, sin ningún audio, 
 
 Luego `tools/encode-anim.ps1` elimina el verde por croma (`colorkey=0x00FF00`), quita el audio, recorta al personaje y hace una búsqueda binaria sobre la calidad WebP para quedar por debajo del tamaño objetivo. `tools/build-animated.ps1`, al que llama, incrusta el resultado.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es uno de los prompts registrados en narsil-pet.
-
-> En mi mod de Claude Code, añade una función `petSvg(status)` que devuelva un documento SVG para el elemento `Svg` de la banda `AbovePrompt`. Debe contener una versión clara y otra oscura de mi personaje (URL de datos de `hooks/art.ts`), mostrar la adecuada con una media query `prefers-color-scheme` dentro del SVG y dar a cada estado una pequeña animación CSS (mecerse mientras trabaja, respirar despacio en reposo, una breve sacudida ante un error). Desactiva las animaciones con `prefers-reduced-motion`. Lanza un error si el documento supera los 131072 caracteres y añade un test que compruebe que todos los estados, en los dos temas, caben. En la terminal, dibuja una cara de texto en su lugar, ya que la terminal no tiene `Svg`.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Una versión reducida, escrita para esta guía y comprobada con los tipos de 2.1.325. La estructura (dos temas en un SVG, la comprobación de tamaño, la cara de terminal) está adaptada de `hooks/sprite.ts` y `hooks/register.tsx` de [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Los dibujos de Narsil también son GPL v3: si los usas, conserva la atribución y un enlace al repositorio.
 

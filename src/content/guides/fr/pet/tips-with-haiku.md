@@ -3,7 +3,7 @@ title: Les conseils avec Haiku
 description: 'Comment Narsil demande à Haiku un court conseil sur le travail en cours : le contexte envoyé, le prompt exact, la fréquence de ses interventions, le mode approfondi et la fenêtre du conseil.'
 route: pet
 order: 11
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -200,11 +200,31 @@ Le contexte part chez le même fournisseur que celui que la session utilise déj
 
 Le motif de nettoyage du plan est aussi plus étroit que celui du code.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un court conseil d’un petit modèle à la fin d’un tour, construit à partir d’un contexte que vous choisissez champ par champ. L’idée que Claude doit bien saisir : le conseil arrive après coup ; le hook le lance sans l’attendre, et c’est le mod lui-même qui limite sa fréquence.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, donne un court conseil sur le travail quand un tour se termine. Garde un petit contexte dans des variables de module : le dernier prompt depuis `prompt.submit`, les 15 derniers appels d’outils et les fichiers modifiés depuis `tool.call`, et la réponse finale depuis `turn.complete`. Quand un tour de la conversation principale se termine avec `reason === 'answer'`, sans l’attendre, lis `git diff HEAD --stat --patch` avec `$.process.run` (délai de 5 s), construis un contexte de 6 000 caractères au plus, retire tout ce qui ressemble à un secret, et appelle `$.model.complete` avec `model: 'haiku'`, un prompt système qui demande un conseil concret de 300 caractères au plus sur une décision de conception visible dans le diff, pas de vérifications de routine, et la réponse exacte `SKIP` quand il n’y a rien d’utile. Transmets les cinq derniers conseils et demande de ne pas les répéter. Autorise au plus un conseil toutes les 30 minutes et 20 par jour. Affiche le conseil dans la bande `AbovePrompt` avec un bouton « × » pendant 3 minutes. Teste avec `on('model.complete', ...)` qui simule le modèle : le prompt contient le nom du fichier modifié, `SKIP` n’affiche rien, et une valeur `API_KEY=` n’atteint jamais le prompt.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le hook `turn.complete` lance le conseil avec `void … .catch(...)` et rend la main aussitôt ; il n’attend jamais `$.model.complete`.
+2. Le prompt système autorise la réponse exacte `SKIP`, et un `SKIP` ou une réponse vide n’affiche rien.
+3. Chaque partie du contexte a une limite (3 000 caractères de diff, 6 000 en tout), et le contexte entier est nettoyé avant l’envoi, si bien qu’une valeur `API_KEY=` n’atteint jamais le prompt.
+4. Le mod vérifie son propre intervalle et son plafond quotidien (un conseil toutes les 30 minutes, 20 par jour) avant d’appeler le modèle. Rien dans le moteur n’en ajoute.
+5. Les cinq derniers conseils vont dans le prompt, avec la consigne de ne pas les répéter.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « chaque tour se termine maintenant quelques secondes plus tard, et je ne peux pas écrire avant l’arrivée du conseil ».
+
+### Comment l’auteur l’a demandé
 
 Les conseils sont la seule fonctionnalité de Narsil planifiée dans un document public avant que le code ne soit écrit : `docs/plan-advice.md`, ajouté dans `dd7027a` (2026-10-30) « docs: plan tips about the work in progress » (planifier des conseils sur le travail en cours). C’est un plan, pas les mots de l’auteur ou de l’autrice ; la demande qui y a mené n’a pas été consignée.
 
-### Ce que dit le plan
+#### Ce que dit le plan
 
 L’objectif du plan :
 
@@ -220,7 +240,7 @@ Traduction en français : recommandation : des conseils automatiques via `comple
 
 Cette recommandation est ce que fait le code aujourd’hui.
 
-### Consigné : les conseils restent comme ils sont
+#### Consigné : les conseils restent comme ils sont
 
 Quand l’auteur ou l’autrice a repensé la bande pour toutes les conversations, la demande dans `odd/tasks/fleet-view.md`, L1 (2026-11-06), se terminait par :
 
@@ -228,7 +248,7 @@ Quand l’auteur ou l’autrice a repensé la bande pour toutes les conversation
 
 Traduction en français : les conseils continueraient à fonctionner comme maintenant dans chaque fenêtre. Le journal de tâches l’enregistre comme S10, « Tips unchanged » (conseils inchangés), et la conception convenue dans L4 place « the tip and next steps of this window below » (le conseil et les étapes suivantes de cette fenêtre en dessous) la liste.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/advice.ts docs/plan-advice.md overlay/tip.js overlay/tip.ps1 overlay/tip.sh`, avec les commits liés de `hooks/register.tsx` :
 
@@ -244,13 +264,9 @@ Traduction en français : les conseils continueraient à fonctionner comme maint
 
 Le schéma : un plan, une première version fidèle, puis des corrections chaque fois que les conseils se sont révélés trop courts, trop fréquents ou trop génériques.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, donne un court conseil sur le travail quand un tour se termine. Garde un petit contexte dans des variables de module : le dernier prompt depuis `prompt.submit`, les 15 derniers appels d’outils et les fichiers modifiés depuis `tool.call`, et la réponse finale depuis `turn.complete`. Quand un tour de la conversation principale se termine avec `reason === 'answer'`, sans l’attendre, lis `git diff HEAD --stat --patch` avec `$.process.run` (délai de 5 s), construis un contexte de 6 000 caractères au plus, retire tout ce qui ressemble à un secret, et appelle `$.model.complete` avec `model: 'haiku'`, un prompt système qui demande un conseil concret de 300 caractères au plus sur une décision de conception visible dans le diff, pas de vérifications de routine, et la réponse exacte `SKIP` quand il n’y a rien d’utile. Transmets les cinq derniers conseils et demande de ne pas les répéter. Autorise au plus un conseil toutes les 30 minutes et 20 par jour. Affiche le conseil dans la bande `AbovePrompt` avec un bouton « × » pendant 3 minutes. Teste avec `on('model.complete', ...)` qui simule le modèle : le prompt contient le nom du fichier modifié, `SKIP` n’affiche rien, et une valeur `API_KEY=` n’atteint jamais le prompt.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`$.model.complete`, `$.process.run`, `$.clock.now`, `$.ui.log`, `prompt.submit`, `turn.complete`, `ui.render`). Il est adapté de `hooks/advice.ts` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L’atome `tip` est déclaré dans `types/index.d.ts` comme dans le premier guide, avec le type `{ text: string; at: number } | null`.
 

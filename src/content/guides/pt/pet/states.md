@@ -3,7 +3,7 @@ title: Os estados num relance
 description: 'Como a Narsil transforma os eventos da sessão em cinco estados, uma frase sobre o passo atual e um comentário curto, desenhados na faixa acima do prompt.'
 route: pet
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -95,11 +95,31 @@ Todo texto que pode crescer é desenhado com `wrap="truncate-end"` dentro de uma
 
 A faixa que você vê hoje desenha a mais importante de todas as suas conversas abertas, não só a atual; o terceiro guia desta trilha explica essa parte. Quando a conversa mostrada é outra, a frase começa com o nome dessa conversa, e o comentário fica de fora.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um mod que guarde um único valor de estado, o defina a partir dos eventos da sessão e o desenhe na faixa acima do prompt. A única ideia que ele precisa acertar é que só a conversa principal move esse estado: os eventos de um subagente trazem um `agentId`, e os hooks deixam o estado em paz para eles.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt usado para construir a Narsil.
+
+> Crie um mod do Claude Code chamado `my-pet` que mostre o estado da conversa na faixa acima do prompt (`ui.render` em `AbovePrompt`). Guarde um único valor de estado em um atom, com um status (trabalhando, parado, esperando, terminado, erro) e uma frase de uma linha. Defina-o a partir de `turn.start` (trabalhando), `tool.call` (trabalhando, com a ferramenta e o nome base do arquivo na frase; esperando para `AskUserQuestion` e `ExitPlanMode`) e `turn.complete` (terminado em `answer`, parado em `aborted`, erro nos outros casos). Ignore os eventos que tenham `agentId` definido. Desenhe o rótulo em negrito na sua cor e a frase depois dele, truncada para nunca alargar a faixa. Confira cada API com os tipos do plugin-authoring, declare o atom em `types/index.d.ts` e adicione um teste com `claude-code/testing` mostrando que uma chamada a `Read` exibe o nome do arquivo.
+
+### O que conferir na resposta do Claude
+
+1. Todo hook que só observa termina chamando `next(e)`, e `turn.complete` aguarda `next(e)` antes de ler `e.reason`.
+2. `turn.start`, `tool.call` e `turn.complete` conferem `e.agentId` e não mudam nada quando ele está definido.
+3. `AskUserQuestion` e `ExitPlanMode` definem o estado de espera, e `turn.complete` transforma `answer` em terminado, `aborted` em parado e qualquer outro motivo em erro.
+4. A frase é desenhada com `wrap="truncate-end"` dentro de uma caixa com `minWidth={0}`, então um nome de arquivo longo não alarga a faixa.
+5. O hook de desenho retorna `next(e)` quando `e.props.hasSurvey` é verdadeiro.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "a faixa volta para WORKING quando um subagente começa, depois que a resposta já tinha terminado".
+
+### Como a pessoa autora pediu
 
 O pedido original dos estados não foi registrado. Os registros públicos de tarefas do projeto (`odd/tasks/fleet-view.md` e `odd/tasks/animated-poses.md`) começam depois, e nenhum deles trata da primeira faixa.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/register.tsx hooks/words.ts` no narsil-pet:
 
@@ -113,13 +133,9 @@ A partir de `git log -- hooks/register.tsx hooks/words.ts` no narsil-pet:
 
 O padrão fica claro mesmo sem os prompts: uma primeira versão que mapeava eventos para estados e, depois, uma série de correções a cada vez que um estado mentia (um alarme falso, um fim falso, uma pergunta perdida).
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt usado para construir a Narsil.
-
-> Crie um mod do Claude Code chamado `my-pet` que mostre o estado da conversa na faixa acima do prompt (`ui.render` em `AbovePrompt`). Guarde um único valor de estado em um atom, com um status (trabalhando, parado, esperando, terminado, erro) e uma frase de uma linha. Defina-o a partir de `turn.start` (trabalhando), `tool.call` (trabalhando, com a ferramenta e o nome base do arquivo na frase; esperando para `AskUserQuestion` e `ExitPlanMode`) e `turn.complete` (terminado em `answer`, parado em `aborted`, erro nos outros casos). Ignore os eventos que tenham `agentId` definido. Desenhe o rótulo em negrito na sua cor e a frase depois dele, truncada para nunca alargar a faixa. Confira cada API com os tipos do plugin-authoring, declare o atom em `types/index.d.ts` e adicione um teste com `claude-code/testing` mostrando que uma chamada a `Read` exibe o nome do arquivo.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Esta é uma versão reduzida da ideia, escrita para este guia e conferida com os tipos do Claude Code 2.1.325. Ela foi adaptada de `hooks/register.tsx`, `hooks/words.ts` e `hooks/sprite.ts` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later); as cores são as de `STATUS_COLOR` da Narsil.
 
