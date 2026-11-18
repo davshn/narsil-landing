@@ -3,7 +3,7 @@ title: Every conversation in one place
 description: 'How Narsil gathers the state of every open conversation in a local hub, ranks them error first, pages them four at a time and forgets the silent ones after an hour.'
 route: pet
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -92,7 +92,27 @@ What the band shows open, which page it is on and whether the context breakdown 
 - **One hour, not 30 seconds and not forever.** The commit history shows the expiry being tuned twice. `2ce3acb` (2026-11-07) "fix: keep sleeping conversations listed in the hub" explains that the desktop app puts the engine of a conversation you have not opened in a while to sleep, so its heartbeats stop and the hub dropped it after 30 seconds. The fix kept every conversation for as long as the server ran. Then `570961d` (2026-11-10) "fix: forget conversations silent for an hour in the hub" says deleted ones piled up, and settled on an hour: long enough for a sleeping one, short enough that a deleted one goes.
 - **The hub's copy of yourself is replaced.** `fleetOf` and `ownEntry` use this conversation's fresh state, keeping the hub's `changedAt` only while the status holds, so your own row never lags a heartbeat behind.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a small local hub that collects the state of every conversation, and for the mod code that reports to it and reads the list back. The one idea Claude must get right: each conversation runs its own copy of the mod and cannot see the others, so the hub is the only place where they meet.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> My Claude Code mod `my-pet` shows one conversation's state in the `AbovePrompt` band. Make it show every open conversation. Write a small Node.js hub (`hub.cjs`) that listens only on 127.0.0.1, takes `POST /state` and serves `GET /sessions`, both behind a random token the mod keeps in `$.store`, and forgets a conversation one hour after its last report. In the mod, report this conversation's state every two seconds with `$.clock.every` and `$.http.fetch`, read the list back into an atom, and keep the ranking and paging as pure functions in `hooks/fleet.ts`: error, then waiting, then working, then done, then idle, newest change first, four rows a page. Draw the most important conversation's state at the top and the rows below, this conversation first. Add tests for the ranking, the paging and the expiry.
+
+### What to check in Claude's answer
+
+1. The hub listens only on `127.0.0.1`, and both `POST /state` and `GET /sessions` need the token the mod keeps in `$.store`.
+2. The hub forgets a conversation one hour after its last report: not after a few seconds, and not never.
+3. The ranking is error, then waiting, then working, then done, then idle, newest change first, and this conversation's fresh state replaces the hub's copy before ranking.
+4. The rows come four to a page, and the page number stays within range when conversations leave.
+5. A failed `$.http.fetch` is caught and the last list is kept, and the atom is written only when the list changed.
+
+If a check fails, tell Claude what you see: "a conversation I have not opened for a while disappears from the list", or "page 2 is empty after I close two conversations".
+
+### How the author asked for it
 
 This feature has a public task log: `odd/tasks/fleet-view.md` in narsil-pet, entries L1 to L13. It quotes the author's requests word for word.
 
@@ -112,13 +132,9 @@ The corrections that followed, and what they changed:
 
 The one-hour expiry was not part of the log; it came after it, in the two commits described above.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> My Claude Code mod `my-pet` shows one conversation's state in the `AbovePrompt` band. Make it show every open conversation. Write a small Node.js hub (`hub.cjs`) that listens only on 127.0.0.1, takes `POST /state` and serves `GET /sessions`, both behind a random token the mod keeps in `$.store`, and forgets a conversation one hour after its last report. In the mod, report this conversation's state every two seconds with `$.clock.every` and `$.http.fetch`, read the list back into an atom, and keep the ranking and paging as pure functions in `hooks/fleet.ts`: error, then waiting, then working, then done, then idle, newest change first, four rows a page. Draw the most important conversation's state at the top and the rows below, this conversation first. Add tests for the ranking, the paging and the expiry.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide. The ranking and paging are adapted from `hooks/fleet.ts`, and the hub's expiry and order from `overlay/server.cjs`, both in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

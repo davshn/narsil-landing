@@ -3,7 +3,7 @@ title: Tasks and subagents
 description: "How Narsil rebuilds a conversation's task list from TodoWrite, TaskCreate, TaskUpdate and the desktop app's plan, and shows each subagent as a chip with its type, model and time."
 route: pet
 order: 4
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -96,9 +96,29 @@ The colors are in `TONE_COLOR`: grey for running, yellow `#F5B400` for quiet, gr
 
 The two files, `hooks/tasks.ts` and `hooks/agents.ts`, are pure: plain values in, plain values out, no `$`. The hooks module owns the events and the atoms. That split is what lets the tests check every tool shape and every chip text without a session, and lets the same list be drawn by the band, the floating window and another conversation's band.
 
-## How it was asked of the AI
+## Build it with Claude
 
-### Tasks: recorded in the fleet-view log
+Ask Claude for a task list rebuilt from the calls of the task tools, and one chip for each running subagent. The one idea Claude must get right is timing: a task call changes the list only after `next(e)` returned without an error, and a subagent is timed by its own events, not by the `Agent` tool call.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod, show the main conversation's task list in the `AbovePrompt` band. In `tool.call`, for `TodoWrite`, `TaskCreate` and `TaskUpdate` calls with no `agentId`, await `next(e)` and, when the result is not an error, apply the call to a list kept in an atom: `TodoWrite` replaces it, `TaskCreate` adds the task with the id from its result, `TaskUpdate` changes or deletes one by `taskId`. Keep that logic as a pure function in `hooks/tasks.ts` with tests for each tool. Also show one line per running subagent: start it on `agent.spawn` (task, `subagentType`, `result.model`), mark it active on its `tool.call`s, end it on its `turn.complete`, and every few seconds recompute the text so a subagent idle for five minutes says so. Check every field against the plugin-authoring types.
+
+### What to check in Claude's answer
+
+1. The `tool.call` hook awaits `next(e)` before it changes the list, and leaves the list alone when the result is an error or was denied.
+2. Task calls change the list only when `e.agentId` is undefined, so a subagent that calls `TodoWrite` does not replace the main list.
+3. `TaskCreate` takes the task's id from the tool's result, not from its input.
+4. A chip starts on `agent.spawn` and ends on the subagent's own `turn.complete`, not when the `Agent` tool call returns.
+5. The chips are recomputed on a clock, so a subagent idle for five minutes is marked quiet even when no event arrives.
+
+If a check fails, tell Claude what you see: "a background subagent's chip disappears the moment it starts".
+
+### How the author asked for it
+
+#### Tasks: recorded in the fleet-view log
 
 The task list per conversation was asked for in `odd/tasks/fleet-view.md` in narsil-pet. In L2 (excerpt), the author wrote:
 
@@ -122,7 +142,7 @@ In English: the only odd thing is that this session's tasks show as in progress 
 
 L13 records the cause and the fix: "the desktop app's `mcp__ccd_turn__wrap_up` checks the plan off with no last `update_plan`; the mod now marks every pending or in-progress task completed on it (hooks/tasks.ts)", with a failing test observed first. The commit is `5e9ca71` (2026-11-06) "fix: check the plan off when the app's next-step box closes the turn".
 
-### Subagents: reconstruction from the commit history
+#### Subagents: reconstruction from the commit history
 
 The original request for the subagent chips was not recorded. From `git log -- hooks/agents.ts hooks/register.tsx`:
 
@@ -132,13 +152,9 @@ The original request for the subagent chips was not recorded. From `git log -- h
 - `519dd73` (2026-11-06) "fix: wait for background work before announcing a turn finished". Background subagents become ⟳ rows.
 - `49f0fd9` (2026-11-06) "feat: list every open conversation in the band". Its message says that opening a row shows "its context (the word opens what fills it), its tasks and its subagents".
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod, show the main conversation's task list in the `AbovePrompt` band. In `tool.call`, for `TodoWrite`, `TaskCreate` and `TaskUpdate` calls with no `agentId`, await `next(e)` and, when the result is not an error, apply the call to a list kept in an atom: `TodoWrite` replaces it, `TaskCreate` adds the task with the id from its result, `TaskUpdate` changes or deletes one by `taskId`. Keep that logic as a pure function in `hooks/tasks.ts` with tests for each tool. Also show one line per running subagent: start it on `agent.spawn` (task, `subagentType`, `result.model`), mark it active on its `tool.call`s, end it on its `turn.complete`, and every few seconds recompute the text so a subagent idle for five minutes says so. Check every field against the plugin-authoring types.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types. It is adapted from `hooks/tasks.ts`, `hooks/agents.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `tasks` and `runs` atoms are declared in `types/index.d.ts` as in the first guide.
 

@@ -3,7 +3,7 @@ title: Reactions to commands
 description: 'How Narsil reads the shell commands Claude runs: she cheers passing tests, notices failing ones, and warns about commands that cannot be undone without ever blocking them.'
 route: pet
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ A `tool.call` hook could refuse the call: the 2.1.325 types document `{ deny: re
 
 The reactions go through `setMood`, the single entry point of the first guide: the mood stays the tool's own ("running" for a shell, "scared" on a failure), and the comment line carries the warning or the cheer. The terminal log line is written with `$.ui.log`, cut to the first line of the command and 120 characters. The warning is set before `next(e)`, so it is on screen while the command waits for permission or runs.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a `tool.call` hook that reads shell commands, warns before commands that cannot be undone, and reacts to test results. The one idea Claude must get right: the hook warns, and never blocks.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, add a `tool.call` hook that reacts to shell commands. Skip calls whose `next.origin.plugin` is not `"engine"`, and tools other than `Bash` and `PowerShell`. Before calling `next(e)`, match `e.command` against a list of named regular expressions for commands that cannot be undone (recursive force delete, force push but not `--force-with-lease`, hard reset, dropping a table); on a match, write a warning with the name to an atom shown in the `AbovePrompt` band and log it with `$.ui.log`, and never return `{ deny }`. After `next(e)`, if the command matches a test-runner pattern, show "Tests pass" when `result.isError` is false and "Tests fail" when it is true, and "Recovered" when they pass after a failure. Add tests with `claude-code/testing` where the tool is answered by a hook, so nothing really runs.
+
+### What to check in Claude's answer
+
+1. The hook skips calls whose `next.origin.plugin` is not `"engine"`, and every tool other than `Bash` and `PowerShell`.
+2. The warning is set before `next(e)`, so it is on screen while the command waits for permission or runs.
+3. No path of the hook returns `{ deny }`.
+4. Pass or fail is read from `result.isError`, not from the test output, and one flag remembers a failure so the next pass says "Recovered".
+5. The tests answer the tool from a hook, so no destructive command really runs.
+
+If a check fails, tell Claude what you see: "the warning appears only after the command has finished", or "the pet stays on working after another mod calls a tool".
+
+### How the author asked for it
 
 The original request for these reactions was not recorded. They arrived on 2026-10-30, before the project's public task logs (`odd/tasks/fleet-view.md` starts on 2026-11-06 and does not mention them).
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` in narsil-pet:
 
@@ -117,13 +137,9 @@ From `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` in narsil-pet
 
 The patterns themselves have not changed since they were written: `git log -S` finds them only in the first commit and the move.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, add a `tool.call` hook that reacts to shell commands. Skip calls whose `next.origin.plugin` is not `"engine"`, and tools other than `Bash` and `PowerShell`. Before calling `next(e)`, match `e.command` against a list of named regular expressions for commands that cannot be undone (recursive force delete, force push but not `--force-with-lease`, hard reset, dropping a table); on a match, write a warning with the name to an atom shown in the `AbovePrompt` band and log it with `$.ui.log`, and never return `{ deny }`. After `next(e)`, if the command matches a test-runner pattern, show "Tests pass" when `result.isError` is false and "Tests fail" when it is true, and "Recovered" when they pass after a failure. Add tests with `claude-code/testing` where the tool is answered by a hook, so nothing really runs.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`tool.call`, `next.origin`, `$.ui.log`, `ui.render`). It is adapted from `hooks/register.tsx` and `hooks/words.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `line` atom is declared in `types/index.d.ts` as in the first guide, with the type `string`.
 

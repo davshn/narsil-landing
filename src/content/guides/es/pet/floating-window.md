@@ -3,7 +3,7 @@ title: La ventana flotante
 description: 'Cómo Narsil muestra una ventana siempre visible cuando Claude está minimizado o algo te espera, y por qué su servidor local solo escucha en 127.0.0.1 tras una clave de página y un token del mod.'
 route: pet
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -154,11 +154,31 @@ La dirección de loopback es la protección sobre la que descansan las otras tre
 
 Los nombres de las carpetas del proyecto, las listas de tareas y trozos de las respuestas de Claude son justo lo que no querrías que leyera quien comparte la Wi-Fi de tu cafetería. El token seguiría protegiendo `/state` y `/sessions`, pero el flujo por sí solo revela casi todo el mismo contenido. Así que la regla es sencilla: el hub escucha en `127.0.0.1` y en ningún otro sitio.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un pequeño servidor local que el mod arranque, y una página que muestre el estado en una ventana propia. La idea que debe acertar es que el servidor escucha solo en `127.0.0.1` y comprueba quién le habla en cada petición.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> Mi mod de Claude Code `my-pet` muestra el estado de Claude en la banda. Añade una ventana flotante para cuando Claude esté minimizado. Escribe un servidor de Node.js, `overlay/hub.cjs`, que escuche solo en 127.0.0.1, rechace cualquier cabecera `Host` distinta de `127.0.0.1:<port>` y `localhost:<port>`, sirva una página HTML con una clave aleatoria escrita en ella, transmita el estado a esa página con server-sent events en `/events` y acepte `POST /state` solo con un token que el mod crea con `crypto.randomUUID()`, guarda en `$.store` y pasa en una variable de entorno cuando arranca el servidor separado con `$.process.run`. Las acciones propias de la página deben llevar su clave. No escuches nunca en ninguna otra dirección. Añade un test de Node que compruebe que un `Host` incorrecto, un token que falta y una clave que falta se rechazan cada uno con 403, y que una línea de petición como `GET // HTTP/1.1` no tumba el servidor.
+
+### Qué revisar en la respuesta de Claude
+
+1. El servidor llama a `listen` con `'127.0.0.1'` como host, nunca solo con el puerto.
+2. Cualquier petición cuya cabecera `Host` no sea `127.0.0.1:<port>` ni `localhost:<port>` se rechaza con `403`.
+3. El token del mod nunca aparece en la página. La página recibe su propia clave aleatoria, nueva cada vez que arranca el servidor, y la devuelve con cada una de sus acciones.
+4. El análisis que puede lanzar un error, como `new URL()`, está protegido, así que una línea de petición como `GET // HTTP/1.1` recibe respuesta y el servidor sigue en marcha.
+5. El servidor se arranca separado, así que `$.process.run` no espera a que termine.
+
+Si una comprobación falla, dile a Claude lo que ves: "el hook que arranca el servidor espera hasta agotar el tiempo, y mientras tanto la banda deja de actualizarse".
+
+### Cómo lo pidió el autor
 
 La petición original de la ventana flotante no quedó registrada. Llega en el commit `6f8f938` (2026-10-30) "feat(overlay): add floating window, Spanish voice and Windows toasts" (añadir la ventana flotante, la voz en español y las notificaciones de Windows), junto con la voz y las notificaciones de la siguiente guía, antes de que existiera ningún registro de tareas público.
 
-### Peticiones posteriores, registradas en los registros de tareas
+#### Peticiones posteriores, registradas en los registros de tareas
 
 La ventana cambió de forma con la vista de todas las conversaciones, cuyo registro es `odd/tasks/fleet-view.md` en narsil-pet. L1 (2026-11-06) empieza con:
 
@@ -178,7 +198,7 @@ Los bucles nítidos vinieron de `odd/tasks/animated-poses.md`, L6 (2026-11-15):
 
 El registro recoge la aprobación, "Sí, hazla", y su especificación S7 dice que la ventana no tiene límite de tamaño, así que el servidor local sirve una copia más nítida de cada bucle. Esa es la ruta `/anim/`.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 El resto, a partir de `git log -- overlay/server.cjs overlay/overlay.html overlay/watch.ps1 overlay/mac-claude.js overlay/start.sh`:
 
@@ -195,13 +215,9 @@ El resto, a partir de `git log -- overlay/server.cjs overlay/overlay.html overla
 
 El patrón: primero llegó la ventana, después su comportamiento en cada sistema, después su seguridad, y una corrección tardía encontrada al enviar al servidor una petición que ningún navegador enviaría.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> Mi mod de Claude Code `my-pet` muestra el estado de Claude en la banda. Añade una ventana flotante para cuando Claude esté minimizado. Escribe un servidor de Node.js, `overlay/hub.cjs`, que escuche solo en 127.0.0.1, rechace cualquier cabecera `Host` distinta de `127.0.0.1:<port>` y `localhost:<port>`, sirva una página HTML con una clave aleatoria escrita en ella, transmita el estado a esa página con server-sent events en `/events` y acepte `POST /state` solo con un token que el mod crea con `crypto.randomUUID()`, guarda en `$.store` y pasa en una variable de entorno cuando arranca el servidor separado con `$.process.run`. Las acciones propias de la página deben llevar su clave. No escuches nunca en ninguna otra dirección. Añade un test de Node que compruebe que un `Host` incorrecto, un token que falta y una clave que falta se rechazan cada uno con 403, y que una línea de petición como `GET // HTTP/1.1` no tumba el servidor.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Un hub reducido, escrito para esta guía y adaptado de `overlay/server.cjs` y `hooks/register.tsx` en [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). El servidor es Node.js normal, no código de mod. Mostrar y ocultar la ventana queda fuera: esa parte depende del sistema, como muestran los vigilantes de arriba.
 

@@ -3,7 +3,7 @@ title: Les états d’un coup d’œil
 description: 'Comment Narsil transforme les événements de la session en cinq états, une phrase sur l’étape en cours et un court commentaire, dessinés dans la bande au-dessus du prompt.'
 route: pet
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -95,11 +95,31 @@ Tout texte susceptible de s’allonger est dessiné avec `wrap="truncate-end"` d
 
 La bande que vous voyez aujourd’hui dessine la plus importante de toutes vos conversations ouvertes, et pas seulement la conversation en cours ; le troisième guide de ce parcours explique cette partie. Quand la conversation affichée est une autre, la phrase commence par le nom de cette conversation, et le commentaire est omis.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un mod qui garde une seule valeur d’état, la fixe à partir des événements de la session et la dessine dans la bande au-dessus du prompt. L’idée que Claude doit bien saisir : seule la conversation principale fait bouger cet état ; les événements d’un sous-agent portent un `agentId`, et les hooks laissent alors l’état tel quel.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt utilisé pour construire Narsil.
+
+> Construis un mod Claude Code appelé `my-pet` qui affiche l’état de la conversation dans la bande au-dessus du prompt (`ui.render` sur `AbovePrompt`). Conserve une seule valeur d’état dans un atome, avec un statut (au travail, à l’arrêt, en attente, terminé, erreur) et une phrase d’une ligne. Définis-la à partir de `turn.start` (au travail), de `tool.call` (au travail, avec l’outil et le nom de base du fichier dans la phrase ; en attente pour `AskUserQuestion` et `ExitPlanMode`) et de `turn.complete` (terminé sur `answer`, à l’arrêt sur `aborted`, erreur sinon). Ignore les événements dont `agentId` est défini. Dessine le libellé en gras dans sa couleur et la phrase après lui, tronquée pour qu’elle n’élargisse jamais la bande. Vérifie chaque API par rapport aux types de plugin-authoring, déclare l’atome dans `types/index.d.ts` et ajoute un test avec `claude-code/testing` qui vérifie qu’un appel `Read` affiche le nom du fichier.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Chaque hook qui se contente d’observer se termine en appelant `next(e)`, et `turn.complete` attend `next(e)` avant de lire `e.reason`.
+2. `turn.start`, `tool.call` et `turn.complete` vérifient `e.agentId` et ne changent rien quand il est défini.
+3. `AskUserQuestion` et `ExitPlanMode` mettent l’état en attente, et `turn.complete` transforme `answer` en terminé, `aborted` en arrêt et toute autre raison en erreur.
+4. Le titre est dessiné avec `wrap="truncate-end"` dans une boîte avec `minWidth={0}`, si bien qu’un long nom de fichier n’élargit pas la bande.
+5. Le hook de rendu renvoie `next(e)` quand `e.props.hasSurvey` vaut true.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la bande repasse au travail quand un sous-agent démarre, alors que la réponse était déjà terminée ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine pour les états n’a pas été conservée. Les journaux de tâches publics du projet (`odd/tasks/fleet-view.md` et `odd/tasks/animated-poses.md`) commencent plus tard, et aucun des deux ne couvre la première bande.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 D’après `git log -- hooks/register.tsx hooks/words.ts` dans narsil-pet :
 
@@ -113,13 +133,9 @@ D’après `git log -- hooks/register.tsx hooks/words.ts` dans narsil-pet :
 
 Le schéma est clair même sans les prompts : une première version qui associait des événements à des états, puis une série de corrections chaque fois qu’un état mentait (une fausse alerte, une fausse fin, une question manquée).
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt utilisé pour construire Narsil.
-
-> Construis un mod Claude Code appelé `my-pet` qui affiche l’état de la conversation dans la bande au-dessus du prompt (`ui.render` sur `AbovePrompt`). Conserve une seule valeur d’état dans un atome, avec un statut (au travail, à l’arrêt, en attente, terminé, erreur) et une phrase d’une ligne. Définis-la à partir de `turn.start` (au travail), de `tool.call` (au travail, avec l’outil et le nom de base du fichier dans la phrase ; en attente pour `AskUserQuestion` et `ExitPlanMode`) et de `turn.complete` (terminé sur `answer`, à l’arrêt sur `aborted`, erreur sinon). Ignore les événements dont `agentId` est défini. Dessine le libellé en gras dans sa couleur et la phrase après lui, tronquée pour qu’elle n’élargisse jamais la bande. Vérifie chaque API par rapport aux types de plugin-authoring, déclare l’atome dans `types/index.d.ts` et ajoute un test avec `claude-code/testing` qui vérifie qu’un appel `Read` affiche le nom du fichier.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Voici une version réduite de l’idée, écrite pour ce guide et vérifiée avec les types de Claude Code 2.1.325. Elle est adaptée de `hooks/register.tsx`, `hooks/words.ts` et `hooks/sprite.ts` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later) ; les couleurs sont celles de `STATUS_COLOR` de Narsil.
 

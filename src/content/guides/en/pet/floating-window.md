@@ -3,7 +3,7 @@ title: The floating window
 description: 'How Narsil shows an always-on-top window when Claude is minimized or something waits for you, and why its local server listens only on 127.0.0.1 behind a page key and a mod token.'
 route: pet
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -154,11 +154,31 @@ The loopback address is the protection that the other three rest on. The page ke
 
 The project's folder names, task lists and pieces of Claude's answers are exactly what you would not want read by whoever shares your café's Wi-Fi. The token would still guard `/state` and `/sessions`, but the stream alone gives away most of the same content. So the rule is simple: the hub listens on `127.0.0.1` and nowhere else.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a small local server that the mod starts, and a page that shows the state in a window of its own. The one idea it must get right is that the server listens only on `127.0.0.1` and checks who is talking to it on every request.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> My Claude Code mod `my-pet` shows Claude's state in the band. Add a floating window for when Claude is minimized. Write a Node.js server, `overlay/hub.cjs`, that listens only on 127.0.0.1, refuses any `Host` header other than `127.0.0.1:<port>` and `localhost:<port>`, serves one HTML page with a random key written into it, streams the state to that page with server-sent events at `/events`, and accepts `POST /state` only with a token the mod creates with `crypto.randomUUID()`, keeps in `$.store` and passes in an environment variable when it starts the server detached with `$.process.run`. The page's own actions must carry its key. Never listen on any other address. Add a Node test that checks a wrong `Host`, a missing token and a missing key are each refused with 403, and that a request line like `GET // HTTP/1.1` does not crash the server.
+
+### What to check in Claude's answer
+
+1. The server calls `listen` with `'127.0.0.1'` as the host, never with the port alone.
+2. Any request whose `Host` header is not `127.0.0.1:<port>` or `localhost:<port>` is refused with `403`.
+3. The mod's token never appears in the page. The page gets its own random key, new each time the server starts, and sends it back with each of its actions.
+4. Parsing that can throw, such as `new URL()`, is wrapped, so a request line like `GET // HTTP/1.1` gets an answer and the server keeps running.
+5. The server is started detached, so `$.process.run` does not wait for it to end.
+
+If a check fails, tell Claude what you see: "the hook that starts the server waits until it times out, and the band stops updating meanwhile".
+
+### How the author asked for it
 
 The original request for the floating window was not recorded. It arrives in the commit `6f8f938` (2026-10-30) "feat(overlay): add floating window, Spanish voice and Windows toasts", together with the voice and the notifications of the next guide, before any public task log existed.
 
-### Later requests, recorded in the task logs
+#### Later requests, recorded in the task logs
 
 The window was reshaped by the fleet view, whose log is `odd/tasks/fleet-view.md` in narsil-pet. L1 (2026-11-06) opens with:
 
@@ -178,7 +198,7 @@ The sharp loops came from `odd/tasks/animated-poses.md`, L6 (2026-11-15):
 
 In English: can the external window show the video uncropped, so it looks sharper? The log records the approval, "Sí, hazla" ("Yes, do it"), and its spec S7 says the window has no size limit, so the local server serves a sharper copy of each loop. That is the `/anim/` route.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 The rest, from `git log -- overlay/server.cjs overlay/overlay.html overlay/watch.ps1 overlay/mac-claude.js overlay/start.sh`:
 
@@ -195,13 +215,9 @@ The rest, from `git log -- overlay/server.cjs overlay/overlay.html overlay/watch
 
 The pattern: the window came first, then its behavior on each system, then its security, and a late fix found by sending the server a request no browser would send.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> My Claude Code mod `my-pet` shows Claude's state in the band. Add a floating window for when Claude is minimized. Write a Node.js server, `overlay/hub.cjs`, that listens only on 127.0.0.1, refuses any `Host` header other than `127.0.0.1:<port>` and `localhost:<port>`, serves one HTML page with a random key written into it, streams the state to that page with server-sent events at `/events`, and accepts `POST /state` only with a token the mod creates with `crypto.randomUUID()`, keeps in `$.store` and passes in an environment variable when it starts the server detached with `$.process.run`. The page's own actions must carry its key. Never listen on any other address. Add a Node test that checks a wrong `Host`, a missing token and a missing key are each refused with 403, and that a request line like `GET // HTTP/1.1` does not crash the server.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A reduced hub, written for this guide and adapted from `overlay/server.cjs` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The server is plain Node.js, not mod code. Showing and hiding the window is left out: that part depends on the system, as the keepers above show.
 

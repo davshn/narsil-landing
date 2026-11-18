@@ -3,7 +3,7 @@ title: Todas las conversaciones en un solo lugar
 description: 'Cómo Narsil reúne el estado de cada conversación abierta en un hub local, las ordena con el error primero, las pagina de cuatro en cuatro y olvida las silenciosas al cabo de una hora.'
 route: pet
 order: 3
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -92,7 +92,27 @@ Qué muestra abierto la banda, en qué página está y si se ve el desglose del 
 - **Una hora, ni 30 segundos ni para siempre.** El historial de commits muestra que la caducidad se ajustó dos veces. `2ce3acb` (2026-11-07) "fix: keep sleeping conversations listed in the hub" (mantener en la lista del hub las conversaciones dormidas) explica que la app de escritorio pone a dormir el motor de una conversación que no has abierto desde hace un rato, así que sus latidos se detienen y el hub la eliminaba a los 30 segundos. La corrección mantuvo cada conversación mientras el servidor siguiera en marcha. Después `570961d` (2026-11-10) "fix: forget conversations silent for an hour in the hub" (olvidar en el hub las conversaciones silenciosas durante una hora) dice que las eliminadas se acumulaban, y se quedó en una hora: suficiente para una dormida, lo bastante corta para que una eliminada se vaya.
 - **La copia que el hub tiene de ti se sustituye.** `fleetOf` y `ownEntry` usan el estado recién calculado de esta conversación, y conservan el `changedAt` del hub solo mientras el estado se mantiene, así que tu propia fila nunca va un latido por detrás.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un pequeño hub local que reúna el estado de todas las conversaciones, y el código del mod que le informa y lee la lista de vuelta. La idea que Claude debe acertar: cada conversación ejecuta su propia copia del mod y no puede ver las demás, así que el hub es el único lugar donde se encuentran.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> Mi mod de Claude Code `my-pet` muestra el estado de una conversación en la banda `AbovePrompt`. Haz que muestre todas las conversaciones abiertas. Escribe un pequeño hub de Node.js (`hub.cjs`) que escuche solo en 127.0.0.1, reciba `POST /state` y sirva `GET /sessions`, los dos protegidos por un token aleatorio que el mod guarda en `$.store`, y que olvide una conversación una hora después de su último informe. En el mod, informa del estado de esta conversación cada dos segundos con `$.clock.every` y `$.http.fetch`, lee la lista de vuelta en un átomo y deja el orden y la paginación como funciones puras en `hooks/fleet.ts`: error, después esperando, después trabajando, después terminado, después en reposo, el cambio más reciente primero, cuatro filas por página. Dibuja arriba el estado de la conversación más importante y las filas debajo, con esta conversación primero. Añade tests para el orden, la paginación y la caducidad.
+
+### Qué revisar en la respuesta de Claude
+
+1. El hub escucha solo en `127.0.0.1`, y tanto `POST /state` como `GET /sessions` necesitan el token que el mod guarda en `$.store`.
+2. El hub olvida una conversación una hora después de su último informe: no a los pocos segundos, y no nunca.
+3. El orden es error, después esperando, después trabajando, después terminado, después en reposo, el cambio más reciente primero, y el estado reciente de esta conversación sustituye a la copia del hub antes de ordenar.
+4. Las filas van de cuatro en cuatro por página, y el número de página se mantiene dentro del rango cuando se van conversaciones.
+5. Un `$.http.fetch` fallido se captura y se conserva la última lista, y el átomo se escribe solo cuando la lista cambió.
+
+Si una comprobación falla, dile a Claude lo que ves: "una conversación que llevo un rato sin abrir desaparece de la lista", o "la página 2 queda vacía después de cerrar dos conversaciones".
+
+### Cómo lo pidió el autor
 
 Esta funcionalidad tiene un registro de tareas público: `odd/tasks/fleet-view.md` en narsil-pet, entradas L1 a L13. Cita palabra por palabra las peticiones de quien creó Narsil.
 
@@ -112,13 +132,9 @@ Las correcciones que siguieron, y lo que cambiaron:
 
 La caducidad de una hora no formaba parte del registro; llegó después, en los dos commits descritos arriba.
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> Mi mod de Claude Code `my-pet` muestra el estado de una conversación en la banda `AbovePrompt`. Haz que muestre todas las conversaciones abiertas. Escribe un pequeño hub de Node.js (`hub.cjs`) que escuche solo en 127.0.0.1, reciba `POST /state` y sirva `GET /sessions`, los dos protegidos por un token aleatorio que el mod guarda en `$.store`, y que olvide una conversación una hora después de su último informe. En el mod, informa del estado de esta conversación cada dos segundos con `$.clock.every` y `$.http.fetch`, lee la lista de vuelta en un átomo y deja el orden y la paginación como funciones puras en `hooks/fleet.ts`: error, después esperando, después trabajando, después terminado, después en reposo, el cambio más reciente primero, cuatro filas por página. Dibuja arriba el estado de la conversación más importante y las filas debajo, con esta conversación primero. Añade tests para el orden, la paginación y la caducidad.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Escrito para esta guía. El orden y la paginación están adaptados de `hooks/fleet.ts`, y la caducidad y el orden del hub de `overlay/server.cjs`, ambos de [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

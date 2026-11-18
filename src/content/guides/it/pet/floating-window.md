@@ -3,7 +3,7 @@ title: La finestra mobile
 description: 'Come Narsil mostra una finestra sempre in primo piano quando Claude è ridotto a icona o qualcosa ti aspetta, e perché il suo server ascolta solo su 127.0.0.1 con chiave di pagina e token della mod.'
 route: pet
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -154,11 +154,31 @@ L'indirizzo di loopback è la protezione su cui poggiano le altre tre. La chiave
 
 I nomi delle cartelle del progetto, gli elenchi dei task e i pezzi delle risposte di Claude sono esattamente ciò che non vorresti fosse letto da chi condivide il Wi-Fi del tuo bar. Il token proteggerebbe ancora `/state` e `/sessions`, ma il solo flusso rivela gran parte dello stesso contenuto. Quindi la regola è semplice: l'hub ascolta su `127.0.0.1` e da nessun'altra parte.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un piccolo server locale che la mod avvia, e una pagina che mostri lo stato in una finestra propria. L'unica idea che deve fare bene è che il server ascolta solo su `127.0.0.1` e controlla chi gli sta parlando a ogni richiesta.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> La mia mod di Claude Code `my-pet` mostra lo stato di Claude nella fascia. Aggiungi una finestra mobile per quando Claude è ridotto a icona. Scrivi un server Node.js, `overlay/hub.cjs`, che ascolti solo su 127.0.0.1, rifiuti qualsiasi header `Host` diverso da `127.0.0.1:<port>` e `localhost:<port>`, serva una pagina HTML con una chiave casuale scritta dentro, trasmetta lo stato a quella pagina con i server-sent events su `/events`, e accetti `POST /state` solo con un token che la mod crea con `crypto.randomUUID()`, conserva in `$.store` e passa in una variabile d'ambiente quando avvia il server staccato con `$.process.run`. Le azioni della pagina stessa devono portare la sua chiave. Non ascoltare mai su nessun altro indirizzo. Aggiungi un test Node che verifichi che un `Host` sbagliato, un token mancante e una chiave mancante vengano ciascuno rifiutati con 403, e che una riga di richiesta come `GET // HTTP/1.1` non faccia cadere il server.
+
+### Cosa controllare nella risposta di Claude
+
+1. Il server chiama `listen` con `'127.0.0.1'` come host, mai con la sola porta.
+2. Ogni richiesta il cui header `Host` non è `127.0.0.1:<port>` o `localhost:<port>` viene rifiutata con `403`.
+3. Il token della mod non compare mai nella pagina. La pagina riceve una propria chiave casuale, nuova a ogni avvio del server, e la rimanda con ognuna delle sue azioni.
+4. Il parsing che può lanciare un'eccezione, come `new URL()`, è protetto, così una riga di richiesta come `GET // HTTP/1.1` riceve una risposta e il server continua a funzionare.
+5. Il server viene avviato in modo distaccato, così `$.process.run` non aspetta che finisca.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "l'hook che avvia il server aspetta fino al timeout, e intanto la fascia smette di aggiornarsi".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per la finestra mobile non è stata registrata. Arriva nel commit `6f8f938` (2026-10-30) "feat(overlay): add floating window, Spanish voice and Windows toasts" (aggiunge la finestra mobile, la voce in spagnolo e i toast di Windows), insieme alla voce e alle notifiche della prossima guida, prima che esistesse qualsiasi log pubblico dei task.
 
-### Richieste successive, registrate nei log dei task
+#### Richieste successive, registrate nei log dei task
 
 La finestra è stata rimodellata dalla vista di tutte le conversazioni, il cui log è `odd/tasks/fleet-view.md` in narsil-pet. L1 (2026-11-06) si apre con:
 
@@ -178,7 +198,7 @@ I loop nitidi vengono da `odd/tasks/animated-poses.md`, L6 (2026-11-15):
 
 In italiano: nella finestra esterna si può mostrare il video senza ritagliarlo, così si vede più nitido? Il log registra l'approvazione, "Sí, hazla" ("Sì, falla"), e la sua spec S7 dice che la finestra non ha limiti di dimensione, quindi il server locale serve una copia più nitida di ogni loop. Questa è la rotta `/anim/`.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Il resto, da `git log -- overlay/server.cjs overlay/overlay.html overlay/watch.ps1 overlay/mac-claude.js overlay/start.sh`:
 
@@ -195,13 +215,9 @@ Il resto, da `git log -- overlay/server.cjs overlay/overlay.html overlay/watch.p
 
 Lo schema: prima è arrivata la finestra, poi il suo comportamento su ogni sistema, poi la sua sicurezza, e una correzione tardiva trovata inviando al server una richiesta che nessun browser invierebbe.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> La mia mod di Claude Code `my-pet` mostra lo stato di Claude nella fascia. Aggiungi una finestra mobile per quando Claude è ridotto a icona. Scrivi un server Node.js, `overlay/hub.cjs`, che ascolti solo su 127.0.0.1, rifiuti qualsiasi header `Host` diverso da `127.0.0.1:<port>` e `localhost:<port>`, serva una pagina HTML con una chiave casuale scritta dentro, trasmetta lo stato a quella pagina con i server-sent events su `/events`, e accetti `POST /state` solo con un token che la mod crea con `crypto.randomUUID()`, conserva in `$.store` e passa in una variabile d'ambiente quando avvia il server staccato con `$.process.run`. Le azioni della pagina stessa devono portare la sua chiave. Non ascoltare mai su nessun altro indirizzo. Aggiungi un test Node che verifichi che un `Host` sbagliato, un token mancante e una chiave mancante vengano ciascuno rifiutati con 403, e che una riga di richiesta come `GET // HTTP/1.1` non faccia cadere il server.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Un hub ridotto, scritto per questa guida e adattato da `overlay/server.cjs` e `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Il server è semplice Node.js, non codice della mod. Mostrare e nascondere la finestra è lasciato fuori: quella parte dipende dal sistema, come mostrano i custodi descritti sopra.
 

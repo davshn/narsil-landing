@@ -3,7 +3,7 @@ title: Les étapes suivantes
 description: 'Comment Narsil propose jusqu’à trois étapes 15 minutes après un tour, d’après les commits, les changements non commités et les tâches en attente du projet, et met celle choisie dans le prompt.'
 route: pet
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -137,15 +137,35 @@ Pourquoi remplir plutôt qu’envoyer ? Une étape vient d’un petit modèle qu
 
 Quand des étapes arrivent, `offerSteps` ferme aussi toutes les conversations ouvertes dans la liste de la bande (guide 3), pour que les étapes soient vues seules. Le commentaire dans le rendu de la bande explique la règle : « Next steps on offer close every conversation until you open one: then they hide, and come back once you close them all. » (les étapes suivantes proposées ferment toutes les conversations jusqu’à ce que vous en ouvriez une : elles se cachent alors, et reviennent une fois que vous les avez toutes fermées). C’est arrivé dans `250d2c6`, « let next steps stand alone » (laisser les étapes suivantes seules).
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude de proposer des prochaines étapes après une pause calme, à partir des commits récents du projet, de ses fichiers sans commit et de ses tâches en attente. L’idée que Claude doit bien saisir : une étape va dans la zone du prompt comme brouillon et n’est jamais envoyée ; c’est vous qui décidez.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, propose des étapes suivantes après une pause calme. Dans `turn.complete`, pour la conversation principale, enregistre dans un atome le moment où le tour s’est terminé ; efface-le, ainsi que toute étape proposée, dans `turn.start`. Sur un battement `$.clock.every(2000, ...)`, une fois que 15 minutes sont passées depuis ce moment et une seule fois par tour, lis `git log --oneline -10` et `git status --short` avec `$.process.run`, et les lignes `- [ ]` non cochées de `odd/tasks/*.md` avec `$.fs.list` et `$.fs.read`. Appelle `$.model.complete` avec `model: 'haiku'` et un prompt système qui demande d’une à trois demandes à l’impératif, de 90 caractères au plus chacune, qui peuvent être envoyées telles quelles, tirées de ce contexte, ou exactement `SKIP`. Abandonne la réponse si un nouveau tour a commencé entre-temps. Affiche chaque étape comme un `Button` dans la bande `AbovePrompt` ; à l’appui, appelle `$.prompt.fill({ text })` et efface les étapes uniquement quand `isFilled` est vrai. Teste avec une horloge simulée et `on('model.complete', ...)` : rien à 14 minutes, des étapes à 15, et l’étape pressée qui atteint un hook `prompt.fill`.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. La pause compte à partir de la fin du tour, et `turn.start` l’efface ainsi que les étapes proposées.
+2. Le modèle est interrogé au plus une fois par tour, même si le battement tourne toutes les deux secondes.
+3. Après la réponse du modèle, le code vérifie qu’aucun nouveau tour n’a commencé entre-temps, et abandonne les étapes si c’est le cas.
+4. Seules les lignes non cochées `- [ ]` des fichiers de tâches parviennent au modèle ; les éléments cochés restent dehors.
+5. Appuyer sur une étape appelle `$.prompt.fill` et ne l’envoie jamais, et les étapes ne sont effacées que lorsque `isFilled` vaut true.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « après 15 minutes, les étapes changent toutes les deux secondes ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine des étapes suivantes n’a pas été consignée. Elles sont arrivées le 2026-10-30, dans le même commit que l’horloge du cache, avant les journaux de tâches publics. `docs/plan-advice.md`, le plan des conseils, ne les mentionne pas.
 
-### Consigné : où elles vont
+#### Consigné : où elles vont
 
 La conception convenue pour la bande avec toutes les conversations, `odd/tasks/fleet-view.md` dans narsil-pet, L4, les place : « the tip and next steps of this window below » (le conseil et les étapes suivantes de cette fenêtre en dessous) la liste. L4 est la conception telle qu’elle a été convenue, écrite dans le journal, et non les propres mots de l’auteur ou de l’autrice.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/register.tsx hooks/advice.ts` :
 
@@ -157,13 +177,9 @@ La conception convenue pour la bande avec toutes les conversations, `odd/tasks/f
 
 Les corrections vont dans un même sens : d’étapes qui venaient trop tôt et disaient trop peu, à des étapes qui attendent une vraie pause et lisent le propre plan du projet.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, propose des étapes suivantes après une pause calme. Dans `turn.complete`, pour la conversation principale, enregistre dans un atome le moment où le tour s’est terminé ; efface-le, ainsi que toute étape proposée, dans `turn.start`. Sur un battement `$.clock.every(2000, ...)`, une fois que 15 minutes sont passées depuis ce moment et une seule fois par tour, lis `git log --oneline -10` et `git status --short` avec `$.process.run`, et les lignes `- [ ]` non cochées de `odd/tasks/*.md` avec `$.fs.list` et `$.fs.read`. Appelle `$.model.complete` avec `model: 'haiku'` et un prompt système qui demande d’une à trois demandes à l’impératif, de 90 caractères au plus chacune, qui peuvent être envoyées telles quelles, tirées de ce contexte, ou exactement `SKIP`. Abandonne la réponse si un nouveau tour a commencé entre-temps. Affiche chaque étape comme un `Button` dans la bande `AbovePrompt` ; à l’appui, appelle `$.prompt.fill({ text })` et efface les étapes uniquement quand `isFilled` est vrai. Teste avec une horloge simulée et `on('model.complete', ...)` : rien à 14 minutes, des étapes à 15, et l’étape pressée qui atteint un hook `prompt.fill`.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`$.model.complete`, `$.process.run`, `$.fs.list`, `$.fs.read`, `$.prompt.fill` et son `isFilled`, `$.clock.every`, `turn.start`, `turn.complete`, `ui.render`). Il est adapté de `hooks/advice.ts` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L’atome `ended` (`number | null`) et l’atome `steps` (`{ at: number; items: string[] } | null`) sont déclarés dans `types/index.d.ts` comme dans le premier guide.
 

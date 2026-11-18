@@ -3,7 +3,7 @@ title: Les autorisations qui attendent
 description: 'Comment Narsil insiste une fois quand une autorisation, une question ou un plan vous attend depuis cinq minutes, et pourquoi elle vérifie au battement plutôt que de régler un minuteur.'
 route: pet
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Ni le code ni le README ne disent pourquoi ; la lecture de ce guide est que si c
 
 `announce` respecte les choix de la personne : en mode muet ou discret, pas de voix, et si la fenêtre flottante est désactivée, une notification système la remplace. Le mode discret (`/narsil discreto`) ne fait taire que les annonces de fin de tour, si bien qu’un rappel indiquant que quelque chose a besoin de vous arrive quand même, sans la voix.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un seul rappel quand une autorisation, une question ou un plan vous attend depuis cinq minutes. L’idée que Claude doit bien saisir : vérifier l’attente sur un battement plutôt que de poser un minuteur, et effacer l’attente à chaque signe que vous avez répondu.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, rappelle-moi une fois quand une autorisation attend trop longtemps. Garde une variable de module `waiting` avec `since`, `what` et `isNudged`. Démarre-la dans `classic.PermissionRequest` après `next(e)`, sauf si `result.decision` est renseigné ou si `e.permission_mode` vaut `bypassPermissions`. Efface-la dans `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, tout autre `tool.call`, `turn.start` et `turn.complete`. N’utilise pas `$.clock.after` : dans `session.start`, démarre un battement `$.clock.every(2000, ...)` qui, quand cinq minutes sont passées et que `isNudged` est faux, le passe à vrai et envoie une notification avec `$.ui.notify`. Ajoute un test avec une horloge simulée : rien à 4 minutes 50 secondes, exactement un rappel après 15 minutes, et aucun quand l’autorisation a reçu une réponse après une minute.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Il n’y a pas de `$.clock.after` : un seul battement `$.clock.every(2000, ...)`, démarré dans `session.start`, compare le début de l’attente avec l’horloge.
+2. Une attente commence dans `classic.PermissionRequest` après `next(e)`, et pas quand `result.decision` est défini ou que le mode est `bypassPermissions`.
+3. Chaque sortie efface l’attente : `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, un autre `tool.call`, `turn.start` et `turn.complete`.
+4. Un drapeau `isNudged` fait partir le rappel une seule fois par attente.
+5. Le test avec une horloge simulée ne trouve rien à 4 minutes 50 secondes, exactement un rappel ensuite, et aucun quand l’autorisation a reçu une réponse au bout d’une minute.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « j’ai reçu un rappel pour une autorisation que j’ai accordée il y a plusieurs minutes ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine du rappel n’a pas été consignée. Elle est arrivée le 2026-10-30, avant les journaux de tâches publics.
 
-### Consigné : l’alerte de boucle qui est partie
+#### Consigné : l’alerte de boucle qui est partie
 
 Le rappel est né dans le même commit qu’une alerte de boucle, qui avertissait quand Claude continuait à échouer ou à modifier les mêmes fichiers. La première demande de l’auteur ou de l’autrice dans `odd/tasks/fleet-view.md` dans narsil-pet, L1 (2026-11-06, extrait), a retiré celle-ci :
 
@@ -114,7 +134,7 @@ Le rappel est né dans le même commit qu’une alerte de boucle, qui avertissai
 
 Traduction en français : nous retirerions l’alerte de boucle, je ne l’ai pas trouvée si utile. Le journal de tâches en fait S9, « Loop alert removed » (alerte de boucle retirée), et le commit `21e7288` la supprime. Le rappel pour une autorisation en attente est resté.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 À partir de `git log -- hooks/register.tsx hooks/watch.ts` :
 
@@ -124,13 +144,9 @@ Traduction en français : nous retirerions l’alerte de boucle, je ne l’ai pa
 - `2bcc97c` (2026-11-05) « feat: open the context breakdown from the usage bars and calm loop, steps and permission alerts » (ouvrir le détail du contexte depuis les barres d’utilisation et calmer les alertes de boucle, d’étapes et d’autorisation). Son message : « a waiting permission is insisted on after 5 minutes » (on insiste sur une autorisation en attente après 5 minutes).
 - `21e7288` (2026-11-06) « refactor: drop the loop alert, the spending count and the open-conversations line » (supprimer l’alerte de boucle, le décompte des dépenses et la ligne des conversations ouvertes).
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, rappelle-moi une fois quand une autorisation attend trop longtemps. Garde une variable de module `waiting` avec `since`, `what` et `isNudged`. Démarre-la dans `classic.PermissionRequest` après `next(e)`, sauf si `result.decision` est renseigné ou si `e.permission_mode` vaut `bypassPermissions`. Efface-la dans `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, tout autre `tool.call`, `turn.start` et `turn.complete`. N’utilise pas `$.clock.after` : dans `session.start`, démarre un battement `$.clock.every(2000, ...)` qui, quand cinq minutes sont passées et que `isNudged` est faux, le passe à vrai et envoie une notification avec `$.ui.notify`. Ajoute un test avec une horloge simulée : rien à 4 minutes 50 secondes, exactement un rappel après 15 minutes, et aucun quand l’autorisation a reçu une réponse après une minute.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`classic.PermissionRequest` et sa `decision`, `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, `$.clock.every`, `$.clock.now`, `$.ui.notify`). Il est adapté de `hooks/register.tsx` et de `hooks/watch.ts` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

@@ -3,7 +3,7 @@ title: Experiência e crescimento
 description: 'Como a Narsil ganha experiência com turnos terminados, testes que passam e subagentes que terminam, sobe de nível, cresce por cinco estágios e comemora, com a XP guardada entre sessões.'
 route: pet
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -128,7 +128,27 @@ Na faixa, a comemoração só é desenhada quando a conversa que a Narsil mostra
 - **O movimento.** `STAGE_MOTION` escala o quanto e a que velocidade ela se move: amplitude 1,15 e tempo 0,9 para o filhote, até 0,6 e 1,4 para o estágio 5.
 - **Tudo o que fica fora da faixa.** A janela de dica recebe `NARSIL_STAGE`; os alertas no celular usam `phoneIcon(kind, stage)`, um PNG dela naquele estágio vindo do repositório; o tópico `-estado` envia o rótulo `xp` e a URL `art` (guia 15).
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um sistema de experiência: pontos por turnos terminados, testes que passam e subagentes terminados, e depois níveis, estágios e uma comemoração curta. A única ideia que o Claude precisa acertar: o total fica em `$.store`, que todas as conversas compartilham, então cada ganho lê o store de novo antes de somar.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-pet`, dê experiência ao pet. Ponha as regras num módulo puro `hooks/xp.ts`: 10 XP por turno terminado da conversa principal (`turn.complete` com `reason === 'answer'` e sem `agentId`), 5 quando um comando de testes (`npm test`, `pnpm test`, `vitest`, `pytest`) retornar sem `isError` em `tool.call`, 3 quando o `turn.complete` de um subagente terminar com `answer`. O nível 1 precisa de 100 XP, cada nível seguinte de 100 a mais que o anterior; os estágios começam nos níveis 1, 5, 10, 20 e 35. Guarde o total em `$.store` sob `xp` para que sobreviva às sessões, e antes de cada ganho leia o store de novo, já que outras conversas somam a ele. Espelhe-o num atom para desenhar. Num novo nível, escreva um atom `milestone` com a hora, mostre "Level N" na faixa `AbovePrompt` por 6 segundos (9 para um novo estágio) e registre-o com `$.ui.log`. Teste com `claude-code/testing`: um turno a 95 XP mostra o nível 2, e um store alterado pelas costas da conversa é somado, não sobrescrito.
+
+### O que conferir na resposta do Claude
+
+1. As regras ficam num módulo puro (`hooks/xp.ts`) com os números que você pediu: 10, 5 e 3 XP, cada nível com 100 XP a mais que o anterior, e estágios a partir dos níveis 1, 5, 10, 20 e 35.
+2. Um ganho lê o store, soma, escreve o store e só então atualiza o atom. Ele nunca escreve o valor do atom de volta no store.
+3. Só um turno que termina com `answer` ganha XP, e os testes só ganham sem `isError`; um turno interrompido não ganha nada.
+4. Um valor guardado que não é um número positivo conta como 0 em vez de quebrar a faixa.
+5. Um marco leva o seu horário, e a comemoração termina depois de 6 segundos para um nível e de 9 para um estágio.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "com duas conversas abertas, a XP que uma delas ganhou some depois que a outra termina um turno", ou "o aviso de nível nunca sai".
+
+### Como a pessoa autora pediu
 
 O pedido original de experiência e níveis não foi registrado. Os registros públicos de tarefas do projeto começam mais tarde.
 
@@ -138,7 +158,7 @@ Um pedido posterior toca nos estágios: em `odd/tasks/animated-poses.md`, L4 (20
 
 Tradução para o português: sim, gostei, vamos mudar todos. O registro de tarefas o transforma em S6: todas as poses "at every stage 1-5, light and dark: 60 loops" (em todos os estágios de 1 a 5, claras e escuras: 60 loops).
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/xp.ts` e dos commits relacionados:
 
@@ -151,13 +171,9 @@ A partir de `git log -- hooks/xp.ts` e dos commits relacionados:
 
 A ordem é reveladora: primeiro os números, depois os estágios que tornam os números visíveis, depois um desenho por estágio, depois as comemorações, depois o movimento. Cada passo torna a recompensa mais fácil de notar.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-pet`, dê experiência ao pet. Ponha as regras num módulo puro `hooks/xp.ts`: 10 XP por turno terminado da conversa principal (`turn.complete` com `reason === 'answer'` e sem `agentId`), 5 quando um comando de testes (`npm test`, `pnpm test`, `vitest`, `pytest`) retornar sem `isError` em `tool.call`, 3 quando o `turn.complete` de um subagente terminar com `answer`. O nível 1 precisa de 100 XP, cada nível seguinte de 100 a mais que o anterior; os estágios começam nos níveis 1, 5, 10, 20 e 35. Guarde o total em `$.store` sob `xp` para que sobreviva às sessões, e antes de cada ganho leia o store de novo, já que outras conversas somam a ele. Espelhe-o num atom para desenhar. Num novo nível, escreva um atom `milestone` com a hora, mostre "Level N" na faixa `AbovePrompt` por 6 segundos (9 para um novo estágio) e registre-o com `$.ui.log`. Teste com `claude-code/testing`: um turno a 95 XP mostra o nível 2, e um store alterado pelas costas da conversa é somado, não sobrescrito.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Escrito para este guia e conferido com os tipos da 2.1.325 (`$.store.get`, `$.store.set`, `$.clock.now`, `$.ui.log`, `session.start`, `tool.call`, `turn.complete`, `ui.render`). Foi adaptado de `hooks/xp.ts` e `hooks/register.tsx` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Os atoms estão declarados em `types/index.d.ts`, como no primeiro guia: `xp: number` e `milestone: { kind: 'level' | 'grew'; level: number; at: number } | null`.
 

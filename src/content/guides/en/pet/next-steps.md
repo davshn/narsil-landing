@@ -3,7 +3,7 @@ title: Next steps
 description: "How Narsil proposes up to three next steps 15 minutes after a turn, from the project's commits, its uncommitted changes and its pending tasks, and puts the one you pick in the prompt."
 route: pet
 order: 12
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -137,15 +137,35 @@ Why fill instead of send? A step comes from a small model reading a summary. Sen
 
 When steps arrive, `offerSteps` also closes every open conversation in the band's list (guide 3), so the steps are seen on their own. The comment in the band's render explains the rule: "Next steps on offer close every conversation until you open one: then they hide, and come back once you close them all." This came in `250d2c6`, "let next steps stand alone".
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude to propose next steps after a quiet pause, built from the project's recent commits, its files without a commit and its pending tasks. The one idea it must get right is that a step goes into the prompt box as a draft and is never sent: you stay the one who decides.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, propose next steps after a quiet pause. In `turn.complete`, for the main conversation, record when the turn ended in an atom; clear it and any steps on offer in `turn.start`. On a `$.clock.every(2000, ...)` heartbeat, once 15 minutes have passed since that moment and only once per turn, read `git log --oneline -10` and `git status --short` with `$.process.run` and the unticked `- [ ]` lines of `odd/tasks/*.md` with `$.fs.list` and `$.fs.read`. Call `$.model.complete` with `model: 'haiku'` and a system prompt that asks for one to three imperative requests, 90 characters at most each, that can be sent as they are, taken from that context, or exactly `SKIP`. Drop the reply if a new turn started meanwhile. Show each step as a `Button` in the `AbovePrompt` band; on press, call `$.prompt.fill({ text })` and clear the steps only when `isFilled` is true. Test with a mocked clock and `on('model.complete', ...)`: nothing at 14 minutes, steps at 15, and the pressed step reaching a `prompt.fill` hook.
+
+### What to check in Claude's answer
+
+1. The pause counts from the moment the turn ended, and `turn.start` clears it and any steps on offer.
+2. The model is asked at most once per turn, even though the heartbeat runs every two seconds.
+3. After the model answers, the code checks that no new turn started meanwhile, and drops the steps if one did.
+4. Only unticked `- [ ]` lines of the task files reach the model; ticked items stay out.
+5. Pressing a step calls `$.prompt.fill` and never sends it, and the steps are cleared only when `isFilled` is true.
+
+If a check fails, tell Claude what you see: "after 15 minutes the steps change every two seconds".
+
+### How the author asked for it
 
 The original request for the next steps was not recorded. They arrived on 2026-10-30, in the same commit as the cache clock, before the public task logs. `docs/plan-advice.md`, the plan for the tips, does not mention them.
 
-### Recorded: where they go
+#### Recorded: where they go
 
 The agreed design for the band with every conversation, `odd/tasks/fleet-view.md` in narsil-pet, L4, places them: "the tip and next steps of this window below" the list. L4 is the design as agreed, written down in the log, not the author's own words.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/advice.ts`:
 
@@ -157,13 +177,9 @@ From `git log -- hooks/register.tsx hooks/advice.ts`:
 
 The corrections follow one direction: from steps that came too soon and said too little, to steps that wait for a real pause and read the project's own plan.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, propose next steps after a quiet pause. In `turn.complete`, for the main conversation, record when the turn ended in an atom; clear it and any steps on offer in `turn.start`. On a `$.clock.every(2000, ...)` heartbeat, once 15 minutes have passed since that moment and only once per turn, read `git log --oneline -10` and `git status --short` with `$.process.run` and the unticked `- [ ]` lines of `odd/tasks/*.md` with `$.fs.list` and `$.fs.read`. Call `$.model.complete` with `model: 'haiku'` and a system prompt that asks for one to three imperative requests, 90 characters at most each, that can be sent as they are, taken from that context, or exactly `SKIP`. Drop the reply if a new turn started meanwhile. Show each step as a `Button` in the `AbovePrompt` band; on press, call `$.prompt.fill({ text })` and clear the steps only when `isFilled` is true. Test with a mocked clock and `on('model.complete', ...)`: nothing at 14 minutes, steps at 15, and the pressed step reaching a `prompt.fill` hook.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.model.complete`, `$.process.run`, `$.fs.list`, `$.fs.read`, `$.prompt.fill` and its `isFilled`, `$.clock.every`, `turn.start`, `turn.complete`, `ui.render`). It is adapted from `hooks/advice.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `ended` atom (`number | null`) and the `steps` atom (`{ at: number; items: string[] } | null`) are declared in `types/index.d.ts` as in the first guide.
 

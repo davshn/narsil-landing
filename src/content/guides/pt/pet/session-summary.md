@@ -3,7 +3,7 @@ title: Resumo da sessão
 description: 'Como a Narsil conta o que uma conversa fez (turnos, arquivos, comandos, falhas, subagentes) e continua contando quando o Claude Code reinicia, para /narsil resumen e um resumo depois de uma pausa.'
 route: pet
 order: 16
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -99,7 +99,27 @@ O batimento (`beat`, a cada 2 segundos) chama `tickWatch`, que mostra o resumo q
 
 Então ela chama `showTip($, await summarize($), 'summary')`. Reaproveitar a exibição da dica significa que o resumo ganha de graça a janela de dica, as três linhas da faixa e a janela flutuante. `summarizedFor` faz com que isso aconteça uma vez por pausa: um novo turno define um novo `c.at`, e a pausa seguinte pode ser resumida de novo.
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude um comando que resuma a conversa a partir de contagens que o mod mantém ao longo da sessão. A única ideia que ele precisa acertar é onde as contagens ficam: num atom, para que recarregar o mod as mantenha, e em `$.store` sob uma chave por conversa, para que reiniciar o Claude Code também as mantenha.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-pet`, acrescente `/my-pet summary`. Mantenha um atom `stats` com `startedAt`, `turns`, `workedMs`, `files` (nomes base distintos, no máximo 200), `commands`, `failures` e `agents`. Conte os turnos e a sua `durationMs` em `turn.complete` da conversa principal; os arquivos editados a partir das chamadas `Edit` e `Write` em `tool.call`; as chamadas `Bash` como comandos; qualquer resultado com `isError` como uma falha; os subagentes em `agent.spawn`. Mude o atom só por meio de uma função que também o salve em `$.store` sob `stats:` mais `$.session.id()`. Em `session.start`, carregue-o do store só se o atom estiver vazio, e valide o que ler. Mantenha só as últimas 20 chaves desse tipo. O comando imprime uma linha como "Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure". Teste com `claude-code/testing`: um valor guardado sob a chave da sessão é continuado, e uma 25ª chave antiga é apagada.
+
+### O que conferir na resposta do Claude
+
+1. Toda contagem fica num único atom, nunca numa variável de módulo, e só muda por meio de uma função que também a salva.
+2. A chave do store é `stats:` seguido de `$.session.id()`, então cada conversa tem as suas próprias contagens.
+3. Em `session.start` o store só é lido quando o atom está vazio, e o que é lido é conferido campo por campo antes de ser usado.
+4. Os turnos são contados só para a conversa principal em `turn.complete`, e um arquivo editado é contado uma vez por nome base.
+5. Só as 20 chaves `stats:` mais recentes são mantidas.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "depois que eu reinicio o Claude Code e retomo esta conversa, o resumo diz 0 turnos".
+
+### Como a pessoa autora pediu
 
 O pedido original do resumo da sessão não foi registrado.
 
@@ -109,7 +129,7 @@ Um pedido registrado toca no módulo em que o resumo nasceu. `hooks/watch.ts` co
 
 Tradução para o português: eliminaríamos o alerta de loop, não o achei tão útil. O registro de tarefas o anota como S9, e `21e7288` o removeu. O resumo e o lembrete ficaram.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 A partir de `git log -- hooks/watch.ts` no narsil-pet:
 
@@ -123,13 +143,9 @@ A partir de `git log -- hooks/watch.ts` no narsil-pet:
 
 A primeira correção é a instrutiva: um resumo que se perde quando o Claude Code reinicia relata uma fração do trabalho, o que é pior do que nenhum.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-pet`, acrescente `/my-pet summary`. Mantenha um atom `stats` com `startedAt`, `turns`, `workedMs`, `files` (nomes base distintos, no máximo 200), `commands`, `failures` e `agents`. Conte os turnos e a sua `durationMs` em `turn.complete` da conversa principal; os arquivos editados a partir das chamadas `Edit` e `Write` em `tool.call`; as chamadas `Bash` como comandos; qualquer resultado com `isError` como uma falha; os subagentes em `agent.spawn`. Mude o atom só por meio de uma função que também o salve em `$.store` sob `stats:` mais `$.session.id()`. Em `session.start`, carregue-o do store só se o atom estiver vazio, e valide o que ler. Mantenha só as últimas 20 chaves desse tipo. O comando imprime uma linha como "Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure". Teste com `claude-code/testing`: um valor guardado sob a chave da sessão é continuado, e uma 25ª chave antiga é apagada.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Escrito para este guia e conferido com os tipos da 2.1.325 (`$.session.id`, `$.store.get`, `$.store.set`, `$.clock.now`, `$.command.register`, `command.run`, `session.start`, `tool.call`, `turn.complete`, `agent.spawn`). Foi adaptado de `hooks/watch.ts` e `hooks/register.tsx` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). O atom `stats` está declarado em `types/index.d.ts` como `Stats | null`, com o tipo abaixo. A limpeza para 20 fica de fora; veja `saveStats`.
 

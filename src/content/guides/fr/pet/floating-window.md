@@ -3,7 +3,7 @@ title: La fenêtre flottante
 description: 'Comment Narsil affiche une fenêtre au premier plan si Claude est réduit ou si quelque chose vous attend, et pourquoi son serveur local n’écoute que sur 127.0.0.1, avec clé de page et jeton du mod.'
 route: pet
 order: 5
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -154,11 +154,31 @@ L’adresse de bouclage est la protection sur laquelle reposent les trois autres
 
 Les noms des dossiers du projet, les listes de tâches et des morceaux des réponses de Claude sont exactement ce que vous ne voudriez pas voir lu par la personne qui partage le Wi-Fi de votre café. Le jeton protégerait toujours `/state` et `/sessions`, mais le flux à lui seul livre l’essentiel du même contenu. La règle est donc simple : le hub écoute sur `127.0.0.1` et nulle part ailleurs.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
+
+Demandez à Claude un petit serveur local que le mod démarre, et une page qui affiche l’état dans une fenêtre à part. L’idée que Claude doit bien saisir : le serveur n’écoute que sur `127.0.0.1` et vérifie à chaque requête qui lui parle.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Mon mod Claude Code `my-pet` affiche l’état de Claude dans la bande. Ajoute une fenêtre flottante pour quand Claude est réduit. Écris un serveur Node.js, `overlay/hub.cjs`, qui n’écoute que sur 127.0.0.1, refuse tout en-tête `Host` autre que `127.0.0.1:<port>` et `localhost:<port>`, sert une seule page HTML dans laquelle est écrite une clé aléatoire, diffuse l’état à cette page par des événements envoyés par le serveur sur `/events`, et n’accepte `POST /state` qu’avec un jeton que le mod crée avec `crypto.randomUUID()`, conserve dans `$.store` et transmet dans une variable d’environnement quand il démarre le serveur de manière détachée avec `$.process.run`. Les actions propres à la page doivent porter sa clé. N’écoute jamais sur aucune autre adresse. Ajoute un test Node qui vérifie qu’un mauvais `Host`, un jeton absent et une clé absente sont chacun refusés avec 403, et qu’une ligne de requête comme `GET // HTTP/1.1` ne fait pas planter le serveur.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Le serveur appelle `listen` avec `'127.0.0.1'` comme hôte, jamais avec le port seul.
+2. Toute requête dont l’en-tête `Host` n’est pas `127.0.0.1:<port>` ou `localhost:<port>` est refusée avec `403`.
+3. Le jeton du mod n’apparaît jamais dans la page. La page reçoit sa propre clé aléatoire, nouvelle à chaque démarrage du serveur, et la renvoie avec chacune de ses actions.
+4. Le traitement qui peut lever une exception, comme `new URL()`, est protégé, si bien qu’une ligne de requête comme `GET // HTTP/1.1` obtient une réponse et que le serveur continue de tourner.
+5. Le serveur est démarré de façon détachée, pour que `$.process.run` n’attende pas sa fin.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « le hook qui démarre le serveur attend jusqu’au délai maximal, et la bande cesse de se mettre à jour pendant ce temps ».
+
+### Comment l’auteur l’a demandé
 
 La demande d’origine de la fenêtre flottante n’a pas été consignée. Elle arrive dans le commit `6f8f938` (2026-10-30) « feat(overlay): add floating window, Spanish voice and Windows toasts » (ajouter la fenêtre flottante, la voix en espagnol et les notifications toast de Windows), en même temps que la voix et les notifications du guide suivant, avant l’existence de tout journal de tâches public.
 
-### Demandes ultérieures, consignées dans les journaux de tâches
+#### Demandes ultérieures, consignées dans les journaux de tâches
 
 La fenêtre a été remaniée par la vue de toutes les conversations, dont le journal est `odd/tasks/fleet-view.md` dans narsil-pet. L1 (2026-11-06) commence par :
 
@@ -178,7 +198,7 @@ Les boucles nettes viennent de `odd/tasks/animated-poses.md`, L6 (2026-11-15) :
 
 Traduction en français : peut-on afficher la vidéo sans la recadrer dans la fenêtre externe, pour qu’elle soit plus nette ? Le journal consigne l’approbation, « Sí, hazla » (« Oui, fais-la »), et sa spécification S7 dit que la fenêtre n’a pas de limite de taille, si bien que le serveur local sert une copie plus nette de chaque boucle. C’est la route `/anim/`.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 Le reste, à partir de `git log -- overlay/server.cjs overlay/overlay.html overlay/watch.ps1 overlay/mac-claude.js overlay/start.sh` :
 
@@ -195,13 +215,9 @@ Le reste, à partir de `git log -- overlay/server.cjs overlay/overlay.html overl
 
 Le schéma : la fenêtre d’abord, puis son comportement sur chaque système, puis sa sécurité, et un correctif tardif trouvé en envoyant au serveur une requête qu’aucun navigateur n’enverrait.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Mon mod Claude Code `my-pet` affiche l’état de Claude dans la bande. Ajoute une fenêtre flottante pour quand Claude est réduit. Écris un serveur Node.js, `overlay/hub.cjs`, qui n’écoute que sur 127.0.0.1, refuse tout en-tête `Host` autre que `127.0.0.1:<port>` et `localhost:<port>`, sert une seule page HTML dans laquelle est écrite une clé aléatoire, diffuse l’état à cette page par des événements envoyés par le serveur sur `/events`, et n’accepte `POST /state` qu’avec un jeton que le mod crée avec `crypto.randomUUID()`, conserve dans `$.store` et transmet dans une variable d’environnement quand il démarre le serveur de manière détachée avec `$.process.run`. Les actions propres à la page doivent porter sa clé. N’écoute jamais sur aucune autre adresse. Ajoute un test Node qui vérifie qu’un mauvais `Host`, un jeton absent et une clé absente sont chacun refusés avec 403, et qu’une ligne de requête comme `GET // HTTP/1.1` ne fait pas planter le serveur.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Un hub réduit, écrit pour ce guide et adapté de `overlay/server.cjs` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Le serveur est du simple Node.js, pas du code de mod. L’affichage et le masquage de la fenêtre sont laissés de côté : cette partie dépend du système, comme le montrent les gardiens ci-dessus.
 

@@ -3,7 +3,7 @@ title: Your own /commands
 description: 'How /narsil is registered as one slash command with many subcommands, how its words are dispatched, how the bare command doubles as help, and how to test it.'
 route: pet
 order: 17
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -122,7 +122,27 @@ The list of words lives in three places: the description, the usage line, and th
 
 Each branch returns `{ text }`, a `CommandRunResult`. Two of its fields are worth knowing about even though Narsil does not use them. `context` is "What the model reads after the command's output and the person never sees". `isTextDisplayOnly` keeps the text out of the model's requests, but the types say it is honored only when every plugin hooking the command is bundled with Claude Code: "Any other plugin's text stays in requests". So everything `/narsil` answers, the phone key of guide 15 included, is part of what the model reads.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for one slash command with subcommands, registered when the session starts and served by one hook. The one idea Claude must get right is the dispatch: each feature answers its own words and returns `undefined` for the rest, and anything left over prints the settings and the usage line.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> Give my Claude Code mod `my-pet` one slash command, `/my-pet`, with subcommands. In `session.start`, call `$.command.register` with the name and a description that lists every subcommand. Serve it with one `command.run` hook matched on `{ command: 'my-pet' }` that returns `{ text }` without calling `next`. Normalize `e.args` (trim, lowercase, single spaces). Give each feature its own function that returns the answer for its words, its own usage line for a known first word with unknown rest, or `undefined` for words that are not its own, and chain them. Map simple on/off words to a patch of a `prefs` atom saved with `$.store.set`. For an empty or unknown argument, print the current settings and the usage line. Keep the description, the usage line and the README in step. Test with `claude-code/testing`, calling `$.command.run({ command: 'my-pet', args, origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 100 } })`, that each word answers and that an unknown word prints the usage line.
+
+### What to check in Claude's answer
+
+1. `$.command.register` runs in `session.start`, in every session, because a registration lasts only for the session.
+2. The `command.run` hook is matched on the command's name, returns `{ text }` and never calls `next`.
+3. `e.args` is trimmed, lowercased and its runs of spaces collapsed before any word is compared.
+4. Each feature's function returns its answer, its own usage line for a known first word with an unknown rest, or `undefined`; an empty or unknown argument prints the settings and the usage line.
+5. The description and the usage line list the same words, ideally from one constant.
+
+If a check fails, tell Claude what you see: "`/my-pet  Tips OFF`, with extra spaces and capitals, answers with the usage line instead of turning the tips off".
+
+### How the author asked for it
 
 The original request for `/narsil` was not recorded. What is recorded is a plan step: in `docs/plan-advice.md`, under the commands the tips add, the plan says:
 
@@ -130,7 +150,7 @@ The original request for `/narsil` was not recorded. What is recorded is a plan 
 
 That is the plan's wording, not the author's request.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -G "Narsil, tu mascota" -- hooks/register.tsx`, which finds every commit that changed the registered description:
 
@@ -145,13 +165,9 @@ From `git log -G "Narsil, tu mascota" -- hooks/register.tsx`, which finds every 
 
 The command grew one word at a time, each with the feature it controls, and each commit touched the description in the same change. That is the habit the plan asks for.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> Give my Claude Code mod `my-pet` one slash command, `/my-pet`, with subcommands. In `session.start`, call `$.command.register` with the name and a description that lists every subcommand. Serve it with one `command.run` hook matched on `{ command: 'my-pet' }` that returns `{ text }` without calling `next`. Normalize `e.args` (trim, lowercase, single spaces). Give each feature its own function that returns the answer for its words, its own usage line for a known first word with unknown rest, or `undefined` for words that are not its own, and chain them. Map simple on/off words to a patch of a `prefs` atom saved with `$.store.set`. For an empty or unknown argument, print the current settings and the usage line. Keep the description, the usage line and the README in step. Test with `claude-code/testing`, calling `$.command.run({ command: 'my-pet', args, origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 100 } })`, that each word answers and that an unknown word prints the usage line.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.command.register`, `command.run`, `$.store.get`, `$.store.set`, `session.start`). It is adapted from `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `prefs` atom is declared in `types/index.d.ts` as `{ isHidden: boolean; isMuted: boolean }`.
 

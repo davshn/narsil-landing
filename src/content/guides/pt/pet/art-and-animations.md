@@ -3,7 +3,7 @@ title: Desenho e animações
 description: 'Como a Narsil é desenhada: uma pose por estado, arte clara e escura num só SVG, loops animados feitos a partir de vídeos de IA e o limite de 131072 caracteres da faixa.'
 route: pet
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -110,11 +110,31 @@ A janela flutuante não tem esse limite, então ela mostra uma cópia mais níti
 
 Um desenho completo é grande (o código diz "some 100 KB", cerca de 100 KB), e a faixa e a janela pedem o mesmo desenho repetidas vezes. `sprite` guarda os últimos oito desenhos num `Map` cuja chave é o humor, o estágio e o marco, e `pushOverlay` em `hooks/register.tsx` envia o SVG à janela só quando ele mudou (commit `19106d1` "perf: reuse Narsil's drawing and send it to the window only when it changes", reaproveitar o desenho da Narsil e enviá-lo à janela só quando ele muda).
 
-## Como foi pedido à IA
+## Construa com o Claude
+
+Peça ao Claude uma função que monte um único desenho SVG do seu pet para a faixa, com uma imagem clara e uma escura dentro. A única ideia que o Claude precisa acertar: o desenho inteiro, com os dois temas incluídos, deve ficar dentro do limite da faixa de 131072 caracteres.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é um dos prompts registrados no narsil-pet.
+
+> No meu mod do Claude Code, adicione uma função `petSvg(status)` que retorne um único documento SVG para o elemento `Svg` da faixa `AbovePrompt`. Ele deve conter uma versão clara e uma escura do meu personagem (data URLs vindas de `hooks/art.ts`), mostrar a certa com uma media query `prefers-color-scheme` dentro do SVG e dar a cada status uma pequena animação CSS (oscilar enquanto trabalha, respiração lenta quando parado, um tremor curto em caso de erro). Desligue as animações com `prefers-reduced-motion`. Lance um erro se o documento tiver mais de 131072 caracteres e adicione um teste mostrando que todos os status, nos dois temas, cabem. No terminal, desenhe um rosto de texto em vez disso, já que o terminal não tem `Svg`.
+
+### O que conferir na resposta do Claude
+
+1. O SVG contém as duas imagens, e uma media query `prefers-color-scheme` dentro do SVG mostra uma delas. O próprio mod nunca escolhe o tema.
+2. O código confere o tamanho do desenho pronto contra 131072 caracteres, e um teste confere isso para cada status nos dois temas.
+3. Uma regra `prefers-reduced-motion: reduce` desliga todas as animações.
+4. No terminal (`e.surface === 'terminal'`), a faixa desenha um rosto de texto, porque o terminal não tem `Svg`.
+5. A animação move a própria imagem, não uma cópia deformada posta por cima dela.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "num desktop escuro a faixa mostra a imagem clara", ou "a faixa não mostra nada para um dos status".
+
+### Como a pessoa autora pediu
 
 Esta história tem duas partes. A arte parada e o seu movimento em CSS vieram primeiro, e os pedidos correspondentes não foram registrados. Os loops animados têm um registro público de tarefas, `odd/tasks/animated-poses.md` no narsil-pet, que cita os pedidos da pessoa autora palavra por palavra.
 
-### Reconstrução a partir do histórico de commits (arte parada)
+#### Reconstrução a partir do histórico de commits (arte parada)
 
 A partir de `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 
@@ -124,7 +144,7 @@ A partir de `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 - `9f9cc75` e `6ac340e` (2026-10-31), as correções da imagem duplicada descritas acima.
 - `e79c512` (2026-11-09) "feat: make Narsil's body undulate and her rest less mechanical" (fazer o corpo da Narsil ondular e o seu descanso parecer menos mecânico). A mensagem descreve as faixas que "only meet" (apenas se tocam) e diz que, em repouso, ela "only starts to snore after a minute" (só começa a roncar depois de um minuto).
 
-### O pedido registrado para os loops animados
+#### O pedido registrado para os loops animados
 
 A primeira entrada do registro, L1, datada de 2026-11-15:
 
@@ -143,7 +163,7 @@ As specs do mesmo arquivo citam as correções que vieram depois, e cada uma mud
 
 O registro também anota como os vídeos foram feitos. No começo, os vídeos vinham do Veo no aplicativo Gemini, e a cota acabou depois de dois vídeos (L4). Em L8 (2026-11-16), a pessoa autora pediu ao Claude que fizesse os vídeos no navegador da pessoa autora e que parasse quando chegasse o limite do Veo. Em L9 (2026-11-16), perguntou "antes de continuar, no es posible avanzar en los videos usando flow?" (tradução: antes de continuar, não é possível avançar nos vídeos usando o Flow?). O Flow tinha os seus próprios créditos, e o seu modo Frames, com a imagem dela como primeiro e último quadro, produzia um loop fechado. Em L10 (2026-11-16), a pessoa autora pediu mais qualidade ou mais movimento e depois disse "prioriza la nitidez y luego mas movimiento" (tradução: priorize a nitidez e depois mais movimento). O resultado, como L10 registra: os 60 loops feitos no Flow, com 3 segundos em 360p, com prompts pedindo movimento claro do corpo, da cabeça e das nadadeiras enquanto a água fica calma, porque a água agitada custava a nitidez do loop da faixa.
 
-### O prompt dado ao modelo de vídeo
+#### O prompt dado ao modelo de vídeo
 
 O prompt que foi para o modelo de vídeo também está registrado, porque um script o escreve. `tools/anim-sources.ps1` prepara, para cada loop que falta, a imagem dela sobre verde puro (`#00FF00`) e um arquivo de texto com o prompt gerado por `Get-Prompt`. O prompt começa assim:
 
@@ -155,13 +175,9 @@ Em seguida, ele pede água calma, um personagem idêntico, uma câmera fixa, o m
 
 Depois, `tools/encode-anim.ps1` remove o verde por chroma key (`colorkey=0x00FF00`), descarta o áudio, recorta até ela e faz uma busca binária sobre a qualidade do WebP para ficar abaixo do tamanho-alvo. `tools/build-animated.ps1`, que ele chama, embute o resultado.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é um dos prompts registrados no narsil-pet.
-
-> No meu mod do Claude Code, adicione uma função `petSvg(status)` que retorne um único documento SVG para o elemento `Svg` da faixa `AbovePrompt`. Ele deve conter uma versão clara e uma escura do meu personagem (data URLs vindas de `hooks/art.ts`), mostrar a certa com uma media query `prefers-color-scheme` dentro do SVG e dar a cada status uma pequena animação CSS (oscilar enquanto trabalha, respiração lenta quando parado, um tremor curto em caso de erro). Desligue as animações com `prefers-reduced-motion`. Lance um erro se o documento tiver mais de 131072 caracteres e adicione um teste mostrando que todos os status, nos dois temas, cabem. No terminal, desenhe um rosto de texto em vez disso, já que o terminal não tem `Svg`.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Uma versão reduzida, escrita para este guia e conferida com os tipos da 2.1.325. A estrutura (dois temas num SVG, a verificação de tamanho, o rosto de terminal) foi adaptada de `hooks/sprite.ts` e `hooks/register.tsx` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Os desenhos da Narsil também são GPL v3: se você usá-los, mantenha a atribuição e um link para o repositório.
 

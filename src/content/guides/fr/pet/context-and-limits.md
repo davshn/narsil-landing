@@ -3,7 +3,7 @@ title: Le contexte et les limites
 description: 'Comment Narsil trace une barre de contexte par conversation, prévoit son remplissage au rythme des 15 dernières minutes, suggère /compact une fois et montre les limites de 5 heures et hebdomadaire.'
 route: pet
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -108,9 +108,29 @@ Les éléments de `hooks/usage.ts` sont petits et purs :
 
 Le contexte appartient à une conversation, pas à vous. Un seul chiffre de « contexte » pour plusieurs conversations ferait la moyenne de choses dont on ne peut pas faire la moyenne. C’est pourquoi la barre générale a été supprimée et chaque ligne a reçu la sienne, comme le consigne la section suivante. Les limites du compte sont le cas inverse : elles appartiennent au compte, donc elles s’affichent une seule fois.
 
-## Comment on l’a demandé à l’IA
+## Le construire avec Claude
 
-### Consigné : une barre par conversation
+Demandez à Claude d’afficher dans la bande le remplissage de la fenêtre de contexte et les limites du compte, avec une estimation du moment où le contexte sera plein. L’idée que Claude doit bien saisir : Claude Code a déjà les chiffres, donc le mod les lit avec `$.session.usage()` et `session.measure`, et ne compte jamais les tokens ni ne les interroge avec un minuteur.
+
+### Un prompt à utiliser
+
+Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
+
+> Dans mon mod Claude Code `my-pet`, affiche le remplissage de la fenêtre de contexte et les limites de 5 heures et hebdomadaire du compte dans la bande `AbovePrompt`. Lis-les une fois avec `$.session.usage()` dans `session.start`, puis à chaque événement `session.measure`, et garde-les dans un atome. Écris la logique sous forme de fonctions pures dans `hooks/usage.ts` : une qui met `context` et `rateLimits` (`five_hour`, `seven_day`) dans ma propre forme, une barre de texte de dix cellules, une couleur qui passe à l’orange à 60 % et au rouge à 85 %, et `minutesToFull(samples, now)`, qui estime quand le contexte sera plein à partir des relevés des 15 dernières minutes et renvoie null avec moins d’une minute de relevés ou sans croissance. Suggère `/compact` une fois par remplissage quand le contexte dépasse 70 % et sera plein dans les 20 minutes, ou dépasse 85 %. Ajoute des tests pour chaque fonction et vérifie chaque API par rapport aux types de plugin-authoring.
+
+### Ce qu’il faut vérifier dans la réponse de Claude
+
+1. Les chiffres sont lus une fois dans `session.start`, puis à chaque événement `session.measure`, sans minuteur qui les redemande sans cesse.
+2. Sans fenêtres de limite de débit (une clé d’API), aucune barre de limite n’apparaît, plutôt que des barres à 0 %.
+3. `minutesToFull` n’utilise que les relevés des 15 dernières minutes et renvoie null avec moins d’une minute de relevés ou sans croissance, et les relevés sont effacés quand le contexte diminue.
+4. La suggestion de `/compact` arrive une fois par remplissage : dès 70 % quand le contexte se remplit en moins de 20 minutes, dès 85 % dans tous les cas, derrière un drapeau qui ne se réinitialise que quand le contexte baisse (Narsil utilise 50 %).
+5. Les barres passent à l’ambre à 60 % et au rouge à 85 %.
+
+Si une vérification échoue, décrivez à Claude ce que vous voyez : « la suggestion de /compact est revenue à 71, 72 et 73 % » ou « après /compact, l’estimation dit toujours que le contexte est presque plein ».
+
+### Comment l’auteur l’a demandé
+
+#### Consigné : une barre par conversation
 
 Les barres par conversation ont été demandées dans `odd/tasks/fleet-view.md` dans narsil-pet, dans la même conversation qui a produit la vue de toutes les conversations (L1 est datée du 2026-11-06 ; les entrées suivantes ne portent pas de date). L3 (extrait) :
 
@@ -124,7 +144,7 @@ La répartition a été demandée dans L2 (extrait) :
 
 Traduction en français : le détail de la façon dont le contexte se remplit devrait apparaître quand on clique sur le mot « contexte ». L7 la consigne comme faite dans la bande. Un jour plus tard, `250d2c6` (2026-11-07) « feat: open the context from its percent and let next steps stand alone » (ouvrir le contexte depuis son pourcentage et laisser les étapes suivantes à part) a déplacé la commande de la bande du mot vers le pourcentage, là où le README et le code la placent aujourd’hui. Dans la fenêtre flottante, le mot « Contexto » l’ouvre toujours.
 
-### Reconstitution à partir de l’historique des commits
+#### Reconstitution à partir de l’historique des commits
 
 Les barres, l’estimation et la suggestion sont antérieures à ce journal, et leurs demandes n’ont pas été consignées. À partir de `git log -- hooks/usage.ts hooks/register.tsx` :
 
@@ -135,13 +155,9 @@ Les barres, l’estimation et la suggestion sont antérieures à ce journal, et 
 - `d654e3b` (2026-11-06) « feat: list this conversation first with a blue context bar » (lister cette conversation en premier avec une barre de contexte bleue).
 - `250d2c6` (2026-11-07), vu plus haut.
 
-### Un prompt à utiliser
+## Code de référence
 
-Le prompt suivant a été écrit pour ce guide à titre de suggestion. Ce n’est pas le prompt de l’auteur ou de l’autrice.
-
-> Dans mon mod Claude Code `my-pet`, affiche le remplissage de la fenêtre de contexte et les limites de 5 heures et hebdomadaire du compte dans la bande `AbovePrompt`. Lis-les une fois avec `$.session.usage()` dans `session.start`, puis à chaque événement `session.measure`, et garde-les dans un atome. Écris la logique sous forme de fonctions pures dans `hooks/usage.ts` : une qui met `context` et `rateLimits` (`five_hour`, `seven_day`) dans ma propre forme, une barre de texte de dix cellules, une couleur qui passe à l’orange à 60 % et au rouge à 85 %, et `minutesToFull(samples, now)`, qui estime quand le contexte sera plein à partir des relevés des 15 dernières minutes et renvoie null avec moins d’une minute de relevés ou sans croissance. Suggère `/compact` une fois par remplissage quand le contexte dépasse 70 % et sera plein dans les 20 minutes, ou dépasse 85 %. Ajoute des tests pour chaque fonction et vérifie chaque API par rapport aux types de plugin-authoring.
-
-## Le code minimal
+Ce code est une réponse correcte, écrite pour ce guide. Lisez-le pour comprendre comment les pièces s’assemblent et pour le comparer avec ce que Claude a écrit pour vous : Claude peut choisir d’autres noms ou un autre ordre et avoir quand même raison.
 
 Écrit pour ce guide et vérifié par rapport aux types 2.1.325 (`$.session.usage`, `session.measure`, `SessionContextUsage`, `SessionRateLimit`, `$.clock.now`, `$.ui.toast`). Il est adapté de `hooks/usage.ts` et de `hooks/register.tsx` dans [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L’atome `usage` est déclaré dans `types/index.d.ts` comme dans le premier guide.
 

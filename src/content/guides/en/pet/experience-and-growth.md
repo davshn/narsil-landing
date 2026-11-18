@@ -3,7 +3,7 @@ title: Experience and growth
 description: 'How Narsil earns experience from finished turns, passing tests and finished subagents, levels up, grows through five stages and celebrates, with XP kept across sessions.'
 route: pet
 order: 13
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -128,7 +128,27 @@ In the band, the celebration is drawn only when the conversation Narsil shows is
 - **The motion.** `STAGE_MOTION` scales how far and how fast she moves: amplitude 1.15 and tempo 0.9 for the hatchling down to 0.6 and 1.4 for stage 5.
 - **Everything outside the band.** The tip window receives `NARSIL_STAGE`; phone alerts use `phoneIcon(kind, stage)`, a PNG of her at that stage from the repository; the `-estado` topic sends the `xp` label and the `art` URL (guide 15).
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for an experience system: points for finished turns, passing tests and finished subagents, then levels, stages and a short celebration. The one idea Claude must get right: the total lives in `$.store`, which every conversation shares, so each gain reads the store again before it adds.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, give the pet experience. Put the rules in a pure module `hooks/xp.ts`: 10 XP per finished main-conversation turn (`turn.complete` with `reason === 'answer'` and no `agentId`), 5 when a test command (`npm test`, `pnpm test`, `vitest`, `pytest`) returns without `isError` in `tool.call`, 3 when a subagent's `turn.complete` ends with `answer`. Level 1 needs 100 XP, each next level 100 more than the last; stages start at levels 1, 5, 10, 20 and 35. Keep the total in `$.store` under `xp` so it survives sessions, and before each gain read the store again, since other conversations add to it. Mirror it in an atom for drawing. On a new level write a `milestone` atom with the time, show "Level N" in the `AbovePrompt` band for 6 seconds (9 for a new stage) and log it with `$.ui.log`. Test with `claude-code/testing`: a turn at 95 XP shows level 2, and a store changed behind the conversation's back is added to, not overwritten.
+
+### What to check in Claude's answer
+
+1. The rules sit in a pure module (`hooks/xp.ts`) with the numbers you asked for: 10, 5 and 3 XP, each level 100 XP more than the last, and stages from levels 1, 5, 10, 20 and 35.
+2. A gain reads the store, adds, writes the store, and then updates the atom. It never writes the atom's value back to the store.
+3. Only a turn that ends with `answer` earns XP, and tests earn it only without `isError`; an aborted turn earns nothing.
+4. A stored value that is not a positive number counts as 0 instead of breaking the band.
+5. A milestone carries its time, and the celebration ends after 6 seconds for a level and 9 for a stage.
+
+If a check fails, tell Claude what you see: "with two conversations open, the XP one of them earned is gone after the other finishes a turn", or "the level banner never leaves".
+
+### How the author asked for it
 
 The original request for experience and levels was not recorded. The project's public task logs start later.
 
@@ -138,7 +158,7 @@ One later request touches the stages: in `odd/tasks/animated-poses.md`, L4 (2026
 
 In English: I like it, let's change them all. The task log turns it into S6: every pose "at every stage 1-5, light and dark: 60 loops".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/xp.ts` and the related commits:
 
@@ -151,13 +171,9 @@ From `git log -- hooks/xp.ts` and the related commits:
 
 The order is telling: the numbers first, then the stages that make the numbers visible, then a picture per stage, then celebrations, then motion. Each step makes the reward easier to notice.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, give the pet experience. Put the rules in a pure module `hooks/xp.ts`: 10 XP per finished main-conversation turn (`turn.complete` with `reason === 'answer'` and no `agentId`), 5 when a test command (`npm test`, `pnpm test`, `vitest`, `pytest`) returns without `isError` in `tool.call`, 3 when a subagent's `turn.complete` ends with `answer`. Level 1 needs 100 XP, each next level 100 more than the last; stages start at levels 1, 5, 10, 20 and 35. Keep the total in `$.store` under `xp` so it survives sessions, and before each gain read the store again, since other conversations add to it. Mirror it in an atom for drawing. On a new level write a `milestone` atom with the time, show "Level N" in the `AbovePrompt` band for 6 seconds (9 for a new stage) and log it with `$.ui.log`. Test with `claude-code/testing`: a turn at 95 XP shows level 2, and a store changed behind the conversation's back is added to, not overwritten.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.store.get`, `$.store.set`, `$.clock.now`, `$.ui.log`, `session.start`, `tool.call`, `turn.complete`, `ui.render`). It is adapted from `hooks/xp.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The atoms are declared in `types/index.d.ts` as in the first guide: `xp: number` and `milestone: { kind: 'level' | 'grew'; level: number; at: number } | null`.
 

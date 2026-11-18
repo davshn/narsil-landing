@@ -3,7 +3,7 @@ title: Permisos que esperan
 description: 'Cómo Narsil insiste una vez cuando un permiso, una pregunta o un plan llevan cinco minutos esperándote, y por qué lo comprueba con un latido en lugar de con un temporizador.'
 route: pet
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Ni el código ni el README dicen por qué; la lectura de esta guía es que, si h
 
 `announce` respeta las elecciones de cada persona: silenciado o discreto significa sin voz, y la ventana flotante desactivada significa una notificación del sistema en su lugar. El modo discreto (`/narsil discreto`) solo silencia los anuncios de final de turno, así que un recordatorio de que algo te necesita sigue llegando, sin la voz.
 
-## Cómo se le pidió a la IA
+## Constrúyelo con Claude
+
+Pídele a Claude un único recordatorio cuando un permiso, una pregunta o un plan lleve cinco minutos esperándote. La idea que Claude debe acertar es comprobar la espera con un latido en lugar de poner un temporizador, y borrar la espera ante cualquier señal de que respondiste.
+
+### Un prompt que puedes usar
+
+El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
+
+> En mi mod de Claude Code `my-pet`, recuérdame una vez cuando un permiso espere demasiado. Guarda una variable del módulo `waiting` con `since`, `what` e `isNudged`. Iníciala en `classic.PermissionRequest` después de `next(e)`, salvo que `result.decision` esté definido o `e.permission_mode` sea `bypassPermissions`. Bórrala en `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, cualquier otro `tool.call`, `turn.start` y `turn.complete`. No uses `$.clock.after`: en `session.start`, arranca un único latido `$.clock.every(2000, ...)` que, cuando hayan pasado cinco minutos e `isNudged` sea falso, lo active y envíe una notificación con `$.ui.notify`. Añade un test con un reloj simulado: nada a los 4 minutos y 50 segundos, exactamente un recordatorio tras 15 minutos, y ninguno cuando el permiso se respondió al cabo de un minuto.
+
+### Qué revisar en la respuesta de Claude
+
+1. No hay `$.clock.after`: un único latido `$.clock.every(2000, ...)`, arrancado en `session.start`, compara con el reloj cuándo empezó la espera.
+2. Una espera empieza en `classic.PermissionRequest` después de `next(e)`, y no cuando `result.decision` está definido o el modo es `bypassPermissions`.
+3. Cada forma de salir borra la espera: `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, otro `tool.call`, `turn.start` y `turn.complete`.
+4. Una marca `isNudged` hace que el recordatorio salga una vez por espera.
+5. El test con un reloj simulado no encuentra nada a los 4 minutos y 50 segundos, exactamente un recordatorio después, y ninguno cuando el permiso se respondió al cabo de un minuto.
+
+Si una comprobación falla, dile a Claude lo que ves: "me llegó un recordatorio de un permiso que permití hace minutos".
+
+### Cómo lo pidió el autor
 
 La petición original del recordatorio no quedó registrada. Llegó el 2026-10-30, antes de los registros de tareas públicos.
 
-### Registrado: la alerta de bucle que se fue
+#### Registrado: la alerta de bucle que se fue
 
 El recordatorio nació en el mismo commit que una alerta de bucle, que avisaba cuando Claude seguía fallando o editando los mismos archivos. La primera petición de quien creó Narsil en `odd/tasks/fleet-view.md` en narsil-pet, L1 (2026-11-06, extracto), quitó esa alerta:
 
@@ -114,7 +134,7 @@ El recordatorio nació en el mismo commit que una alerta de bucle, que avisaba c
 
 El registro de tareas la convierte en S9, "Loop alert removed" (alerta de bucle eliminada), y el commit `21e7288` la quita. El recordatorio de un permiso que espera se quedó.
 
-### Reconstrucción a partir del historial de commits
+#### Reconstrucción a partir del historial de commits
 
 A partir de `git log -- hooks/register.tsx hooks/watch.ts`:
 
@@ -124,13 +144,9 @@ A partir de `git log -- hooks/register.tsx hooks/watch.ts`:
 - `2bcc97c` (2026-11-05) "feat: open the context breakdown from the usage bars and calm loop, steps and permission alerts" (abrir el desglose del contexto desde las barras de uso y calmar las alertas de bucle, de pasos y de permisos). Su mensaje: "a waiting permission is insisted on after 5 minutes" (en un permiso que espera se insiste tras 5 minutos).
 - `21e7288` (2026-11-06) "refactor: drop the loop alert, the spending count and the open-conversations line" (quitar la alerta de bucle, la cuenta del gasto y la línea de conversaciones abiertas).
 
-### Un prompt que puedes usar
+## Código de referencia
 
-El siguiente prompt se escribió para esta guía como sugerencia. No es el prompt de quien creó Narsil.
-
-> En mi mod de Claude Code `my-pet`, recuérdame una vez cuando un permiso espere demasiado. Guarda una variable del módulo `waiting` con `since`, `what` e `isNudged`. Iníciala en `classic.PermissionRequest` después de `next(e)`, salvo que `result.decision` esté definido o `e.permission_mode` sea `bypassPermissions`. Bórrala en `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, cualquier otro `tool.call`, `turn.start` y `turn.complete`. No uses `$.clock.after`: en `session.start`, arranca un único latido `$.clock.every(2000, ...)` que, cuando hayan pasado cinco minutos e `isNudged` sea falso, lo active y envíe una notificación con `$.ui.notify`. Añade un test con un reloj simulado: nada a los 4 minutos y 50 segundos, exactamente un recordatorio tras 15 minutos, y ninguno cuando el permiso se respondió al cabo de un minuto.
-
-## El código mínimo
+Esta es una respuesta correcta, escrita para esta guía. Léela para entender cómo encajan las piezas y para compararla con lo que Claude escribió para ti: Claude puede elegir otros nombres u otro orden y aun así estar en lo cierto.
 
 Escrito para esta guía y comprobado con los tipos de 2.1.325 (`classic.PermissionRequest` y su `decision`, `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, `$.clock.every`, `$.clock.now`, `$.ui.notify`). Está adaptado de `hooks/register.tsx` y `hooks/watch.ts` en [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

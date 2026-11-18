@@ -3,7 +3,7 @@ title: I tuoi /comandi
 description: 'Come /narsil viene registrato come un solo comando slash con molti sottocomandi, come vengono smistate le sue parole, come il comando da solo fa anche da aiuto, e come testarlo.'
 route: pet
 order: 17
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -122,7 +122,27 @@ L'elenco delle parole vive in tre posti: la descrizione, la riga d'uso e il READ
 
 Ogni ramo restituisce `{ text }`, un `CommandRunResult`. Due dei suoi campi meritano di essere conosciuti anche se Narsil non li usa. `context` è "What the model reads after the command's output and the person never sees" (ciò che il modello legge dopo l'output del comando e che la persona non vede mai). `isTextDisplayOnly` tiene il testo fuori dalle richieste al modello, ma i tipi dicono che viene rispettato solo quando ogni plugin che aggancia il comando è incluso in Claude Code: "Any other plugin's text stays in requests" (il testo di qualsiasi altro plugin resta nelle richieste). Quindi tutto ciò che `/narsil` risponde, compresa la chiave del telefono della guida 15, fa parte di ciò che il modello legge.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un unico comando slash con sottocomandi, registrato quando inizia la sessione e servito da un solo hook. L'unica idea che Claude deve fare bene è lo smistamento: ogni funzionalità risponde alle proprie parole e restituisce `undefined` per il resto, e tutto ciò che avanza stampa le impostazioni e la riga d'uso.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Dai alla mia mod di Claude Code `my-pet` un solo comando slash, `/my-pet`, con sottocomandi. In `session.start`, chiama `$.command.register` con il nome e una descrizione che elenchi ogni sottocomando. Servilo con un solo hook `command.run` con matcher su `{ command: 'my-pet' }` che restituisca `{ text }` senza chiamare `next`. Normalizza `e.args` (spazi ai bordi rimossi, minuscolo, spazi singoli). Dai a ogni funzionalità la propria funzione che restituisca la risposta per le sue parole, la propria riga d'uso per una prima parola nota con un resto sconosciuto, o `undefined` per le parole che non sono sue, e concatenale. Associa le parole on/off semplici a una modifica di un atom `prefs` salvato con `$.store.set`. Per un argomento vuoto o sconosciuto, stampa le impostazioni attuali e la riga d'uso. Tieni allineati la descrizione, la riga d'uso e il README. Testa con `claude-code/testing`, chiamando `$.command.run({ command: 'my-pet', args, origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 100 } })`, che ogni parola risponda e che una parola sconosciuta stampi la riga d'uso.
+
+### Cosa controllare nella risposta di Claude
+
+1. `$.command.register` viene eseguito in `session.start`, in ogni sessione, perché una registrazione dura solo per la sessione.
+2. L'hook `command.run` riconosce il comando dal suo nome, restituisce `{ text }` e non chiama mai `next`.
+3. A `e.args` vengono tolti gli spazi ai bordi, viene messo in minuscolo e le sue sequenze di spazi vengono ridotte a uno prima di confrontare qualsiasi parola.
+4. La funzione di ogni funzionalità restituisce la sua risposta, la propria riga d'uso per una prima parola nota seguita da un resto sconosciuto, oppure `undefined`; un argomento vuoto o sconosciuto stampa le impostazioni e la riga d'uso.
+5. La descrizione e la riga d'uso elencano le stesse parole, idealmente da un'unica costante.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "`/my-pet  Tips OFF`, con spazi in più e maiuscole, risponde con la riga d'uso invece di disattivare i consigli".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per `/narsil` non è stata registrata. Ciò che è registrato è un passo del piano: in `docs/plan-advice.md`, tra i comandi che aggiungono i consigli, il piano dice:
 
@@ -132,7 +152,7 @@ In italiano: aggiorna la descrizione del comando e il testo d'uso di `/narsil`.
 
 Questa è la formulazione del piano, non la richiesta dell'autore.
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -G "Narsil, tu mascota" -- hooks/register.tsx`, che trova ogni commit che ha cambiato la descrizione registrata:
 
@@ -147,13 +167,9 @@ Da `git log -G "Narsil, tu mascota" -- hooks/register.tsx`, che trova ogni commi
 
 Il comando è cresciuto una parola alla volta, ciascuna con la funzionalità che controlla, e ogni commit ha toccato la descrizione nella stessa modifica. È l'abitudine che il piano chiede.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Dai alla mia mod di Claude Code `my-pet` un solo comando slash, `/my-pet`, con sottocomandi. In `session.start`, chiama `$.command.register` con il nome e una descrizione che elenchi ogni sottocomando. Servilo con un solo hook `command.run` con matcher su `{ command: 'my-pet' }` che restituisca `{ text }` senza chiamare `next`. Normalizza `e.args` (spazi ai bordi rimossi, minuscolo, spazi singoli). Dai a ogni funzionalità la propria funzione che restituisca la risposta per le sue parole, la propria riga d'uso per una prima parola nota con un resto sconosciuto, o `undefined` per le parole che non sono sue, e concatenale. Associa le parole on/off semplici a una modifica di un atom `prefs` salvato con `$.store.set`. Per un argomento vuoto o sconosciuto, stampa le impostazioni attuali e la riga d'uso. Tieni allineati la descrizione, la riga d'uso e il README. Testa con `claude-code/testing`, chiamando `$.command.run({ command: 'my-pet', args, origin: { kind: 'composer' }, presentation: { isFullscreen: false, columns: 100 } })`, che ogni parola risponda e che una parola sconosciuta stampi la riga d'uso.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Scritto per questa guida e verificato con i tipi della 2.1.325 (`$.command.register`, `command.run`, `$.store.get`, `$.store.set`, `session.start`). È adattato da `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L'atom `prefs` è dichiarato in `types/index.d.ts` come `{ isHidden: boolean; isMuted: boolean }`.
 

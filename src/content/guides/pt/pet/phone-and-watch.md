@@ -3,7 +3,7 @@ title: Alertas no celular e no relógio
 description: 'Como /narsil movil envia o que precisa de você a um tópico privado do ntfy.sh quando escreve de longe, com limite diário, tópico de estado silencioso, chave opcional que sela o conteúdo e Web Push.'
 route: pet
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -156,9 +156,29 @@ Duas observações de privacidade decorrem do código. A própria assinatura vai
 - **A chave vive em dois lugares**: no store do plugin, um arquivo JSON dentro do diretório de configuração do Claude Code, e na resposta de `/narsil movil clave`, que faz parte da conversa. As respostas dos comandos da Narsil não definem `isTextDisplayOnly`, e os tipos da 2.1.325 dizem que, fora os plugins incluídos no Claude Code, "Any other plugin's text stays in requests" (o texto de qualquer outro plugin permanece nas requisições), então o modelo também a lê. Trate a conversa como algo que contém a chave.
 - **O envio para na mesa.** Nada sai enquanto a sua última mensagem veio do terminal ou do aplicativo de desktop, exceto o teste.
 
-## Como foi pedido à IA
+## Construa com o Claude
 
-### Registrado: alertar o celular quando eu escrevo do celular
+Peça ao Claude que envie ao seu celular, pelo ntfy.sh, o que precisa de você, só enquanto você estiver longe. A única ideia que ele precisa acertar é que estar longe não é um evento: é lido de onde veio a sua última mensagem, `bridge` para o Remote Control e `composer` para a mesa.
+
+### Um prompt que você pode usar
+
+O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
+
+> No meu mod do Claude Code `my-pet`, acrescente alertas no celular pelo ntfy.sh. `/my-pet phone` cria um tópico `my-pet-` mais 20 caracteres hexadecimais de `crypto.randomUUID()`, salva-o em `$.store` e responde como assiná-lo no aplicativo ntfy, avisando que qualquer pessoa que conheça o tópico pode lê-lo. Registre onde a pessoa escreveu por último: em `prompt.submit` e `command.run`, `e.origin.kind === 'bridge'` significa longe e `'composer'` significa na mesa; guarde isso em `$.store` para que todas as conversas o compartilhem. Quando um turno da conversa principal terminar, e só enquanto a pessoa estiver longe, publique `{ topic, title, message, priority }` como JSON em `https://ntfy.sh` com `$.http.fetch`. Conte as mensagens por dia UTC em `$.store` e pare em 200. Nunca ponha o tópico em logs. Teste com `claude-code/testing`, respondendo você mesmo a `http.fetch`: nada é enviado da mesa, um alerta é enviado pela ponte, e a 201ª do dia não é.
+
+### O que conferir na resposta do Claude
+
+1. O tópico é `my-pet-` seguido de 20 caracteres hexadecimais de `crypto.randomUUID()`, nunca um nome que alguém possa adivinhar, e ele nunca aparece num log.
+2. Tanto `prompt.submit` quanto `command.run` registram a origem, e ela é guardada em `$.store`, então todas as conversas a compartilham.
+3. Nada é publicado enquanto a última mensagem veio da mesa.
+4. As mensagens são contadas por dia UTC em `$.store`, a contagem é conferida antes de cada mensagem, e o envio para em 200.
+5. A resposta do comando avisa que qualquer pessoa que conheça o tópico pode lê-lo.
+
+Se uma verificação falhar, diga ao Claude o que você vê: "meu celular vibra enquanto eu estou digitando na mesa".
+
+### Como a pessoa autora pediu
+
+#### Registrado: alertar o celular quando eu escrevo do celular
 
 A regra do celular, tal como funciona hoje, foi pedida no registro de tarefas da visão de frota, `odd/tasks/fleet-view.md`. L1 (2026-11-06), o pedido original, inclui:
 
@@ -176,7 +196,7 @@ O registro de tarefas anota o resultado em L9 (T4 concluída): "Where you last w
 
 L9 também descreve um estado `-estado` mais rico, com uma lista `sessions` e os campos da conversa mais importante. Esse estado foi reduzido depois: `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (enviar pelo ntfy só o que a extensão do Firefox lê) deixou os cinco campos acima. O código e o README concordam nos cinco.
 
-### Reconstrução a partir do histórico de commits
+#### Reconstrução a partir do histórico de commits
 
 Os passos anteriores não foram registrados. A partir de `git log -- hooks/phone.ts hooks/seal.ts` e dos commits relacionados:
 
@@ -192,13 +212,9 @@ Os passos anteriores não foram registrados. A partir de `git log -- hooks/phone
 
 O histórico mostra uma funcionalidade moldada pelos seus receptores: a cada vez que o aplicativo do outro lado mudou, o lado do mod mudou com ele.
 
-### Um prompt que você pode usar
+## Código de referência
 
-O prompt a seguir foi escrito para este guia como sugestão. Não é o prompt da pessoa autora.
-
-> No meu mod do Claude Code `my-pet`, acrescente alertas no celular pelo ntfy.sh. `/my-pet phone` cria um tópico `my-pet-` mais 20 caracteres hexadecimais de `crypto.randomUUID()`, salva-o em `$.store` e responde como assiná-lo no aplicativo ntfy, avisando que qualquer pessoa que conheça o tópico pode lê-lo. Registre onde a pessoa escreveu por último: em `prompt.submit` e `command.run`, `e.origin.kind === 'bridge'` significa longe e `'composer'` significa na mesa; guarde isso em `$.store` para que todas as conversas o compartilhem. Quando um turno da conversa principal terminar, e só enquanto a pessoa estiver longe, publique `{ topic, title, message, priority }` como JSON em `https://ntfy.sh` com `$.http.fetch`. Conte as mensagens por dia UTC em `$.store` e pare em 200. Nunca ponha o tópico em logs. Teste com `claude-code/testing`, respondendo você mesmo a `http.fetch`: nada é enviado da mesa, um alerta é enviado pela ponte, e a 201ª do dia não é.
-
-## O código mínimo
+Esta é uma resposta correta, escrita para este guia. Leia-a para entender como as peças se encaixam e para compará-la com o que o Claude escreveu para você: o Claude pode escolher outros nomes ou outra ordem e ainda assim estar certo.
 
 Escrito para este guia e conferido com os tipos da 2.1.325 (`$.store.get`, `$.store.set`, `$.http.fetch`, `$.clock.now`, `$.command.register`, `command.run`, `prompt.submit`, `turn.complete`, `crypto.randomUUID`). Foi adaptado de `hooks/phone.ts` e `hooks/register.tsx` do [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Ele envia texto simples; para a selagem, leia `hooks/seal.ts`.
 

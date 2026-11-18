@@ -3,7 +3,7 @@ title: Reazioni ai comandi
 description: 'Come Narsil legge i comandi di shell che Claude esegue: festeggia i test che passano, nota quelli che falliscono e avvisa dei comandi irreversibili senza mai bloccarli.'
 route: pet
 order: 9
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Un hook `tool.call` potrebbe rifiutare la chiamata: i tipi della 2.1.325 documen
 
 Le reazioni passano per `setMood`, l'unico punto di ingresso della prima guida: l'umore resta quello dello strumento ("in esecuzione" per una shell, "spaventata" in caso di fallimento), e la riga del commento porta l'avviso o il festeggiamento. La riga del log del terminale viene scritta con `$.ui.log`, tagliata alla prima riga del comando e a 120 caratteri. L'avviso viene impostato prima di `next(e)`, così è sullo schermo mentre il comando aspetta il permesso o viene eseguito.
 
-## Come è stata chiesta all’IA
+## Costruiscila con Claude
+
+Chiedi a Claude un hook `tool.call` che legga i comandi della shell, avvisi prima dei comandi che non si possono annullare e reagisca ai risultati dei test. L'unica idea che Claude deve fare bene: l'hook avvisa, e non blocca mai.
+
+### Un prompt che puoi usare
+
+Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
+
+> Nella mia mod di Claude Code `my-pet`, aggiungi un hook `tool.call` che reagisca ai comandi di shell. Salta le chiamate il cui `next.origin.plugin` non è `"engine"`, e gli strumenti diversi da `Bash` e `PowerShell`. Prima di chiamare `next(e)`, confronta `e.command` con un elenco di espressioni regolari con un nome per i comandi che non si possono annullare (cancellazione ricorsiva forzata, push forzato ma non `--force-with-lease`, reset hard, eliminazione di una tabella); in caso di corrispondenza, scrivi un avviso con il nome in un atom mostrato nella fascia `AbovePrompt` e registralo con `$.ui.log`, e non restituire mai `{ deny }`. Dopo `next(e)`, se il comando corrisponde a un pattern di runner di test, mostra "I test passano" quando `result.isError` è false e "I test falliscono" quando è true, e "Recuperati" quando passano dopo un fallimento. Aggiungi test con `claude-code/testing` in cui allo strumento risponde un hook, così niente viene eseguito davvero.
+
+### Cosa controllare nella risposta di Claude
+
+1. L'hook salta le chiamate il cui `next.origin.plugin` non è `"engine"`, e ogni strumento diverso da `Bash` e `PowerShell`.
+2. L'avviso viene impostato prima di `next(e)`, così è sullo schermo mentre il comando attende il permesso o è in esecuzione.
+3. Nessun percorso dell'hook restituisce `{ deny }`.
+4. Il successo o il fallimento si legge da `result.isError`, non dall'output dei test, e un flag ricorda un fallimento, così il successo seguente dice "Recovered".
+5. I test rispondono allo strumento da un hook, così nessun comando distruttivo viene eseguito davvero.
+
+Se un controllo fallisce, di' a Claude cosa vedi: "l'avviso compare solo dopo che il comando è finito", oppure "il pet resta nello stato di lavoro dopo che un'altra mod chiama uno strumento".
+
+### Come l'ha chiesta l'autore
 
 La richiesta originale per queste reazioni non è stata registrata. Sono arrivate il 2026-10-30, prima dei log pubblici dei task del progetto (`odd/tasks/fleet-view.md` inizia il 2026-11-06 e non le menziona).
 
-### Ricostruzione dalla cronologia dei commit
+#### Ricostruzione dalla cronologia dei commit
 
 Da `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` in narsil-pet:
 
@@ -117,13 +137,9 @@ Da `git log -- hooks/register.tsx hooks/words.ts hooks/watch.ts` in narsil-pet:
 
 I pattern stessi non sono cambiati da quando sono stati scritti: `git log -S` li trova solo nel primo commit e nello spostamento.
 
-### Un prompt che puoi usare
+## Codice di riferimento
 
-Il prompt seguente è stato scritto per questa guida come suggerimento. Non è il prompt dell'autore.
-
-> Nella mia mod di Claude Code `my-pet`, aggiungi un hook `tool.call` che reagisca ai comandi di shell. Salta le chiamate il cui `next.origin.plugin` non è `"engine"`, e gli strumenti diversi da `Bash` e `PowerShell`. Prima di chiamare `next(e)`, confronta `e.command` con un elenco di espressioni regolari con un nome per i comandi che non si possono annullare (cancellazione ricorsiva forzata, push forzato ma non `--force-with-lease`, reset hard, eliminazione di una tabella); in caso di corrispondenza, scrivi un avviso con il nome in un atom mostrato nella fascia `AbovePrompt` e registralo con `$.ui.log`, e non restituire mai `{ deny }`. Dopo `next(e)`, se il comando corrisponde a un pattern di runner di test, mostra "I test passano" quando `result.isError` è false e "I test falliscono" quando è true, e "Recuperati" quando passano dopo un fallimento. Aggiungi test con `claude-code/testing` in cui allo strumento risponde un hook, così niente viene eseguito davvero.
-
-## Il codice minimo
+Questa è una risposta corretta, scritta per questa guida. Leggila per capire come si incastrano i pezzi e per confrontarla con ciò che Claude ha scritto per te: Claude può scegliere altri nomi o un altro ordine ed essere comunque nel giusto.
 
 Scritto per questa guida e verificato con i tipi della 2.1.325 (`tool.call`, `next.origin`, `$.ui.log`, `ui.render`). È adattato da `hooks/register.tsx` e `hooks/words.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). L'atom `line` è dichiarato in `types/index.d.ts` come nella prima guida, con il tipo `string`.
 

@@ -3,7 +3,7 @@ title: Drawing and animations
 description: 'How Narsil is drawn: one pose per state, light and dark art in one SVG, animated loops made from AI videos, and the 131072-character limit of the band.'
 route: pet
 order: 2
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -110,11 +110,31 @@ The floating window has no such limit, so it shows a sharper copy of each loop. 
 
 A full drawing is large (the code says "some 100 KB"), and the band and the window ask for the same one again and again. `sprite` keeps the last eight drawings in a `Map` keyed by mood, stage and milestone, and `pushOverlay` in `hooks/register.tsx` sends the SVG to the window only when it changed (commit `19106d1` "perf: reuse Narsil's drawing and send it to the window only when it changes").
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a function that builds one SVG drawing of your pet for the band, with a light and a dark picture inside. The one idea Claude must get right: the whole drawing, both themes included, must stay within the band's limit of 131072 characters.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not one of the prompts recorded in narsil-pet.
+
+> In my Claude Code mod, add a function `petSvg(status)` that returns one SVG document for the `Svg` element of the `AbovePrompt` band. It holds a light and a dark version of my character (data URLs from `hooks/art.ts`), shows the right one with a `prefers-color-scheme` media query inside the SVG, and gives each status a small CSS animation (bob while working, slow breathing while idle, a short shake on error). Turn animations off under `prefers-reduced-motion`. Throw if the document is longer than 131072 characters, and add a test that every status, in both themes, fits. On the terminal, draw a text face instead, since the terminal has no `Svg`.
+
+### What to check in Claude's answer
+
+1. The SVG holds both pictures, and a `prefers-color-scheme` media query inside the SVG shows one of them. The mod itself never chooses the theme.
+2. The code checks the length of the finished drawing against 131072 characters, and a test checks it for every status in both themes.
+3. A `prefers-reduced-motion: reduce` rule turns every animation off.
+4. On the terminal (`e.surface === 'terminal'`), the band draws a text face, because the terminal has no `Svg`.
+5. The animation moves the picture itself, not a warped copy laid over it.
+
+If a check fails, tell Claude what you see: "on a dark desktop the band shows the light picture", or "the band shows nothing for one status".
+
+### How the author asked for it
 
 There are two parts to this story. The still art and its CSS motion came first, and their requests were not recorded. The animated loops have a public task log, `odd/tasks/animated-poses.md` in narsil-pet, which quotes the author's requests word for word.
 
-### Reconstruction from the commit history (still art)
+#### Reconstruction from the commit history (still art)
 
 From `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 
@@ -124,7 +144,7 @@ From `git log -- hooks/sprite.ts hooks/art.ts tools/build-art.ps1`:
 - `9f9cc75` and `6ac340e` (2026-10-31), the fixes for the doubled picture described above.
 - `e79c512` (2026-11-09) "feat: make Narsil's body undulate and her rest less mechanical". Its message describes the bands that "only meet" and says that at rest she "only starts to snore after a minute".
 
-### The recorded request for the animated loops
+#### The recorded request for the animated loops
 
 The log's first entry, L1, dated 2026-11-15:
 
@@ -143,7 +163,7 @@ The specs of the same file quote the corrections that followed, and each one cha
 
 The log also records how the videos were made. At first the videos came from Veo in the Gemini app, and the quota ran out after two videos (L4). In L8 (2026-11-16) the author asked Claude to make the videos in their browser and to stop whenever Veo's limit came. In L9 (2026-11-16) the author asked "antes de continuar, no es posible avanzar en los videos usando flow?" (before going on, can we move forward on the videos with Flow?). Flow had its own credits, and its Frames mode, with her picture as both the first and the last frame, gave a closed loop. In L10 (2026-11-16) the author asked for better quality or more motion and then said "prioriza la nitidez y luego mas movimiento" (prioritize sharpness, then more motion). The result, as L10 records: all 60 loops made in Flow, 3 seconds at 360p, with prompts asking for clear motion of her body, head and fins while the water stays calm, because churning water cost the band's loop its sharpness.
 
-### The prompt given to the video model
+#### The prompt given to the video model
 
 The prompt that went to the video model is recorded too, because a script writes it. `tools/anim-sources.ps1` prepares, for each missing loop, her picture on pure green (`#00FF00`) and a text file with the prompt from `Get-Prompt`. The prompt begins:
 
@@ -153,13 +173,9 @@ and goes on to ask for calm water, an identical character, a locked camera, the 
 
 Then `tools/encode-anim.ps1` keys out the green (`colorkey=0x00FF00`), drops the audio, crops to her, and runs a binary search over the WebP quality to land under the size target. `tools/build-animated.ps1`, which it calls, embeds the result.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not one of the prompts recorded in narsil-pet.
-
-> In my Claude Code mod, add a function `petSvg(status)` that returns one SVG document for the `Svg` element of the `AbovePrompt` band. It holds a light and a dark version of my character (data URLs from `hooks/art.ts`), shows the right one with a `prefers-color-scheme` media query inside the SVG, and gives each status a small CSS animation (bob while working, slow breathing while idle, a short shake on error). Turn animations off under `prefers-reduced-motion`. Throw if the document is longer than 131072 characters, and add a test that every status, in both themes, fits. On the terminal, draw a text face instead, since the terminal has no `Svg`.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 A reduced version, written for this guide and checked against the 2.1.325 types. The structure (two themes in one SVG, the size check, the terminal face) is adapted from `hooks/sprite.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). Narsil's drawings are GPL v3 too: if you use them, keep the attribution and a link to the repository.
 
