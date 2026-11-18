@@ -150,6 +150,11 @@ const CHECK_GUIDES = [
   'pinned-versions',
   'explain-major',
   'trivial-updates',
+  'creating-the-pr',
+  'vulnerabilities',
+  'to-dos',
+  'tools-for-claude',
+  'kotlin-gradle-agp',
 ]
 
 test.describe('Review panel path', () => {
