@@ -14,7 +14,6 @@ import { defaultLocale, isLocale, languageTags, locales, type Locale } from '@i1
 import { useTranslations } from '@i18n/utils'
 import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
-import { donationLink, resolveDonationUrl } from '@utils/donation'
 import { guideRefs } from '@content/guide-pages'
 import { guidesFor, routeHref } from '@utils/guides'
 import { fillTemplate } from '@utils/template'
@@ -35,7 +34,6 @@ export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
 const rawLocale = Astro.params.locale ?? ''
 const locale: Locale = isLocale(rawLocale) ? rawLocale : defaultLocale
 const t = useTranslations(locale)
-const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION_URL))
 
 const [working, waiting, done, failed] = t.home.states.items
 const refs = await guideRefs()
@@ -137,37 +135,28 @@ const jsonLd = [
     ]}
   />
 
-  <div class="home-extras">
-    <section class="home-extras-item">
-      <Card variant="outlined">
-        <CardBody class="flex flex-col items-start gap-3">
-          <div data-extension class="contents">
+  <section class="home-extension">
+    <Card variant="outlined">
+      <CardBody class="home-extension-body">
+        <div data-extension class="contents">
+          <div class="home-extension-copy">
             <Badge color="warning">{t.home.extension.badge}</Badge>
             <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
             <Text as="p">{t.home.extension.text}</Text>
             <Text as="p" size="sm" tone="muted">
               {t.home.extension.note}
             </Text>
-            <Button href={routeHref(locale, 'claude')} variant="outline" data-extension-guides>
-              {t.home.extension.cta}
-            </Button>
           </div>
-        </CardBody>
-      </Card>
-    </section>
-
-    {donation !== undefined && (
-      <section class="home-extras-item">
-        <Card>
-          <CardBody class="flex flex-col items-start gap-4">
-            <h2 class="text-2xl font-bold tracking-tight">{t.home.coffeeTitle}</h2>
-            <Text as="p">{t.home.coffeeText}</Text>
-            <Button href={donation.url} target="_blank" rel="noopener" data-donate>
-              {t.home.coffeeCta}
-            </Button>
-          </CardBody>
-        </Card>
-      </section>
-    )}
-  </div>
+          <Button
+            href={routeHref(locale, 'claude')}
+            variant="outline"
+            class="home-extension-cta"
+            data-extension-guides
+          >
+            {t.home.extension.cta}
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
+  </section>
 </SiteLayout>

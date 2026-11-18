@@ -79,19 +79,18 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
     slot="footer"
     brand={t.meta.siteName}
     description={`${t.footer.description} ${t.footer.privacy}`}
-    copyright={`${t.footer.trademark} ${t.footer.license}`}
+    copyright={t.footer.trademark}
+    notes={[t.footer.license]}
   >
     {donation !== undefined && (
-      <Button
-        href={donation.url}
-        variant="outline"
-        size="sm"
-        target="_blank"
-        rel="noopener"
-        data-donate
-      >
-        {t.footer.donate}
-      </Button>
+      <Fragment slot="support">
+        <p class="footer-support-text" data-footer-support>
+          {t.footer.support}
+        </p>
+        <Button href={donation.url} target="_blank" rel="noopener" data-donate>
+          {t.footer.donate}
+        </Button>
+      </Fragment>
     )}
   </Footer>
 </BaseLayout>

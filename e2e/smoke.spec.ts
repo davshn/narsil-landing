@@ -30,6 +30,7 @@ test.describe('Landing page smoke tests', () => {
       const extension = page.locator('[data-extension]')
       await expect(extension).toContainText(t.home.extension.badge)
       await expect(extension.getByRole('heading', { name: t.home.extension.title })).toBeVisible()
+      await expect(page.locator('main [data-donate]')).toHaveCount(0)
     })
 
     test(`/${locale}/support/ lists the coffee link and the public mod repositories`, async ({
@@ -74,6 +75,7 @@ test.describe('Landing page smoke tests', () => {
     const t = useTranslations('en')
     await page.goto('/en/')
     const footer = page.locator('footer')
+    await expect(footer.locator('[data-footer-support]')).toHaveText(t.footer.support)
     await expect(footer.locator('[data-donate]')).toHaveText(t.footer.donate)
     await expect(footer).toContainText(t.footer.trademark)
     await expect(footer).toContainText(t.footer.license)

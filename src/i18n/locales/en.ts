@@ -25,6 +25,7 @@ export const en: TranslationShape = {
     description:
       'Free guides to build Claude Code mods and a Narsil desk bot with Claude, and to understand what you built.',
     donate: 'Buy me a coffee',
+    support: 'Free, with no ads and no sign-up.',
     trademark:
       'Claude and Claude Code are trademarks of Anthropic, PBC. This project is not affiliated with or endorsed by Anthropic.',
     privacy: 'This site has no analytics and never asks for your tokens or keys.',
@@ -108,10 +109,6 @@ export const en: TranslationShape = {
         icon: 'lucide:smartphone',
       },
     ],
-    coffeeTitle: 'Free, and it will stay free',
-    coffeeText:
-      'No ads, no sign-up, and no price. If a guide helps you, you can buy me a coffee to help write the next one.',
-    coffeeCta: 'Buy me a coffee',
     extension: {
       badge: 'Experimental',
       title: 'Narsil in Claude, the browser extension',

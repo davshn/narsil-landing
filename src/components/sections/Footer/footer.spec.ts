@@ -67,5 +67,26 @@ describe('Footer', () => {
     expect(host.querySelector('.footer-copyright')?.textContent).toBe('© Acme Inc.')
     expect(host.querySelector('.footer-groups')).toBeNull()
     expect(host.querySelector('.footer-social')).toBeNull()
+    expect(host.querySelector('.footer-support')).toBeNull()
+  })
+
+  it('renders the support slot beside the brand', async () => {
+    const host = await render(Footer, {
+      props: { brand: 'Acme' },
+      slots: { support: '<a href="/coffee">Coffee</a>' },
+    })
+
+    expect(host.querySelector('.footer-top .footer-support a')?.textContent).toBe('Coffee')
+  })
+
+  it('renders each legal note as its own paragraph after the copyright', async () => {
+    const host = await render(Footer, {
+      props: { copyright: 'Trademark notice.', notes: ['License one.', 'License two.'] },
+    })
+    const lines = [...host.querySelectorAll('.footer-bottom .footer-copyright')].map(
+      (p) => p.textContent,
+    )
+
+    expect(lines).toEqual(['Trademark notice.', 'License one.', 'License two.'])
   })
 })

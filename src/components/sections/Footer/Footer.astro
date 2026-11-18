@@ -26,13 +26,23 @@ interface Props {
   groups?: FooterGroup[]
   social?: SocialLink[]
   copyright?: string
+  notes?: string[]
   class?: string
 }
 
-const { brand, description, groups = [], social = [], copyright, class: className } = Astro.props
+const {
+  brand,
+  description,
+  groups = [],
+  social = [],
+  copyright,
+  notes = [],
+  class: className,
+} = Astro.props
 const classes = ['footer', className].filter(Boolean).join(' ')
 const year = new Date().getFullYear()
 const copyrightText = copyright ?? `${year} ${brand ?? ''}. All rights reserved.`
+const hasSupport = Astro.slots.has('support')
 ---
 
 <footer class={classes}>
@@ -78,10 +88,19 @@ const copyrightText = copyright ?? `${year} ${brand ?? ''}. All rights reserved.
           ))}
         </div>
       )}
+
+      {hasSupport && (
+        <div class="footer-support">
+          <slot name="support" />
+        </div>
+      )}
     </div>
 
     <div class="footer-bottom">
       <p class="footer-copyright">{copyrightText}</p>
+      {notes.map((note) => (
+        <p class="footer-copyright">{note}</p>
+      ))}
       <slot />
     </div>
   </div>
