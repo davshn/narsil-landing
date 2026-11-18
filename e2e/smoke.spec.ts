@@ -9,6 +9,15 @@ test.describe('Landing page smoke tests', () => {
     await expect(page).toHaveURL(/\/(?:en|es|it|fr|pt)\/$/v)
   })
 
+  test('root declares the site icons for search engines', async ({ request }) => {
+    const html = await (await request.get('/')).text()
+    expect(html).toContain('<link rel="icon" href="/favicon.ico" sizes="48x48">')
+    expect(html).toContain(
+      '<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">',
+    )
+    expect(html).toContain('<link rel="apple-touch-icon" href="/apple-touch-icon.png">')
+  })
+
   for (const locale of locales) {
     const t = useTranslations(locale)
 
