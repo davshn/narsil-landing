@@ -3,7 +3,7 @@ title: Context and limits
 description: "How Narsil draws each conversation's context bar, estimates when it fills at the pace of the last 15 minutes, suggests /compact once, and shows the 5-hour and weekly limits."
 route: pet
 order: 7
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -108,9 +108,29 @@ The pieces in `hooks/usage.ts` are small and pure:
 
 The context belongs to a conversation, not to you. A single "context" figure for several conversations would average things that cannot be averaged. That is why the general bar was removed and every row got its own, as the next section records. The account limits are the opposite case: they belong to the account, so they show once.
 
-## How it was asked of the AI
+## Build it with Claude
 
-### Recorded: one bar per conversation
+Ask Claude to show the context window's fill and the account limits in the band, with an estimate of when the context fills. The one idea Claude must get right: Claude Code already has the figures, so the mod reads them from `$.session.usage()` and `session.measure` and never counts tokens or polls on a timer.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, show the context window's fill and the account's 5-hour and weekly limits in the `AbovePrompt` band. Read them once with `$.session.usage()` in `session.start` and then on every `session.measure` event, and keep them in an atom. Write the logic as pure functions in `hooks/usage.ts`: one that maps `context` and `rateLimits` (`five_hour`, `seven_day`) to my own shape, a ten-cell text bar, a color that turns amber at 60 % and red at 85 %, and `minutesToFull(samples, now)`, which estimates when the context fills from the readings of the last 15 minutes and returns null with less than a minute of readings or no growth. Suggest `/compact` once per fill when the context passes 70 % and fills within 20 minutes, or passes 85 %. Add tests for each function and check every API against the plugin-authoring types.
+
+### What to check in Claude's answer
+
+1. The figures are read once in `session.start` and then on every `session.measure` event, with no timer that asks again and again.
+2. With no rate-limit windows (an API key), no limit bars appear, rather than bars at 0 %.
+3. `minutesToFull` uses only the readings of the last 15 minutes and returns null with less than a minute of readings or no growth, and the readings are cleared when the context shrinks.
+4. The `/compact` suggestion comes once per fill: from 70 % when the context fills within 20 minutes, from 85 % always, behind a flag that resets only when the context drops (Narsil uses 50 %).
+5. The bars turn amber at 60 % and red at 85 %.
+
+If a check fails, tell Claude what you see: "the /compact suggestion came back at 71, 72 and 73 %", or "after /compact the estimate still says the context is almost full".
+
+### How the author asked for it
+
+#### Recorded: one bar per conversation
 
 The per-conversation bars were asked for in `odd/tasks/fleet-view.md` in narsil-pet, in the same conversation that produced the fleet view (L1 is dated 2026-11-06; the later entries carry no date). L3 (excerpt):
 
@@ -124,7 +144,7 @@ The breakdown was asked for in L2 (excerpt):
 
 In English: the detail of how the context fills should appear when you click the word "context". L7 records it done in the band. One day later, `250d2c6` (2026-11-07) "feat: open the context from its percent and let next steps stand alone" moved the band's control from the word to the percentage, which is where the README and the code put it today. In the floating window, the word "Contexto" still opens it.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 The bars, the estimate and the suggestion came before that log, and their requests were not recorded. From `git log -- hooks/usage.ts hooks/register.tsx`:
 
@@ -135,13 +155,9 @@ The bars, the estimate and the suggestion came before that log, and their reques
 - `d654e3b` (2026-11-06) "feat: list this conversation first with a blue context bar".
 - `250d2c6` (2026-11-07), above.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, show the context window's fill and the account's 5-hour and weekly limits in the `AbovePrompt` band. Read them once with `$.session.usage()` in `session.start` and then on every `session.measure` event, and keep them in an atom. Write the logic as pure functions in `hooks/usage.ts`: one that maps `context` and `rateLimits` (`five_hour`, `seven_day`) to my own shape, a ten-cell text bar, a color that turns amber at 60 % and red at 85 %, and `minutesToFull(samples, now)`, which estimates when the context fills from the readings of the last 15 minutes and returns null with less than a minute of readings or no growth. Suggest `/compact` once per fill when the context passes 70 % and fills within 20 minutes, or passes 85 %. Add tests for each function and check every API against the plugin-authoring types.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.session.usage`, `session.measure`, `SessionContextUsage`, `SessionRateLimit`, `$.clock.now`, `$.ui.toast`). It is adapted from `hooks/usage.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `usage` atom is declared in `types/index.d.ts` as in the first guide.
 

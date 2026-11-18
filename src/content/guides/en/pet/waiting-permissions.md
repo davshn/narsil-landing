@@ -3,7 +3,7 @@ title: Permissions that wait
 description: 'How Narsil insists once when a permission, a question or a plan has waited five minutes for you, and why it checks on a heartbeat instead of setting a timer.'
 route: pet
 order: 10
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Neither the code nor the README says why; this guide's reading is that if five m
 
 `announce` keeps the person's own choices: muted or quiet means no voice, and the floating window turned off means a system notification instead. Quiet mode (`/narsil discreto`) silences only the end-of-turn announcements, so a reminder that something needs you still arrives, without the voice.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for one reminder when a permission, a question or a plan has waited five minutes for you. The one idea Claude must get right is to check the wait on a heartbeat instead of setting a timer, and to clear the wait on every sign that you answered.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, remind me once when a permission waits too long. Keep a module variable `waiting` with `since`, `what` and `isNudged`. Start it in `classic.PermissionRequest` after `next(e)`, unless `result.decision` is set or `e.permission_mode` is `bypassPermissions`. Clear it in `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, any other `tool.call`, `turn.start` and `turn.complete`. Do not use `$.clock.after`: in `session.start`, start one `$.clock.every(2000, ...)` heartbeat that, when five minutes have passed and `isNudged` is false, sets it and sends one notification with `$.ui.notify`. Add a test with a mocked clock: nothing at 4 minutes 50 seconds, exactly one reminder after 15 minutes, and none when the permission was answered after one minute.
+
+### What to check in Claude's answer
+
+1. There is no `$.clock.after`: one `$.clock.every(2000, ...)` heartbeat, started in `session.start`, compares when the wait started with the clock.
+2. A wait starts in `classic.PermissionRequest` after `next(e)`, and not when `result.decision` is set or the mode is `bypassPermissions`.
+3. Every way out clears the wait: `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, another `tool.call`, `turn.start` and `turn.complete`.
+4. An `isNudged` flag makes the reminder go out once per wait.
+5. The test with a mocked clock finds nothing at 4 minutes 50 seconds, exactly one reminder later, and none when the permission was answered after one minute.
+
+If a check fails, tell Claude what you see: "I got a reminder for a permission I allowed minutes ago".
+
+### How the author asked for it
 
 The original request for the reminder was not recorded. It arrived on 2026-10-30, before the public task logs.
 
-### Recorded: the loop alert that left
+#### Recorded: the loop alert that left
 
 The reminder was born in the same commit as a loop alert, which warned when Claude kept failing or editing the same files. The author's first request in `odd/tasks/fleet-view.md` in narsil-pet, L1 (2026-11-06, excerpt), removed that one:
 
@@ -114,7 +134,7 @@ The reminder was born in the same commit as a loop alert, which warned when Clau
 
 In English: we would remove the loop alert, I have not found it that useful. The task log turns it into S9, "Loop alert removed", and commit `21e7288` drops it. The reminder for a waiting permission stayed.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/watch.ts`:
 
@@ -124,13 +144,9 @@ From `git log -- hooks/register.tsx hooks/watch.ts`:
 - `2bcc97c` (2026-11-05) "feat: open the context breakdown from the usage bars and calm loop, steps and permission alerts". Its message: "a waiting permission is insisted on after 5 minutes".
 - `21e7288` (2026-11-06) "refactor: drop the loop alert, the spending count and the open-conversations line".
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, remind me once when a permission waits too long. Keep a module variable `waiting` with `since`, `what` and `isNudged`. Start it in `classic.PermissionRequest` after `next(e)`, unless `result.decision` is set or `e.permission_mode` is `bypassPermissions`. Clear it in `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, any other `tool.call`, `turn.start` and `turn.complete`. Do not use `$.clock.after`: in `session.start`, start one `$.clock.every(2000, ...)` heartbeat that, when five minutes have passed and `isNudged` is false, sets it and sends one notification with `$.ui.notify`. Add a test with a mocked clock: nothing at 4 minutes 50 seconds, exactly one reminder after 15 minutes, and none when the permission was answered after one minute.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`classic.PermissionRequest` and its `decision`, `classic.PostToolUse`, `classic.PostToolUseFailure`, `classic.PermissionDenied`, `$.clock.every`, `$.clock.now`, `$.ui.notify`). It is adapted from `hooks/register.tsx` and `hooks/watch.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

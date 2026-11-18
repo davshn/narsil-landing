@@ -120,8 +120,8 @@ test.describe('Status pet path', () => {
       await expect(page.locator('[data-guide-body] > h2')).toHaveText([
         'What it does',
         'How it works inside',
-        'How it was asked of the AI',
-        'The minimal code',
+        'Build it with Claude',
+        'Reference code',
         'Common mistakes and how to test it',
         'Going further',
       ])
@@ -226,7 +226,7 @@ test.describe('Guide workshop layout', () => {
       document.querySelectorAll('[data-guide-body] > h2')[3]?.scrollIntoView({ block: 'start' })
     })
     const toc = page.getByRole('navigation', { name: t.guide.tocTitle })
-    await expect(toc.locator('[aria-current="location"]')).toHaveText('The minimal code')
+    await expect(toc.locator('[aria-current="location"]')).toHaveText('Reference code')
   })
 
   test('folds the path and the table of contents above the text on a phone', async ({ page }) => {

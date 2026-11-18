@@ -3,7 +3,7 @@ title: Quiet mode
 description: 'How /narsil discreto silences Narsil without losing the alerts that matter: what stops, what still gets through, and why the line is drawn at "she needs you".'
 route: pet
 order: 14
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -108,11 +108,31 @@ Reading the code also tells you what stays, and it is worth knowing:
 
 When the mode is on, the bare `/narsil` command adds a line to its report: "Modo discreto activado: sin voz, sin avisos de fin de turno ni consejos o pasos automáticos." ("Quiet mode on: no voice, no end-of-turn alerts, no automatic tips or steps.")
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for one saved preference that turns down every noise the mod makes. The one idea it must get right is where the line falls: a finished turn can wait, but a question or an error still gets through, without the voice.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> My Claude Code mod `my-pet` speaks, alerts at the end of each turn and shows tips. Add a quiet mode: `/my-pet quiet` and `/my-pet normal` set a boolean `isQuiet` in the preferences, saved with `$.store.set` and loaded at `session.start`. In the function that sends every alert, which takes a kind (`done`, `question`, `error`), return early for `done` when quiet unless the alert is a forced test, and never speak when quiet; questions and errors still show. Also skip the automatic tips when quiet, but keep tips the person asks for. Leave the band as it is. Add tests with `claude-code/testing`: in quiet mode a finished turn makes no notification and no voice, and an `AskUserQuestion` call still notifies.
+
+### What to check in Claude's answer
+
+1. `/my-pet quiet` and `/my-pet normal` change only `isQuiet`, and the preference is saved with `$.store.set` and loaded at `session.start`, so it lasts across sessions.
+2. In the function that sends every alert, a `done` alert returns early in quiet mode unless it is the forced test, and a `question` or an `error` still shows.
+3. The voice is skipped in quiet mode for every kind of alert.
+4. Automatic tips are skipped in quiet mode, but a tip the person asks for still answers.
+5. The band is drawn as before: quiet mode stops interruptions, not information.
+
+If a check fails, tell Claude what you see: "in quiet mode a permission dialog waits and nothing tells me".
+
+### How the author asked for it
 
 The original request for quiet mode was not recorded. The project's public task logs do not cover it.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -S isQuiet -- hooks/register.tsx` in narsil-pet:
 
@@ -121,13 +141,9 @@ From `git log -S isQuiet -- hooks/register.tsx` in narsil-pet:
 
 The mode arrived late in the first week, after the voice, the alerts, the tips and the next steps already existed. That order fits a common path: a mod gains features one at a time, and only once they pile up does it need a single switch to turn them down.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> My Claude Code mod `my-pet` speaks, alerts at the end of each turn and shows tips. Add a quiet mode: `/my-pet quiet` and `/my-pet normal` set a boolean `isQuiet` in the preferences, saved with `$.store.set` and loaded at `session.start`. In the function that sends every alert, which takes a kind (`done`, `question`, `error`), return early for `done` when quiet unless the alert is a forced test, and never speak when quiet; questions and errors still show. Also skip the automatic tips when quiet, but keep tips the person asks for. Leave the band as it is. Add tests with `claude-code/testing`: in quiet mode a finished turn makes no notification and no voice, and an `AskUserQuestion` call still notifies.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.store.get`, `$.store.set`, `$.command.register`, `command.run`, `$.ui.notify`, `session.start`, `turn.complete`, `tool.call`). It is adapted from `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `prefs` atom is declared in `types/index.d.ts` as `{ isQuiet: boolean }`. The empty `speak` function is where your own voice goes, such as the one in guide 6.
 

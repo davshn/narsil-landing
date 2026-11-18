@@ -3,7 +3,7 @@ title: Session summary
 description: 'How Narsil counts what a conversation has done (turns, files, commands, failures, subagents) and keeps counting when Claude Code restarts, for /narsil resumen and a summary after a pause.'
 route: pet
 order: 16
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -99,7 +99,27 @@ The heartbeat (`beat`, every 2 seconds) calls `tickWatch`, which shows the summa
 
 Then it calls `showTip($, await summarize($), 'summary')`. Reusing the tip's display means the summary gets the tip window, the band's three lines and the floating window for free. `summarizedFor` makes it once per pause: a new turn sets a new `c.at`, and the next pause can be summed up again.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a command that sums the conversation up from counts the mod keeps as the session goes. The one idea it must get right is where the counts live: in an atom, so a reload of the mod keeps them, and in `$.store` under one key per conversation, so a restart of Claude Code keeps them too.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, add `/my-pet summary`. Keep a `stats` atom with `startedAt`, `turns`, `workedMs`, `files` (distinct base names, at most 200), `commands`, `failures` and `agents`. Count turns and their `durationMs` in `turn.complete` of the main conversation; edited files from `Edit` and `Write` calls in `tool.call`; `Bash` calls as commands; any result with `isError` as a failure; subagents in `agent.spawn`. Change the atom only through one function that also saves it to `$.store` under `stats:` plus `$.session.id()`. At `session.start`, load it from the store only if the atom is empty, and validate what you read. Keep only the last 20 such keys. The command prints one line like "Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure". Test with `claude-code/testing`: a stored value under the session's key is continued, and a 25th old key is deleted.
+
+### What to check in Claude's answer
+
+1. Every count is in one atom, never in a module variable, and changes only through one function that also saves it.
+2. The store key is `stats:` followed by `$.session.id()`, so each conversation has its own counts.
+3. At `session.start` the store is read only when the atom is empty, and what is read is checked field by field before it is used.
+4. Turns are counted only for the main conversation in `turn.complete`, and an edited file is counted once per base name.
+5. Only the 20 most recent `stats:` keys are kept.
+
+If a check fails, tell Claude what you see: "after I restart Claude Code and take this conversation up again, the summary says 0 turns".
+
+### How the author asked for it
 
 The original request for the session summary was not recorded.
 
@@ -109,7 +129,7 @@ One recorded request touches the module the summary was born in. `hooks/watch.ts
 
 In English: we would remove the loop alert, I have not found it that useful. The task log records it as S9, and `21e7288` removed it. The summary and the reminder stayed.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/watch.ts` in narsil-pet:
 
@@ -123,13 +143,9 @@ From `git log -- hooks/watch.ts` in narsil-pet:
 
 The first correction is the instructive one: a summary that is lost when Claude Code restarts reports a fraction of the work, which is worse than none.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, add `/my-pet summary`. Keep a `stats` atom with `startedAt`, `turns`, `workedMs`, `files` (distinct base names, at most 200), `commands`, `failures` and `agents`. Count turns and their `durationMs` in `turn.complete` of the main conversation; edited files from `Edit` and `Write` calls in `tool.call`; `Bash` calls as commands; any result with `isError` as a failure; subagents in `agent.spawn`. Change the atom only through one function that also saves it to `$.store` under `stats:` plus `$.session.id()`. At `session.start`, load it from the store only if the atom is empty, and validate what you read. Keep only the last 20 such keys. The command prints one line like "Session of 12 min: 3 turns · 2 files edited (a.ts, b.ts) · 4 commands, 1 failure". Test with `claude-code/testing`: a stored value under the session's key is continued, and a 25th old key is deleted.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.session.id`, `$.store.get`, `$.store.set`, `$.clock.now`, `$.command.register`, `command.run`, `session.start`, `tool.call`, `turn.complete`, `agent.spawn`). It is adapted from `hooks/watch.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `stats` atom is declared in `types/index.d.ts` as `Stats | null`, with the type below. Pruning to 20 is left out; see `saveStats`.
 

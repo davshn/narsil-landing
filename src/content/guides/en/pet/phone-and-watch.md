@@ -3,7 +3,7 @@ title: Alerts on your phone and watch
 description: 'How /narsil movil sends what needs you to a private ntfy.sh topic while you write from away, with a daily limit, a silent state topic, an optional key that seals the content, and Web Push.'
 route: pet
 order: 15
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -156,9 +156,29 @@ Two privacy notes follow from the code. The subscription itself goes to ntfy.sh 
 - **The key lives in two places**: in the plugin's store, a JSON file under the Claude Code configuration directory, and in the answer of `/narsil movil clave`, which is part of the conversation. Narsil's command answers do not set `isTextDisplayOnly`, and the 2.1.325 types say that, apart from plugins bundled with Claude Code, "Any other plugin's text stays in requests", so the model reads it too. Treat the conversation as holding the key.
 - **Sending stops at the desk.** Nothing goes while your last message came from the terminal or the desktop app, except the test.
 
-## How it was asked of the AI
+## Build it with Claude
 
-### Recorded: alert the phone when I write from the phone
+Ask Claude to send what needs you to your phone through ntfy.sh, only while you are away. The one idea it must get right is that being away is not an event: it is read from where your last message came from, `bridge` for Remote Control and `composer` for the desk.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, add phone alerts through ntfy.sh. `/my-pet phone` creates a topic `my-pet-` plus 20 hex characters from `crypto.randomUUID()`, saves it in `$.store`, and answers how to subscribe in the ntfy app, warning that anyone who knows the topic can read it. Record where the person last wrote: in `prompt.submit` and `command.run`, `e.origin.kind === 'bridge'` means away and `'composer'` means at the desk; keep it in `$.store` so every conversation shares it. When a main-conversation turn ends, and only while away, post `{ topic, title, message, priority }` as JSON to `https://ntfy.sh` with `$.http.fetch`. Count the messages per UTC day in `$.store` and stop at 200. Never put the topic in logs. Test with `claude-code/testing`, answering `http.fetch` yourself: nothing is sent at the desk, an alert is sent from the bridge, and the 201st of the day is not.
+
+### What to check in Claude's answer
+
+1. The topic is `my-pet-` followed by 20 hex characters from `crypto.randomUUID()`, never a name someone could guess, and it never appears in a log.
+2. Both `prompt.submit` and `command.run` record the origin, and it is kept in `$.store`, so every conversation shares it.
+3. Nothing is posted while the last message came from the desk.
+4. The messages are counted per UTC day in `$.store`, the count is checked before each message, and sending stops at 200.
+5. The command's answer warns that anyone who knows the topic can read it.
+
+If a check fails, tell Claude what you see: "my phone buzzes while I am typing at the desk".
+
+### How the author asked for it
+
+#### Recorded: alert the phone when I write from the phone
 
 The phone rule as it works today was asked for in the fleet view's task log, `odd/tasks/fleet-view.md`. L1 (2026-11-06), the original request, includes:
 
@@ -176,7 +196,7 @@ The task log records the result in L9 (T4 done): "Where you last wrote (phone or
 
 L9 also describes a richer `-estado` state, with a `sessions` list and the most important conversation's fields. That state was later cut down: `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" left the five fields above. The code and the README agree on the five.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 The earlier steps were not recorded. From `git log -- hooks/phone.ts hooks/seal.ts` and the related commits:
 
@@ -192,13 +212,9 @@ The earlier steps were not recorded. From `git log -- hooks/phone.ts hooks/seal.
 
 The history shows a feature shaped by its receivers: each time the app on the other side changed, the mod's side changed with it.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, add phone alerts through ntfy.sh. `/my-pet phone` creates a topic `my-pet-` plus 20 hex characters from `crypto.randomUUID()`, saves it in `$.store`, and answers how to subscribe in the ntfy app, warning that anyone who knows the topic can read it. Record where the person last wrote: in `prompt.submit` and `command.run`, `e.origin.kind === 'bridge'` means away and `'composer'` means at the desk; keep it in `$.store` so every conversation shares it. When a main-conversation turn ends, and only while away, post `{ topic, title, message, priority }` as JSON to `https://ntfy.sh` with `$.http.fetch`. Count the messages per UTC day in `$.store` and stop at 200. Never put the topic in logs. Test with `claude-code/testing`, answering `http.fetch` yourself: nothing is sent at the desk, an alert is sent from the bridge, and the 201st of the day is not.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.store.get`, `$.store.set`, `$.http.fetch`, `$.clock.now`, `$.command.register`, `command.run`, `prompt.submit`, `turn.complete`, `crypto.randomUUID`). It is adapted from `hooks/phone.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). It sends plain text; for sealing, read `hooks/seal.ts`.
 

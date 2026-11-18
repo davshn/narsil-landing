@@ -3,7 +3,7 @@ title: The cache clock
 description: 'How Narsil counts down the prompt cache from the start of the last request, 60 minutes on a subscription and 5 with an API key, and why the next turn costs more once it goes cold.'
 route: pet
 order: 8
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -102,11 +102,31 @@ Each conversation also sends the hub `cacheEndsAt`, the moment its cache runs ou
 
 The README says the clock is green while fresh and red when about to expire, and `hooks/words.ts` has a `cacheColor` for it, based on how much of the cache's life is spent. In the current code `hooks/register.tsx` imports `cacheColor` but never calls it: the band draws the clock as dimmed text, and the floating window as a plain note. If you build your own, the color is a one-line addition, shown below.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a countdown that shows, after each turn, how long the prompt cache is expected to last. The one idea Claude must get right: the clock counts from the start of the last request, not from the end of the turn.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, show a prompt-cache countdown in the `AbovePrompt` band while Claude waits for me. In `turn.step`, for the main conversation only (`e.agentId === undefined`), record the time with `$.clock.now()` before the request and pass the stream through with `return yield* next(e)`. In `turn.complete`, for the main conversation, start a clock in an atom from that request time; clear it in `turn.start`. Last 60 minutes when `$.session.usage()` reports rate-limit windows and 5 minutes when it reports none, and let a `/pet cache <min>` command override it. Every few seconds with `$.clock.every`, recompute the whole minutes left, rounded up, and write the atom only when the number changed. Show "Cache: N min" and, at zero, "Cache cold: the next message is billed in full". Add a test with a mocked clock that a three-minute answer leaves two minutes of a five-minute cache.
+
+### What to check in Claude's answer
+
+1. The request time is recorded in `turn.step`, only for the main conversation (`e.agentId === undefined`), and the hook still passes the stream on with `return yield* next(e)`.
+2. `turn.complete` starts the clock from that request time, and `turn.start` clears it, so there is no clock while Claude works.
+3. The minutes left are rounded up, and the atom is written only when that number changes, not on every tick.
+4. The cache lasts 60 minutes when the account has rate-limit windows and 5 when it has none, and a command can set it by hand.
+5. A test with a mocked clock shows that a three-minute answer leaves two minutes of a five-minute cache.
+
+If a check fails, tell Claude what you see: "after a long answer the clock shows the full 5 min", or "Claude's answers stopped appearing on screen".
+
+### How the author asked for it
 
 The original request for the cache clock was not recorded. It arrived on 2026-10-30, before the public task logs.
 
-### Recorded: the cache stays
+#### Recorded: the cache stays
 
 The one recorded mention is in `odd/tasks/fleet-view.md` in narsil-pet, L2 (excerpt), when the author was removing sections of the band to make room for the list of conversations:
 
@@ -114,7 +134,7 @@ The one recorded mention is in `odd/tasks/fleet-view.md` in narsil-pet, L2 (exce
 
 In English: we keep the cache one; the money one we could remove too. The spending count left; the cache clock stayed, and the agreed design in L4 put it in every conversation's row: "the list of conversations (state, title, context bar, cache clock)".
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/words.ts`, the commits that touched the clock:
 
@@ -125,13 +145,9 @@ From `git log -- hooks/register.tsx hooks/words.ts`, the commits that touched th
 - `0072d87` (2026-11-07) "fix: make room for the cache in each band row".
 - `c3e4464` (2026-11-09) "fix: count the prompt cache from the start of its last request". The correction above: before it, the clock started when the turn ended, and overstated what was left after a long answer.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, show a prompt-cache countdown in the `AbovePrompt` band while Claude waits for me. In `turn.step`, for the main conversation only (`e.agentId === undefined`), record the time with `$.clock.now()` before the request and pass the stream through with `return yield* next(e)`. In `turn.complete`, for the main conversation, start a clock in an atom from that request time; clear it in `turn.start`. Last 60 minutes when `$.session.usage()` reports rate-limit windows and 5 minutes when it reports none, and let a `/pet cache <min>` command override it. Every few seconds with `$.clock.every`, recompute the whole minutes left, rounded up, and write the atom only when the number changed. Show "Cache: N min" and, at zero, "Cache cold: the next message is billed in full". Add a test with a mocked clock that a three-minute answer leaves two minutes of a five-minute cache.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`turn.step`, `turn.start`, `turn.complete`, `$.clock.now`, `$.clock.every`, `$.session.usage`). It is adapted from `hooks/register.tsx` and `hooks/words.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `cache` atom is declared in `types/index.d.ts` as in the first guide, with the type `{ requestAt: number; minutes: number; left: number } | null`.
 

@@ -3,7 +3,7 @@ title: Tips with Haiku
 description: 'How Narsil asks Haiku for one short tip about the work in progress: what context she sends, the exact prompt, how often she speaks up, the deep mode and the tip window.'
 route: pet
 order: 11
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -200,11 +200,31 @@ The context goes to the same provider the session already uses, through the sess
 
 The plan's sanitizing pattern is also narrower than the code's.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for one short tip from a small model when a turn ends, built from a context you choose field by field. The one idea Claude must get right is that the tip comes after the fact: the hook starts it without waiting for it, and the mod itself limits how often it runs.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, give one short tip about the work when a turn ends. Keep a small context in module variables: the last prompt from `prompt.submit`, the last 15 tool calls and the edited files from `tool.call`, and the final answer from `turn.complete`. When a main-conversation turn ends with `reason === 'answer'`, without awaiting it, read `git diff HEAD --stat --patch` with `$.process.run` (5 s timeout), build a context of at most 6,000 characters, remove anything that looks like a secret, and call `$.model.complete` with `model: 'haiku'`, a system prompt that asks for one concrete tip of at most 300 characters about a design decision in the diff, no routine checks, and the exact answer `SKIP` when there is nothing useful. Pass the last five tips and ask not to repeat them. Allow at most one tip every 30 minutes and 20 a day. Show the tip in the `AbovePrompt` band with a "×" button for 3 minutes. Test with `on('model.complete', ...)` mocking the model: the prompt contains the edited file's name, `SKIP` shows nothing, and an `API_KEY=` value never reaches the prompt.
+
+### What to check in Claude's answer
+
+1. The `turn.complete` hook starts the tip with `void … .catch(...)` and returns at once; it never awaits `$.model.complete`.
+2. The system prompt allows the exact answer `SKIP`, and a `SKIP` or an empty reply shows nothing.
+3. Each part of the context has a limit (3,000 characters of diff, 6,000 in all), and the whole context is sanitized before it is sent, so an `API_KEY=` value never reaches the prompt.
+4. The mod checks its own interval and daily cap (one tip every 30 minutes, 20 a day) before it calls the model. Nothing in the engine adds one.
+5. The last five tips go into the prompt, with the request not to repeat them.
+
+If a check fails, tell Claude what you see: "every turn now ends a few seconds later, and I cannot type until the tip arrives".
+
+### How the author asked for it
 
 The tips are the one feature of Narsil planned in a public document before the code was written: `docs/plan-advice.md`, added in `dd7027a` (2026-10-30) "docs: plan tips about the work in progress". It is a plan, not the author's words; the request that led to it was not recorded.
 
-### What the plan says
+#### What the plan says
 
 The plan's goal:
 
@@ -216,7 +236,7 @@ And its choice between the two ways of asking a model, after a table comparing t
 
 That recommendation is what the code does today.
 
-### Recorded: the tips stay as they are
+#### Recorded: the tips stay as they are
 
 When the author redesigned the band for every conversation, the request in `odd/tasks/fleet-view.md`, L1 (2026-11-06), ended with:
 
@@ -224,7 +244,7 @@ When the author redesigned the band for every conversation, the request in `odd/
 
 In English: the tips would keep working as now in each window. The task log records it as S10, "Tips unchanged", and the agreed design in L4 puts "the tip and next steps of this window below" the list.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/advice.ts docs/plan-advice.md overlay/tip.js overlay/tip.ps1 overlay/tip.sh`, with the related commits to `hooks/register.tsx`:
 
@@ -240,13 +260,9 @@ From `git log -- hooks/advice.ts docs/plan-advice.md overlay/tip.js overlay/tip.
 
 The pattern: a plan, a faithful first version, then corrections each time the tips proved too short, too frequent, or too generic.
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, give one short tip about the work when a turn ends. Keep a small context in module variables: the last prompt from `prompt.submit`, the last 15 tool calls and the edited files from `tool.call`, and the final answer from `turn.complete`. When a main-conversation turn ends with `reason === 'answer'`, without awaiting it, read `git diff HEAD --stat --patch` with `$.process.run` (5 s timeout), build a context of at most 6,000 characters, remove anything that looks like a secret, and call `$.model.complete` with `model: 'haiku'`, a system prompt that asks for one concrete tip of at most 300 characters about a design decision in the diff, no routine checks, and the exact answer `SKIP` when there is nothing useful. Pass the last five tips and ask not to repeat them. Allow at most one tip every 30 minutes and 20 a day. Show the tip in the `AbovePrompt` band with a "×" button for 3 minutes. Test with `on('model.complete', ...)` mocking the model: the prompt contains the edited file's name, `SKIP` shows nothing, and an `API_KEY=` value never reaches the prompt.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.model.complete`, `$.process.run`, `$.clock.now`, `$.ui.log`, `prompt.submit`, `turn.complete`, `ui.render`). It is adapted from `hooks/advice.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later). The `tip` atom is declared in `types/index.d.ts` as in the first guide, with the type `{ text: string; at: number } | null`.
 

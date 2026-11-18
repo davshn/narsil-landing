@@ -3,7 +3,7 @@ title: Voice and alerts
 description: "How Narsil picks a random phrase for each moment, says it aloud with Windows' or macOS's own voices, and tells you through the floating window or a system notification."
 route: pet
 order: 6
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -135,11 +135,31 @@ Two design decisions are visible here:
 
 Narsil does not play sound clips: there is no `$.audio.play` call in `hooks/register.tsx`. The only `$.audio` call is the `$.audio.speak` fallback above.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a few phrases per moment and a hook that, when a turn ends, says one aloud and sends one written alert. The one idea Claude must get right is that the voice never holds up the hook: speech can take seconds, so it is started, its rejection is caught, and it is not awaited.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the author's prompt.
+
+> In my Claude Code mod `my-pet`, speak when a turn ends. Keep the phrases in `hooks/words.ts` as one list per moment (`done`, `question`, `error`) with at least four phrases each, and a `say(moment)` that picks one at random. In `turn.complete`, for the main conversation only, pick the moment from `e.reason` and call `$.audio.speak`, without awaiting it so the hook returns at once, and catch its rejection. Then send a notification with `$.ui.notify(text, { title })` and check `isSent`. Add a test that every moment has at least four distinct phrases and that 200 calls of `say` give more than one phrase. Check every call against the plugin-authoring types.
+
+### What to check in Claude's answer
+
+1. The phrases live in `hooks/words.ts`, apart from the hooks, with at least four per moment and a `say(moment)` that picks one at random.
+2. `$.audio.speak` is called with `void … .catch(...)`, not awaited.
+3. `$.ui.notify` sits inside a `try`, because it throws where the host has no notification channel, and its `isSent` says whether a channel took the alert.
+4. Only the main conversation speaks: the hook returns early when `e.agentId` is set.
+5. If Claude runs a script for the voice, the text travels in the environment or as a separate argument, never inside a shell string.
+
+If a check fails, tell Claude what you see: "every turn ends a few seconds late, as long as the phrase takes to say".
+
+### How the author asked for it
 
 The original request for the voice and the notifications was not recorded. They arrive in the first commit of the overlay, before the public task logs began. The one recorded design note is in `docs/plan-advice.md`, the plan for Narsil's tips: "**Voice**: off by default (`/narsil consejos voz` turns it on)". That is a plan, not the author's words, and it is about tips, not about these alerts.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- overlay/speak.ps1 overlay/speak.sh overlay/toast.ps1 overlay/toast.sh hooks/words.ts hooks/register.tsx` in narsil-pet:
 
@@ -155,13 +175,9 @@ From `git log -- overlay/speak.ps1 overlay/speak.sh overlay/toast.ps1 overlay/to
 
 The order tells the story: first a voice and a notification that worked, then each system, then the person's comfort (first person, a quiet mode, less repetition, a more natural voice).
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the author's prompt.
-
-> In my Claude Code mod `my-pet`, speak when a turn ends. Keep the phrases in `hooks/words.ts` as one list per moment (`done`, `question`, `error`) with at least four phrases each, and a `say(moment)` that picks one at random. In `turn.complete`, for the main conversation only, pick the moment from `e.reason` and call `$.audio.speak`, without awaiting it so the hook returns at once, and catch its rejection. Then send a notification with `$.ui.notify(text, { title })` and check `isSent`. Add a test that every moment has at least four distinct phrases and that 200 calls of `say` give more than one phrase. Check every call against the plugin-authoring types.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 Written for this guide and checked against the 2.1.325 types (`$.audio.speak`, `$.ui.notify`, `turn.complete`). It uses only the engine's voice and notifications. Narsil's own scripts, which choose a Spanish voice, are described above; they are adapted from `hooks/words.ts` and `hooks/register.tsx` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later).
 

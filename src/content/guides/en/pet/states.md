@@ -3,7 +3,7 @@ title: States at a glance
 description: "How Narsil turns the session's events into five states, one sentence about the current step and a short comment, drawn in the band above the prompt."
 route: pet
 order: 1
-updated: 2026-11-17
+updated: 2026-11-18
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -95,11 +95,31 @@ Every text that can grow is drawn with `wrap="truncate-end"` inside a box with `
 
 The band you see today draws the most important of all your open conversations, not only the current one; the third guide in this path explains that part. When the conversation it shows is another one, the sentence starts with that conversation's name, and the comment is left out.
 
-## How it was asked of the AI
+## Build it with Claude
+
+Ask Claude for a mod that keeps one state value, sets it from the session's events and draws it in the band above the prompt. The one idea it must get right is that only the main conversation moves that state: events from a subagent carry an `agentId`, and the hooks leave the state alone for them.
+
+### A prompt you can use
+
+The following prompt was written for this guide as a suggestion. It is not the prompt used to build Narsil.
+
+> Build a Claude Code mod called `my-pet` that shows the conversation's state in the band above the prompt (`ui.render` on `AbovePrompt`). Keep one state value in an atom with a status (working, idle, waiting, done, error) and a one-line headline. Set it from `turn.start` (working), `tool.call` (working, with the tool and the file's base name in the headline; waiting for `AskUserQuestion` and `ExitPlanMode`) and `turn.complete` (done on `answer`, idle on `aborted`, error otherwise). Ignore events whose `agentId` is set. Draw the label in bold in its color and the headline after it, truncated so it never widens the band. Check every API against the plugin-authoring types, declare the atom in `types/index.d.ts`, and add a test with `claude-code/testing` that a `Read` call shows the file name.
+
+### What to check in Claude's answer
+
+1. Every hook that only observes ends by calling `next(e)`, and `turn.complete` awaits `next(e)` before it reads `e.reason`.
+2. `turn.start`, `tool.call` and `turn.complete` check `e.agentId` and change nothing when it is set.
+3. `AskUserQuestion` and `ExitPlanMode` set the waiting state, and `turn.complete` turns `answer` into done, `aborted` into idle and any other reason into error.
+4. The headline is drawn with `wrap="truncate-end"` inside a box with `minWidth={0}`, so a long file name does not widen the band.
+5. The render hook returns `next(e)` when `e.props.hasSurvey` is true.
+
+If a check fails, tell Claude what you see: "the band goes back to WORKING when a subagent starts, after the answer was already done".
+
+### How the author asked for it
 
 The original request for the states was not recorded. The project's public task logs (`odd/tasks/fleet-view.md` and `odd/tasks/animated-poses.md`) start later, and neither covers the first band.
 
-### Reconstruction from the commit history
+#### Reconstruction from the commit history
 
 From `git log -- hooks/register.tsx hooks/words.ts` in narsil-pet:
 
@@ -113,13 +133,9 @@ From `git log -- hooks/register.tsx hooks/words.ts` in narsil-pet:
 
 The pattern is clear even without the prompts: a first version that mapped events to states, then a series of corrections each time a state lied (a false alarm, a false finish, a missed question).
 
-### A prompt you can use
+## Reference code
 
-The following prompt was written for this guide as a suggestion. It is not the prompt used to build Narsil.
-
-> Build a Claude Code mod called `my-pet` that shows the conversation's state in the band above the prompt (`ui.render` on `AbovePrompt`). Keep one state value in an atom with a status (working, idle, waiting, done, error) and a one-line headline. Set it from `turn.start` (working), `tool.call` (working, with the tool and the file's base name in the headline; waiting for `AskUserQuestion` and `ExitPlanMode`) and `turn.complete` (done on `answer`, idle on `aborted`, error otherwise). Ignore events whose `agentId` is set. Draw the label in bold in its color and the headline after it, truncated so it never widens the band. Check every API against the plugin-authoring types, declare the atom in `types/index.d.ts`, and add a test with `claude-code/testing` that a `Read` call shows the file name.
-
-## The minimal code
+This is one correct answer, written for this guide. Read it to understand how the pieces fit together and to compare it with what Claude wrote for you: Claude may choose other names or another order and still be right.
 
 This is a reduced version of the idea, written for this guide and checked against the Claude Code 2.1.325 types. It is adapted from `hooks/register.tsx`, `hooks/words.ts` and `hooks/sprite.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later); the colors are Narsil's `STATUS_COLOR`.
 
