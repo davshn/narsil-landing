@@ -12,6 +12,8 @@
       "@utils/*": ["./src/utils/*"],
       "@seo/*": ["./src/seo/*"],
       "@styles/*": ["./src/styles/*"]
-    }
+    },
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   }
 }

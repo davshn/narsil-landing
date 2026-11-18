@@ -1,0 +1,9 @@
+@reference '../../../styles/global.css';
+
+.semver-group-review {
+  @apply text-warning;
+}
+
+.semver-group-bump {
+  @apply text-success;
+}

@@ -21,6 +21,7 @@ const { title, description, locale, jsonLd } = Astro.props
 const t = useTranslations(locale)
 
 const modsHref = `/${locale}/mods/`
+const toolsHref = `/${locale}/tools/`
 const links = [
   {
     label: t.nav.mods,
@@ -28,6 +29,11 @@ const links = [
     active: Astro.url.pathname.startsWith(modsHref),
   },
   { label: t.nav.routes, href: `/${locale}/#routes`, active: false },
+  {
+    label: t.nav.tools,
+    href: toolsHref,
+    active: Astro.url.pathname.startsWith(toolsHref),
+  },
   {
     label: t.nav.support,
     href: `/${locale}/support/`,

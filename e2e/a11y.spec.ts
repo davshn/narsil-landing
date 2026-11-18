@@ -5,6 +5,8 @@ const WCAG_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']
 
 const PATHS = [
   '/en/',
+  '/en/tools/',
+  '/en/tools/semver/',
   '/es/',
   '/it/',
   '/fr/',

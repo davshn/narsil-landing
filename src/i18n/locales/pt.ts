@@ -16,6 +16,7 @@ export const pt: TranslationShape = {
   nav: {
     mods: 'Fundamentos de mods',
     routes: 'Trilhas de aprendizado',
+    tools: 'Ferramentas',
     support: 'Apoie o projeto',
   },
   footer: {
@@ -179,6 +180,42 @@ export const pt: TranslationShape = {
     coffeeText:
       'Todos os guias são gratuitos. Se este poupou seu tempo, você pode me pagar um café.',
     coffeeCta: 'Me pague um café',
+  },
+  tools: {
+    title: 'Ferramentas',
+    description:
+      'Pequenas ferramentas que rodam no navegador e ajudam a entender os guias: teste as regras do Narsil e do Narsil Check com os seus próprios valores.',
+    intro:
+      'Cada ferramenta executa uma regra dos mods para você testar com os seus próprios valores, ao lado do guia que a explica.',
+    privacy:
+      'Tudo roda no seu navegador. Nada do que você digita sai desta página nem entra em um link.',
+    open: 'Abrir a ferramenta',
+    semver: {
+      title: 'Classificador de semver',
+      description:
+        'Digite uma versão instalada e uma mais nova para ver em qual grupo o Narsil Check coloca a atualização, com a regra abaixo de 1.0.0.',
+      intro:
+        'O Narsil Check compara a versão que você tem com a mais recente e ordena a atualização pela distância entre elas. Esta ferramenta executa a mesma regra.',
+      guideText: 'Como o Narsil Check classifica as atualizações',
+      installedLabel: 'Versão instalada',
+      candidateLabel: 'Versão nova',
+      resultLabel: 'Grupo',
+      groups: {
+        review: 'Versão major: revisar as mudanças',
+        bump: 'Só subir a versão',
+      },
+      bumps: {
+        patch: 'patch',
+        minor: 'minor',
+        major: 'major',
+      },
+      summary: 'De {from} para {to}: um salto {bump}.',
+      belowOne:
+        'Abaixo de 1.0.0 uma minor conta como major, e abaixo de 0.1.0 um patch também, como o npm lê os intervalos com ^.',
+      current: '{to} não é mais nova que {from}, então não há nada para atualizar.',
+      invalidInstalled: 'A versão instalada não é uma versão que o Narsil Check consegue ler.',
+      invalidCandidate: 'A versão nova não é uma versão que o Narsil Check consegue ler.',
+    },
   },
   support: {
     title: 'Apoie o Narsil Workshop',

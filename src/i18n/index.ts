@@ -74,6 +74,7 @@ export interface TranslationShape {
   nav: {
     mods: string
     routes: string
+    tools: string
     support: string
   }
   footer: {
@@ -140,6 +141,29 @@ export interface TranslationShape {
     coffeeTitle: string
     coffeeText: string
     coffeeCta: string
+  }
+  tools: {
+    title: string
+    description: string
+    intro: string
+    privacy: string
+    open: string
+    semver: {
+      title: string
+      description: string
+      intro: string
+      guideText: string
+      installedLabel: string
+      candidateLabel: string
+      resultLabel: string
+      groups: { review: string; bump: string }
+      bumps: { patch: string; minor: string; major: string }
+      summary: string
+      belowOne: string
+      current: string
+      invalidInstalled: string
+      invalidCandidate: string
+    }
   }
   support: {
     title: string

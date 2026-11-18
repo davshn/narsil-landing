@@ -1,0 +1,49 @@
+@reference '../../styles/global.css';
+
+.tool {
+  @apply flex flex-col gap-6 p-6;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-neu-md);
+}
+
+.tool-fields {
+  @apply grid gap-4 sm:grid-cols-2;
+}
+
+.tool-field {
+  @apply flex flex-col gap-2 text-sm font-semibold;
+}
+
+.tool-input {
+  @apply w-full border-0 bg-background px-5 text-base font-normal text-foreground;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-neu-inset-sm);
+  font-family: var(--font-mono);
+}
+
+.tool-input:focus-visible {
+  @apply outline-none;
+  box-shadow:
+    var(--shadow-neu-inset-md),
+    0 0 0 2px var(--color-ring);
+}
+
+.tool-result {
+  @apply flex flex-col gap-2 p-5;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-neu-inset-sm);
+}
+
+.tool-result-label {
+  @apply text-xs font-semibold uppercase text-muted-foreground;
+  letter-spacing: var(--tracking-wide);
+}
+
+.tool-result-value {
+  @apply text-xl font-semibold;
+}
+
+.tool-result-note {
+  @apply text-sm text-muted-foreground;
+}
