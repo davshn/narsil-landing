@@ -158,6 +158,10 @@
   line-height: var(--leading-relaxed);
 }
 
+.path-card-repo {
+  @apply relative z-10 mt-2 inline-block text-sm font-semibold text-primary underline underline-offset-4;
+}
+
 .path-card-meta {
   @apply shrink-0 text-sm font-bold text-foreground;
   white-space: nowrap;

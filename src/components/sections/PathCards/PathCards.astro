@@ -13,6 +13,7 @@ interface PathCard {
   href: string
   meta?: string
   detour?: string
+  repo?: { href: string; label: string }
 }
 
 interface PathStart {
@@ -92,6 +93,11 @@ const stops = paths.map((path) => {
               </a>
             </h3>
             <p class="path-card-description">{path.description}</p>
+            {path.repo !== undefined && (
+              <a class="path-card-repo" href={path.repo.href} target="_blank" rel="noopener">
+                {path.repo.label}
+              </a>
+            )}
           </div>
           {path.meta !== undefined && path.meta !== '' && <p class="path-card-meta">{path.meta}</p>}
         </li>

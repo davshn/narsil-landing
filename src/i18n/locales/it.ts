@@ -83,6 +83,7 @@ export const it: TranslationShape = {
       'Narsil è una mod di Claude Code: una piccola mascotte che vive sopra il prompt e ti dice a colpo d’occhio se Claude sta lavorando, ha bisogno di te, ha finito o si è bloccato. Narsil Check è la sua sorella, un pannello laterale che mostra in diretta il lavoro di Claude e controlla il tuo branch, la CI, le dipendenze e le vulnerabilità.',
       'Qui non ti limiterai a installarle: costruirai le tue versioni insieme a Claude. Ogni guida spiega una funzionalità con parole semplici, ti dà un prompt per chiederla a Claude e ti mostra come verificare che ciò che Claude ha costruito sia corretto. Il codice è lì per essere letto e confrontato, non copiato.',
     ],
+    repoCta: 'Vedi {repo} su GitHub',
     routesTitle: 'Quattro percorsi di apprendimento',
     routes: [
       {

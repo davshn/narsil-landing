@@ -17,6 +17,7 @@ import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildWebPage, buildWebSite } from '@seo/json-ld'
 import { guideRefs } from '@content/guide-pages'
 import { guidesFor, routeHref } from '@utils/guides'
+import { REPOSITORIES } from '@utils/repositories'
 import { fillTemplate } from '@utils/template'
 
 import checkDark from '../../assets/screens/check-oscuro.png'
@@ -44,6 +45,11 @@ const guideCount = (key: (typeof pathKeys)[number] | 'mods'): string | undefined
   const count = guidesFor(refs, locale, key).length
   return count > 0 ? fillTemplate(t.guide.guideCount, { count }) : undefined
 }
+const repoLink = (key: (typeof pathKeys)[number]): { href: string; label: string } | undefined => {
+  if (key !== 'pet' && key !== 'check') return undefined
+  const href = REPOSITORIES[key]
+  return { href, label: fillTemplate(t.home.repoCta, { repo: href.split('/').at(-1) ?? '' }) }
+}
 const paths = t.home.routes.map((route, index) => {
   const key = pathKeys[index]
   return {
@@ -52,6 +58,7 @@ const paths = t.home.routes.map((route, index) => {
     href: routeHref(locale, key),
     meta: guideCount(key),
     detour: key === 'claude' ? t.home.extension.badge : undefined,
+    repo: repoLink(key),
   }
 })
 const start = {

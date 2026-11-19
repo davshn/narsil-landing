@@ -12,6 +12,7 @@ const paths = [
     pose: 'hola',
     href: '/en/mods/pet/',
     meta: '17 guides',
+    repo: { href: 'https://github.com/example/pet', label: 'See pet on GitHub' },
   },
   {
     title: 'A Narsil desk bot',
@@ -87,6 +88,19 @@ describe('PathCards', () => {
     )
     expect(pet.querySelector('.path-card-meta')?.textContent).toBe('17 guides')
     expect(bot.querySelector('.path-card-meta')).toBeNull()
+  })
+
+  it('links the repository in a new tab only on cards that have one', async () => {
+    const host = await render(PathCards, { props: { title: 'Paths', paths } })
+    const [pet, bot, claude] = [...host.querySelectorAll('.path-card')]
+    const repo = pet.querySelector('.path-card-repo')
+
+    expect(repo?.getAttribute('href')).toBe('https://github.com/example/pet')
+    expect(repo?.getAttribute('target')).toBe('_blank')
+    expect(repo?.getAttribute('rel')).toBe('noopener')
+    expect(repo?.textContent.trim()).toBe('See pet on GitHub')
+    expect(bot.querySelector('.path-card-repo')).toBeNull()
+    expect(claude.querySelector('.path-card-repo')).toBeNull()
   })
 
   it('names the section by its heading and renders the subtitle and Narsil guide only when provided', async () => {
