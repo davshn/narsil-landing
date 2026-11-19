@@ -27,12 +27,12 @@
 }
 
 .sidebar-left {
-  box-shadow: 6px 0 14px -8px var(--color-neu-dark);
+  box-shadow: 2px 0 0 var(--color-border);
   order: -1;
 }
 
 .sidebar-right {
-  box-shadow: -6px 0 14px -8px var(--color-neu-dark);
+  box-shadow: -2px 0 0 var(--color-border);
   order: 1;
 }
 
@@ -70,9 +70,7 @@
 
 .sidebar-actions {
   @apply flex flex-col gap-2 mt-6 pt-6;
-  box-shadow:
-    inset 0 2px 0 -1px var(--color-neu-dark),
-    inset 0 3px 0 -1px var(--color-neu-light);
+  box-shadow: inset 0 2px 0 var(--color-border);
 }
 
 .sidebar-action {

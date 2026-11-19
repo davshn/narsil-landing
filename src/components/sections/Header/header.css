@@ -2,7 +2,7 @@
 
 .header {
   @apply sticky top-0 w-full bg-background/90 backdrop-blur-md;
-  box-shadow: 0 6px 14px -6px var(--color-neu-dark);
+  box-shadow: 0 2px 0 var(--color-border);
   z-index: var(--z-sticky);
 }
 

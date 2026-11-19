@@ -32,8 +32,7 @@
 }
 
 .neu-code {
-  @apply rounded-md px-2 py-0.5 text-sm;
-  box-shadow: var(--shadow-neu-inset-sm);
+  @apply rounded-md bg-muted px-2 py-0.5 text-sm;
 }
 
 .support-flow {
