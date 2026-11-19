@@ -33,7 +33,6 @@ export function isLocale(value: string): value is Locale {
 export interface RouteCopy {
   title: string
   description: string
-  icon: string
 }
 
 export interface StateCopy {
@@ -127,8 +126,14 @@ export interface TranslationShape {
     aboutTitle: string
     about: [string, string]
     routesTitle: string
-    routesSubtitle: string
     routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy]
+    guide: {
+      hello: string
+      statusDetail: string
+      startText: string
+      routes: string
+      showcase: string
+    }
     extension: {
       badge: string
       title: string

@@ -1,50 +1,134 @@
 @reference '../../../styles/global.css';
 
 .path-cards {
-  @apply flex flex-col gap-10;
+  @apply flex flex-col gap-12;
   padding-top: var(--spacing-12);
 }
 
 .path-cards-header {
+  @apply flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between;
+}
+
+.path-cards-heading {
   @apply max-w-2xl;
 }
 
+.path-cards-guide {
+  @apply flex items-end gap-3;
+  max-width: 26rem;
+}
+
+.path-cards-guide-bubble {
+  @apply text-base;
+  margin-bottom: var(--spacing-6);
+}
+
+.path-journey {
+  @apply grid gap-6;
+}
+
+@media (min-width: 1024px) {
+  .path-journey-started {
+    grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 2fr);
+    gap: 0;
+    align-items: center;
+  }
+}
+
+.path-start {
+  @apply relative flex flex-col gap-3 p-7 no-underline bg-foreground text-background;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-bubble);
+}
+
+.path-start:hover .path-start-title {
+  @apply underline;
+}
+
+.path-start-step {
+  @apply text-5xl font-extrabold;
+  font-family: var(--font-display);
+  line-height: 1;
+  color: var(--color-primary);
+}
+
+.dark .path-start-step {
+  color: var(--color-accent);
+}
+
+.path-start-title {
+  @apply text-2xl font-extrabold;
+  font-family: var(--font-display);
+}
+
+.path-start-description {
+  @apply text-base;
+  line-height: var(--leading-relaxed);
+  opacity: 0.85;
+}
+
+.path-start-meta {
+  @apply text-sm font-bold;
+}
+
+.path-connector {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .path-connector {
+    @apply block self-stretch;
+    margin: var(--spacing-12) 0;
+    border: 3px dashed var(--color-primary);
+    border-left: none;
+    border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+    margin-right: 2.25rem;
+    position: relative;
+  }
+
+  .path-connector::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 2.25rem;
+    border-top: 3px dashed var(--color-primary);
+    transform: translateX(-100%);
+  }
+}
+
 .path-cards-grid {
-  @apply m-0 grid list-none gap-6 p-0 md:grid-cols-2 xl:grid-cols-4;
+  @apply m-0 flex list-none flex-col gap-4 p-0;
 }
 
 .path-card {
-  @apply relative flex flex-col gap-3 p-6;
+  @apply relative flex items-center gap-4 bg-card text-card-foreground;
+  padding: var(--spacing-4) var(--spacing-5);
+  border: 2px solid var(--color-foreground);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-neu-md);
-  transition:
-    box-shadow var(--duration-base) var(--ease-default),
-    transform var(--duration-base) var(--ease-default);
 }
 
-.path-card:hover,
-.path-card:focus-within {
-  box-shadow: var(--shadow-neu-lg);
-  transform: translateY(-3px);
+.path-card:hover {
+  @apply bg-muted;
 }
 
-.path-card-top {
-  @apply mb-2 flex items-center justify-between;
+.path-card-pose {
+  @apply shrink-0;
 }
 
-.path-card-icon {
-  @apply inline-flex h-12 w-12 items-center justify-center rounded-full text-primary;
-  box-shadow: var(--shadow-neu-inset-sm);
-}
-
-.path-card-index {
-  @apply text-3xl font-bold text-muted-foreground;
-  font-variant-numeric: tabular-nums;
+.path-card-body {
+  @apply flex min-w-0 flex-1 flex-col items-start gap-1;
 }
 
 .path-card-title {
-  @apply text-xl font-semibold;
+  @apply text-xl font-extrabold;
+  font-family: var(--font-display);
   line-height: var(--leading-snug);
+}
+
+.path-card-index {
+  @apply mr-2 text-primary;
+  font-variant-numeric: tabular-nums;
 }
 
 .path-card-link {
@@ -75,13 +159,26 @@
 }
 
 .path-card-meta {
-  @apply mt-auto pt-2 text-xs font-semibold uppercase text-primary;
-  letter-spacing: var(--tracking-wide);
+  @apply shrink-0 text-sm font-bold text-foreground;
+  white-space: nowrap;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .path-card:hover,
-  .path-card:focus-within {
-    transform: none;
+.path-card-detour {
+  @apply bg-transparent;
+  border-style: dashed;
+}
+
+.path-card-badge {
+  @apply mb-1;
+}
+
+@media (max-width: 639px) {
+  .path-card {
+    @apply flex-wrap;
+  }
+
+  .path-card-meta {
+    @apply w-full;
+    padding-left: calc(48px + var(--spacing-4));
   }
 }

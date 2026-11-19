@@ -1,4 +1,5 @@
 ---
+import NarsilBubble from '@components/ui/NarsilBubble/NarsilBubble.astro'
 import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
 import type { NarsilPose } from '@utils/narsil-art'
 
@@ -54,9 +55,11 @@ const { title, subtitle, intro = [], introTitle, states } = Astro.props
         <ul class="narsil-states-grid">
           {states.map((state) => (
             <li class={`narsil-state narsil-state-${state.tone}`}>
-              <NarsilSprite pose={state.pose} alt="" />
-              <p class="narsil-state-label">{state.label}</p>
-              <p class="narsil-state-text">{state.text}</p>
+              <NarsilBubble class="narsil-state-text">{state.text}</NarsilBubble>
+              <div class="narsil-state-figure">
+                <NarsilSprite pose={state.pose} alt="" />
+                <p class="narsil-state-label">{state.label}</p>
+              </div>
             </li>
           ))}
         </ul>

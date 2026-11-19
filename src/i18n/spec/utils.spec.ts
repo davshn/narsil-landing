@@ -78,13 +78,12 @@ describe('useTranslations', () => {
     },
   )
 
-  it.each(locales)('keeps the route icons in %s', (locale) => {
-    expect(useTranslations(locale).home.routes.map((route) => route.icon)).toEqual([
-      'lucide:sparkles',
-      'lucide:list-checks',
-      'lucide:cpu',
-      'lucide:smartphone',
-    ])
+  it.each(locales)('lets Narsil introduce itself and show a working file in %s', (locale) => {
+    const {
+      home: { guide },
+    } = useTranslations(locale)
+    expect(guide.hello).toContain('Narsil')
+    expect(guide.statusDetail).toContain('src/hooks.ts')
   })
 })
 

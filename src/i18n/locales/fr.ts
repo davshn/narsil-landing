@@ -82,34 +82,38 @@ export const fr: TranslationShape = {
       'Ici, vous ne vous contenterez pas de les installer : vous construirez vos propres versions avec Claude. Chaque guide explique une fonctionnalité avec des mots simples, vous donne un prompt pour la demander à Claude et vous montre comment vérifier que ce que Claude a construit est correct. Le code est là pour être lu et comparé, pas copié.',
     ],
     routesTitle: 'Quatre parcours',
-    routesSubtitle:
-      'Choisissez un parcours et suivez ses guides dans l’ordre. Si vous n’avez jamais créé de mod, commencez par les bases des mods : elles expliquent les quelques idées sur lesquelles reposent tous les prompts des autres parcours.',
     routes: [
       {
         title: 'Votre propre mascotte d’état',
         description:
           'Créez un mod comme Narsil avec Claude : des états au-dessus du prompt, des animations, toutes les conversations au même endroit, une fenêtre flottante, la voix, des horloges de contexte et de cache, et des alertes sur votre téléphone.',
-        icon: 'lucide:sparkles',
       },
       {
         title: 'Votre propre panneau de revue',
         description:
           'Créez un mod comme Narsil Check avec Claude : un panneau latéral avec une carte en direct du travail de Claude, les étapes de la CI, une branche en retard sur la distante, des mises à jour classées par risque, les vulnérabilités d’OSV.dev et des outils pour Claude.',
-        icon: 'lucide:list-checks',
       },
       {
         title: 'Un bot Narsil',
         description:
           'Donnez un corps à Narsil : un écran tactile ESP32-P4 dans le ventre avec vos tâches et vos pull requests, une tête holographique ESP32-S3 avec son visage, et une voix grâce à Xiaozhi et Claude sur votre propre serveur.',
-        icon: 'lucide:cpu',
       },
       {
         title: 'Narsil dans Claude, sur votre téléphone',
         description:
           'Expérimental : découvrez comment est faite l’extension de navigateur qui amène Narsil dans claude.ai sur Android, avec la bande de la conversation, le menu latéral avec vos limites et les messages ntfy, les couleurs et les paquets Android.',
-        icon: 'lucide:smartphone',
       },
     ],
+    guide: {
+      hello:
+        'Salut ! Je suis Narsil. Je vis au-dessus de votre prompt et je vous dis ce que fait Claude. Aujourd’hui, c’est vous qui me construisez.',
+      statusDetail: 'modifie src/hooks.ts',
+      startText:
+        'Les trois fichiers d’un mod, ses hooks et l’objet $ : la base de chaque prompt qui suit.',
+      routes:
+        'Commencez par les fondamentaux. Ensuite, choisissez où nous allons : les parcours se suivent dans n’importe quel ordre.',
+      showcase: 'Tout cela, vous le construisez vous-même, avec Claude, un guide à la fois.',
+    },
     extension: {
       badge: 'Expérimental',
       title: 'Narsil dans Claude, l’extension de navigateur',

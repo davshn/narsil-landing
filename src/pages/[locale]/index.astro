@@ -8,6 +8,7 @@ import Button from '@components/ui/Button/Button.astro'
 import Card from '@components/ui/Card/Card.astro'
 import CardBody from '@components/ui/Card/CardBody.astro'
 import Container from '@components/ui/Container/Container.astro'
+import NarsilBubble from '@components/ui/NarsilBubble/NarsilBubble.astro'
 import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
 import Text from '@components/ui/Text/Text.astro'
 import { defaultLocale, isLocale, languageTags, locales, type Locale } from '@i18n/index'
@@ -38,15 +39,27 @@ const t = useTranslations(locale)
 const [working, waiting, done, failed] = t.home.states.items
 const refs = await guideRefs()
 const pathKeys = ['pet', 'check', 'bot', 'claude'] as const
+const pathPoses = ['hola', 'trabajando', 'terminado', 'necesita'] as const
+const guideCount = (key: (typeof pathKeys)[number] | 'mods'): string | undefined => {
+  const count = guidesFor(refs, locale, key).length
+  return count > 0 ? fillTemplate(t.guide.guideCount, { count }) : undefined
+}
 const paths = t.home.routes.map((route, index) => {
   const key = pathKeys[index]
-  const count = guidesFor(refs, locale, key).length
   return {
     ...route,
+    pose: pathPoses[index],
     href: routeHref(locale, key),
-    meta: count > 0 ? fillTemplate(t.guide.guideCount, { count }) : undefined,
+    meta: guideCount(key),
+    detour: key === 'claude' ? t.home.extension.badge : undefined,
   }
 })
+const start = {
+  title: t.mods.title,
+  description: t.home.guide.startText,
+  href: routeHref(locale, 'mods'),
+  meta: guideCount('mods'),
+}
 const [overlayCopy, checkCopy, claudeCopy] = t.home.showcase.items
 const { detailAlt: claudeBandAlt = '', ...claudeMenuCopy } = claudeCopy
 
@@ -79,13 +92,24 @@ const jsonLd = [
     ]}
     layout="split"
   >
-    <NarsilSprite slot="media" pose="hola" size="lg" alt={t.home.heroAlt} framed />
+    <div slot="media" class="home-greeting">
+      <NarsilSprite pose="hola" size="xl" alt={t.home.heroAlt} loading="eager" />
+      <div class="home-greeting-talk">
+        <NarsilBubble tail="left">{t.home.guide.hello}</NarsilBubble>
+        <p class="home-greeting-status">
+          <span class="home-greeting-dot" aria-hidden="true"></span>
+          <strong>{working.label}</strong>
+          <span class="home-greeting-detail">{t.home.guide.statusDetail}</span>
+        </p>
+      </div>
+    </div>
   </Hero>
 
   <PathCards
     id="routes"
     title={t.home.routesTitle}
-    subtitle={t.home.routesSubtitle}
+    guide={t.home.guide.routes}
+    start={start}
     paths={paths}
   />
 
@@ -106,6 +130,7 @@ const jsonLd = [
     title={t.home.showcase.title}
     subtitle={t.home.showcase.subtitle}
     note={t.home.showcase.note}
+    guide={t.home.guide.showcase}
     items={[
       {
         ...overlayCopy,

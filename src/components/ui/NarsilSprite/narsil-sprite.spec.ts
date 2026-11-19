@@ -51,4 +51,14 @@ describe('NarsilSprite', () => {
     expect(host.querySelector('img')?.getAttribute('height')).toBe('200')
     expect(host.querySelector('img')?.getAttribute('loading')).toBe('eager')
   })
+
+  it('sizes the small and extra large sprites by their own dimensions', async () => {
+    const small = await render(NarsilSprite, { props: { pose: 'hola', alt: '', size: 'sm' } })
+    const large = await render(NarsilSprite, { props: { pose: 'hola', alt: '', size: 'xl' } })
+
+    expect(small.querySelector('.narsil-sprite')?.classList.contains('narsil-sprite-sm')).toBe(true)
+    expect(small.querySelector('img')?.getAttribute('width')).toBe('48')
+    expect(large.querySelector('.narsil-sprite')?.classList.contains('narsil-sprite-xl')).toBe(true)
+    expect(large.querySelector('img')?.getAttribute('height')).toBe('256')
+  })
 })

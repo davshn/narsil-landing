@@ -1,0 +1,34 @@
+@reference '../../../styles/global.css';
+
+.narsil-bubble {
+  @apply relative m-0 bg-card text-card-foreground;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 2px solid var(--color-foreground);
+  border-radius: 1.375rem;
+  box-shadow: var(--shadow-bubble);
+  line-height: var(--leading-relaxed);
+}
+
+.narsil-bubble::after {
+  content: '';
+  @apply absolute bg-card;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid var(--color-foreground);
+}
+
+.narsil-bubble-tail-left::after {
+  left: -0.6875rem;
+  top: 1.5rem;
+  border-top: none;
+  border-right: none;
+  transform: rotate(45deg);
+}
+
+.narsil-bubble-tail-down::after {
+  left: 2.5rem;
+  bottom: -0.6875rem;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}

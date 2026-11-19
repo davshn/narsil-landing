@@ -72,6 +72,39 @@
   border-radius: var(--radius-full);
 }
 
+.home-greeting {
+  @apply flex flex-wrap items-end justify-center gap-4 text-left;
+}
+
+.home-greeting-talk {
+  @apply flex flex-col items-start gap-4;
+  flex: 1 1 14rem;
+  max-width: 20rem;
+  margin-bottom: var(--spacing-24);
+}
+
+.home-greeting-status {
+  @apply m-0 inline-flex flex-wrap items-center gap-2 bg-card text-sm text-card-foreground;
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 2px solid var(--color-foreground);
+  border-radius: var(--radius-full);
+}
+
+.home-greeting-dot {
+  @apply inline-block h-2.5 w-2.5 rounded-full bg-primary;
+}
+
+.home-greeting-detail {
+  @apply text-muted-foreground;
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 639px) {
+  .home-greeting-talk {
+    margin-bottom: 0;
+  }
+}
+
 .home-extension {
   @apply mx-auto w-full max-w-7xl px-6 pb-20 lg:px-8 lg:pb-28;
 }

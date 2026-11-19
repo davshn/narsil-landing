@@ -123,4 +123,17 @@ describe('Showcase', () => {
     expect(full.querySelector('.section-description')?.textContent).toBe('Everywhere')
     expect(full.querySelector('.showcase-note')?.textContent).toBe('Example data')
   })
+
+  it('lets Narsil introduce the captures in a speech bubble only when there is a guide line', async () => {
+    const bare = await render(Showcase, { props: { title: 'How it looks', items } })
+    const guided = await render(Showcase, {
+      props: { title: 'How it looks', guide: 'You build all of this.', items },
+    })
+
+    expect(bare.querySelector('.showcase-guide')).toBeNull()
+    expect(guided.querySelector('.showcase-guide .narsil-bubble')?.textContent.trim()).toBe(
+      'You build all of this.',
+    )
+    expect(guided.querySelector('.showcase-guide img')?.getAttribute('alt')).toBe('')
+  })
 })

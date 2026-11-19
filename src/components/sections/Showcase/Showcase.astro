@@ -1,4 +1,6 @@
 ---
+import NarsilBubble from '@components/ui/NarsilBubble/NarsilBubble.astro'
+import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
 import ResponsiveImage from '@components/ui/ResponsiveImage/ResponsiveImage.astro'
 
 import './showcase.css'
@@ -26,9 +28,10 @@ interface Props {
   subtitle?: string
   items: ShowcaseItem[]
   note?: string
+  guide?: string
 }
 
-const { title, subtitle, items, note } = Astro.props
+const { title, subtitle, items, note, guide } = Astro.props
 const sizes = '(min-width: 1024px) 22rem, 90vw'
 ---
 
@@ -37,6 +40,14 @@ const sizes = '(min-width: 1024px) 22rem, 90vw'
     <div class="showcase-header">
       <h2 class="section-title">{title}</h2>
       {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+      {guide !== undefined && guide !== '' && (
+        <div class="showcase-guide">
+          <NarsilSprite pose="terminado" alt="" size="sm" />
+          <NarsilBubble tail="left" class="showcase-guide-bubble">
+            {guide}
+          </NarsilBubble>
+        </div>
+      )}
     </div>
     <div class="showcase-tabs" role="tablist" aria-label={title} hidden data-showcase-tablist>
       {items.map((item, index) => (

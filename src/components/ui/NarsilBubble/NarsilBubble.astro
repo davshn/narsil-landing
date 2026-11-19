@@ -1,0 +1,18 @@
+---
+import './narsil-bubble.css'
+
+type Tail = 'left' | 'down'
+
+interface Props {
+  tail?: Tail
+  as?: 'p' | 'div'
+  class?: string
+}
+
+const { tail = 'down', as: Tag = 'p', class: className } = Astro.props
+const classes = ['narsil-bubble', `narsil-bubble-tail-${tail}`, className].filter(Boolean).join(' ')
+---
+
+<Tag class={classes}>
+  <slot />
+</Tag>

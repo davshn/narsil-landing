@@ -27,6 +27,7 @@ export const COLOR_TOKENS = {
 
 export const FONT_TOKENS = {
   sans: '--font-sans',
+  display: '--font-display',
   mono: '--font-mono',
 } as const
 
@@ -97,6 +98,7 @@ export const SHADOW_TOKENS = {
   md: '--shadow-md',
   lg: '--shadow-lg',
   xl: '--shadow-xl',
+  bubble: '--shadow-bubble',
   'neu-sm': '--shadow-neu-sm',
   'neu-md': '--shadow-neu-md',
   'neu-lg': '--shadow-neu-lg',

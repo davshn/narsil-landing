@@ -8,6 +8,11 @@
   @apply block h-auto max-w-full object-contain;
 }
 
+.narsil-sprite-sm img {
+  width: 48px;
+  height: 68px;
+}
+
 .narsil-sprite-md img {
   width: 90px;
   height: 128px;
@@ -16,6 +21,11 @@
 .narsil-sprite-lg img {
   width: 140px;
   height: 200px;
+}
+
+.narsil-sprite-xl img {
+  width: 180px;
+  height: 256px;
 }
 
 .narsil-sprite-framed {
