@@ -19,6 +19,16 @@ test.describe('Home layout', () => {
     await expect(page.locator('#routes .path-card-meta').nth(3)).toHaveText('5 guides')
   })
 
+  test('links the Narsil and Narsil Check repositories from their path cards', async ({ page }) => {
+    await page.goto('/en/')
+    const repos = page.locator('#routes .path-card-repo')
+    await expect(repos).toHaveText(['See narsil-pet on GitHub', 'See narsil-check on GitHub'])
+    await expect(repos.nth(0)).toHaveAttribute('href', 'https://github.com/davshn/narsil-pet')
+    await expect(repos.nth(1)).toHaveAttribute('href', 'https://github.com/davshn/narsil-check')
+    await expect(repos.nth(0)).toHaveAttribute('target', '_blank')
+    await repos.nth(0).click({ trial: true })
+  })
+
   test('switches the showcase between its interfaces with tabs', async ({ page }) => {
     await page.goto('/en/')
     const [window, panel, phone] = t.home.showcase.items

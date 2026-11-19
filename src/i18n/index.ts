@@ -125,6 +125,7 @@ export interface TranslationShape {
     }
     aboutTitle: string
     about: [string, string]
+    repoCta: string
     routesTitle: string
     routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy]
     guide: {
