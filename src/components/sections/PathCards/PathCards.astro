@@ -1,12 +1,23 @@
 ---
-import { Icon } from 'astro-icon/components'
+import Badge from '@components/ui/Badge/Badge.astro'
+import NarsilBubble from '@components/ui/NarsilBubble/NarsilBubble.astro'
+import NarsilSprite from '@components/ui/NarsilSprite/NarsilSprite.astro'
+import type { NarsilPose } from '@utils/narsil-art'
 
 import './path-cards.css'
 
 interface PathCard {
   title: string
   description: string
-  icon: string
+  pose: NarsilPose
+  href: string
+  meta?: string
+  detour?: string
+}
+
+interface PathStart {
+  title: string
+  description: string
   href: string
   meta?: string
 }
@@ -15,38 +26,76 @@ interface Props {
   id?: string
   title: string
   subtitle?: string
+  guide?: string
+  start?: PathStart
   paths: PathCard[]
 }
 
-const { id, title, subtitle, paths } = Astro.props
+const { id, title, subtitle, guide, start, paths } = Astro.props
+const firstStep = start === undefined ? 1 : 2
+let nextStep = firstStep
+const stops = paths.map((path) => {
+  const isDetour = path.detour !== undefined && path.detour !== ''
+  const step = isDetour ? undefined : nextStep
+  if (!isDetour) nextStep += 1
+  return { ...path, isDetour, step }
+})
 ---
 
 <section class="path-cards section-shell" id={id} aria-labelledby="path-cards-title">
   <div class="path-cards-header">
-    <h2 id="path-cards-title" class="section-title">
-      {title}
-    </h2>
-    {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+    <div class="path-cards-heading">
+      <h2 id="path-cards-title" class="section-title">
+        {title}
+      </h2>
+      {subtitle !== undefined && subtitle !== '' && <p class="section-description">{subtitle}</p>}
+    </div>
+    {guide !== undefined && guide !== '' && (
+      <div class="path-cards-guide">
+        <NarsilBubble class="path-cards-guide-bubble">{guide}</NarsilBubble>
+        <NarsilSprite pose="hola" alt="" size="sm" />
+      </div>
+    )}
   </div>
-  <ol class="path-cards-grid">
-    {paths.map((path, index) => (
-      <li class="path-card">
-        <div class="path-card-top">
-          <span class="path-card-icon">
-            <Icon name={path.icon} class="size-6" aria-hidden="true" />
-          </span>
-          <span class="path-card-index" aria-hidden="true">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        </div>
-        <h3 class="path-card-title">
-          <a class="path-card-link" href={path.href}>
-            {path.title}
-          </a>
-        </h3>
-        <p class="path-card-description">{path.description}</p>
-        {path.meta !== undefined && path.meta !== '' && <p class="path-card-meta">{path.meta}</p>}
-      </li>
-    ))}
-  </ol>
+  <div class={`path-journey${start === undefined ? '' : ' path-journey-started'}`}>
+    {start !== undefined && (
+      <a class="path-start" href={start.href}>
+        <span class="path-start-step" aria-hidden="true">
+          1
+        </span>
+        <span class="path-start-title">{start.title}</span>
+        <span class="path-start-description">{start.description}</span>
+        {start.meta !== undefined && start.meta !== '' && (
+          <span class="path-start-meta">{start.meta}</span>
+        )}
+      </a>
+    )}
+    {start !== undefined && <span class="path-connector" aria-hidden="true" />}
+    <ol class="path-cards-grid">
+      {stops.map((path) => (
+        <li class={`path-card${path.isDetour ? ' path-card-detour' : ''}`}>
+          <NarsilSprite pose={path.pose} alt="" size="sm" class="path-card-pose" />
+          <div class="path-card-body">
+            {path.isDetour && (
+              <Badge color="warning" class="path-card-badge">
+                {path.detour}
+              </Badge>
+            )}
+            <h3 class="path-card-title">
+              {path.step !== undefined && (
+                <span class="path-card-index" aria-hidden="true">
+                  {path.step}
+                </span>
+              )}
+              <a class="path-card-link" href={path.href}>
+                {path.title}
+              </a>
+            </h3>
+            <p class="path-card-description">{path.description}</p>
+          </div>
+          {path.meta !== undefined && path.meta !== '' && <p class="path-card-meta">{path.meta}</p>}
+        </li>
+      ))}
+    </ol>
+  </div>
 </section>

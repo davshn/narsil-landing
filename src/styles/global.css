@@ -33,6 +33,7 @@
 
   --font-sans:
     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', var(--font-sans);
   --font-mono: 'SF Mono', ui-monospace, 'Cascadia Code', monospace;
 
   --text-xs: 0.6875rem;
@@ -87,6 +88,8 @@
   --shadow-md: 0 2px 8px oklch(0 0 0 / 0.06), 0 1px 3px oklch(0 0 0 / 0.04);
   --shadow-lg: 0 8px 24px oklch(0 0 0 / 0.08), 0 2px 8px oklch(0 0 0 / 0.04);
   --shadow-xl: 0 16px 48px oklch(0 0 0 / 0.1), 0 4px 16px oklch(0 0 0 / 0.05);
+
+  --shadow-bubble: 4px 4px 0 var(--color-foreground);
 
   --shadow-neu-sm: 3px 3px 6px var(--color-neu-dark), -3px -3px 6px var(--color-neu-light);
   --shadow-neu-md: 6px 6px 14px var(--color-neu-dark), -6px -6px 14px var(--color-neu-light);
@@ -148,6 +151,11 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-display);
   }
 
   :focus-visible {

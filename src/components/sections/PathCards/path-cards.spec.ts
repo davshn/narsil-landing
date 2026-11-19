@@ -9,52 +9,97 @@ const paths = [
   {
     title: 'Your own status pet',
     description: 'States above the prompt.',
-    icon: 'lucide:sparkles',
+    pose: 'hola',
     href: '/en/mods/pet/',
     meta: '17 guides',
   },
   {
     title: 'A Narsil desk bot',
     description: 'A body for Narsil.',
-    icon: 'lucide:cpu',
+    pose: 'terminado',
     href: '/en/bot/',
+  },
+  {
+    title: 'Narsil in Claude',
+    description: 'On your phone.',
+    pose: 'necesita',
+    href: '/en/mods/claude/',
+    meta: '5 guides',
+    detour: 'Experimental',
   },
 ]
 
+const start = {
+  title: 'Mod fundamentals',
+  description: 'The base of every prompt.',
+  href: '/en/mods/',
+  meta: '5 guides',
+}
+
 describe('PathCards', () => {
-  it('links one card per path in order, numbered from 01', async () => {
-    const host = await render(PathCards, { props: { id: 'routes', title: 'Paths', paths } })
+  it('links one stop per path in order, numbered after the start, with the detour unnumbered', async () => {
+    const host = await render(PathCards, { props: { id: 'routes', title: 'Paths', start, paths } })
     const cards = [...host.querySelectorAll('.path-card')]
 
     expect(host.querySelector('section')?.getAttribute('id')).toBe('routes')
     expect(
       cards.map((card) => card.querySelector('.path-card-link')?.getAttribute('href')),
-    ).toEqual(['/en/mods/pet/', '/en/bot/'])
-    expect(cards.map((card) => card.querySelector('.path-card-index')?.textContent.trim())).toEqual(
-      ['01', '02'],
-    )
+    ).toEqual(['/en/mods/pet/', '/en/bot/', '/en/mods/claude/'])
+    expect(
+      cards.map((card) => card.querySelector('.path-card-index')?.textContent.trim() ?? null),
+    ).toEqual(['2', '3', null])
     expect(cards[0].querySelector('.path-card-index')?.getAttribute('aria-hidden')).toBe('true')
+    expect(cards[2].classList.contains('path-card-detour')).toBe(true)
+    expect(cards[2].querySelector('.path-card-badge')?.textContent.trim()).toBe('Experimental')
   })
 
-  it('shows the description, a decorative icon, and the guide count only when there is one', async () => {
+  it('opens the journey with the start as step 1, joined to the stops by a decorative line', async () => {
+    const host = await render(PathCards, { props: { title: 'Paths', start, paths } })
+    const link = host.querySelector('.path-start')
+
+    expect(link?.getAttribute('href')).toBe('/en/mods/')
+    expect(link?.querySelector('.path-start-step')?.textContent.trim()).toBe('1')
+    expect(link?.querySelector('.path-start-title')?.textContent).toBe('Mod fundamentals')
+    expect(link?.querySelector('.path-start-meta')?.textContent).toBe('5 guides')
+    expect(host.querySelector('.path-connector')?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  it('numbers the stops from 1 and draws no start or line without a start', async () => {
+    const host = await render(PathCards, { props: { title: 'Paths', paths: paths.slice(0, 2) } })
+
+    expect(host.querySelector('.path-start')).toBeNull()
+    expect(host.querySelector('.path-connector')).toBeNull()
+    expect(
+      [...host.querySelectorAll('.path-card-index')].map((index) => index.textContent.trim()),
+    ).toEqual(['1', '2'])
+  })
+
+  it('shows the description, a decorative pose, and the guide count only when there is one', async () => {
     const host = await render(PathCards, { props: { title: 'Paths', paths } })
     const [pet, bot] = [...host.querySelectorAll('.path-card')]
 
     expect(pet.querySelector('.path-card-description')?.textContent).toBe(
       'States above the prompt.',
     )
-    expect(pet.querySelector('.path-card-icon svg')?.getAttribute('aria-hidden')).toBe('true')
+    expect(pet.querySelector('.path-card-pose img')?.getAttribute('alt')).toBe('')
+    expect(pet.querySelector('.path-card-pose img')?.getAttribute('src')).toBe(
+      '/narsil/hola-claro.webp',
+    )
     expect(pet.querySelector('.path-card-meta')?.textContent).toBe('17 guides')
     expect(bot.querySelector('.path-card-meta')).toBeNull()
   })
 
-  it('names the section by its heading and renders the subtitle only when provided', async () => {
+  it('names the section by its heading and renders the subtitle and Narsil guide only when provided', async () => {
     const bare = await render(PathCards, { props: { title: 'Paths', paths } })
-    const full = await render(PathCards, { props: { title: 'Paths', subtitle: 'Pick one', paths } })
+    const full = await render(PathCards, {
+      props: { title: 'Paths', subtitle: 'Pick one', guide: 'Start here.', paths },
+    })
 
     expect(bare.querySelector('section')?.getAttribute('aria-labelledby')).toBe('path-cards-title')
     expect(bare.querySelector('#path-cards-title')?.textContent).toBe('Paths')
     expect(bare.querySelector('.section-description')).toBeNull()
+    expect(bare.querySelector('.path-cards-guide')).toBeNull()
     expect(full.querySelector('.section-description')?.textContent).toBe('Pick one')
+    expect(full.querySelector('.path-cards-guide .narsil-bubble')?.textContent).toBe('Start here.')
   })
 })

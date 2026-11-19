@@ -14,6 +14,16 @@
   @apply mx-auto max-w-2xl text-center;
 }
 
+.showcase-guide {
+  @apply mt-8 flex items-end justify-center gap-4 text-left;
+}
+
+.showcase-guide-bubble {
+  @apply text-base;
+  margin-bottom: var(--spacing-6);
+  max-width: 24rem;
+}
+
 .showcase-grid {
   @apply mt-14 grid items-start gap-12 lg:grid-cols-3 lg:gap-10;
 }

@@ -84,34 +84,38 @@ export const it: TranslationShape = {
       'Qui non ti limiterai a installarle: costruirai le tue versioni insieme a Claude. Ogni guida spiega una funzionalità con parole semplici, ti dà un prompt per chiederla a Claude e ti mostra come verificare che ciò che Claude ha costruito sia corretto. Il codice è lì per essere letto e confrontato, non copiato.',
     ],
     routesTitle: 'Quattro percorsi di apprendimento',
-    routesSubtitle:
-      'Scegli un percorso e segui le sue guide in ordine. Se non hai mai creato una mod, inizia dalle basi delle mod: spiegano le poche idee su cui si basa ogni prompt degli altri percorsi.',
     routes: [
       {
         title: 'La tua mascotte di stato',
         description:
           'Crea con Claude una mod come Narsil: stati sopra il prompt, animazioni, tutte le conversazioni in un solo posto, una finestra mobile, voce, orologi del contesto e della cache, e avvisi sul telefono.',
-        icon: 'lucide:sparkles',
       },
       {
         title: 'Il tuo pannello di revisione',
         description:
           'Crea con Claude una mod come Narsil Check: un pannello laterale con una mappa in diretta del lavoro di Claude, i passi della CI, il branch indietro rispetto al remoto, aggiornamenti raggruppati per rischio, vulnerabilità da OSV.dev e strumenti per Claude.',
-        icon: 'lucide:list-checks',
       },
       {
         title: 'Un bot di Narsil',
         description:
           'Dai un corpo a Narsil: uno schermo touch ESP32-P4 nella pancia con le tue attività e le tue pull request, una testa olografica ESP32-S3 con il suo volto, e la voce con Xiaozhi e Claude sul tuo server.',
-        icon: 'lucide:cpu',
       },
       {
         title: 'Narsil in Claude, sul telefono',
         description:
           'Sperimentale: scopri come è fatta l’estensione del browser che porta Narsil su claude.ai in Android, con la banda della conversazione, il menu laterale con i tuoi limiti e i messaggi di ntfy, i colori e i pacchetti per Android.',
-        icon: 'lucide:smartphone',
       },
     ],
+    guide: {
+      hello:
+        'Ciao! Sono Narsil. Vivo sopra il tuo prompt e ti dico cosa sta facendo Claude. Oggi mi costruisci tu.',
+      statusDetail: 'modifica src/hooks.ts',
+      startText:
+        'I tre file di una mod, i suoi hook e l’oggetto $: la base di ogni prompt che viene dopo.',
+      routes:
+        'Comincia dai fondamenti. Poi scegli dove andiamo: i percorsi si possono fare in qualsiasi ordine.',
+      showcase: 'Tutto questo lo costruisci tu, con Claude, una guida alla volta.',
+    },
     extension: {
       badge: 'Sperimentale',
       title: 'Narsil in Claude, l’estensione del browser',

@@ -3,7 +3,7 @@ import { NARSIL_THEMES, narsilArt, type NarsilPose } from '@utils/narsil-art'
 
 import './narsil-sprite.css'
 
-type Size = 'md' | 'lg'
+type Size = 'sm' | 'md' | 'lg' | 'xl'
 
 interface Props {
   pose: NarsilPose
@@ -17,8 +17,10 @@ interface Props {
 const { pose, alt, size = 'md', loading = 'lazy', framed = false, class: className } = Astro.props
 
 const dimensions: Record<Size, { width: number; height: number }> = {
+  sm: { width: 48, height: 68 },
   md: { width: 90, height: 128 },
   lg: { width: 140, height: 200 },
+  xl: { width: 180, height: 256 },
 }
 const { width, height } = dimensions[size]
 const classes = [

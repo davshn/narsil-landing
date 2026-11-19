@@ -63,26 +63,28 @@
 }
 
 .narsil-state {
-  @apply flex flex-col items-center gap-2 p-5 text-center;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-neu-md);
+  @apply flex flex-col items-stretch gap-5 pb-2;
   scroll-snap-align: start;
 }
 
+.narsil-state-figure {
+  @apply flex items-end gap-3;
+  padding-left: var(--spacing-6);
+}
+
 .narsil-state-label {
-  @apply mt-2 flex items-center gap-2 text-sm font-bold uppercase;
-  letter-spacing: var(--tracking-wide);
-  color: var(--state-color);
+  @apply mb-3 flex items-center gap-2 text-base font-bold text-foreground;
 }
 
 .narsil-state-label::before {
   content: '';
-  @apply inline-block h-2 w-2 rounded-full;
+  @apply inline-block h-3 w-3 rounded-full;
   background: var(--state-color);
 }
 
 .narsil-state-text {
-  @apply text-sm text-muted-foreground;
+  @apply text-sm;
+  min-height: 4.5rem;
 }
 
 .narsil-state-working {

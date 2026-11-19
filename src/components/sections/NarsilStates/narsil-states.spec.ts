@@ -24,6 +24,18 @@ describe('NarsilStates', () => {
     expect(items[1].querySelector('.narsil-state-text')?.textContent).toBe('A tool failed.')
   })
 
+  it('lets Narsil say each state in a speech bubble above its pose and label', async () => {
+    const host = await render(NarsilStates, { props: { title: 'States', states } })
+    const [working] = [...host.querySelectorAll('.narsil-state')]
+
+    expect(working.querySelector('.narsil-state-text')?.classList.contains('narsil-bubble')).toBe(
+      true,
+    )
+    expect(working.querySelector('.narsil-state-figure .narsil-state-label')?.textContent).toBe(
+      'Working',
+    )
+  })
+
   it('draws each pose as decoration, since its label already names the state', async () => {
     const host = await render(NarsilStates, { props: { title: 'States', states } })
     const images = [...host.querySelectorAll('.narsil-state img')]
