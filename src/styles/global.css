@@ -91,13 +91,11 @@
 
   --shadow-bubble: 4px 4px 0 var(--color-foreground);
 
-  --shadow-neu-sm: 3px 3px 6px var(--color-neu-dark), -3px -3px 6px var(--color-neu-light);
-  --shadow-neu-md: 6px 6px 14px var(--color-neu-dark), -6px -6px 14px var(--color-neu-light);
-  --shadow-neu-lg: 12px 12px 28px var(--color-neu-dark), -12px -12px 28px var(--color-neu-light);
-  --shadow-neu-inset-sm:
-    inset 2px 2px 5px var(--color-neu-dark), inset -2px -2px 5px var(--color-neu-light);
-  --shadow-neu-inset-md:
-    inset 5px 5px 10px var(--color-neu-dark), inset -5px -5px 10px var(--color-neu-light);
+  --shadow-neu-sm: 0 0 0 1.5px var(--color-foreground), 2px 2px 0 1.5px var(--color-foreground);
+  --shadow-neu-md: 0 0 0 2px var(--color-foreground), 4px 4px 0 2px var(--color-foreground);
+  --shadow-neu-lg: 0 0 0 2px var(--color-foreground), 6px 6px 0 2px var(--color-foreground);
+  --shadow-neu-inset-sm: inset 0 0 0 1.5px var(--color-muted-foreground);
+  --shadow-neu-inset-md: inset 0 0 0 2px var(--color-border);
 
   --duration-fast: 120ms;
   --duration-base: 200ms;
