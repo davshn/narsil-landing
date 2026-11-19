@@ -1,5 +1,7 @@
 # Narsil Workshop
 
+![Narsil Workshop: build Claude Code mods like Narsil](public/og/home.png)
+
 A free, static, multilingual site that teaches, step by step, how to build Claude Code mods like [Narsil](https://github.com/davshn/narsil-pet) and [Narsil Check](https://github.com/davshn/narsil-check), and a Narsil desk bot with a body (an ESP32-P4 touch screen in the belly and a holographic ESP32-S3 head) that talks through Xiaozhi and Claude on your own server and shows GitHub pull requests and the Narsil status.
 
 Built on [landingTemplate](https://github.com/davshn/landingTemplate): **Astro 7**, **TypeScript**, **Tailwind CSS v4**, managed with **pnpm**. There is no backend and no analytics, and the site never asks for tokens or keys.
