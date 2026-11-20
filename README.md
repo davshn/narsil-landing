@@ -26,7 +26,7 @@ All optional. Configure them in `.env` (copy from `.env.example`).
 | Variable              | Purpose                                                                                   |
 | --------------------- | ----------------------------------------------------------------------------------------- |
 | `PUBLIC_SITE_URL`     | Production URL for canonical links, `hreflang`, Open Graph, and the sitemap               |
-| `PUBLIC_DONATION_URL` | Overrides the coffee button link (`https://paypal.me/davshn`); a non-https value hides it |
+| `PUBLIC_DONATION_URL` | Overrides the coffee button link (`https://ko-fi.com/davshn`); a non-https value hides it |
 | `PUBLIC_ANALYTICS_*`  | Leave empty: the site ships without analytics, and the CSP sets `connect-src 'self'`      |
 
 ## Structure

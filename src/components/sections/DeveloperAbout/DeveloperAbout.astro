@@ -3,7 +3,11 @@ import './developer-about.css'
 
 import developerPhoto from '@/assets/developer-photo.jpg'
 import ResponsiveImage from '@components/ui/ResponsiveImage/ResponsiveImage.astro'
-import { DEVELOPER_PROFILE_URL } from '@utils/developer'
+import {
+  DEVELOPER_GITHUB_URL,
+  DEVELOPER_LINKEDIN_URL,
+  DEVELOPER_PROFILE_URL,
+} from '@utils/developer'
 
 import type { TranslationShape } from '@i18n/index'
 
@@ -13,6 +17,10 @@ interface Props {
 
 const { copy } = Astro.props
 const titleId = 'support-about-title'
+const socialLinks = [
+  { name: 'GitHub', url: DEVELOPER_GITHUB_URL },
+  { name: 'LinkedIn', url: DEVELOPER_LINKEDIN_URL },
+]
 ---
 
 <section class="developer-about" aria-labelledby={titleId} data-support-about>
@@ -47,6 +55,14 @@ const titleId = 'support-about-title'
       >
         {copy.developer.link}
       </a>
+    </p>
+    <p class="developer-about-social" data-developer-social>
+      <span data-developer-connect>{copy.about.connect}</span>
+      {socialLinks.map(({ name, url }) => (
+        <a class="developer-about-social-link" href={url} target="_blank" rel="noopener me">
+          {name}
+        </a>
+      ))}
     </p>
   </div>
 </section>

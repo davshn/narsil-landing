@@ -300,6 +300,7 @@ export interface TranslationShape {
       name: string
       photoAlt: string
       bio: string
+      connect: string
     }
     reposTitle: string
     repos: {
