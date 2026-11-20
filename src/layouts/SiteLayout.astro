@@ -8,6 +8,7 @@ import ThemeToggle from '@components/ui/ThemeToggle/ThemeToggle.astro'
 import type { Locale } from '@i18n/index'
 import { useTranslations } from '@i18n/utils'
 import BaseLayout from '@layouts/BaseLayout.astro'
+import { copyrightNotice } from '@utils/developer'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
 
 interface Props {
@@ -79,8 +80,8 @@ const donation = donationLink(resolveDonationUrl(import.meta.env.PUBLIC_DONATION
     slot="footer"
     brand={t.meta.siteName}
     description={`${t.footer.description} ${t.footer.privacy}`}
-    copyright={t.footer.trademark}
-    notes={[t.footer.license]}
+    copyright={copyrightNotice(new Date().getFullYear())}
+    notes={[t.footer.trademark, t.footer.license]}
   >
     {donation !== undefined && (
       <Fragment slot="support">

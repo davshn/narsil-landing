@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { DEVELOPER_PROFILE_URL } from '../developer'
+import { copyrightNotice, DEVELOPER_PROFILE_URL } from '../developer'
 import { DEFAULT_DONATION_URL, donationLink, resolveDonationUrl } from '../donation'
 import { isHttpsUrl } from '../https-url'
 
@@ -54,5 +54,11 @@ describe('DEVELOPER_PROFILE_URL', () => {
   it('is the https profile of the developer', () => {
     expect(DEVELOPER_PROFILE_URL).toBe('https://davshn.tech/en')
     expect(isHttpsUrl(DEVELOPER_PROFILE_URL)).toBe(true)
+  })
+})
+
+describe('copyrightNotice', () => {
+  it('credits the developer for the given year', () => {
+    expect(copyrightNotice(2026)).toBe('© 2026 Hernán David Figueroa')
   })
 })
