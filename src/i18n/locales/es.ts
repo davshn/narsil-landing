@@ -383,6 +383,7 @@ export const es: TranslationShape = {
       name: 'Hernán David Figueroa',
       photoAlt: 'Foto de Hernán David Figueroa',
       bio: 'Desarrollador fullstack con más de 8 años de experiencia, especializado en pagos seguros. Trabajo en terminales POS y funciones de pago para Android e iOS en el sector fintech. Creé Narsil y este taller para que cualquiera pueda entender y ampliar Claude Code. Vivo en Bogotá.',
+      connect: 'Conectemos:',
     },
     reposTitle: 'El código fuente',
     repos: {

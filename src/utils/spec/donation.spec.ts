@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { copyrightNotice, DEVELOPER_PROFILE_URL } from '../developer'
+import {
+  copyrightNotice,
+  DEVELOPER_GITHUB_URL,
+  DEVELOPER_LINKEDIN_URL,
+  DEVELOPER_PROFILE_URL,
+} from '../developer'
 import { DEFAULT_DONATION_URL, donationLink, resolveDonationUrl } from '../donation'
 import { isHttpsUrl } from '../https-url'
 
@@ -31,8 +36,8 @@ describe('donationLink', () => {
 })
 
 describe('resolveDonationUrl', () => {
-  it('uses the PayPal.me link of the project when the variable is missing or empty', () => {
-    expect(DEFAULT_DONATION_URL).toBe('https://paypal.me/davshn')
+  it('uses the Ko-fi link of the project when the variable is missing or empty', () => {
+    expect(DEFAULT_DONATION_URL).toBe('https://ko-fi.com/davshn')
     expect(resolveDonationUrl(undefined)).toBe(DEFAULT_DONATION_URL)
     expect(resolveDonationUrl('')).toBe(DEFAULT_DONATION_URL)
     expect(resolveDonationUrl('   ')).toBe(DEFAULT_DONATION_URL)
@@ -42,10 +47,10 @@ describe('resolveDonationUrl', () => {
     expect(resolveDonationUrl(' https://ko-fi.com/someone ')).toBe('https://ko-fi.com/someone')
   })
 
-  it('gives a PayPal donation link by default', () => {
+  it('gives a Ko-fi donation link by default', () => {
     expect(donationLink(resolveDonationUrl(undefined))).toEqual({
-      url: 'https://paypal.me/davshn',
-      platform: 'PayPal',
+      url: 'https://ko-fi.com/davshn',
+      platform: 'Ko-fi',
     })
   })
 })
@@ -54,6 +59,15 @@ describe('DEVELOPER_PROFILE_URL', () => {
   it('is the https profile of the developer', () => {
     expect(DEVELOPER_PROFILE_URL).toBe('https://davshn.tech/en')
     expect(isHttpsUrl(DEVELOPER_PROFILE_URL)).toBe(true)
+  })
+})
+
+describe('developer social links', () => {
+  it('are the https GitHub and LinkedIn profiles of the developer', () => {
+    expect(DEVELOPER_GITHUB_URL).toBe('https://github.com/davshn')
+    expect(DEVELOPER_LINKEDIN_URL).toBe('https://www.linkedin.com/in/davshn/')
+    expect(isHttpsUrl(DEVELOPER_GITHUB_URL)).toBe(true)
+    expect(isHttpsUrl(DEVELOPER_LINKEDIN_URL)).toBe(true)
   })
 })
 

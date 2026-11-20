@@ -45,3 +45,12 @@
 .developer-about-link {
   @apply text-primary underline underline-offset-4;
 }
+
+.developer-about-social {
+  @apply flex flex-wrap items-center justify-center gap-3 text-sm sm:justify-start;
+  color: var(--color-muted-foreground);
+}
+
+.developer-about-social-link {
+  @apply font-semibold text-primary underline underline-offset-4;
+}

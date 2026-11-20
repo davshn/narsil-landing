@@ -12,7 +12,7 @@ const PLATFORMS: ReadonlyArray<{ host: string; name: string }> = [
   { host: 'github.com', name: 'GitHub Sponsors' },
 ]
 
-export const DEFAULT_DONATION_URL = 'https://paypal.me/davshn'
+export const DEFAULT_DONATION_URL = 'https://ko-fi.com/davshn'
 
 export function resolveDonationUrl(rawUrl: string | undefined): string {
   const value = rawUrl?.trim() ?? ''

@@ -40,7 +40,7 @@ test.describe('Landing page smoke tests', () => {
       await expect(page.getByRole('heading', { level: 1, name: t.support.title })).toBeVisible()
       await expect(page.locator('main [data-donate]')).toHaveAttribute(
         'href',
-        'https://paypal.me/davshn',
+        'https://ko-fi.com/davshn',
       )
       await expect(page.locator('[data-repositories] a')).toHaveText([
         t.support.repos.pet,
