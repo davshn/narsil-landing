@@ -4,7 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { locales } from '../../../i18n/index'
 import { useTranslations } from '../../../i18n/utils'
 import { render } from '../../../test-render'
-import { DEVELOPER_PROFILE_URL } from '../../../utils/developer'
+import {
+  DEVELOPER_GITHUB_URL,
+  DEVELOPER_LINKEDIN_URL,
+  DEVELOPER_PROFILE_URL,
+} from '../../../utils/developer'
 
 import DeveloperAbout from './DeveloperAbout.astro'
 
@@ -44,6 +48,26 @@ describe('DeveloperAbout', () => {
     expect(link?.getAttribute('target')).toBe('_blank')
     expect(link?.getAttribute('rel')).toBe('noopener')
     expect(link?.textContent.trim()).toBe('See my developer profile')
+  })
+
+  it('invites visitors to connect on GitHub and LinkedIn in new tabs', async () => {
+    const { support: copy } = useTranslations('en')
+    const host = await render(DeveloperAbout, { props: { copy } })
+    const social = host.querySelector('[data-developer-social]')
+    const links = [...(social?.querySelectorAll('a') ?? [])]
+
+    expect(social?.querySelector('[data-developer-connect]')?.textContent.trim()).toBe(
+      'Let’s connect:',
+    )
+    expect(links.map((a) => a.getAttribute('href'))).toEqual([
+      DEVELOPER_GITHUB_URL,
+      DEVELOPER_LINKEDIN_URL,
+    ])
+    expect(links.map((a) => a.textContent.trim())).toEqual(['GitHub', 'LinkedIn'])
+    for (const link of links) {
+      expect(link.getAttribute('target')).toBe('_blank')
+      expect(link.getAttribute('rel')).toBe('noopener me')
+    }
   })
 
   it.each(locales)('names the developer in the %s photo alt text', async (locale) => {
