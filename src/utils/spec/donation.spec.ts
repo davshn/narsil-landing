@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
 
-import { DEVELOPER_GITHUB_URL, DEVELOPER_LINKEDIN_URL, DEVELOPER_PROFILE_URL } from '../developer'
+import {
+  copyrightNotice,
+  DEVELOPER_GITHUB_URL,
+  DEVELOPER_LINKEDIN_URL,
+  DEVELOPER_PROFILE_URL,
+} from '../developer'
 import { DEFAULT_DONATION_URL, donationLink, resolveDonationUrl } from '../donation'
 import { isHttpsUrl } from '../https-url'
 
@@ -63,5 +68,11 @@ describe('developer social links', () => {
     expect(DEVELOPER_LINKEDIN_URL).toBe('https://www.linkedin.com/in/davshn/')
     expect(isHttpsUrl(DEVELOPER_GITHUB_URL)).toBe(true)
     expect(isHttpsUrl(DEVELOPER_LINKEDIN_URL)).toBe(true)
+  })
+})
+
+describe('copyrightNotice', () => {
+  it('credits the developer for the given year', () => {
+    expect(copyrightNotice(2026)).toBe('© 2026 Hernán David Figueroa')
   })
 })

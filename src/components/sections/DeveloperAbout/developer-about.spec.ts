@@ -70,6 +70,17 @@ describe('DeveloperAbout', () => {
     }
   })
 
+  it.each(locales)('describes the %s work by sector without naming the employer', (locale) => {
+    const {
+      support: {
+        about: { bio },
+      },
+    } = useTranslations(locale)
+
+    expect(bio).not.toMatch(/colombi|gateway|pasarela|passerelle/iv)
+    expect(bio.match(/fintech/giv)).toHaveLength(1)
+  })
+
   it.each(locales)('names the developer in the %s photo alt text', async (locale) => {
     const { support: copy } = useTranslations(locale)
     const host = await render(DeveloperAbout, { props: { copy } })

@@ -71,12 +71,15 @@ test.describe('Landing page smoke tests', () => {
     })
   }
 
-  test('the footer shows the coffee button and the trademark notice', async ({ page }) => {
+  test('the footer shows the coffee button, the copyright, and the trademark notice', async ({
+    page,
+  }) => {
     const t = useTranslations('en')
     await page.goto('/en/')
     const footer = page.locator('footer')
     await expect(footer.locator('[data-footer-support]')).toHaveText(t.footer.support)
     await expect(footer.locator('[data-donate]')).toHaveText(t.footer.donate)
+    await expect(footer).toContainText(`© ${new Date().getFullYear()} Hernán David Figueroa`)
     await expect(footer).toContainText(t.footer.trademark)
     await expect(footer).toContainText(t.footer.license)
   })
