@@ -53,11 +53,11 @@ export const es: TranslationShape = {
     showcase: {
       title: 'Cómo se ve',
       subtitle:
-        'La misma información te acompaña en todas partes: sobre el prompt, en una ventana flotante, en un panel lateral y en tu celular.',
+        'La misma información te acompaña en todas partes: sobre el prompt, en una ventana flotante, en un panel lateral, en tu móvil y en tu muñeca.',
       items: [
         {
-          title: 'Narsil para Android',
-          text: 'Una app experimental que junta claude.ai y Narsil en Android: en el menú lateral, su nivel, tus límites de uso y los mensajes de ntfy del día; encima de la caja de texto, el estado de la conversación abierta; y sus avisos como notificaciones, incluso con la app cerrada.',
+          title: 'La ventana flotante',
+          text: 'Narsil, tus límites de uso y cada conversación abierta con su contexto, tareas, caché y próximos pasos, en una ventana pequeña que queda siempre encima.',
           alt: 'La ventana flotante de Narsil: una conversación trabajando con sus tareas, las barras de uso y otras dos conversaciones abiertas',
         },
         {
@@ -66,14 +66,19 @@ export const es: TranslationShape = {
           alt: 'El panel de Narsil Check: un mapa en vivo del trabajo de Claude con Narsil bebé en el centro, entorno y CI, tres actualizaciones de librerías, una vulnerabilidad y dos tareas pendientes',
         },
         {
-          title: 'Narsil en Claude, en tu celular',
-          text: 'Una extensión experimental que lleva a Narsil dentro de claude.ai en Android: en el menú lateral, su nivel, tus límites de uso y los mensajes de ntfy del día; sobre la caja de texto, el estado de la conversación abierta. Su código no es público, pero las guías explican cómo se hace.',
-          alt: 'El menú lateral de claude.ai en un celular Android con el bloque de Narsil: el nivel, los límites de 5 horas y de la semana, y los mensajes de ntfy del día. Los datos personales están difuminados.',
+          title: 'Narsil para Android',
+          text: 'Una app experimental que junta claude.ai y Narsil en Android: en el menú lateral, su nivel, tus límites de uso y los mensajes de ntfy del día; encima de la caja de texto, el estado de la conversación abierta; y sus avisos como notificaciones, incluso con la app cerrada.',
+          alt: 'El menú lateral de claude.ai en un móvil Android con el bloque de Narsil: el nivel, los límites de 5 horas y de la semana, y los mensajes de ntfy del día. Los datos personales están difuminados.',
           detailAlt:
-            'Una conversación de claude.ai en un celular Android: sobre la caja de texto, la franja de Narsil muestra el estado TRABAJANDO, el contexto al 80 %, la caché a 60 min y el último evento, Usando Bash. La conversación está difuminada.',
+            'Una conversación de claude.ai en un móvil Android: sobre la caja de texto, la franja de Narsil muestra el estado TRABAJANDO, el contexto al 80 %, la caché a 60 min y el último evento, Usando Bash. La conversación está difuminada.',
+        },
+        {
+          title: 'Narsil Watch',
+          text: 'Una app experimental para Wear OS: Narsil con su nivel, tus límites de Claude con su reinicio y, debajo, cada conversación abierta con su estado. Un tile y una complicación llevan los mismos límites a la esfera.',
+          alt: 'La app Narsil Watch en una pantalla redonda de Wear OS: Narsil en el nivel 28 con 130 de 2800 XP, y los límites de Claude, el de 5 horas al 1 % con su hora de reinicio y el semanal al 5 %.',
         },
       ],
-      note: 'La ventana flotante usa datos de ejemplo, y la captura del celular es real, con los datos personales difuminados. El panel de Narsil Check está recreado a partir de su código, porque solo se dibuja dentro de Claude Code. El arte de Narsil viene de davshn/narsil-pet (GPL v3).',
+      note: 'La ventana flotante usa datos de ejemplo, y las capturas del móvil y del reloj son reales, con los datos personales difuminados. El panel de Narsil Check está recreado a partir de su código, porque solo se dibuja dentro de Claude Code. El arte de Narsil viene de davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: '¿Qué es Narsil?',
     about: [
@@ -101,7 +106,7 @@ export const es: TranslationShape = {
       {
         title: 'Narsil para Android',
         description:
-          'Experimental: mira cómo está hecha la app que junta claude.ai y los avisos de Narsil en tu celular: una WebView con la franja de la conversación, el menú lateral con tus límites, los colores de Narsil, avisos nativos desde ntfy y cifrado.',
+          'Experimental: mira cómo está hecha la app que junta claude.ai y los avisos de Narsil en tu móvil: una WebView con la franja de la conversación, el menú lateral con tus límites, los colores de Narsil, avisos nativos desde ntfy y cifrado.',
       },
       {
         title: 'Narsil Watch',
@@ -121,11 +126,11 @@ export const es: TranslationShape = {
     },
     apps: {
       badge: 'Experimental',
-      title: 'Narsil en tu celular y en tu muñeca',
+      title: 'Narsil en tu móvil y en tu muñeca',
       text: 'Narsil también sale del PC. Dos apps de código abierto leen lo que el mod de Narsil publica en tu tema privado de ntfy.sh, para que sigas a Claude cuando estás lejos del escritorio.',
       android: {
         title: 'Narsil para Android',
-        text: 'claude.ai dentro de una app, con los colores de Narsil, su franja encima de la caja de texto y tus límites en el menú lateral. Sus avisos llegan como notificaciones nativas, incluso con la app cerrada, y pueden ir cifrados con una clave que solo tienen tu PC y tu celular.',
+        text: 'claude.ai dentro de una app, con los colores de Narsil, su franja encima de la caja de texto y tus límites en el menú lateral. Sus avisos llegan como notificaciones nativas, incluso con la app cerrada, y pueden ir cifrados con una clave que solo tienen tu PC y tu móvil.',
         cta: 'Cómo está hecha la app de Android',
       },
       watch: {
@@ -415,7 +420,7 @@ export const es: TranslationShape = {
     repos: {
       pet: 'Narsil, el mod de mascota de estado',
       check: 'Narsil Check, el mod de panel de revisión',
-      android: 'Narsil para Android, la app del celular',
+      android: 'Narsil para Android, la app del móvil',
       watch: 'Narsil Watch, la app para Wear OS',
     },
     developer: {

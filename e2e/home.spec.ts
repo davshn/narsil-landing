@@ -44,7 +44,7 @@ test.describe('Home layout', () => {
 
   test('switches the showcase between its interfaces with tabs', async ({ page }) => {
     await page.goto('/en/')
-    const [window, panel, phone] = t.home.showcase.items
+    const [window, panel, phone, watch] = t.home.showcase.items
     const tablist = page.getByRole('tablist', { name: t.home.showcase.title })
     await expect(tablist).toBeVisible()
     await expect(page.getByRole('tabpanel')).toHaveCount(1)
@@ -60,6 +60,10 @@ test.describe('Home layout', () => {
     await page.getByRole('tab', { name: phone.title }).press('ArrowLeft')
     await expect(page.getByRole('tab', { name: panel.title })).toBeFocused()
     await expect(page.getByRole('tabpanel')).toContainText(panel.text)
+
+    await page.getByRole('tab', { name: watch.title }).click()
+    await expect(page.getByRole('tabpanel')).toContainText(watch.text)
+    await expect(page.locator('[data-showcase-panel]:visible .showcase-frame-watch')).toBeVisible()
   })
 
   test('scrolls the state poses sideways on a phone without widening the page', async ({

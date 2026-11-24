@@ -54,11 +54,11 @@ export const fr: TranslationShape = {
     showcase: {
       title: 'À quoi ça ressemble',
       subtitle:
-        'Les mêmes informations vous suivent partout : au-dessus du prompt, dans une fenêtre flottante, dans un panneau latéral et sur votre téléphone.',
+        'Les mêmes informations vous suivent partout : au-dessus du prompt, dans une fenêtre flottante, dans un panneau latéral, sur votre téléphone et à votre poignet.',
       items: [
         {
-          title: 'Narsil pour Android',
-          text: 'Une application expérimentale qui réunit claude.ai et Narsil sur Android : dans le menu latéral, son niveau, vos limites d’utilisation et les messages ntfy du jour ; au-dessus de la zone de saisie, l’état de la conversation ouverte ; et ses alertes en notifications, même application fermée.',
+          title: 'La fenêtre flottante',
+          text: 'Narsil, vos limites d’utilisation et chaque conversation ouverte avec son contexte, ses tâches, son cache et ses prochaines étapes, dans une petite fenêtre toujours au premier plan.',
           alt: 'La fenêtre flottante de Narsil : une conversation au travail avec ses tâches, les barres d’utilisation et deux autres conversations ouvertes',
         },
         {
@@ -67,14 +67,19 @@ export const fr: TranslationShape = {
           alt: 'Le panneau Narsil Check : une carte en direct du travail de Claude avec bébé Narsil au centre, environnement et CI, trois mises à jour de dépendances, une vulnérabilité et deux tâches en attente',
         },
         {
-          title: 'Narsil dans Claude, sur votre téléphone',
-          text: 'Une extension expérimentale qui amène Narsil dans claude.ai sur Android : dans le menu latéral, son niveau, vos limites d’utilisation et les messages ntfy du jour ; au-dessus de la zone de saisie, l’état de la conversation ouverte. Son code n’est pas public, mais les guides expliquent comment elle est construite.',
+          title: 'Narsil pour Android',
+          text: 'Une application expérimentale qui réunit claude.ai et Narsil sur Android : dans le menu latéral, son niveau, vos limites d’utilisation et les messages ntfy du jour ; au-dessus de la zone de saisie, l’état de la conversation ouverte ; et ses alertes en notifications, même application fermée.',
           alt: 'Le menu latéral de claude.ai sur un téléphone Android avec le bloc de Narsil : le niveau, les limites de 5 heures et hebdomadaires, et les messages ntfy du jour. Les données personnelles sont floutées.',
           detailAlt:
             'Une conversation claude.ai sur un téléphone Android : au-dessus de la zone de saisie, la bande de Narsil affiche l’état TRABAJANDO (au travail), le contexte à 80 %, le cache à 60 min et le dernier événement, Usando Bash (utilise Bash). La conversation est floutée.',
         },
+        {
+          title: 'Narsil Watch',
+          text: 'Une application expérimentale pour Wear OS : Narsil avec son niveau, vos limites Claude avec leur réinitialisation et, en dessous, chaque conversation ouverte avec son état. Une tuile et une complication affichent les mêmes limites sur le cadran.',
+          alt: 'L’application Narsil Watch sur un écran rond Wear OS : Narsil au niveau 28 avec 130 sur 2800 XP, et les limites de Claude, celle de 5 heures à 1 % avec son heure de réinitialisation et l’hebdomadaire à 5 %.',
+        },
       ],
-      note: 'La fenêtre flottante utilise des données d’exemple, et la capture du téléphone est réelle, avec les données personnelles floutées. Le panneau Narsil Check est recréé à partir de son code source, car il ne s’affiche que dans Claude Code. Les illustrations de Narsil viennent de davshn/narsil-pet (GPL v3).',
+      note: 'La fenêtre flottante utilise des données d’exemple, et les captures du téléphone et de la montre sont réelles, avec les données personnelles floutées. Le panneau Narsil Check est recréé à partir de son code source, car il ne s’affiche que dans Claude Code. Les illustrations de Narsil viennent de davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: 'Qu’est-ce que Narsil ?',
     about: [

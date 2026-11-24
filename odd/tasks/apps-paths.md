@@ -15,14 +15,14 @@ Objective: replace the experimental "Narsil in Claude" path (the private browser
 
 ## Tasks
 
-| ID  | Specs      | Route                  | Status  | Commit |
-| --- | ---------- | ---------------------- | ------- | ------ |
-| T1  | S2, S3, S5 | inline                 | done    |        |
-| T2  | S4         | delegated (2 parallel) | done    |        |
-| T3  | S6         | delegated              | done    |        |
-| T4  | S4, S6     | delegated (8 parallel) | done    |        |
-| T5  | S5         | inline                 | pending |        |
-| T6  | all        | inline                 | done    |        |
+| ID  | Specs      | Route                  | Status | Commit |
+| --- | ---------- | ---------------------- | ------ | ------ |
+| T1  | S2, S3, S5 | inline                 | done   |        |
+| T2  | S4         | delegated (2 parallel) | done   |        |
+| T3  | S6         | delegated              | done   |        |
+| T4  | S4, S6     | delegated (8 parallel) | done   |        |
+| T5  | S5         | inline                 | done   |        |
+| T6  | all        | inline                 | done   |        |
 
 T1: routes, schema, copy in five locales, home, support, redirects, specs. T2: English guides. T3: English `pet/phone-and-watch` update. T4: translations. T5: watch showcase tab with the owner's captures. T6: checks.
 
@@ -35,3 +35,5 @@ T1: routes, schema, copy in five locales, home, support, redirects, specs. T2: E
 - L5: English guides written from the code of both repositories; every quoted excerpt checked against its source. Quoted JS, TS and CSS in the Android guides sit behind `<!-- prettier-ignore -->` so Prettier keeps them byte for byte. Each guide's "Where the code and the README differ" records what the READMEs overstate, among them: finished-turn alerts never replace each other with the real mod (no `conv-` tag), missed alerts are only recovered after a first alert, a key does not block plain messages in either app, and the system bars change only on resume.
 - L6: translations to es, it, fr, pt. The es guides keep "móvil" and "ordenador"/"PC" (125 and 30 uses in the existing guides) even though the home copy says "celular". The Android commit `38cb33c` undid the Chrome user agent of `bfa379a`; the guides tell that history.
 - L7: the phone captures were renamed `narsil-android-*`. Checks: typecheck, `eslint .`, `prettier --check`; 797 unit tests, coverage 98.13 % lines and 91.34 % branches; build 396 pages; 296 chromium e2e passed (run with the preinstalled Chromium because the pinned Playwright browser is missing in the cloud container).
+- L8 (2026-11-24, owner): "aca estan las dos screenshots oscuro/claro del reloj, usa movil en todo lado en lugar de celular, ya con eso sube el pr". The two 480 x 480 captures of the watch app are `narsil-watch-claro.png` and `narsil-watch-oscuro.png`, shown in a round `watch` frame as the fourth showcase tab. The es copy now says "móvil" everywhere; "celular" stays only inside verbatim owner quotes in the guides, and pt keeps "celular", which is Brazilian Portuguese.
+- L9: the first commit put the Android showcase copy on the floating window tab instead of the phone tab in all five locales; fixed here, the window tab matches `main` again. Checks: typecheck, `eslint .`, `prettier --check`; 797 unit tests, coverage 98.13 % lines and 91.34 % branches; build 396 pages; 296 chromium e2e passed.

@@ -126,7 +126,7 @@ export interface TranslationShape {
     showcase: {
       title: string
       subtitle: string
-      items: [ShowcaseCopy, ShowcaseCopy, ShowcaseCopy]
+      items: [ShowcaseCopy, ShowcaseCopy, ShowcaseCopy, ShowcaseCopy]
       note: string
     }
     aboutTitle: string

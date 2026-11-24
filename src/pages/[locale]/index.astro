@@ -28,6 +28,8 @@ import narsilAndroidBandDark from '../../assets/screens/narsil-android-band-oscu
 import narsilAndroidBandLight from '../../assets/screens/narsil-android-band-claro.png'
 import narsilAndroidDark from '../../assets/screens/narsil-android-oscuro.png'
 import narsilAndroidLight from '../../assets/screens/narsil-android-claro.png'
+import narsilWatchDark from '../../assets/screens/narsil-watch-oscuro.png'
+import narsilWatchLight from '../../assets/screens/narsil-watch-claro.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -73,7 +75,7 @@ const apps = (['android', 'watch'] as const).map((key) => ({
   ...t.home.apps[key],
   href: routeHref(locale, key),
 }))
-const [overlayCopy, checkCopy, androidCopy] = t.home.showcase.items
+const [overlayCopy, checkCopy, androidCopy, watchCopy] = t.home.showcase.items
 const { detailAlt: androidBandAlt = '', ...androidMenuCopy } = androidCopy
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
@@ -169,6 +171,14 @@ const jsonLd = [
           height: 120,
           lightHeight: 131,
         },
+      },
+      {
+        ...watchCopy,
+        frame: 'watch',
+        light: narsilWatchLight,
+        dark: narsilWatchDark,
+        width: 480,
+        height: 480,
       },
     ]}
   />

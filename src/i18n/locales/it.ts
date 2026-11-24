@@ -56,11 +56,11 @@ export const it: TranslationShape = {
     showcase: {
       title: 'Come appare',
       subtitle:
-        'Le stesse informazioni ti seguono ovunque: sopra il prompt, in una finestra mobile, in un pannello laterale e sul telefono.',
+        'Le stesse informazioni ti seguono ovunque: sopra il prompt, in una finestra mobile, in un pannello laterale, sul telefono e al polso.',
       items: [
         {
-          title: 'Narsil per Android',
-          text: 'Un’app sperimentale che unisce claude.ai e Narsil su Android: nel menu laterale, il suo livello, i tuoi limiti di utilizzo e i messaggi ntfy del giorno; sopra la casella di testo, lo stato della conversazione aperta; e i suoi avvisi come notifiche, anche con l’app chiusa.',
+          title: 'La finestra mobile',
+          text: 'Narsil, i tuoi limiti di utilizzo e ogni conversazione aperta con contesto, attività, cache e prossimi passi, in una piccola finestra sempre in primo piano.',
           alt: 'La finestra mobile di Narsil: una conversazione al lavoro con le sue attività, le barre di utilizzo e altre due conversazioni aperte',
         },
         {
@@ -69,14 +69,19 @@ export const it: TranslationShape = {
           alt: 'Il pannello di Narsil Check: una mappa in diretta del lavoro di Claude con la piccola Narsil al centro, ambiente e CI, tre aggiornamenti di librerie, una vulnerabilità e due attività in sospeso',
         },
         {
-          title: 'Narsil in Claude, sul telefono',
-          text: 'Un’estensione sperimentale che porta Narsil dentro claude.ai su Android: nel menu laterale, il suo livello, i tuoi limiti di utilizzo e i messaggi ntfy del giorno; sopra la casella di testo, lo stato della conversazione aperta. Il suo codice non è pubblico, ma le guide spiegano come si costruisce.',
+          title: 'Narsil per Android',
+          text: 'Un’app sperimentale che unisce claude.ai e Narsil su Android: nel menu laterale, il suo livello, i tuoi limiti di utilizzo e i messaggi ntfy del giorno; sopra la casella di testo, lo stato della conversazione aperta; e i suoi avvisi come notifiche, anche con l’app chiusa.',
           alt: 'Il menu laterale di claude.ai su un telefono Android con il blocco di Narsil: il livello, i limiti di 5 ore e settimanali e i messaggi ntfy del giorno. I dati personali sono sfocati.',
           detailAlt:
             'Una conversazione di claude.ai su un telefono Android: sopra la casella di testo, la fascia di Narsil mostra lo stato TRABAJANDO (al lavoro), il contesto all’80 %, la cache a 60 min e l’ultimo evento, Usando Bash (sta usando Bash). La conversazione è sfocata.',
         },
+        {
+          title: 'Narsil Watch',
+          text: 'Un’app sperimentale per Wear OS: Narsil con il suo livello, i tuoi limiti di Claude con il loro azzeramento e, sotto, ogni conversazione aperta con il suo stato. Un tile e una complicazione portano gli stessi limiti sul quadrante.',
+          alt: 'L’app Narsil Watch su uno schermo rotondo Wear OS: Narsil al livello 28 con 130 di 2800 XP, e i limiti di Claude, quello di 5 ore all’1 % con l’ora di azzeramento e quello settimanale al 5 %.',
+        },
       ],
-      note: 'La finestra mobile usa dati di esempio, e la cattura del telefono è reale, con i dati personali sfocati. Il pannello di Narsil Check è ricreato dal suo codice sorgente, perché viene disegnato solo dentro Claude Code. Le illustrazioni di Narsil vengono da davshn/narsil-pet (GPL v3).',
+      note: 'La finestra mobile usa dati di esempio, e le catture del telefono e dell’orologio sono reali, con i dati personali sfocati. Il pannello di Narsil Check è ricreato dal suo codice sorgente, perché viene disegnato solo dentro Claude Code. Le illustrazioni di Narsil vengono da davshn/narsil-pet (GPL v3).',
     },
     aboutTitle: "Che cos'è Narsil?",
     about: [
