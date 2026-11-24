@@ -5,9 +5,10 @@ export type OgImageKey = (typeof OG_IMAGE_KEYS)[number]
 const SECTIONS: ReadonlyArray<{ prefix: string[]; key: OgImageKey }> = [
   { prefix: ['mods', 'pet'], key: 'pet' },
   { prefix: ['mods', 'check'], key: 'check' },
-  { prefix: ['mods', 'claude'], key: 'pet' },
   { prefix: ['mods'], key: 'mods' },
   { prefix: ['bot'], key: 'bot' },
+  { prefix: ['android'], key: 'pet' },
+  { prefix: ['watch'], key: 'pet' },
   { prefix: ['tools'], key: 'tools' },
 ]
 

@@ -41,15 +41,21 @@ export const ptDiagrams: DiagramCopy = {
       { title: 'Somar a cabeça', text: 'O link UART e o rosto holográfico.' },
       { title: 'Proteger', text: 'Cada segredo, onde ele fica e como revogá-lo.' },
     ],
-    claude: [
-      { title: 'O que é', text: 'Uma extensão que leva o Narsil ao claude.ai no Android.' },
-      { title: 'A faixa', text: 'O estado do Narsil acima da caixa de mensagem.' },
+    android: [
+      { title: 'O que é', text: 'Um app que junta o claude.ai e os avisos da Narsil.' },
       {
-        title: 'O menu lateral',
-        text: 'Seu nível do Narsil, seus limites e as mensagens do ntfy.',
+        title: 'Hospedar o Claude',
+        text: 'Uma WebView, os scripts da página e para onde vai cada link.',
       },
-      { title: 'A aparência', text: 'As cores e o ícone do Narsil.' },
-      { title: 'Publicar', text: 'Uma fonte, dois pacotes Android.' },
+      { title: 'Dentro da página', text: 'A faixa e o menu lateral com seus limites.' },
+      { title: 'A aparência', text: 'As cores da Narsil, claras de dia e escuras à noite.' },
+      { title: 'Avisos', text: 'Notificações nativas vindas do ntfy, seladas com sua chave.' },
+    ],
+    watch: [
+      { title: 'O que é', text: 'Seus limites e conversas em um relógio Wear OS.' },
+      { title: 'Ler o estado', text: 'O tópico do ntfy do mod, lido e aberto.' },
+      { title: 'No mostrador', text: 'Um tile com dois anéis e uma complicação.' },
+      { title: 'O app', text: 'Cada conversa, a configuração e a atualização a cada 15 minutos.' },
     ],
   },
   botMap: {

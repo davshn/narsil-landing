@@ -12,7 +12,7 @@ import SiteLayout from '@layouts/SiteLayout.astro'
 import { buildBreadcrumbList, buildTechArticle } from '@seo/json-ld'
 import { DEVELOPER_PROFILE_URL } from '@utils/developer'
 import { donationLink, resolveDonationUrl } from '@utils/donation'
-import { sourceLabel, sourceUrl } from '@utils/guides'
+import { sourceLabel, sourceLicenses, sourceUrl } from '@utils/guides'
 import { fillTemplate } from '@utils/template'
 import type { TocEntry } from '@utils/toc'
 
@@ -179,7 +179,9 @@ const jsonLd = [
             {t.guide.sourcesTitle}
           </h2>
           <Text as="p" size="sm" tone="muted">
-            {t.guide.sourcesIntro}
+            {fillTemplate(t.guide.sourcesIntro, {
+              license: sourceLicenses(sources, languageTags[locale]),
+            })}
           </Text>
           <ul class="guide-sources-list">
             {sources.map((source) => (

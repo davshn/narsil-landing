@@ -33,7 +33,7 @@ All optional. Configure them in `.env` (copy from `.env.example`).
 
 ```text
 src/
-  pages/[locale]/     index.astro (home), support.astro, mods/ and bot/ guides, and tools/
+  pages/[locale]/     index.astro (home), support.astro, mods/, bot/, android/, and watch/ guides, and tools/
   layouts/            BaseLayout (document shell), SiteLayout (header, language selector, footer), and GuideLayout
                       (path sidebar from 1024 px, "on this page" table of contents from 1280 px, both folded above the text on phones)
   components/         ui/ primitives, sections/ (Hero, PathCards, NarsilStates, Showcase with tabs, Features, Header, Footer, LanguageSelector), guide/ (GuidePathList, GuideToc, GuideCurriculum, PathStages, BotArchitecture, GuideDots), tools/ (Preact islands)
@@ -76,12 +76,14 @@ CI (`.github/workflows/quality.yml`) runs on a pull request only after the owner
 4. Path 2: a review panel mod like Narsil Check.
 5. Path 3: the Narsil desk bot (firmware in the public fork `davshn/narsil-bot`).
 6. Interactive tools.
-7. SEO and polish.
+7. Experimental paths: Narsil for Android (`davshn/narsil-android`) and Narsil Watch (`davshn/narsil-watch`).
+8. SEO and polish.
 
 ## License
 
 - Site code and example code written for the guides: MIT, see [`LICENSE`](LICENSE).
 - Guide text: CC BY-SA 4.0.
-- Code quoted or adapted from Narsil and Narsil Check, including the tool logic in `src/tools/logic/`: GPL-3.0-or-later, the license of those projects.
+- Code quoted or adapted from Narsil, Narsil Check, and Narsil Watch, including the tool logic in `src/tools/logic/`: GPL-3.0-or-later, the license of those projects.
+- Code quoted from Narsil for Android: MIT, the license of that project.
 
 [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md) says which material is which. This is not legal advice.

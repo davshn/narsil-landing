@@ -28,7 +28,8 @@ export const PATH_STAGE_STARTS: Record<PathKey, readonly string[]> = {
     'uart-protocol',
     'secrets-privacy',
   ],
-  claude: ['what-it-is', 'conversation-band', 'sidebar', 'colors-and-icon', 'android-packaging'],
+  android: ['what-it-is', 'webview-host', 'conversation-band', 'colors-and-mode', 'alerts-service'],
+  watch: ['what-it-is', 'reading-the-state', 'tile', 'app-and-refresh'],
 }
 
 export const botParts = ['head', 'belly', 'feeds', 'server', 'claude'] as const

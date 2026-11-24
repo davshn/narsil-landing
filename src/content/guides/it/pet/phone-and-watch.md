@@ -3,7 +3,7 @@ title: Avvisi sul telefono e sull'orologio
 description: 'Come /narsil movil invia ciò che ha bisogno di te a un topic privato di ntfy.sh se scrivi da fuori: limite giornaliero, topic di stato silenzioso, chiave opzionale che sigilla il contenuto e Web Push.'
 route: pet
 order: 15
-updated: 2026-11-18
+updated: 2026-11-24
 verifiedWith: 2.1.325
 sources:
   - repo: pet
@@ -12,6 +12,10 @@ sources:
     path: hooks/seal.ts
   - repo: pet
     path: hooks/register.tsx
+  - repo: pet
+    path: hooks/usage.ts
+  - repo: pet
+    path: hooks/words.ts
   - repo: pet
     path: odd/tasks/fleet-view.md
   - repo: pet
@@ -22,13 +26,13 @@ sources:
 
 ## Cosa fa
 
-Quando lavori lontano dal computer, guidando Claude Code tramite Remote Control dal telefono o dal web, la fascia e la finestra mobile sono fuori dalla tua vista. `/narsil movil` ("cellulare") invia invece al tuo telefono ciò che ha bisogno di te: una conversazione che ha finito, ha bisogno di te o è fallita. Anche un orologio che rispecchia le notifiche del telefono le mostra; il README di Narsil nomina Wear OS.
+Quando lavori lontano dal computer, guidando Claude Code tramite Remote Control dal telefono o dal web, la fascia e la finestra mobile sono fuori dalla tua vista. `/narsil movil` ("cellulare") invia invece al tuo telefono ciò che ha bisogno di te: una conversazione che ha finito, ha bisogno di te o è fallita. Anche un orologio che rispecchia le notifiche del telefono le mostra; il README di Narsil nomina Wear OS. Accanto agli avvisi, Narsil pubblica anche uno stato silenzioso (il suo livello, i limiti di Claude, le conversazioni aperte) che [Narsil Watch](https://github.com/davshn/narsil-watch), un'app per Wear OS, disegna al tuo polso.
 
-Gli avvisi viaggiano tramite [ntfy.sh](https://ntfy.sh), un servizio di notifiche pubblico. Il comando crea un topic con un nome casuale, come `narsil-0000000000example0` (ogni nome di topic in questa guida è un esempio inventato). Installi l'app ntfy, ti iscrivi a quel topic, e gli avvisi arrivano come notifiche con l'immagine di Narsil al suo stadio, nella posa dell'avviso, e un pulsante che apre l'app Claude.
+Gli avvisi viaggiano tramite [ntfy.sh](https://ntfy.sh), un servizio di notifiche pubblico. Il comando crea un topic con un nome casuale, come `narsil-0000000000example0` (ogni nome di topic in questa guida è un esempio inventato). Per riceverli, scrivi quel topic nelle impostazioni di [Narsil per Android](https://github.com/davshn/narsil-android) ([cos'è](/it/android/what-it-is/), [il suo servizio degli avvisi](/it/android/alerts-service/)), oppure ti iscrivi a quel topic nell'app ntfy. In entrambi i casi, gli avvisi arrivano come notifiche con l'immagine di Narsil al suo stadio, nella posa dell'avviso, e un pulsante che apre l'app Claude.
 
 Narsil invia solo mentre il tuo ultimo messaggio, in qualsiasi conversazione, è arrivato da Remote Control. Nel momento in cui scrivi di nuovo dalla scrivania, in una qualsiasi di esse, si ferma. Così il telefono la sente solo quando sei davvero altrove.
 
-> **Attenzione: chiunque conosca il nome del topic può leggerlo, e può pubblicarci.** I topic di ntfy.sh, così come li usa Narsil, non hanno password: il nome è l'unica cosa che li mantiene privati. Non condividerlo, non incollarlo negli screenshot, ed esegui `/narsil movil nuevo` per passare a uno nuovo se trapela. Usa la chiave (`/narsil movil clave`) se il tuo ricevitore la supporta: con essa, il titolo e il testo di ogni avviso diventano "Narsil" e un testo illeggibile per chiunque non abbia la chiave, anche se il tipo di avviso, la sua ora e lo stadio di Narsil restano visibili.
+> **Attenzione: chiunque conosca il nome del topic può leggerlo, e può pubblicarci.** I topic di ntfy.sh, così come li usa Narsil, non hanno password: il nome è l'unica cosa che li mantiene privati. Non condividerlo, non incollarlo negli screenshot, ed esegui `/narsil movil nuevo` per passare a uno nuovo se trapela. Usa la chiave (`/narsil movil clave`) se i tuoi ricevitori la supportano (Narsil per Android e Narsil Watch sì; l'app ntfy no): con essa, il titolo e il testo di ogni avviso diventano "Narsil" e un testo illeggibile per chiunque non abbia la chiave, anche se il tipo di avviso, la sua ora e lo stadio di Narsil restano visibili.
 
 I comandi:
 
@@ -53,7 +57,7 @@ Il topic viene salvato nelle preferenze (`phoneTopic` in `prefs`, salvato con `$
 
 Da esso dipendono, per nome, altri due topic:
 
-- `<topic>-estado` ("stato"): uno stato silenzioso per l'estensione di Firefox (vedi sotto).
+- `<topic>-estado` ("stato"): uno stato silenzioso che leggono Narsil per Android e Narsil Watch (vedi sotto).
 - `<topic>-push`: dove una web app per telefono lascia la sua iscrizione Web Push (vedi sotto).
 
 ### Quando parte un avviso: dove hai scritto per ultimo
@@ -91,23 +95,33 @@ Prima di ogni messaggio, `postToPhone` controlla il conteggio e si ferma a 200. 
 
 ### Il topic `-estado` e i suoi campi
 
-Dopo ogni turno della conversazione principale, e con ogni domanda, `sendStatus` pubblica un piccolo stato su `<topic>-estado`, con le stesse regole degli avvisi (avvisi attivi, tu altrove, il conteggio giornaliero). Anche `/narsil movil prueba` ne invia uno. Parte con `priority: 1`, e il commento del codice dice che questo topic è "not followed by push, so its messages never show as notifications" (non seguito tramite push, quindi i suoi messaggi non compaiono mai come notifiche).
+Dopo ogni turno della conversazione principale, e con ogni domanda, `sendStatus` pubblica un piccolo stato su `<topic>-estado`, con le stesse regole degli avvisi (avvisi attivi, tu altrove, il conteggio giornaliero). Anche `/narsil movil prueba` ne invia uno, dopo il suo avviso di prova. Parte con `priority: 1` e senza titolo, e il commento del codice dice che questo topic è "not followed by push, so its messages never show as notifications" (non seguito tramite push, quindi i suoi messaggi non compaiono mai come notifiche).
 
-Il README dice che lo legge l'estensione di Firefox dell'autore (`narsil-claude`), "because they are data only the PC knows" (perché sono dati che conosce solo il PC). Il messaggio è un testo JSON con questi campi:
+Lo leggono due app, "because this is data only the PC knows" (perché sono dati che conosce solo il PC), come dice il README. Narsil per Android prende il livello di Narsil, la sua immagine e il conteggio di ntfy.sh per la sua banda e il suo menu laterale ([la banda della conversazione](/it/android/conversation-band/)); il README dice che lo stato, il contesto e i limiti della conversazione aperta lì vengono dalla pagina stessa di Claude. Narsil Watch ne legge i limiti di Claude e le conversazioni aperte ([leggere lo stato](/it/watch/reading-the-state/)); il suo README dice che legge l'ultimo messaggio ogni 15 minuti, e ogni volta che apri l'app o il tile. Alcuni commenti in `hooks/phone.ts` e `hooks/register.tsx` nominano ancora come lettore una precedente estensione del browser; è storia, non ciò che legge il topic oggi.
 
-| Campo          | Cos'è                                                                                                |
-| -------------- | ---------------------------------------------------------------------------------------------------- |
-| `xp`           | L'etichetta di livello di Narsil, "⭐ Nivel 3 · 120/300 XP" (guida 13).                              |
-| `art`          | L'URL della sua immagine, al suo stadio, nella posa della conversazione aperta più importante.       |
-| `at`           | Quando è stato inviato, in secondi Unix.                                                             |
-| `cacheMinutes` | Quanto dura la cache del prompt, dalla prima conversazione aperta che ne ha una; assente altrimenti. |
-| `usage`        | Una riga, `ntfy`, con il conteggio proprio di ntfy.sh dei messaggi di oggi dalla tua rete, o vuota.  |
+Il messaggio è un testo JSON con questi campi:
+
+| Campo          | Cos'è                                                                                                               |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `xp`           | L'etichetta di livello di Narsil, "⭐ Nivel 3 · 120/300 XP" (guida 13).                                             |
+| `art`          | L'URL della sua immagine, al suo stadio, nella posa della conversazione aperta più importante.                      |
+| `at`           | Quando è stato inviato, in secondi Unix.                                                                            |
+| `cacheMinutes` | Quanto dura la cache del prompt, dalla prima conversazione aperta che ne ha una; assente altrimenti.                |
+| `limits`       | I limiti di 5 ore e settimanali di Claude, fino a due righe, o vuoto quando non se ne conosce nessuno (vedi sotto). |
+| `sessions`     | Fino a 8 conversazioni aperte, le più importanti per prime, ognuna `{ title, status, label }` (vedi sotto).         |
+| `usage`        | Una riga, `ntfy`, con il conteggio proprio di ntfy.sh dei messaggi di oggi dalla tua rete, o vuota.                 |
+
+`limits` e `sessions` sono arrivati nella versione 3.10.0, per l'orologio; il commento sopra di essi dice "what the watch shows: Claude's limits and every open conversation" (ciò che mostra l'orologio: i limiti di Claude e ogni conversazione aperta).
+
+`limits` è costruito da `watchLimits` in `hooks/phone.ts` a partire da ciò che questa conversazione sa dei limiti dell'account. Questo viene dalla riga di stato: `usageOf` in `hooks/usage.ts` prende le finestre `five_hour` e `seven_day`. Ogni riga è `{ key, label, percent, color, resetsAt }`: `key` è `fiveHour` o `week`, `label` è "5 horas" (5 ore) o "Semana" (settimana), `color` viene da `levelColor` (verde `#22B573` sotto il 60%, ambra `#F5B400` dal 60%, rosso `#F0435A` dall'85%), e `resetsAt` è l'ora dell'azzeramento in secondi Unix, o `null` "when Claude did not say" (quando Claude non l'ha detto). Una finestra che Claude non ha comunicato non lascia nessuna riga. La finestra di contesto non viene inviata: il commento dice "the context is each conversation's own" (il contesto è di ciascuna conversazione).
+
+`sessions` è costruito da `watchSessions` a partire dallo stesso elenco di conversazioni aperte che usano la fascia e gli avvisi, le più importanti per prime. Tiene le prime `WATCH_SESSIONS`, 8, e taglia ogni titolo a 40 caratteri, con l'ultimo che diventa un'ellissi (`…`); una conversazione senza titolo si chiama "conversación" (conversazione). `status` è il codice dello stato (`working`, `idle`, `waiting`, `done`, `error`) e `label` il suo nome sullo schermo, da `STATUS_LABEL` in `hooks/words.ts`: `TRABAJANDO` (al lavoro), `PARADA` (ferma), `TE NECESITA` (ha bisogno di te), `TERMINADA` (finita) o `ERROR`. Entrambi i tagli riguardano la dimensione. Il commento: "as few and as short as an ntfy message (4 KB, more once sealed) holds with room to spare" (tante e così corte quante un messaggio ntfy, 4 KB, di più una volta sigillato, ne contiene con margine).
 
 Per `usage`, Narsil chiede `GET https://ntfy.sh/v1/account` e costruisce la riga con `ntfyRow`: `{ key: 'ntfy', label: 'ntfy hoy', percent, color, note, resetsAt }`, contando il messaggio che sta per partire. Il commento spiega perché questo conteggio differisce da quello di Narsil: ntfy.sh conta per indirizzo IP, "in a day of its own that starts at an hour hashed from the IP, not at midnight" (in un giorno tutto suo che inizia a un'ora ricavata dall'hash dell'IP, non a mezzanotte).
 
 ### La chiave opzionale, e come viene sigillato il contenuto
 
-`/narsil movil clave` ("chiave") crea una chiave con `newKey()`: 32 byte casuali da `crypto.getRandomValues`, scritti in base64url (43 caratteri). Viene salvata nelle preferenze (`phoneKey`) e mostrata nella risposta del comando, così puoi incollarla nelle opzioni del ricevitore. Da quel momento, tutto ciò che Narsil pubblica su ntfy.sh, avvisi e `-estado` allo stesso modo, viene sigillato.
+`/narsil movil clave` ("chiave") crea una chiave con `newKey()`: 32 byte casuali da `crypto.getRandomValues`, scritti in base64url (43 caratteri). Viene salvata nelle preferenze (`phoneKey`) e mostrata nella risposta del comando, così puoi incollarla nelle impostazioni dei ricevitori: quelle di Narsil per Android, e quelle di Narsil Watch se lo usi. Da quel momento, tutto ciò che Narsil pubblica su ntfy.sh, avvisi e `-estado` allo stesso modo, viene sigillato.
 
 Cosa viene sigillato e cosa no, da `sealedMessage` e `sealedPayload` in `hooks/phone.ts`:
 
@@ -125,15 +139,15 @@ Lo schema, esattamente come lo implementa `hooks/seal.ts`. Il commento del file 
 5. **Il tag.** `HMAC(macKey, nonce ‖ ciphertext)`, 32 byte, sui byte cifrati (il commento la chiama "encrypt-then-MAC").
 6. **Il testo inviato.** `narsil1:` seguito dal base64url di `nonce ‖ ciphertext ‖ tag`.
 
-`unseal` lo inverte: controlla il prefisso `narsil1:` e una lunghezza minima, ricalcola il tag e lo confronta byte per byte, e solo allora decifra. Una chiave sbagliata, un byte modificato o un testo non sigillato danno `null`. Il test "what the mod seals, it opens; with another key, or tampered, it does not" (ciò che la mod sigilla, lo apre; con un'altra chiave, o manomesso, no) verifica questi tre casi. Il commento dice che i ricevitori lo aprono con l'HMAC di WebCrypto, "which gives the same bytes" (che dà gli stessi byte); quei ricevitori sono progetti separati, non in questo repository.
+`unseal` lo inverte: controlla il prefisso `narsil1:` e una lunghezza minima, ricalcola il tag e lo confronta byte per byte, e solo allora decifra. Una chiave sbagliata, un byte modificato o un testo non sigillato danno `null`. Il test "what the mod seals, it opens; with another key, or tampered, it does not" (ciò che la mod sigilla, lo apre; con un'altra chiave, o manomesso, no) verifica questi tre casi. Il commento dice che i ricevitori lo aprono con l'HMAC di WebCrypto, "which gives the same bytes" (che dà gli stessi byte). I ricevitori di oggi vivono nei loro repository e sono app Kotlin: Narsil per Android e Narsil Watch hanno ciascuna un oggetto `Seal` che ripete questi passi con `HmacSHA256` di Java (`javax.crypto.Mac`).
 
 Questa guida descrive ciò che fa il codice e non afferma niente oltre. Se lo adatti, rivedilo come faresti con qualsiasi crittografia costruita a mano.
 
-L'app ntfy non può aprire i messaggi sigillati: mostra il rumore. Narsil lo dice quando attivi la chiave, e `/narsil movil clave off` torna al testo in chiaro. Eseguire di nuovo `/narsil movil clave` crea una nuova chiave.
+L'app ntfy non può aprire i messaggi sigillati: mostra il rumore. Narsil lo dice quando attivi la chiave, e `/narsil movil clave off` torna al testo in chiaro. Eseguire di nuovo `/narsil movil clave` crea una nuova chiave, ed è così che la ruoti; quella vecchia smette di aprire i nuovi messaggi, quindi inserisci di nuovo quella nuova in ogni app.
 
 ### Web Push: tenere iscritta una web app per telefono
 
-Oltre all'app ntfy, gli avvisi possono arrivare a una tua web app tramite Web Push; il README nomina [narsil-pwa](https://github.com/davshn/narsil-pwa) dell'autore. ntfy.sh può consegnare un topic tramite Web Push all'iscrizione di un browser, ma, come dice il commento del codice, "ntfy.sh drops a subscription whose delivery failed once" (ntfy.sh scarta un'iscrizione la cui consegna è fallita una volta). L'app potrebbe registrarsi di nuovo quando la apri, ma allora gli avvisi aspetterebbero che tu la apra.
+Oltre all'app ntfy e a Narsil per Android, gli avvisi possono arrivare a una tua web app tramite Web Push; il README parla di "your own web app" (la tua web app). ntfy.sh può consegnare un topic tramite Web Push all'iscrizione di un browser, ma, come dice il commento del codice, "ntfy.sh drops a subscription whose delivery failed once" (ntfy.sh scarta un'iscrizione la cui consegna è fallita una volta). L'app potrebbe registrarsi di nuovo quando la apri, ma allora gli avvisi aspetterebbero che tu la apra.
 
 Così la mod la registra di nuovo prima di ogni avviso (`renewPush`, chiamata solo per gli avvisi, non per `-estado`):
 
@@ -151,9 +165,9 @@ Dal codice seguono due note sulla privacy. L'iscrizione stessa va a ntfy.sh in c
 
 - **ntfy.sh vede tutto ciò che non è sigillato**, e l'ora e la rete di ogni messaggio. È un servizio di terzi: leggi le sue condizioni prima di inviarci qualsiasi cosa.
 - **Il nome del topic è la password.** Chi lo ha può leggere ogni messaggio e pubblicarne di falsi. Un nome casuale lo rende difficile da indovinare, non segreto una volta condiviso.
-- **Senza una chiave**, chi legge il topic vede i nomi delle conversazioni, il testo di ogni avviso (parte della risposta di Claude) e l'elenco delle conversazioni aperte.
+- **Senza una chiave**, chi legge il topic vede i nomi delle conversazioni, il testo di ogni avviso (parte della risposta di Claude) e l'elenco delle conversazioni aperte; chi legge `-estado` vede anche il livello di Narsil e i limiti di 5 ore e settimanali di Claude.
 - **Con una chiave**, chi legge vede che un avviso c'è stato, il suo tipo, la sua ora e lo stadio di Narsil, ma non il testo. Un messaggio falsificato non si apre con la chiave, e un ricevitore che controlla il tag può rifiutarlo.
-- **La chiave vive in due posti**: nello store del plugin, un file JSON sotto la directory di configurazione di Claude Code, e nella risposta di `/narsil movil clave`, che fa parte della conversazione. Le risposte ai comandi di Narsil non impostano `isTextDisplayOnly`, e i tipi della 2.1.325 dicono che, a parte i plugin inclusi in Claude Code, "Any other plugin's text stays in requests" (il testo di qualsiasi altro plugin resta nelle richieste), quindi anche il modello la legge. Considera che la conversazione contenga la chiave.
+- **La chiave vive in due posti sul PC**: nello store del plugin, un file JSON sotto la directory di configurazione di Claude Code, e nella risposta di `/narsil movil clave`, che fa parte della conversazione. Vive anche in ogni app in cui la incolli. Le risposte ai comandi di Narsil non impostano `isTextDisplayOnly`, e i tipi della 2.1.325 dicono che, a parte i plugin inclusi in Claude Code, "Any other plugin's text stays in requests" (il testo di qualsiasi altro plugin resta nelle richieste), quindi anche il modello la legge. Considera che la conversazione contenga la chiave.
 - **L'invio si ferma alla scrivania.** Niente parte mentre il tuo ultimo messaggio è arrivato dal terminale o dall'app desktop, tranne la prova.
 
 ## Costruiscila con Claude
@@ -194,7 +208,7 @@ In italiano: sì, certo, mi avvisi sul cellulare.
 
 Il log dei task registra il risultato in L9 (T4 completato): "Where you last wrote (phone or desk), in any conversation, is kept in the store (`remoteOrigin`), so every conversation alerts the phone on its changes (done, waiting, error) while your last message came from the phone, and none does once you write at the desk anywhere. Each alert ends with "Conversaciones:" and one line per open conversation" (dove hai scritto per ultimo, telefono o scrivania, in qualsiasi conversazione, viene conservato nello store, `remoteOrigin`, così ogni conversazione avvisa il telefono dei suoi cambiamenti, finito, in attesa, errore, mentre il tuo ultimo messaggio è arrivato dal telefono, e nessuna lo fa più una volta che scrivi alla scrivania in una qualsiasi. Ogni avviso finisce con "Conversaciones:" e una riga per ogni conversazione aperta). È ciò che fanno oggi `noteOrigin`, `isAway` e `fleetText`.
 
-L9 descrive anche uno stato `-estado` più ricco, con un elenco `sessions` e i campi della conversazione più importante. Quello stato è stato poi ridotto: `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (invia tramite ntfy solo ciò che legge l'estensione di Firefox) ha lasciato i cinque campi visti sopra. Il codice e il README concordano sui cinque.
+L9 descrive anche uno stato `-estado` più ricco, con un elenco `sessions` (tag, title, status, label, headline, context %, isThis) e i campi della conversazione più importante. Quello stato è stato poi ridotto: `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (invia tramite ntfy solo ciò che legge l'estensione di Firefox) ha lasciato cinque campi. L'oggetto del commit nomina il lettore di allora, un'estensione del browser; oggi il topic lo leggono Narsil per Android e Narsil Watch. Un elenco `sessions` più corto, solo `title`, `status` e `label`, è tornato in `6400a6f` (2026-11-23), insieme a `limits`, per l'orologio.
 
 #### Ricostruzione dalla cronologia dei commit
 
@@ -207,8 +221,11 @@ I passi precedenti non sono stati registrati. Da `git log -- hooks/phone.ts hook
 - `644e59f` (2026-11-01) "fix: send the state to the phone with each question, so the app shows Narsil waiting" (invia lo stato al telefono con ogni domanda, così l'app mostra Narsil in attesa).
 - `7498be5` (2026-11-02) "feat: register the phone app's push subscription again before each alert, so alerts keep coming after ntfy.sh drops it" (registra di nuovo l'iscrizione push dell'app del telefono prima di ogni avviso, così gli avvisi continuano ad arrivare dopo che ntfy.sh la scarta).
 - `3a1f31c` (2026-11-06) "feat: alert the phone for every conversation and list them all" (avvisa il telefono per ogni conversazione e le elenca tutte). La richiesta citata sopra.
-- `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (invia tramite ntfy solo ciò che legge l'estensione di Firefox). Il suo messaggio: "The phone web app is gone" (la web app per telefono non c'è più), e il rinnovo Web Push se n'è andato con lei.
+- `544ef89` (2026-11-09) "feat: send only what the Firefox extension reads through ntfy" (invia tramite ntfy solo ciò che legge l'estensione di Firefox). Il suo messaggio: "The phone web app is gone" (la web app per telefono non c'è più), e il rinnovo Web Push se n'è andato con lei. L'estensione che nomina era allora la lettrice dello stato; da allora è stata sostituita da Narsil per Android.
 - `5fe48c9` (2026-11-10) "feat: register the phone app's push subscription again before each alert" (registra di nuovo l'iscrizione push dell'app del telefono prima di ogni avviso). Il suo messaggio: "The phone web app is back as the alert receiver, in Chrome" (la web app per telefono torna come ricevitore degli avvisi, in Chrome), e il rinnovo è tornato, ora con il ripiego delle 12 ore.
+- `6400a6f` (2026-11-23) "feat(phone): publish Claude limits and open conversations for the watch" (pubblica i limiti di Claude e le conversazioni aperte per l'orologio). Il suo messaggio: "The status topic now carries the 5-hour and weekly limits (percent, color, reset) and up to 8 open conversations, so a Wear OS app can show them." (il topic di stato ora porta i limiti di 5 ore e settimanali, con percentuale, colore e azzeramento, e fino a 8 conversazioni aperte, così un'app Wear OS può mostrarli.) Arrivano `watchLimits` e `watchSessions`.
+- `9437318` (2026-11-23) "chore(release): 3.10.0". La versione che porta `limits` e `sessions`.
+- `c4312cd` (2026-11-24) "docs(readme): point the phone alerts to Narsil for Android and explain how it works" (indirizza gli avvisi del telefono verso Narsil per Android e spiega come funziona). Il suo messaggio dice che l'app sostituisce la precedente estensione del browser e la web app: "it reads <topic>-estado for its band and opens the encrypted alerts with the key" (legge <topic>-estado per la sua banda e apre gli avvisi cifrati con la chiave). In questo commit il codice non è cambiato, solo il README.
 
 La cronologia mostra una funzionalità modellata dai suoi ricevitori: ogni volta che l'app dall'altra parte cambiava, il lato della mod cambiava con lei.
 
@@ -292,6 +309,36 @@ export const register: Register = (on) => {
 
 La risposta del comando mostra il topic una volta, di proposito, così la persona può iscriversi; ricorda che questa risposta resta nella conversazione. Narsil fa lo stesso.
 
+I due campi che la 3.10.0 ha aggiunto allo stato sono pura forma dei dati, senza API della mod. Questa versione è scritta per questa guida e adattata da `watchLimits` e `watchSessions` in `hooks/phone.ts` in [narsil-pet](https://github.com/davshn/narsil-pet) (GPL-3.0-or-later):
+
+```ts
+type Meter = { percent: number; resetsAt?: string }
+type Row = { title: string; status: string; label: string }
+
+const colorOf = (percent: number): string =>
+  percent >= 85 ? '#F0435A' : percent >= 60 ? '#F5B400' : '#22B573'
+
+function limitsOf(u: { fiveHour: Meter | null; week: Meter | null }) {
+  const row = (key: 'fiveHour' | 'week', label: string, m: Meter | null) => {
+    if (!m) return []
+    const at = m.resetsAt ? Date.parse(m.resetsAt) : NaN
+    const resetsAt = Number.isNaN(at) ? null : Math.floor(at / 1000)
+    return [{ key, label, percent: m.percent, color: colorOf(m.percent), resetsAt }]
+  }
+  return [...row('fiveHour', '5 horas', u.fiveHour), ...row('week', 'Semana', u.week)]
+}
+
+function sessionsOf(list: readonly Row[]): Row[] {
+  return list.slice(0, 8).map((s) => {
+    const title = s.title || 'conversación'
+    const short = title.length > 40 ? `${title.slice(0, 39)}…` : title
+    return { title: short, status: s.status, label: s.label }
+  })
+}
+```
+
+Narsil li mette entrambi accanto agli altri campi dello stato, `limits: watchLimits(...)` e `sessions: watchSessions(...)`, prima che lo stato venga sigillato (quando c'è una chiave) e pubblicato su `-estado`.
+
 ## Errori comuni e come testarlo
 
 - **Un topic indovinabile.** Un topic che porta il tuo nome o quello del tuo progetto può essere letto da chiunque lo provi. Usa un nome casuale.
@@ -300,18 +347,22 @@ La risposta del comando mostra il topic una volta, di proposito, così la person
 - **Tenere l'origine solo in una variabile di modulo.** Ogni conversazione deciderebbe allora da sola, e una conversazione iniziata alla scrivania non avviserebbe mai mentre scrivi dal telefono in un'altra.
 - **Nessun limite giornaliero.** Un ciclo di turni che falliscono può esaurire un piano gratuito in pochi minuti. Conta prima di inviare, per giorno, su tutte le conversazioni.
 - **Credere che "cifrato" significhi "invisibile".** La sigillatura di Narsil nasconde il titolo e il testo, non il fatto, l'ora, il tipo e l'icona di un avviso.
+- **Uno stato che supera il suo messaggio.** Il commento in `hooks/phone.ts` conta su 4 KB per un messaggio ntfy. Limita l'elenco e i titoli prima di inviare, come fa `watchSessions` con 8 conversazioni e 40 caratteri.
 - **Crittografia costruita a mano senza test.** Sigillare, aprire, chiave sbagliata e un byte invertito sono il minimo, come fa il test di Narsil.
 
-Per testare, `tests/narsil.test.tsx` risponde da sé a `http.fetch`, così niente arriva a ntfy.sh. Da leggere: "the phone gets nothing until /narsil movil is turned on" (il telefono non riceve niente finché /narsil movil non viene attivato), "/narsil movil makes a private topic, says how to follow it, and sends what needs you there" (/narsil movil crea un topic privato, dice come seguirlo, e ci invia ciò che ha bisogno di te), "the phone gets alerts only while you write through Remote Control, never at the desk" (il telefono riceve avvisi solo mentre scrivi tramite Remote Control, mai alla scrivania), "while you write from the phone in another conversation this one alerts too, and a message at the desk anywhere stops it" (mentre scrivi dal telefono in un'altra conversazione anche questa avvisa, e un messaggio alla scrivania in qualsiasi punto lo ferma), "the phone gets at most 200 a day, says which is the last, and starts again the next day" (il telefono ne riceve al massimo 200 al giorno, dice qual è l'ultimo, e ricomincia il giorno dopo), "/narsil movil clave seals what goes to ntfy.sh; clave off sends it in the clear again" (/narsil movil clave sigilla ciò che va a ntfy.sh; clave off lo invia di nuovo in chiaro), "as a turn ends from the phone, the extension gets only what it reads on the status topic, silently" (quando un turno finisce dal telefono, l'estensione riceve solo ciò che legge sul topic di stato, in silenzio) e "the state the extension reads does not register the subscription; only alerts do" (lo stato che legge l'estensione non registra l'iscrizione; lo fanno solo gli avvisi).
+Per testare, `tests/narsil.test.tsx` risponde da sé a `http.fetch`, così niente arriva a ntfy.sh. Da leggere: "the phone gets nothing until /narsil movil is turned on" (il telefono non riceve niente finché /narsil movil non viene attivato), "/narsil movil makes a private topic, says how to follow it, and sends what needs you there" (/narsil movil crea un topic privato, dice come seguirlo, e ci invia ciò che ha bisogno di te), "the phone gets alerts only while you write through Remote Control, never at the desk" (il telefono riceve avvisi solo mentre scrivi tramite Remote Control, mai alla scrivania), "while you write from the phone in another conversation this one alerts too, and a message at the desk anywhere stops it" (mentre scrivi dal telefono in un'altra conversazione anche questa avvisa, e un messaggio alla scrivania in qualsiasi punto lo ferma), "the phone gets at most 200 a day, says which is the last, and starts again the next day" (il telefono ne riceve al massimo 200 al giorno, dice qual è l'ultimo, e ricomincia il giorno dopo), "/narsil movil clave seals what goes to ntfy.sh; clave off sends it in the clear again" (/narsil movil clave sigilla ciò che va a ntfy.sh; clave off lo invia di nuovo in chiaro), "as a turn ends from the phone, the extension gets only what it reads on the status topic, silently" (quando un turno finisce dal telefono, l'estensione riceve solo ciò che legge sul topic di stato, in silenzio), "the state the extension reads does not register the subscription; only alerts do" (lo stato che legge l'estensione non registra l'iscrizione; lo fanno solo gli avvisi), "an alert lists every open conversation, and the state wears the most important" (un avviso elenca ogni conversazione aperta, e lo stato mostra la più importante) e "the watch gets the 5-hour and weekly limits with their color and reset, and at most 8 conversations" (l'orologio riceve i limiti di 5 ore e settimanali con il loro colore e azzeramento, e al massimo 8 conversazioni). Due di questi nomi dicono ancora "the extension" (l'estensione), dai tempi in cui lo stato lo leggeva un'estensione del browser; il primo dei due ora controlla che lo stato abbia esattamente sette chiavi, tra cui `limits` e `sessions`.
 
 ### Dove il codice e il README differiscono
 
-- Il README dice che la chiave la tengono solo "tu PC y la extensión" (il tuo PC e l'estensione). Il commento in `hooks/seal.ts` dice "the PC, the Firefox extension and the phone app" (il PC, l'estensione di Firefox e l'app del telefono), e la sezione Web Push del README sigilla l'iscrizione dell'app con la chiave. Il codice fa ciò che dice il commento.
-- Il README dice che lo stato `-estado` parte "Al terminar cada turno" (alla fine di ogni turno). Il codice lo invia anche con ogni domanda, e con la prova.
+- Il README dice che la chiave è una "that only your PC and your phone have: put it in Narsil for Android's settings" (che hanno solo il tuo PC e il tuo telefono: mettila nelle impostazioni di Narsil per Android). La risposta di `/narsil movil clave` in `hooks/register.tsx` dice ancora di metterla nelle opzioni della precedente estensione del browser, e il commento in `hooks/seal.ts` elenca ancora quell'estensione tra chi ha la chiave. Segui il README: la chiave va in Narsil per Android, e in Narsil Watch se lo usi.
+- Il README dice di ricevere gli avvisi scrivendo il topic in Narsil per Android o iscrivendosi nell'app ntfy. La risposta di `/narsil movil` (`phoneHelp`) spiega solo l'app ntfy.
+- La tabella del README con i campi di `-estado` ne elenca cinque: `xp`, `art`, `at`, `cacheMinutes` e `usage`. Il codice ne invia sette, con `limits` e `sessions`; il README li menziona solo nel suo elenco dei file, dove `hooks/phone.ts` contiene "the state the Narsil Watch reads (Claude's limits and the open conversations)" (lo stato che legge Narsil Watch: i limiti di Claude e le conversazioni aperte).
+- Il README dice che lo stato `-estado` parte "At the end of each turn" (alla fine di ogni turno). Il codice lo invia anche con ogni domanda, e con la prova.
 
 ## Per andare oltre
 
 - `fleetText` in `hooks/phone.ts` costruisce l'elenco delle conversazioni sotto ogni avviso.
+- L'altro lato dei topic: come Narsil per Android fa continuare ad arrivare gli avvisi ([il suo servizio degli avvisi](/it/android/alerts-service/)) e disegna lo stato nella [sua banda](/it/android/conversation-band/), e come Narsil Watch [legge lo stato](/it/watch/reading-the-state/) ([cos'è](/it/watch/what-it-is/)).
 - `ntfyRow` trasforma la risposta dell'account di ntfy.sh nello stesso tipo di riga d'uso che la fascia disegna per i limiti dell'account (guida 7).
 - `summary` in `hooks/words.ts` taglia la risposta di Claude per l'avviso, con più spazio per il telefono (`PHONE_ROOM`).
 - La guida successiva, il riassunto della sessione, è un'altra cosa che Narsil conta e conserva in `$.store`.

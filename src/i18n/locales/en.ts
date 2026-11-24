@@ -30,7 +30,7 @@ export const en: TranslationShape = {
       'Claude and Claude Code are trademarks of Anthropic, PBC. This project is not affiliated with or endorsed by Anthropic.',
     privacy: 'This site has no analytics and never asks for your tokens or keys.',
     license:
-      'Site code and example code: MIT. Guide text: CC BY-SA 4.0. Code quoted from Narsil and Narsil Check: GPL-3.0-or-later.',
+      'Site code and example code: MIT. Guide text: CC BY-SA 4.0. Code quoted from Narsil, Narsil Check, and Narsil Watch: GPL-3.0-or-later; from Narsil for Android: MIT.',
   },
   home: {
     headline: 'Build your own Claude Code mods with Claude, step by step',
@@ -56,8 +56,8 @@ export const en: TranslationShape = {
         'The same information follows you everywhere: above the prompt, in a floating window, in a side panel, and on your phone.',
       items: [
         {
-          title: 'The floating window',
-          text: 'Narsil, your usage limits, and every open conversation with its context, tasks, cache, and next steps, in a small window that stays on top.',
+          title: 'Narsil for Android',
+          text: 'An experimental app that brings claude.ai and Narsil together on Android: in the side menu, her level, your usage limits, and the ntfy messages of the day; above the message box, the state of the open conversation; and her alerts as notifications, even with the app closed.',
           alt: 'The Narsil floating window: a conversation at work with its tasks, the usage bars, and two more open conversations',
         },
         {
@@ -99,9 +99,14 @@ export const en: TranslationShape = {
           'Give Narsil a body: an ESP32-P4 touch screen in the belly with your tasks and pull requests, a holographic ESP32-S3 head with her face, and a voice through Xiaozhi and Claude on your own server.',
       },
       {
-        title: 'Narsil in Claude, on your phone',
+        title: 'Narsil for Android',
         description:
-          'Experimental: see how the browser extension that brings Narsil into claude.ai on Android is built, with the conversation band, the side menu with your limits and ntfy messages, the colors, and the Android packages.',
+          'Experimental: see how the app that brings claude.ai and Narsil’s alerts together on your phone is built: a WebView with the conversation band, the side menu with your limits, Narsil’s colors, native alerts from ntfy, and encryption.',
+      },
+      {
+        title: 'Narsil Watch',
+        description:
+          'Experimental: see how the Wear OS app that puts your Claude limits and open conversations on your wrist is built: the state it reads from ntfy, a tile with two rings, a complication, and the app.',
       },
     ],
     guide: {
@@ -114,12 +119,21 @@ export const en: TranslationShape = {
         'Start with the fundamentals. Then pick where we go next: the paths work in any order.',
       showcase: 'You build all of this yourself, with Claude, one guide at a time.',
     },
-    extension: {
+    apps: {
       badge: 'Experimental',
-      title: 'Narsil in Claude, the browser extension',
-      text: 'Narsil also lives inside claude.ai on your phone: an extension for Firefox and Vivaldi on Android shows above the message box the state, context, cache, and last event of the open conversation, and in the side menu the Narsil level, your usage limits, and the ntfy.sh messages of the day. It also dresses Claude in the Narsil colors.',
-      note: 'It is experimental: it is well tested, but it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. It only reads: it never writes to your account or sends your conversations anywhere, though it loads Narsil’s pictures from GitHub and reads its status topic from ntfy.sh. Its code is not public, but the guides explain how it is built.',
-      cta: 'How it is built',
+      title: 'Narsil on your phone and on your wrist',
+      text: 'Narsil also leaves the computer. Two open source apps read what the Narsil mod publishes on your private ntfy.sh topic, so you can follow Claude while you are away from the desk.',
+      android: {
+        title: 'Narsil for Android',
+        text: 'claude.ai inside an app, in Narsil’s colors, with her band above the message box and your limits in the side menu. Her alerts arrive as native notifications, even with the app closed, and can be encrypted with a key only your PC and your phone have.',
+        cta: 'How the Android app is built',
+      },
+      watch: {
+        title: 'Narsil Watch',
+        text: 'A Wear OS tile with your 5-hour and weekly limits as two rings and Narsil in the middle, a complication for any watch face, and the list of your open conversations. No server and no Claude token.',
+        cta: 'How the watch app is built',
+      },
+      note: 'Both are experimental. Narsil for Android relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. Narsil Watch only shows what the mod publishes when a turn ends while you are away, and refreshes every 15 minutes. Both install from their source code and only talk to claude.ai (the Android app), ntfy.sh, and GitHub, for Narsil’s drawings.',
     },
   },
   mods: {
@@ -170,17 +184,29 @@ export const en: TranslationShape = {
     startCta: 'Start the first guide',
     stages: enDiagrams.stages.bot,
   },
-  claude: {
-    title: 'Narsil in Claude',
+  android: {
+    title: 'Narsil for Android',
     description:
-      'How the experimental extension that brings Narsil into claude.ai on Android is built: the conversation band, the side menu, the colors and the Android packages.',
+      'How the experimental app that brings claude.ai and Narsil’s alerts together on Android is built: the WebView host, the conversation band, the side menu, the colors, the alerts service, and the encryption.',
     intro: [
-      'Narsil in Claude is a browser extension for Firefox and Vivaldi on Android that shows Narsil inside the real claude.ai web app. Each guide explains one of its parts: what it does, how it works, and how to ask Claude to build it.',
-      'It is experimental: it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. Its code is not public, so the reference code in these guides is written for the guides.',
+      'Narsil for Android is an open source app that hosts the real claude.ai web app in a WebView, dresses it in Narsil’s colors, adds her band and side menu block, and turns the alerts of the Narsil mod into native notifications. Each guide explains one of its parts: what it does, how it works, and how to ask Claude to build it.',
+      'It is experimental: it relies on the structure of the claude.ai page, not on a public API, so a Claude update can break it. Its code is public under the MIT license, so the guides quote it and link to each file.',
     ],
     listTitle: 'The guides',
     startCta: 'Start the first guide',
-    stages: enDiagrams.stages.claude,
+    stages: enDiagrams.stages.android,
+  },
+  watch: {
+    title: 'Narsil Watch',
+    description:
+      'How the experimental Wear OS app that puts your Claude limits and open conversations on your wrist is built: the state from ntfy, the tile, the complication, and the app.',
+    intro: [
+      'Narsil Watch is an open source Wear OS app that reads the state the Narsil mod publishes on your private ntfy.sh topic and shows it in three places: a tile with two rings for your limits, a complication for any watch face, and an app with every open conversation. Each guide explains one of its parts and how to ask Claude to build it.',
+      'It is experimental: it only knows what the mod publishes when a turn ends while you are away from the computer, and it refreshes every 15 minutes. Its code is public under the GPL v3, so the guides quote it and link to each file.',
+    ],
+    listTitle: 'The guides',
+    startCta: 'Start the first guide',
+    stages: enDiagrams.stages.watch,
   },
   botMap: enDiagrams.botMap,
   guide: {
@@ -190,7 +216,7 @@ export const en: TranslationShape = {
     verifiedWith: 'Checked against Claude Code {version}',
     sourcesTitle: 'Going further: how the real mod does it',
     sourcesIntro:
-      'These files are part of the original mods, published under the GPL v3. Read them to see how the real mod solves the same problem. Code quoted on this page comes from them and keeps that license.',
+      'These files are part of the original projects. Read them to see how the real project solves the same problem. Code quoted on this page comes from them and keeps its license: {license}.',
     pathNavLabel: 'Guides in this path',
     tocTitle: 'On this page',
     pagerLabel: 'Previous and next guide',
@@ -388,6 +414,8 @@ export const en: TranslationShape = {
     repos: {
       pet: 'Narsil, the status pet mod',
       check: 'Narsil Check, the review panel mod',
+      android: 'Narsil for Android, the phone app',
+      watch: 'Narsil Watch, the Wear OS app',
     },
     developer: {
       text: 'I build and maintain Narsil and this workshop on my own.',

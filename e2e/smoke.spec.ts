@@ -27,9 +27,9 @@ test.describe('Landing page smoke tests', () => {
       await expect(page.locator('html')).toHaveAttribute('lang', languageTags[locale])
       await expect(page.getByRole('heading', { level: 1, name: t.home.headline })).toBeVisible()
       await expect(page.locator('#routes h2')).toHaveText(t.home.routesTitle)
-      const extension = page.locator('[data-extension]')
-      await expect(extension).toContainText(t.home.extension.badge)
-      await expect(extension.getByRole('heading', { name: t.home.extension.title })).toBeVisible()
+      const apps = page.locator('[data-apps]')
+      await expect(apps).toContainText(t.home.apps.badge)
+      await expect(apps.getByRole('heading', { name: t.home.apps.title })).toBeVisible()
       await expect(page.locator('main [data-donate]')).toHaveCount(0)
     })
 
@@ -45,6 +45,8 @@ test.describe('Landing page smoke tests', () => {
       await expect(page.locator('[data-repositories] a')).toHaveText([
         t.support.repos.pet,
         t.support.repos.check,
+        t.support.repos.android,
+        t.support.repos.watch,
       ])
     })
 

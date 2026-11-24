@@ -5,7 +5,7 @@ import { useTranslations } from '../src/i18n/utils'
 const t = useTranslations('en')
 
 test.describe('Home layout', () => {
-  test('leads with the four paths right after the hero, each with its guide count', async ({
+  test('leads with the five paths right after the hero, each with its guide count', async ({
     page,
   }) => {
     await page.goto('/en/')
@@ -14,17 +14,30 @@ test.describe('Home layout', () => {
     const links = page.locator('#routes .path-card-link')
     await expect(links).toHaveText(t.home.routes.map((route) => route.title))
     await expect(links.nth(2)).toHaveAttribute('href', '/en/bot/')
-    await expect(links.nth(3)).toHaveAttribute('href', '/en/mods/claude/')
-    await expect(page.locator('#routes .path-card-meta')).toHaveCount(4)
-    await expect(page.locator('#routes .path-card-meta').nth(3)).toHaveText('5 guides')
+    await expect(links.nth(3)).toHaveAttribute('href', '/en/android/')
+    await expect(links.nth(4)).toHaveAttribute('href', '/en/watch/')
+    await expect(page.locator('#routes .path-card-meta')).toHaveCount(5)
+    await expect(page.locator('#routes .path-card-meta').nth(3)).toHaveText('7 guides')
+    await expect(page.locator('#routes .path-card-meta').nth(4)).toHaveText('5 guides')
+    await expect(page.locator('#routes .path-card-badge')).toHaveText([
+      t.home.apps.badge,
+      t.home.apps.badge,
+    ])
   })
 
-  test('links the Narsil and Narsil Check repositories from their path cards', async ({ page }) => {
+  test('links each public repository from its path card', async ({ page }) => {
     await page.goto('/en/')
     const repos = page.locator('#routes .path-card-repo')
-    await expect(repos).toHaveText(['See narsil-pet on GitHub', 'See narsil-check on GitHub'])
+    await expect(repos).toHaveText([
+      'See narsil-pet on GitHub',
+      'See narsil-check on GitHub',
+      'See narsil-android on GitHub',
+      'See narsil-watch on GitHub',
+    ])
     await expect(repos.nth(0)).toHaveAttribute('href', 'https://github.com/davshn/narsil-pet')
     await expect(repos.nth(1)).toHaveAttribute('href', 'https://github.com/davshn/narsil-check')
+    await expect(repos.nth(2)).toHaveAttribute('href', 'https://github.com/davshn/narsil-android')
+    await expect(repos.nth(3)).toHaveAttribute('href', 'https://github.com/davshn/narsil-watch')
     await expect(repos.nth(0)).toHaveAttribute('target', '_blank')
     await repos.nth(0).click({ trial: true })
   })
