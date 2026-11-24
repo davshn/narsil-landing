@@ -1,5 +1,27 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:locale(en|es|it|fr|pt)/mods/claude/colors-and-icon/:rest*",
+      "destination": "/:locale/android/colors-and-mode/",
+      "permanent": true
+    },
+    {
+      "source": "/:locale(en|es|it|fr|pt)/mods/claude/android-packaging/:rest*",
+      "destination": "/:locale/android/",
+      "permanent": true
+    },
+    {
+      "source": "/:locale(en|es|it|fr|pt)/mods/claude/:slug(what-it-is|conversation-band|sidebar)/:rest*",
+      "destination": "/:locale/android/:slug/",
+      "permanent": true
+    },
+    {
+      "source": "/:locale(en|es|it|fr|pt)/mods/claude/:rest*",
+      "destination": "/:locale/android/",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

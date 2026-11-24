@@ -24,10 +24,12 @@ import checkDark from '../../assets/screens/check-oscuro.png'
 import checkLight from '../../assets/screens/check-claro.png'
 import overlayDark from '../../assets/screens/overlay-oscuro.png'
 import overlayLight from '../../assets/screens/overlay-claro.png'
-import narsilClaudeBandDark from '../../assets/screens/narsil-claude-band-oscuro.png'
-import narsilClaudeBandLight from '../../assets/screens/narsil-claude-band-claro.png'
-import narsilClaudeDark from '../../assets/screens/narsil-claude-oscuro.png'
-import narsilClaudeLight from '../../assets/screens/narsil-claude-claro.png'
+import narsilAndroidBandDark from '../../assets/screens/narsil-android-band-oscuro.png'
+import narsilAndroidBandLight from '../../assets/screens/narsil-android-band-claro.png'
+import narsilAndroidDark from '../../assets/screens/narsil-android-oscuro.png'
+import narsilAndroidLight from '../../assets/screens/narsil-android-claro.png'
+import narsilWatchDark from '../../assets/screens/narsil-watch-oscuro.png'
+import narsilWatchLight from '../../assets/screens/narsil-watch-claro.png'
 
 export function getStaticPaths(): Array<{ params: { locale: Locale } }> {
   return locales.map((locale) => ({ params: { locale } }))
@@ -39,14 +41,15 @@ const t = useTranslations(locale)
 
 const [working, waiting, done, failed] = t.home.states.items
 const refs = await guideRefs()
-const pathKeys = ['pet', 'check', 'bot', 'claude'] as const
-const pathPoses = ['hola', 'trabajando', 'terminado', 'necesita'] as const
+const pathKeys = ['pet', 'check', 'bot', 'android', 'watch'] as const
+const pathPoses = ['hola', 'trabajando', 'terminado', 'necesita', 'hola'] as const
+const experimentalPaths = new Set<string>(['android', 'watch'])
 const guideCount = (key: (typeof pathKeys)[number] | 'mods'): string | undefined => {
   const count = guidesFor(refs, locale, key).length
   return count > 0 ? fillTemplate(t.guide.guideCount, { count }) : undefined
 }
 const repoLink = (key: (typeof pathKeys)[number]): { href: string; label: string } | undefined => {
-  if (key !== 'pet' && key !== 'check') return undefined
+  if (key === 'bot') return undefined
   const href = REPOSITORIES[key]
   return { href, label: fillTemplate(t.home.repoCta, { repo: href.split('/').at(-1) ?? '' }) }
 }
@@ -57,7 +60,7 @@ const paths = t.home.routes.map((route, index) => {
     pose: pathPoses[index],
     href: routeHref(locale, key),
     meta: guideCount(key),
-    detour: key === 'claude' ? t.home.extension.badge : undefined,
+    detour: experimentalPaths.has(key) ? t.home.apps.badge : undefined,
     repo: repoLink(key),
   }
 })
@@ -67,8 +70,13 @@ const start = {
   href: routeHref(locale, 'mods'),
   meta: guideCount('mods'),
 }
-const [overlayCopy, checkCopy, claudeCopy] = t.home.showcase.items
-const { detailAlt: claudeBandAlt = '', ...claudeMenuCopy } = claudeCopy
+const apps = (['android', 'watch'] as const).map((key) => ({
+  key,
+  ...t.home.apps[key],
+  href: routeHref(locale, key),
+}))
+const [overlayCopy, checkCopy, androidCopy, watchCopy] = t.home.showcase.items
+const { detailAlt: androidBandAlt = '', ...androidMenuCopy } = androidCopy
 
 const siteUrl = Astro.site?.href ?? Astro.url.origin
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href
@@ -149,45 +157,58 @@ const jsonLd = [
       },
       { ...checkCopy, frame: 'pane', light: checkLight, dark: checkDark, width: 340, height: 1100 },
       {
-        ...claudeMenuCopy,
+        ...androidMenuCopy,
         frame: 'phone',
-        light: narsilClaudeLight,
-        dark: narsilClaudeDark,
+        light: narsilAndroidLight,
+        dark: narsilAndroidDark,
         width: 360,
         height: 754,
         detail: {
-          light: narsilClaudeBandLight,
-          dark: narsilClaudeBandDark,
-          alt: claudeBandAlt,
+          light: narsilAndroidBandLight,
+          dark: narsilAndroidBandDark,
+          alt: androidBandAlt,
           width: 360,
           height: 120,
           lightHeight: 131,
         },
       },
+      {
+        ...watchCopy,
+        frame: 'watch',
+        light: narsilWatchLight,
+        dark: narsilWatchDark,
+        width: 480,
+        height: 480,
+      },
     ]}
   />
 
-  <section class="home-extension">
+  <section class="home-apps" aria-labelledby="home-apps-title">
     <Card variant="outlined">
-      <CardBody class="home-extension-body">
-        <div data-extension class="contents">
-          <div class="home-extension-copy">
-            <Badge color="warning">{t.home.extension.badge}</Badge>
-            <h2 class="text-2xl font-bold tracking-tight">{t.home.extension.title}</h2>
-            <Text as="p">{t.home.extension.text}</Text>
-            <Text as="p" size="sm" tone="muted">
-              {t.home.extension.note}
-            </Text>
-          </div>
-          <Button
-            href={routeHref(locale, 'claude')}
-            variant="outline"
-            class="home-extension-cta"
-            data-extension-guides
-          >
-            {t.home.extension.cta}
-          </Button>
+      <CardBody class="home-apps-body">
+        <div data-apps class="home-apps-copy">
+          <Badge color="warning">{t.home.apps.badge}</Badge>
+          <h2 id="home-apps-title" class="text-2xl font-bold tracking-tight">
+            {t.home.apps.title}
+          </h2>
+          <Text as="p">{t.home.apps.text}</Text>
         </div>
+        <ul class="home-apps-grid">
+          {apps.map((app) => (
+            <li class="home-app" data-app={app.key}>
+              <h3 class="text-xl font-semibold">{app.title}</h3>
+              <Text as="p" class="home-app-text">
+                {app.text}
+              </Text>
+              <Button href={app.href} variant="outline" data-app-guides>
+                {app.cta}
+              </Button>
+            </li>
+          ))}
+        </ul>
+        <Text as="p" size="sm" tone="muted">
+          {t.home.apps.note}
+        </Text>
       </CardBody>
     </Card>
   </section>

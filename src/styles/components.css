@@ -104,18 +104,26 @@
   }
 }
 
-.home-extension {
+.home-apps {
   @apply mx-auto w-full max-w-7xl px-6 pb-20 lg:px-8 lg:pb-28;
 }
 
-.home-extension-body {
-  @apply flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12;
+.home-apps-body {
+  @apply flex flex-col gap-8;
 }
 
-.home-extension-copy {
+.home-apps-copy {
   @apply flex max-w-3xl flex-col items-start gap-3;
 }
 
-.home-extension-cta {
-  @apply shrink-0;
+.home-apps-grid {
+  @apply m-0 grid list-none gap-8 p-0 md:grid-cols-2;
+}
+
+.home-app {
+  @apply flex flex-col items-start gap-3;
+}
+
+.home-app-text {
+  @apply flex-1;
 }

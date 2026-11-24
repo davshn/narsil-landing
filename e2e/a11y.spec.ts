@@ -39,8 +39,10 @@ const PATHS = [
   '/en/bot/own-server/',
   '/en/bot/claude-brain/',
   '/en/bot/github-prs/',
-  '/en/mods/claude/',
-  '/en/mods/claude/conversation-band/',
+  '/en/android/',
+  '/en/android/conversation-band/',
+  '/en/watch/',
+  '/en/watch/tile/',
   '/en/bot/uart-protocol/',
   '/en/bot/holographic-head/',
 ] as const

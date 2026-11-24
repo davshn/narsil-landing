@@ -5,7 +5,7 @@ import { useTranslations } from '../src/i18n/utils'
 
 const FIRST_GUIDE = 'what-is-a-mod'
 const PRIVATE_REPOSITORIES =
-  /github\.com\/davshn\/(?:narsil-landing|narsil-claude|landingTemplate)/iv
+  /github\.com\/davshn\/(?:narsil-landing|narsil-claude|narsil-pwa|landingTemplate)/iv
 
 test.describe('Mod fundamentals', () => {
   for (const locale of locales) {
@@ -302,61 +302,81 @@ test.describe('Narsil desk bot path', () => {
   }
 })
 
-const CLAUDE_GUIDES = [
-  'what-it-is',
-  'conversation-band',
-  'sidebar',
-  'colors-and-icon',
-  'android-packaging',
-]
+const EXPERIMENTAL_PATHS = [
+  {
+    route: 'android',
+    repo: 'narsil-android',
+    guides: [
+      'what-it-is',
+      'webview-host',
+      'conversation-band',
+      'sidebar',
+      'colors-and-mode',
+      'alerts-service',
+      'encryption-and-settings',
+    ],
+  },
+  {
+    route: 'watch',
+    repo: 'narsil-watch',
+    guides: ['what-it-is', 'reading-the-state', 'tile', 'complication', 'app-and-refresh'],
+  },
+] as const
 
-test.describe('Narsil in Claude path', () => {
-  for (const locale of locales) {
-    const t = useTranslations(locale)
+for (const { route, repo, guides } of EXPERIMENTAL_PATHS) {
+  test.describe(`Experimental ${route} path`, () => {
+    for (const locale of locales) {
+      const t = useTranslations(locale)
 
-    test(`/${locale}/mods/claude/ lists the extension guides in order`, async ({ page }) => {
-      await page.goto(`/${locale}/mods/claude/`)
-      await expect(page.getByRole('heading', { level: 1, name: t.claude.title })).toBeVisible()
-      const hrefs = await page
-        .locator('[data-guide-list] a')
-        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
-      expect(hrefs).toEqual(CLAUDE_GUIDES.map((slug) => `/${locale}/mods/claude/${slug}/`))
-    })
+      test(`/${locale}/${route}/ lists its guides in order`, async ({ page }) => {
+        await page.goto(`/${locale}/${route}/`)
+        await expect(page.getByRole('heading', { level: 1, name: t[route].title })).toBeVisible()
+        const hrefs = await page
+          .locator('[data-guide-list] a')
+          .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+        expect(hrefs).toEqual(guides.map((slug) => `/${locale}/${route}/${slug}/`))
+      })
 
-    test(`/${locale}/ links the experimental extension card to its path`, async ({ page }) => {
-      await page.goto(`/${locale}/`)
-      const link = page.locator('[data-extension-guides]')
-      await expect(link).toHaveText(t.home.extension.cta)
-      await link.click()
-      await expect(page).toHaveURL(new RegExp(`/${locale}/mods/claude/$`, 'v'))
-    })
-  }
+      test(`/${locale}/ links the ${route} app card to its path`, async ({ page }) => {
+        await page.goto(`/${locale}/`)
+        const link = page.locator(`[data-app="${route}"] [data-app-guides]`)
+        await expect(link).toHaveText(t.home.apps[route].cta)
+        await link.click()
+        await expect(page).toHaveURL(new RegExp(`/${locale}/${route}/$`, 'v'))
+      })
+    }
 
-  for (const slug of CLAUDE_GUIDES) {
-    test(`/en/mods/claude/${slug}/ follows the path template and links no private repository`, async ({
-      page,
-    }) => {
-      await page.goto(`/en/mods/claude/${slug}/`)
-      await expect(page.locator('[data-guide-body] > h2')).toHaveText([
-        'What it does',
-        'How it works inside',
-        'Build it with Claude',
-        'Reference code',
-        'Common mistakes and how to test it',
-        'Going further',
-      ])
-      await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute(
-        'href',
-        '/en/mods/claude/',
-      )
-      const hrefs = await page
-        .locator('a')
-        .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
-      expect(hrefs.filter((href) => PRIVATE_REPOSITORIES.test(href))).toEqual([])
-      await expect(page.locator('[data-guide-body]')).toContainText(/experimental/iv)
-    })
-  }
-})
+    for (const slug of guides) {
+      test(`/en/${route}/${slug}/ follows the path template and quotes its public repository`, async ({
+        page,
+      }) => {
+        await page.goto(`/en/${route}/${slug}/`)
+        await expect(page.locator('[data-guide-body] > h2')).toHaveText([
+          'What it does',
+          'How it works inside',
+          'Build it with Claude',
+          'Reference code',
+          'Common mistakes and how to test it',
+          'Going further',
+        ])
+        await expect(page.locator('.guide-breadcrumb a').nth(1)).toHaveAttribute(
+          'href',
+          `/en/${route}/`,
+        )
+        const hrefs = await page
+          .locator('a')
+          .evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''))
+        expect(hrefs.filter((href) => PRIVATE_REPOSITORIES.test(href))).toEqual([])
+        await expect(page.locator('[data-guide-body]')).toContainText(/experimental/iv)
+        await expect(page.locator('[data-guide-sources] a').first()).toHaveAttribute(
+          'href',
+          /^https:\/\/github\.com\/davshn\/narsil-(?:android|watch|pet)\/blob\/main\//v,
+        )
+        await expect(page.locator('[data-guide-sources]')).toContainText(repo)
+      })
+    }
+  })
+}
 
 test.describe('Path curriculum', () => {
   const t = useTranslations('en')

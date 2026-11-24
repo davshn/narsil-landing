@@ -1,9 +1,9 @@
 import { z } from 'astro/zod'
 
-export const guideRoutes = ['mods', 'pet', 'check', 'bot', 'claude'] as const
+export const guideRoutes = ['mods', 'pet', 'check', 'bot', 'android', 'watch'] as const
 export type GuideRoute = (typeof guideRoutes)[number]
 
-export const sourceRepositories = ['pet', 'check'] as const
+export const sourceRepositories = ['pet', 'check', 'android', 'watch'] as const
 export type SourceRepository = (typeof sourceRepositories)[number]
 
 export const guideSourceSchema = z.object({

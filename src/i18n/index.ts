@@ -52,6 +52,12 @@ export interface StageCopy {
   text: string
 }
 
+export interface AppCopy {
+  title: string
+  text: string
+  cta: string
+}
+
 export interface PathCopy {
   title: string
   description: string
@@ -61,7 +67,7 @@ export interface PathCopy {
   stages: StageCopy[]
 }
 
-export const pathKeys = ['mods', 'pet', 'check', 'bot', 'claude'] as const
+export const pathKeys = ['mods', 'pet', 'check', 'bot', 'android', 'watch'] as const
 export type PathKey = (typeof pathKeys)[number]
 
 export interface BotMapCopy {
@@ -120,14 +126,14 @@ export interface TranslationShape {
     showcase: {
       title: string
       subtitle: string
-      items: [ShowcaseCopy, ShowcaseCopy, ShowcaseCopy]
+      items: [ShowcaseCopy, ShowcaseCopy, ShowcaseCopy, ShowcaseCopy]
       note: string
     }
     aboutTitle: string
     about: [string, string]
     repoCta: string
     routesTitle: string
-    routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy]
+    routes: [RouteCopy, RouteCopy, RouteCopy, RouteCopy, RouteCopy]
     guide: {
       hello: string
       statusDetail: string
@@ -135,19 +141,21 @@ export interface TranslationShape {
       routes: string
       showcase: string
     }
-    extension: {
+    apps: {
       badge: string
       title: string
       text: string
+      android: AppCopy
+      watch: AppCopy
       note: string
-      cta: string
     }
   }
   mods: PathCopy
   pet: PathCopy
   check: PathCopy
   bot: PathCopy
-  claude: PathCopy
+  android: PathCopy
+  watch: PathCopy
   botMap: BotMapCopy
   guide: {
     breadcrumbLabel: string
@@ -306,6 +314,8 @@ export interface TranslationShape {
     repos: {
       pet: string
       check: string
+      android: string
+      watch: string
     }
     developer: {
       text: string

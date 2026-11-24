@@ -21,10 +21,10 @@ const paths = [
     href: '/en/bot/',
   },
   {
-    title: 'Narsil in Claude',
+    title: 'Narsil for Android',
     description: 'On your phone.',
     pose: 'necesita',
-    href: '/en/mods/claude/',
+    href: '/en/android/',
     meta: '5 guides',
     detour: 'Experimental',
   },
@@ -45,7 +45,7 @@ describe('PathCards', () => {
     expect(host.querySelector('section')?.getAttribute('id')).toBe('routes')
     expect(
       cards.map((card) => card.querySelector('.path-card-link')?.getAttribute('href')),
-    ).toEqual(['/en/mods/pet/', '/en/bot/', '/en/mods/claude/'])
+    ).toEqual(['/en/mods/pet/', '/en/bot/', '/en/android/'])
     expect(
       cards.map((card) => card.querySelector('.path-card-index')?.textContent.trim() ?? null),
     ).toEqual(['2', '3', null])
@@ -92,7 +92,7 @@ describe('PathCards', () => {
 
   it('links the repository in a new tab only on cards that have one', async () => {
     const host = await render(PathCards, { props: { title: 'Paths', paths } })
-    const [pet, bot, claude] = [...host.querySelectorAll('.path-card')]
+    const [pet, bot, android] = [...host.querySelectorAll('.path-card')]
     const repo = pet.querySelector('.path-card-repo')
 
     expect(repo?.getAttribute('href')).toBe('https://github.com/example/pet')
@@ -100,7 +100,7 @@ describe('PathCards', () => {
     expect(repo?.getAttribute('rel')).toBe('noopener')
     expect(repo?.textContent.trim()).toBe('See pet on GitHub')
     expect(bot.querySelector('.path-card-repo')).toBeNull()
-    expect(claude.querySelector('.path-card-repo')).toBeNull()
+    expect(android.querySelector('.path-card-repo')).toBeNull()
   })
 
   it('names the section by its heading and renders the subtitle and Narsil guide only when provided', async () => {

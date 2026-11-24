@@ -47,7 +47,7 @@ pnpm check          # format + lint + typecheck + test + build
 ## Architecture
 
 - `src/pages/` — file-based routing only. Thin route adapters; their logic lives in `src/utils/`. Never put spec files here (a spec would become a route).
-- `src/pages/[locale]/` — home (`index.astro`) and `support.astro`. Guides (`mods/`, `bot/`) and tools arrive in later phases.
+- `src/pages/[locale]/` — home (`index.astro`) and `support.astro`. Guides live in `mods/`, `bot/`, and the experimental `android/` and `watch/` paths; tools in `tools/`. Old `/mods/claude/*` URLs redirect to `android/` in `vercel.json`.
 - `src/layouts/BaseLayout.astro` — document shell: meta, Open Graph, `hreflang`, JSON-LD, analytics, landmarks. `src/layouts/SiteLayout.astro` adds the header navigation, language selector, theme toggle, and footer (coffee button and Anthropic trademark notice).
 - `src/components/ui/` — reusable primitives, one folder each (`Button/Button.astro`, `button.css`, `button.spec.ts`).
 - `src/components/sections/` — landing blocks (Hero, Features, Header, Footer) and `LanguageSelector` (a JavaScript-free `<details>` disclosure, rendered in the header bar and in the mobile menu). `src/components/layout/` — structural chrome.

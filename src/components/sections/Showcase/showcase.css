@@ -89,6 +89,16 @@
   border-radius: 1.75rem;
 }
 
+.showcase-frame-watch {
+  max-width: 16rem;
+  padding: var(--spacing-3);
+  border-radius: 9999px;
+}
+
+.showcase-frame-watch img {
+  border-radius: 9999px;
+}
+
 .showcase-caption {
   @apply flex max-w-sm flex-col gap-2 text-center;
 }

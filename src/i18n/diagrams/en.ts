@@ -38,12 +38,18 @@ export const enDiagrams: DiagramCopy = {
       { title: 'Add the head', text: 'The UART link and the holographic face.' },
       { title: 'Lock it down', text: 'Every secret, where it lives, and how to revoke it.' },
     ],
-    claude: [
-      { title: 'What it is', text: 'An extension that brings Narsil into claude.ai on Android.' },
-      { title: 'The band', text: 'Narsil’s state above the message box.' },
-      { title: 'The side menu', text: 'Your Narsil level, your limits, and ntfy messages.' },
-      { title: 'The look', text: 'Narsil’s colors and icon.' },
-      { title: 'Ship it', text: 'One source, two Android packages.' },
+    android: [
+      { title: 'What it is', text: 'An app that brings claude.ai and Narsil’s alerts together.' },
+      { title: 'Host Claude', text: 'A WebView, the page scripts, and where each link goes.' },
+      { title: 'Inside the page', text: 'The band and the side menu with your limits.' },
+      { title: 'The look', text: 'Narsil’s colors, light by day and dark by night.' },
+      { title: 'Alerts', text: 'Native notifications from ntfy, sealed with your key.' },
+    ],
+    watch: [
+      { title: 'What it is', text: 'Your limits and conversations on a Wear OS watch.' },
+      { title: 'Read the state', text: 'The mod’s ntfy topic, parsed and unsealed.' },
+      { title: 'On the watch face', text: 'A tile with two rings and a complication.' },
+      { title: 'The app', text: 'Every conversation, the setup, and the 15-minute refresh.' },
     ],
   },
   botMap: {

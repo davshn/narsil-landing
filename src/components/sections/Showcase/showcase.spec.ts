@@ -26,6 +26,16 @@ const items = [
     width: 390,
     height: 844,
   },
+  {
+    title: 'On your wrist',
+    text: 'Limits on the watch.',
+    alt: 'The watch app',
+    frame: 'watch',
+    light: '/watch-light.png',
+    dark: '/watch-dark.png',
+    width: 480,
+    height: 480,
+  },
 ]
 
 describe('Showcase', () => {
@@ -35,9 +45,12 @@ describe('Showcase', () => {
 
     expect(
       figures.map((figure) => figure.querySelector('.showcase-caption-title')?.textContent),
-    ).toEqual(['The floating window', 'On your phone'])
+    ).toEqual(['The floating window', 'On your phone', 'On your wrist'])
     expect(
       figures[1].querySelector('.showcase-frame')?.classList.contains('showcase-frame-phone'),
+    ).toBe(true)
+    expect(
+      figures[2].querySelector('.showcase-frame')?.classList.contains('showcase-frame-watch'),
     ).toBe(true)
   })
 

@@ -10,6 +10,7 @@ import {
   parseGuideId,
   routeHref,
   sourceLabel,
+  sourceLicenses,
   sourceUrl,
 } from '../guides'
 
@@ -43,6 +44,8 @@ describe('routeHref and guideHref', () => {
     expect(routeHref('es', 'pet')).toBe('/es/mods/pet/')
     expect(routeHref('fr', 'check')).toBe('/fr/mods/check/')
     expect(routeHref('pt', 'bot')).toBe('/pt/bot/')
+    expect(routeHref('it', 'android')).toBe('/it/android/')
+    expect(routeHref('en', 'watch')).toBe('/en/watch/')
     expect(guideHref('it', 'mods', 'the-dollar-object')).toBe('/it/mods/the-dollar-object/')
     expect(guideHref('en', 'pet', 'states')).toBe('/en/mods/pet/states/')
   })
@@ -103,6 +106,8 @@ describe('sourceLabel', () => {
   it('names the repository and the path', () => {
     expect(sourceLabel({ repo: 'pet', path: 'hooks/xp.ts' })).toBe('narsil-pet/hooks/xp.ts')
     expect(sourceLabel({ repo: 'check', path: 'hooks/git.ts' })).toBe('narsil-check/hooks/git.ts')
+    expect(sourceLabel({ repo: 'android', path: 'README.md' })).toBe('narsil-android/README.md')
+    expect(sourceLabel({ repo: 'watch', path: 'README.md' })).toBe('narsil-watch/README.md')
   })
 })
 
@@ -114,5 +119,43 @@ describe('sourceUrl', () => {
     expect(sourceUrl({ repo: 'check', path: 'hooks/osv.ts' })).toBe(
       'https://github.com/davshn/narsil-check/blob/main/hooks/osv.ts',
     )
+    expect(sourceUrl({ repo: 'watch', path: 'app/build.gradle.kts' })).toBe(
+      'https://github.com/davshn/narsil-watch/blob/main/app/build.gradle.kts',
+    )
+  })
+})
+
+describe('sourceLicenses', () => {
+  it('names each license once, in the order the sources first use it', () => {
+    expect(
+      sourceLicenses(
+        [
+          { repo: 'pet', path: 'hooks/phone.ts' },
+          { repo: 'watch', path: 'README.md' },
+        ],
+        'en',
+      ),
+    ).toBe('GPL v3')
+    expect(
+      sourceLicenses(
+        [
+          { repo: 'android', path: 'README.md' },
+          { repo: 'pet', path: 'hooks/seal.ts' },
+        ],
+        'en',
+      ),
+    ).toBe('MIT and GPL v3')
+  })
+
+  it('joins the licenses in the language of the page', () => {
+    expect(
+      sourceLicenses(
+        [
+          { repo: 'android', path: 'README.md' },
+          { repo: 'check', path: 'hooks/osv.ts' },
+        ],
+        'es',
+      ),
+    ).toBe('MIT y GPL v3')
   })
 })

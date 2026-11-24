@@ -1,7 +1,7 @@
 import { guideRoutes, type GuideRoute, type GuideSource } from '@content/schema'
 import { isLocale, type Locale } from '@i18n/index'
 
-import { REPOSITORIES } from './repositories'
+import { REPOSITORIES, REPOSITORY_LICENSES } from './repositories'
 
 export interface GuideLocation {
   locale: Locale
@@ -37,7 +37,8 @@ const ROUTE_PATHS: Record<GuideRoute, string> = {
   pet: 'mods/pet',
   check: 'mods/check',
   bot: 'bot',
-  claude: 'mods/claude',
+  android: 'android',
+  watch: 'watch',
 }
 
 export function routeHref(locale: Locale, route: GuideRoute): string {
@@ -84,6 +85,8 @@ export function missingTranslations(
 const REPOSITORY_NAMES: Record<GuideSource['repo'], string> = {
   pet: 'narsil-pet',
   check: 'narsil-check',
+  android: 'narsil-android',
+  watch: 'narsil-watch',
 }
 
 export function sourceLabel(source: GuideSource): string {
@@ -92,4 +95,9 @@ export function sourceLabel(source: GuideSource): string {
 
 export function sourceUrl(source: GuideSource): string {
   return `${REPOSITORIES[source.repo]}/blob/main/${source.path}`
+}
+
+export function sourceLicenses(sources: readonly GuideSource[], languageTag: string): string {
+  const licenses = [...new Set(sources.map((source) => REPOSITORY_LICENSES[source.repo]))]
+  return new Intl.ListFormat(languageTag, { type: 'conjunction' }).format(licenses)
 }
